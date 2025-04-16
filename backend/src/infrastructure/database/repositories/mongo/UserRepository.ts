@@ -16,6 +16,12 @@ export class UserRepository
   async createUser(userData: Partial<IUser>): Promise<IUser> {
     return this.create(userData); // calls BaseRepository.create()
   }
+  async updateUser(
+    userId: string,
+    updateData: Partial<IUser>
+  ): Promise<IUser | null> {
+    return this.update(userId, updateData);
+  }
 
   async findByEmail(email: string, isPassword = false): Promise<IUser | null> {
     const query = userModal.findOne({ email });
@@ -54,5 +60,13 @@ export class UserRepository
 
   async getAppliedJobs(userId: string): Promise<IUser | null> {
     return userModal.findById(userId).populate("appliedJobs");
+  }
+  async findUsers(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const users = await userModal.find().skip(skip).limit(limit).exec();
+    const totalUsers = await userModal.countDocuments();
+
+    return { users, totalUsers };
   }
 }
