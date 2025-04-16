@@ -1,6 +1,7 @@
 import { IUser } from "../../../infrastructure/database/models/user.modal";
 export interface IUserRepository {
-  createUser(arg0: { name: string; email: string; password: string }): unknown;
+  createUser(userData: Partial<IUser>): Promise<IUser>;
+
   findByEmail(email: string, isPassword?: boolean): Promise<IUser | null>;
   findById(id: string): Promise<IUser | null>;
   //   createUser(userData: Partial<IUser>): Promise<IUser>;

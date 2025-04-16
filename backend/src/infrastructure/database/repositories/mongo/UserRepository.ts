@@ -13,8 +13,8 @@ export class UserRepository
   constructor(@inject(TYPES.UserModal) userModal: Model<IUser>) {
     super(userModal);
   }
-  createUser(arg0: { name: string; email: string; password: string }): unknown {
-    throw new Error("Method not implemented.");
+  async createUser(userData: Partial<IUser>): Promise<IUser> {
+    return this.create(userData); // calls BaseRepository.create()
   }
 
   async findByEmail(email: string, isPassword = false): Promise<IUser | null> {
