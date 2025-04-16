@@ -2,6 +2,7 @@
 import jwt, { Secret } from "jsonwebtoken";
 import { injectable } from "inversify";
 import { JWT_SECRETS } from "./jwt.constants";
+import { IJWTService } from "../../core/interfaces/services/IJwtService";
 
 export interface JwtPayload {
   id: string;
@@ -10,7 +11,7 @@ export interface JwtPayload {
 }
 
 @injectable()
-export class JWTService {
+export class JWTService implements IJWTService {
   signToken(payload: JwtPayload, secret: Secret, expiresIn: any): string {
     return jwt.sign(payload, secret, { expiresIn });
   }

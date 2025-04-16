@@ -33,6 +33,16 @@ import userTempModal, {
 import PasswordResetToken, {
   IPasswordResetToken,
 } from "../infrastructure/database/models/PasswordResetToken";
+import { CompanyAuthController } from "../presentation/http/controllers/company/CompanyAuthController";
+import { CompanyAuthService } from "../infrastructure/services/company/CompanyAuthService";
+import { ICompanyAuthService } from "../core/interfaces/services/ICompanyAuthService";
+import { ICompanyAuthController } from "../core/interfaces/controllers/ICompanyAuthController";
+import companyModal, {
+  ICompany,
+} from "../infrastructure/database/models/company.modal";
+import companyTempModal, {
+  ITempCompany,
+} from "../infrastructure/database/models/company.temp.modal";
 
 const container = new Container();
 
@@ -42,6 +52,7 @@ container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
 
 container.bind<Model<IOTP>>(TYPES.OTPModal).toConstantValue(otpModal);
 container.bind<IOTPRepository>(TYPES.OTPRepository).to(OTPRepository);
+
 container
   .bind<Model<ITempUser>>(TYPES.TempUserModal)
   .toConstantValue(userTempModal);
@@ -50,8 +61,14 @@ container
   .to(TempUserRepository);
 
 container
+  .bind<Model<ICompany>>(TYPES.CompanyModal)
+  .toConstantValue(companyModal);
+container
   .bind<ICompanyRepository>(TYPES.CompanyRepository)
   .to(CompanyRepository);
+container
+  .bind<Model<ITempCompany>>(TYPES.TempCompanyModal)
+  .toConstantValue(companyTempModal);
 container
   .bind<ITempCompanyRepository>(TYPES.TempCompanyRepository)
   .to(TempCompanyRepository);
@@ -67,10 +84,21 @@ container
 // services
 container.bind<IUserAuthService>(TYPES.UserAuthService).to(UserAuthService);
 container.bind<IEmailService>(TYPES.EmailService).to(EmailService);
-container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware);
 container.bind<JWTService>(TYPES.JWTService).to(JWTService);
+// company
+container
+  .bind<ICompanyAuthService>(TYPES.CompanyAuthService)
+  .to(CompanyAuthService);
 
 // controller
-
+// user
 container.bind<IAuthController>(TYPES.AuthController).to(AuthController);
+
+// company
+container
+  .bind<ICompanyAuthController>(TYPES.CompanyAuthController)
+  .to(CompanyAuthController);
+
+// middleware
+container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware);
 export default container;

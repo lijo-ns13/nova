@@ -19,6 +19,7 @@ import crypto from "crypto";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../../di/types";
 import { IUserAuthService } from "../../../core/interfaces/services/IUserAuthService";
+import { IJWTService } from "../../../core/interfaces/services/IJwtService";
 
 @injectable()
 export class UserAuthService implements IUserAuthService {
@@ -31,7 +32,7 @@ export class UserAuthService implements IUserAuthService {
     @inject(TYPES.PasswordResetTokenRepository)
     private passwordResetTokenRepository: IPasswordResetTokenRepository,
     @inject(TYPES.JWTService)
-    private jwtService: JWTService
+    private jwtService: IJWTService
   ) {}
 
   async signUp(payload: SignupRequestDTO): Promise<SignUpResponseDTO> {

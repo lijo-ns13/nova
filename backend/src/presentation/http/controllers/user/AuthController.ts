@@ -9,11 +9,12 @@ import {
   signupRequestSchema,
 } from "../../../../core/dtos/request/user.request.dto";
 import { IAuthController } from "../../../../core/interfaces/controllers/IUserAuthService";
+import { IUserAuthService } from "../../../../core/interfaces/services/IUserAuthService";
 console.log("✅ AuthController loaded");
 
 export class AuthController implements IAuthController {
   constructor(
-    @inject(TYPES.UserAuthService) private authService: UserAuthService
+    @inject(TYPES.UserAuthService) private authService: IUserAuthService
   ) {}
   signUp = async (req: Request, res: Response) => {
     console.log("req.body", req.body);
