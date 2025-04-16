@@ -43,6 +43,13 @@ import companyModal, {
 import companyTempModal, {
   ITempCompany,
 } from "../infrastructure/database/models/company.temp.modal";
+import { Admin } from "../infrastructure/database/models/admin.modal";
+import { AdminRepository } from "../infrastructure/database/repositories/mongo/AdminRepository";
+import { IAdminRepository } from "../core/interfaces/repositories/IAdminRepository";
+import { AdminAuthService } from "../infrastructure/services/admin/AdminAuthService";
+import { IAdminAuthService } from "../core/interfaces/services/IAdminAuthService";
+import { AdminAuthController } from "../presentation/http/controllers/admin/AdminAuthController";
+import { IAdminAuthController } from "../core/interfaces/controllers/IAdminAuthController";
 
 const container = new Container();
 
@@ -81,7 +88,12 @@ container
   .bind<IPasswordResetTokenRepository>(TYPES.PasswordResetTokenRepository)
   .to(PasswordResetTokenRepository);
 
+// admin
+container.bind<IAdminRepository>(TYPES.AdminRepository).to(AdminRepository);
+container.bind(TYPES.AdminModal).toConstantValue(Admin);
+
 // services
+
 container.bind<IUserAuthService>(TYPES.UserAuthService).to(UserAuthService);
 container.bind<IEmailService>(TYPES.EmailService).to(EmailService);
 container.bind<JWTService>(TYPES.JWTService).to(JWTService);
@@ -89,7 +101,8 @@ container.bind<JWTService>(TYPES.JWTService).to(JWTService);
 container
   .bind<ICompanyAuthService>(TYPES.CompanyAuthService)
   .to(CompanyAuthService);
-
+// admin
+container.bind<IAdminAuthService>(TYPES.AdminAuthService).to(AdminAuthService);
 // controller
 // user
 container.bind<IAuthController>(TYPES.AuthController).to(AuthController);
@@ -98,7 +111,10 @@ container.bind<IAuthController>(TYPES.AuthController).to(AuthController);
 container
   .bind<ICompanyAuthController>(TYPES.CompanyAuthController)
   .to(CompanyAuthController);
-
+// admin
+container
+  .bind<IAdminAuthController>(TYPES.AdminAuthController)
+  .to(AdminAuthController);
 // middleware
 container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware);
 export default container;

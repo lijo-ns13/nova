@@ -127,7 +127,7 @@ export class UserAuthService implements IUserAuthService {
     const isMatch = await bcrypt.compare(otp, otpRecord.otp);
     if (!isMatch) throw new Error("Invalid OTP");
 
-    await this.userRepository.create({
+    await this.userRepository.createUser({
       name: tempUser.name,
       email: tempUser.email,
       password: tempUser.password,

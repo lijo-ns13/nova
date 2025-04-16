@@ -1,3 +1,4 @@
+import { IAdminAuthController } from "../../../core/interfaces/controllers/IAdminAuthController";
 import { ICompanyAuthController } from "../../../core/interfaces/controllers/ICompanyAuthController";
 import { IAuthController } from "../../../core/interfaces/controllers/IUserAuthService";
 import container from "../../../di/container";
@@ -6,6 +7,9 @@ import { Router } from "express";
 const authController = container.get<IAuthController>(TYPES.AuthController);
 const companyAuthController = container.get<ICompanyAuthController>(
   TYPES.CompanyAuthController
+);
+const adminAuthController = container.get<IAdminAuthController>(
+  TYPES.AdminAuthController
 );
 const router = Router();
 
@@ -38,5 +42,8 @@ router.post("/company/resend", (req, res) =>
 router.get("/company/logout", (req, res) =>
   companyAuthController.logout(req, res)
 );
+
+// admin
+router.post("/admin/signin", adminAuthController.signIn);
 
 export default router;

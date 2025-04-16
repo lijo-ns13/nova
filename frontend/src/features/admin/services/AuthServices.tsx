@@ -1,5 +1,5 @@
 import axios from "axios";
-const BASE_URL = "http://localhost:3000/admin/auth";
+const BASE_URL = "http://localhost:3000/auth/admin";
 export const SignInAdmin = async (email: string, password: string) => {
   try {
     const result = axios.post(

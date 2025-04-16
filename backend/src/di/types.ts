@@ -13,7 +13,8 @@ export const TYPES = {
   CompanyRepository: Symbol.for("CompanyRepository"),
   TempCompanyModal: Symbol.for("TempCompanyModal"),
   TempCompanyRepository: Symbol.for("TempCompanyRepository"),
-  AdminAuthRepository: Symbol.for("AdminAuthRepository"),
+  AdminModal: Symbol.for("AdminModal"),
+  AdminRepository: Symbol.for("AdminRepository"),
 
   // services
   UserAuthService: Symbol.for("UserAuthService"),
@@ -22,10 +23,13 @@ export const TYPES = {
   JWTService: Symbol.for("JWTService"),
   // company
   CompanyAuthService: Symbol.for("CompanyAuthService"),
-
+  // company
+  AdminAuthService: Symbol.for("AdminAuthService"),
   // controller
   // user
   AuthController: Symbol.for("AuthController"),
   // company
   CompanyAuthController: Symbol.for("CompanyAuthController"),
+  // admin
+  AdminAuthController: Symbol.for("AdminAuthController"),
 };

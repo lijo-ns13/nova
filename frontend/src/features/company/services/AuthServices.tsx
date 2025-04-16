@@ -1,6 +1,6 @@
 import axios from "axios";
 import toast from "react-hot-toast";
-const BASE_URL = "http://localhost:3000/company/auth";
+const BASE_URL = "http://localhost:3000/auth/company";
 export const signUpCompany = async (
   companyName: string,
   email: string,
