@@ -23,7 +23,7 @@ import { UserAuthService } from "../infrastructure/services/user/UserAuthService
 import { AuthMiddleware } from "../presentation/http/middlewares/auth.middleware";
 import { JWTService } from "../shared/util/jwt.service";
 import { AuthController } from "../presentation/http/controllers/user/AuthController";
-import { IAuthController } from "../core/interfaces/controllers/IUserAuthService";
+import { IAuthController } from "../core/interfaces/controllers/IUserAuthController";
 import { IUser } from "../infrastructure/database/models/user.modal";
 import { Model } from "mongoose";
 import otpModal, { IOTP } from "../infrastructure/database/models/otp.modal";
@@ -50,6 +50,18 @@ import { AdminAuthService } from "../infrastructure/services/admin/AdminAuthServ
 import { IAdminAuthService } from "../core/interfaces/services/IAdminAuthService";
 import { AdminAuthController } from "../presentation/http/controllers/admin/AdminAuthController";
 import { IAdminAuthController } from "../core/interfaces/controllers/IAdminAuthController";
+import { IJobRepository } from "../core/interfaces/repositories/IJobRepository";
+import { JobRepository } from "../infrastructure/database/repositories/mongo/JobRepository";
+import { IUserJobService } from "../core/interfaces/services/IUserJobService";
+import { UserJobService } from "../infrastructure/services/user/UserJobService";
+import { IUserJobController } from "../core/interfaces/controllers/IUserJobController";
+import { UserJobController } from "../presentation/http/controllers/user/UserJobController";
+import { IAuthMiddleware } from "../core/interfaces/middlewares/IAuthMiddleware";
+import { IJWTService } from "../core/interfaces/services/IJwtService";
+import { ICompanyJobService } from "../core/interfaces/services/ICompanyJobService";
+import { CompanyJobService } from "../infrastructure/services/company/CompanyJobService";
+import { CompanyJobController } from "../presentation/http/controllers/company/CompanyJobController";
+import { ICompanyJobController } from "../core/interfaces/controllers/ICompanyJobController";
 
 const container = new Container();
 
@@ -88,6 +100,12 @@ container
   .bind<IPasswordResetTokenRepository>(TYPES.PasswordResetTokenRepository)
   .to(PasswordResetTokenRepository);
 
+// job
+container.bind<IJobRepository>(TYPES.JobRepository).to(JobRepository);
+container.bind<IUserJobService>(TYPES.UserJobService).to(UserJobService);
+container
+  .bind<IUserJobController>(TYPES.UserJobController)
+  .to(UserJobController);
 // admin
 container.bind<IAdminRepository>(TYPES.AdminRepository).to(AdminRepository);
 container.bind(TYPES.AdminModal).toConstantValue(Admin);
@@ -96,11 +114,14 @@ container.bind(TYPES.AdminModal).toConstantValue(Admin);
 
 container.bind<IUserAuthService>(TYPES.UserAuthService).to(UserAuthService);
 container.bind<IEmailService>(TYPES.EmailService).to(EmailService);
-container.bind<JWTService>(TYPES.JWTService).to(JWTService);
+container.bind<IJWTService>(TYPES.JWTService).to(JWTService);
 // company
 container
   .bind<ICompanyAuthService>(TYPES.CompanyAuthService)
   .to(CompanyAuthService);
+container
+  .bind<ICompanyJobService>(TYPES.CompanyJobService)
+  .to(CompanyJobService);
 // admin
 container.bind<IAdminAuthService>(TYPES.AdminAuthService).to(AdminAuthService);
 // controller
@@ -111,10 +132,13 @@ container.bind<IAuthController>(TYPES.AuthController).to(AuthController);
 container
   .bind<ICompanyAuthController>(TYPES.CompanyAuthController)
   .to(CompanyAuthController);
+container
+  .bind<ICompanyJobController>(TYPES.CompanyJobController)
+  .to(CompanyJobController);
 // admin
 container
   .bind<IAdminAuthController>(TYPES.AdminAuthController)
   .to(AdminAuthController);
 // middleware
-container.bind<AuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware);
+container.bind<IAuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware);
 export default container;

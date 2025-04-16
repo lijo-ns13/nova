@@ -4,7 +4,10 @@ import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+// routers
 import authRouter from "./presentation/http/routes/auth.routes";
+import userRouter from "./presentation/http/routes/user.routes";
+import companyRouter from "./presentation/http/routes/company.routes";
 dotenv.config();
 
 const app: Application = express();
@@ -26,6 +29,8 @@ app.use(morgan("dev"));
 app.use(cookieParser());
 // user auth
 app.use("/auth", authRouter);
+app.use("/", userRouter);
+app.use("/company", companyRouter);
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({
     message: err.message || "something wrong",

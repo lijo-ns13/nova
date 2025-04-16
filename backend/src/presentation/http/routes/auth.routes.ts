@@ -1,6 +1,6 @@
 import { IAdminAuthController } from "../../../core/interfaces/controllers/IAdminAuthController";
 import { ICompanyAuthController } from "../../../core/interfaces/controllers/ICompanyAuthController";
-import { IAuthController } from "../../../core/interfaces/controllers/IUserAuthService";
+import { IAuthController } from "../../../core/interfaces/controllers/IUserAuthController";
 import container from "../../../di/container";
 import { TYPES } from "../../../di/types";
 import { Router } from "express";

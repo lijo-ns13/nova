@@ -4,11 +4,13 @@ import { Request, Response, NextFunction } from "express";
 import { JWTService } from "../../../shared/util/jwt.service";
 import { HTTP_STATUS_CODES } from "../../../core/enums/httpStatusCode";
 import { IAuthMiddleware } from "../../../core/interfaces/middlewares/IAuthMiddleware";
+import { IJWTService } from "../../../core/interfaces/services/IJwtService";
+import { TYPES } from "../../../di/types";
 
 @injectable()
 export class AuthMiddleware implements IAuthMiddleware {
   constructor(
-    @inject(JWTService) private jwtService: JWTService // If JWTService is also injected
+    @inject(TYPES.JWTService) private jwtService: IJWTService // If JWTService is also injected
   ) {}
 
   authenticate(role: "user" | "admin" | "company") {
