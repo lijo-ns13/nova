@@ -70,6 +70,12 @@ import { IAdminCompanyManagementController } from "../core/interfaces/controller
 import { AdminCompanyManagementController } from "../presentation/http/controllers/admin/AdminCompanyManagementController";
 import { IAdminCompanyManagementService } from "../core/interfaces/services/IAdminCompanyManagementService ";
 import { AdminCompanyManagementService } from "../infrastructure/services/admin/AdminCompanyManagementService";
+import { ISkillRepository } from "../core/interfaces/repositories/ISkillRepository";
+import { SkillRepository } from "../infrastructure/database/repositories/mongo/SkillRepository";
+import { SkillController } from "../presentation/http/controllers/admin/SkillController";
+import { ISkillService } from "../core/interfaces/services/ISkillService";
+import { SkillService } from "../infrastructure/services/admin/SkillService";
+import { ISkillController } from "../core/interfaces/controllers/ISkillController";
 
 const container = new Container();
 
@@ -107,6 +113,7 @@ container
 container
   .bind<IPasswordResetTokenRepository>(TYPES.PasswordResetTokenRepository)
   .to(PasswordResetTokenRepository);
+container.bind<ISkillRepository>(TYPES.SkillRepository).to(SkillRepository);
 
 // job
 container.bind<IJobRepository>(TYPES.JobRepository).to(JobRepository);
@@ -138,6 +145,8 @@ container
 container
   .bind<IAdminCompanyManagementService>(TYPES.AdminCompanyManagementService)
   .to(AdminCompanyManagementService);
+container.bind<ISkillService>(TYPES.SkillService).to(SkillService);
+
 // controller*********************************************
 // user
 container.bind<IAuthController>(TYPES.AuthController).to(AuthController);
@@ -161,6 +170,8 @@ container
     TYPES.AdminCompanyManagementController
   )
   .to(AdminCompanyManagementController);
+container.bind<ISkillController>(TYPES.SkillController).to(SkillController);
+
 // middleware***********************
 container.bind<IAuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware);
 

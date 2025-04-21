@@ -12,7 +12,7 @@ const AdminUserManagerController =
   );
 
 const router = Router();
-router.use(authMiddleware.authenticate("company"));
+router.use(authMiddleware.authenticate("admin"));
 
 // ==== User Management Routes ====
 router.patch("/users/block/:userId", AdminUserManagerController.blockUser);

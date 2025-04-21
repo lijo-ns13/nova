@@ -17,7 +17,7 @@ router.get(
   "/companies/unverified",
   AdminCompanyManagerController.getUnverifiedCompaniesHandler
 );
-router.use(authMiddleware.authenticate("company"));
+router.use(authMiddleware.authenticate("admin"));
 
 router.get(
   "/companies/:companyId",
