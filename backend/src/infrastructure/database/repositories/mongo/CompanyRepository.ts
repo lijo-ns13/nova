@@ -23,4 +23,45 @@ export class CompanyRepository
   async findByGoogleId(googleId: string): Promise<ICompany | null> {
     return companyModal.findOne({ googleId }).exec();
   }
+  async findById(companyId: string) {
+    return companyModal.findById(companyId);
+  }
+
+  async updateCompany(companyId: string, updateData: any) {
+    return companyModal.findByIdAndUpdate(companyId, updateData, { new: true });
+  }
+  async deleteCompany(companyId: string) {
+    const data = await companyModal.findById(companyId);
+    if (data) {
+      await companyModal.findOneAndDelete({ email: data.email });
+    }
+    return companyModal.findByIdAndDelete(companyId);
+  }
+
+  async findCompanies(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const companies = await companyModal.find().skip(skip).limit(limit).exec();
+    const totalCompanies = await companyModal.countDocuments();
+
+    return { companies, totalCompanies };
+  }
+
+  async findCompaniesByFilter(
+    filter: Record<string, any>,
+    page: number = 1,
+    limit: number = 10
+  ) {
+    const skip = (page - 1) * limit;
+
+    const companies = await companyModal
+      .find({ isVerified: false, verificationStatus: "pending" })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+    const totalCompanies = await companyModal.countDocuments(filter);
+
+    return { companies, totalCompanies };
+  }
 }

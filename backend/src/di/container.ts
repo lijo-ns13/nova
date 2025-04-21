@@ -66,6 +66,10 @@ import { IAdminUserManagementService } from "../core/interfaces/services/IAdminU
 import { AdminUserManagementService } from "../infrastructure/services/admin/AdminUserManagementService";
 import { IAdminUserManagementController } from "../core/interfaces/controllers/IAdminUserManagementController ";
 import { AdminUserManagementController } from "../presentation/http/controllers/admin/AdminUserManagementController";
+import { IAdminCompanyManagementController } from "../core/interfaces/controllers/IAdminCompanyManagementController";
+import { AdminCompanyManagementController } from "../presentation/http/controllers/admin/AdminCompanyManagementController";
+import { IAdminCompanyManagementService } from "../core/interfaces/services/IAdminCompanyManagementService ";
+import { AdminCompanyManagementService } from "../infrastructure/services/admin/AdminCompanyManagementService";
 
 const container = new Container();
 
@@ -131,7 +135,9 @@ container.bind<IAdminAuthService>(TYPES.AdminAuthService).to(AdminAuthService);
 container
   .bind<IAdminUserManagementService>(TYPES.AdminUserManagementService)
   .to(AdminUserManagementService);
-
+container
+  .bind<IAdminCompanyManagementService>(TYPES.AdminCompanyManagementService)
+  .to(AdminCompanyManagementService);
 // controller*********************************************
 // user
 container.bind<IAuthController>(TYPES.AuthController).to(AuthController);
@@ -150,7 +156,12 @@ container
 container
   .bind<IAdminUserManagementController>(TYPES.AdminUserManagementController)
   .to(AdminUserManagementController);
-
+container
+  .bind<IAdminCompanyManagementController>(
+    TYPES.AdminCompanyManagementController
+  )
+  .to(AdminCompanyManagementController);
 // middleware***********************
 container.bind<IAuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware);
+
 export default container;
