@@ -1,19 +1,21 @@
-import { Request, Response } from "express";
 import { IUserRepository } from "../../../../core/interfaces/repositories/IUserRepository";
 import { TYPES } from "../../../../di/types";
 import { inject } from "inversify";
 import { HTTP_STATUS_CODES } from "../../../../core/enums/httpStatusCode";
+import { Request, RequestHandler, Response } from "express";
+import { IAdminUserManagementController } from "../../../../core/interfaces/controllers/IAdminUserManagementController ";
+import { IAdminUserManagementService } from "../../../../core/interfaces/services/IAdminUserManagementService";
 export class AdminUserManagementController
   implements IAdminUserManagementController
 {
   constructor(
-    @inject(TYPES.AdminUserManagementController)
-    private adminUserManagementController: IAdminUserManagementController
+    @inject(TYPES.AdminUserManagementService)
+    private adminUserManagementService: IAdminUserManagementService
   ) {}
   blockUser: RequestHandler = async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
-      const user = await this.adminUserManagementController.blockUser(userId);
+      const user = await this.adminUserManagementService.blockUser(userId);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -31,7 +33,7 @@ export class AdminUserManagementController
   unblockUser: RequestHandler = async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
-      const user = await this.adminUserManagementController.unblockUser(userId);
+      const user = await this.adminUserManagementService.unblockUser(userId);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -51,7 +53,7 @@ export class AdminUserManagementController
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
 
-      const usersData = await this.adminUserManagementController.getUsers(
+      const usersData = await this.adminUserManagementService.getUsers(
         page,
         limit
       );

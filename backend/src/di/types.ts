@@ -17,7 +17,9 @@ export const TYPES = {
   AdminRepository: Symbol.for("AdminRepository"),
 
   JobRepository: Symbol.for("JobRepository"),
-  // services
+
+  // services**************************************
+  // user
   UserAuthService: Symbol.for("UserAuthService"),
   EmailService: Symbol.for("EmailService"),
   AuthMiddleware: Symbol.for("AuthMiddleware"),
@@ -26,9 +28,11 @@ export const TYPES = {
   // company
   CompanyAuthService: Symbol.for("CompanyAuthService"),
   CompanyJobService: Symbol.for("CompanyJobService"),
-  // company
+  // admin
   AdminAuthService: Symbol.for("AdminAuthService"),
-  // controller
+  AdminUserManagementService: Symbol.for("AdminUserManagementService"),
+
+  // controller*********************************
   // user
   AuthController: Symbol.for("AuthController"),
   UserJobController: Symbol.for("UserJobController"),
@@ -37,4 +41,5 @@ export const TYPES = {
   CompanyJobController: Symbol.for("CompanyJobController"),
   // admin
   AdminAuthController: Symbol.for("AdminAuthController"),
+  AdminUserManagementController: Symbol.for("AdminUserManagementController"),
 };

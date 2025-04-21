@@ -44,6 +44,8 @@ router.get("/company/logout", (req, res) =>
 );
 
 // admin
-router.post("/admin/signin", adminAuthController.signIn);
+router.post("/admin/signin", (req, res) =>
+  adminAuthController.signIn(req, res)
+);
 
 export default router;

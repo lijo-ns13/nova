@@ -1,4 +1,4 @@
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { TYPES } from "../../../../di/types";
 import { IAdminAuthService } from "../../../../core/interfaces/services/IAdminAuthService";
 import { IJWTService } from "../../../../core/interfaces/services/IJwtService";
@@ -6,6 +6,7 @@ import { HTTP_STATUS_CODES } from "../../../../core/enums/httpStatusCode";
 import { ZodError } from "zod";
 import { IAdminAuthController } from "../../../../core/interfaces/controllers/IAdminAuthController";
 import { Request, Response } from "express";
+@injectable()
 export class AdminAuthController implements IAdminAuthController {
   constructor(
     @inject(TYPES.AdminAuthService) private authService: IAdminAuthService
@@ -46,7 +47,7 @@ export class AdminAuthController implements IAdminAuthController {
         return;
       }
       res
-        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
         .json({ success: false, error: error.message });
     }
   }

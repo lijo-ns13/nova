@@ -62,6 +62,10 @@ import { ICompanyJobService } from "../core/interfaces/services/ICompanyJobServi
 import { CompanyJobService } from "../infrastructure/services/company/CompanyJobService";
 import { CompanyJobController } from "../presentation/http/controllers/company/CompanyJobController";
 import { ICompanyJobController } from "../core/interfaces/controllers/ICompanyJobController";
+import { IAdminUserManagementService } from "../core/interfaces/services/IAdminUserManagementService";
+import { AdminUserManagementService } from "../infrastructure/services/admin/AdminUserManagementService";
+import { IAdminUserManagementController } from "../core/interfaces/controllers/IAdminUserManagementController ";
+import { AdminUserManagementController } from "../presentation/http/controllers/admin/AdminUserManagementController";
 
 const container = new Container();
 
@@ -110,7 +114,7 @@ container
 container.bind<IAdminRepository>(TYPES.AdminRepository).to(AdminRepository);
 container.bind(TYPES.AdminModal).toConstantValue(Admin);
 
-// services
+// services**************************
 
 container.bind<IUserAuthService>(TYPES.UserAuthService).to(UserAuthService);
 container.bind<IEmailService>(TYPES.EmailService).to(EmailService);
@@ -124,7 +128,11 @@ container
   .to(CompanyJobService);
 // admin
 container.bind<IAdminAuthService>(TYPES.AdminAuthService).to(AdminAuthService);
-// controller
+container
+  .bind<IAdminUserManagementService>(TYPES.AdminUserManagementService)
+  .to(AdminUserManagementService);
+
+// controller*********************************************
 // user
 container.bind<IAuthController>(TYPES.AuthController).to(AuthController);
 
@@ -139,6 +147,10 @@ container
 container
   .bind<IAdminAuthController>(TYPES.AdminAuthController)
   .to(AdminAuthController);
-// middleware
+container
+  .bind<IAdminUserManagementController>(TYPES.AdminUserManagementController)
+  .to(AdminUserManagementController);
+
+// middleware***********************
 container.bind<IAuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware);
 export default container;
