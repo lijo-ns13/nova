@@ -76,6 +76,10 @@ import { SkillController } from "../presentation/http/controllers/admin/SkillCon
 import { ISkillService } from "../core/interfaces/services/ISkillService";
 import { SkillService } from "../infrastructure/services/admin/SkillService";
 import { ISkillController } from "../core/interfaces/controllers/ISkillController";
+import { UserProfileController } from "../presentation/http/controllers/user/UserProfileController";
+import { IUserProfileService } from "../core/interfaces/services/IUserProfileService";
+import { UserProfileService } from "../infrastructure/services/user/UserProfileService";
+import { IUserProfileController } from "../core/interfaces/controllers/IUserProfileController";
 
 const container = new Container();
 
@@ -130,6 +134,9 @@ container.bind(TYPES.AdminModal).toConstantValue(Admin);
 container.bind<IUserAuthService>(TYPES.UserAuthService).to(UserAuthService);
 container.bind<IEmailService>(TYPES.EmailService).to(EmailService);
 container.bind<IJWTService>(TYPES.JWTService).to(JWTService);
+container
+  .bind<IUserProfileService>(TYPES.UserProfileService)
+  .to(UserProfileService);
 // company
 container
   .bind<ICompanyAuthService>(TYPES.CompanyAuthService)
@@ -150,7 +157,9 @@ container.bind<ISkillService>(TYPES.SkillService).to(SkillService);
 // controller*********************************************
 // user
 container.bind<IAuthController>(TYPES.AuthController).to(AuthController);
-
+container
+  .bind<IUserProfileController>(TYPES.UserProfileController)
+  .to(UserProfileController);
 // company
 container
   .bind<ICompanyAuthController>(TYPES.CompanyAuthController)

@@ -131,11 +131,12 @@ export class JobRepository implements IJobRepository {
   }
 
   async getJob(jobId: string) {
+    console.log("jobId from jobrepo getJob..", jobId);
     return jobModal
       .find({
         status: "open",
         _id: jobId,
-        applicationDeadline: { $gte: new Date() },
+        // applicationDeadline: { $gte: new Date() },
       })
       .populate([
         { path: "skillsRequired" },

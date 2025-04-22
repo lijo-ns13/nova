@@ -76,6 +76,12 @@ export class UserJobController implements IUserJobController {
   getSavedJobs: RequestHandler = async (req: Request, res: Response) => {
     try {
       const user = req.user as Userr;
+      if (!user) {
+        res
+          .status(HTTP_STATUS_CODES.BAD_REQUEST)
+          .json({ success: false, messge: "user id is not ofund" });
+        return;
+      }
       const savedJobs = await this.jobService.getSavedJobs(user.id);
       res.status(HTTP_STATUS_CODES.OK).json(savedJobs);
     } catch (error: any) {

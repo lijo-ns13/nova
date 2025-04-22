@@ -72,25 +72,26 @@ const UpdateJobForm: React.FC<Props> = ({ jobId, onSuccess }) => {
           if (!success) {
             toast.error("error occured");
           }
-          console.log("current job", job);
-          setTitle(job.title);
-          setLocation(job.location);
-          setJobType(job.jobType);
-          setEmploymentType(job.employmentType);
-          setDescription(job.description);
+          console.log("current job in updateform", job[0]);
+          setTitle(job[0].title);
+          setLocation(job[0].location);
+          setJobType(job[0].jobType);
+          setEmploymentType(job[0].employmentType);
+          setDescription(job[0].description);
           setSkillsRequired(
-            job.skillsRequired.map((skill: any) => skill.title).join(",")
+            job[0].skillsRequired.map((skill: any) => skill.title).join(",")
           );
-          setExperienceLevel(job.experienceLevel);
-          setApplicationDeadline(job.applicationDeadline.split("T")[0]);
+          setExperienceLevel(job[0].experienceLevel);
+          setApplicationDeadline(job[0].applicationDeadline.split("T")[0]);
           setSalary({
-            currency: job.salary.currency,
-            min: job.salary.min.toString(),
-            max: job.salary.max.toString(),
-            isVisibleToApplicants: job.salary.isVisibleToApplicants,
+            currency: job[0].salary.currency,
+            min: job[0].salary.min.toString(),
+            max: job[0].salary.max.toString(),
+            isVisibleToApplicants: job[0].salary.isVisibleToApplicants,
           });
-          setBenefits(job.benefits.join(", "));
+          setBenefits(job[0].benefits.join(", "));
         } catch (error) {
+          console.log("erroro in updatejobform", error);
           toast.error("Failed to load job data");
         } finally {
           setIsLoading(false);

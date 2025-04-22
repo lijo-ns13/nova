@@ -50,7 +50,8 @@ function JobDetailedPage() {
   async function fetchJob(jobId: string) {
     try {
       const data = await JobService.getJob(jobId);
-      setJob(data.job);
+      console.log("Job=>", data.job);
+      setJob(data.job[0]);
     } catch (err) {
       setError("Failed to fetch job details.");
       console.error(err);

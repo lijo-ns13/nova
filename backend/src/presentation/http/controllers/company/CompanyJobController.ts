@@ -266,6 +266,7 @@ export class CompanyJobController implements ICompanyJobController {
           .json({ success: false, message: "job not found detailed" });
         return;
       }
+      console.log("result", result);
       res.status(HTTP_STATUS_CODES.OK).json({ success: true, job: result });
     } catch (err: any) {
       res

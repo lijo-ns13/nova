@@ -45,15 +45,19 @@ export const unsaveJob = async (jobId: string) => {
 
 // Get all saved jobs
 export const getSavedJobs = async () => {
-  const response = await userAxios.get(`${API_BASE_URL}/saved-jobs`, {
-    withCredentials: true,
-  });
+  const response = await userAxios.get(
+    `http://localhost:3000/jobs/saved-jobs`,
+    {
+      withCredentials: true,
+    }
+  );
+  console.log("responsedata in getSavedJobs", response.data);
   return response.data;
 };
 
 // Get all applied jobs
 export const getAppliedJobs = async () => {
-  const response = await userAxios.get(`${API_BASE_URL}/applied-jobs`, {
+  const response = await userAxios.get(`${API_BASE_URL}/jobs/applied-jobs`, {
     withCredentials: true,
   });
   return response.data;

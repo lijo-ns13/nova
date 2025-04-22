@@ -25,6 +25,7 @@ export const TYPES = {
   AuthMiddleware: Symbol.for("AuthMiddleware"),
   JWTService: Symbol.for("JWTService"),
   UserJobService: Symbol.for("UserJobService"),
+  UserProfileService: Symbol.for("UserProfileService"),
   // company
   CompanyAuthService: Symbol.for("CompanyAuthService"),
   CompanyJobService: Symbol.for("CompanyJobService"),
@@ -37,6 +38,7 @@ export const TYPES = {
   // user
   AuthController: Symbol.for("AuthController"),
   UserJobController: Symbol.for("UserJobController"),
+  UserProfileController: Symbol.for("UserProfileController"),
   // company
   CompanyAuthController: Symbol.for("CompanyAuthController"),
   CompanyJobController: Symbol.for("CompanyJobController"),
