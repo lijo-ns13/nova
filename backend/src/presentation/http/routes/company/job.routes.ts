@@ -1,5 +1,3 @@
-import { IUserJobController } from "../../../../core/interfaces/controllers/IUserJobController";
-
 import { Router } from "express";
 import container from "../../../../di/container";
 import { TYPES } from "../../../../di/types";

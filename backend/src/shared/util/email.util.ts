@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 
 export const sendOTPEmail = async (to: string, otp: string): Promise<void> => {
-    let transporter = nodemailer.createTransport({
+    const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 465, // or use 587 for TLS (with secure: false)
         secure: true, // true for 465, false for 587

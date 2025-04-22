@@ -33,7 +33,7 @@ app.use("/auth", authRouter);
 app.use("/", userRouter);
 app.use("/admin", adminRouter);
 app.use("/company", companyRouter);
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+app.use((err: Error, _req: Request, res: Response) => {
   res.status(500).json({
     message: err.message || "something wrong",
   });

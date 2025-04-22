@@ -6,7 +6,7 @@ export const sendPasswordResetEmail = async (
 ): Promise<void> => {
   const resetURL = `http://localhost:5173/reset-password?token=${token}`;
 
-  let transporter = nodemailer.createTransport({
+  const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
     secure: true, // true for 465, false for 587

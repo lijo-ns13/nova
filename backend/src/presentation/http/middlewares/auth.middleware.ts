@@ -1,7 +1,6 @@
 // src/middlewares/auth.middleware.ts
 import { inject, injectable } from "inversify";
 import { Request, Response, NextFunction } from "express";
-import { JWTService } from "../../../shared/util/jwt.service";
 import { HTTP_STATUS_CODES } from "../../../core/enums/httpStatusCode";
 import { IAuthMiddleware } from "../../../core/interfaces/middlewares/IAuthMiddleware";
 import { IJWTService } from "../../../core/interfaces/services/IJwtService";
