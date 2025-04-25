@@ -72,14 +72,31 @@ import { IAdminCompanyManagementService } from "../core/interfaces/services/IAdm
 import { AdminCompanyManagementService } from "../infrastructure/services/admin/AdminCompanyManagementService";
 import { ISkillRepository } from "../core/interfaces/repositories/ISkillRepository";
 import { SkillRepository } from "../infrastructure/database/repositories/mongo/SkillRepository";
-import { SkillController } from "../presentation/http/controllers/admin/SkillController";
-import { ISkillService } from "../core/interfaces/services/ISkillService";
-import { SkillService } from "../infrastructure/services/admin/SkillService";
-import { ISkillController } from "../core/interfaces/controllers/ISkillController";
+import { AdminSkillController } from "../presentation/http/controllers/admin/AdminSkillController";
+import { IAdminSkillService } from "../core/interfaces/services/IAdminSkillService";
+import { AdminSkillService } from "../infrastructure/services/admin/AdminSkillService";
+import { IAdminSkillController } from "../core/interfaces/controllers/IAdminSkillController";
 import { UserProfileController } from "../presentation/http/controllers/user/UserProfileController";
 import { IUserProfileService } from "../core/interfaces/services/IUserProfileService";
 import { UserProfileService } from "../infrastructure/services/user/UserProfileService";
 import { IUserProfileController } from "../core/interfaces/controllers/IUserProfileController";
+import { SkillService } from "../infrastructure/services/SkillService";
+import { ISkillService } from "../core/interfaces/services/ISkillService";
+import { SkillController } from "../presentation/http/controllers/SkillController";
+import { ISkillController } from "../core/interfaces/controllers/ISkillController";
+import { IPostRepository } from "../core/interfaces/repositories/IPostRepository";
+import { PostRepository } from "../infrastructure/database/repositories/mongo/PostRepository";
+import { ICommentRepository } from "../core/interfaces/repositories/ICommentRepository";
+import { CommentRepository } from "../infrastructure/database/repositories/mongo/CommentRepository";
+import { ILikeRepository } from "../core/interfaces/repositories/ILikeRepository";
+import { LikeRepository } from "../infrastructure/database/repositories/mongo/LikeRepository";
+import { IMediaRepository } from "../core/interfaces/repositories/IMediaRepository";
+import { MediaRepository } from "../infrastructure/database/repositories/mongo/MediaRepository";
+import { IPostService } from "../core/interfaces/services/Post/IPostService";
+import { PostService } from "../infrastructure/services/user/PostService";
+import { IMediaService } from "../core/interfaces/services/Post/IMediaService";
+import { Types } from "aws-sdk/clients/acm";
+import { MediaService } from "../infrastructure/services/user/MediaService";
 
 const container = new Container();
 
@@ -125,6 +142,14 @@ container.bind<IUserJobService>(TYPES.UserJobService).to(UserJobService);
 container
   .bind<IUserJobController>(TYPES.UserJobController)
   .to(UserJobController);
+// post
+container.bind<IPostRepository>(TYPES.PostRepository).to(PostRepository);
+container
+  .bind<ICommentRepository>(TYPES.CommentRepository)
+  .to(CommentRepository);
+container.bind<ILikeRepository>(TYPES.LikeRepository).to(LikeRepository);
+container.bind<IMediaRepository>(TYPES.MediaRepository).to(MediaRepository);
+
 // admin
 container.bind<IAdminRepository>(TYPES.AdminRepository).to(AdminRepository);
 container.bind(TYPES.AdminModal).toConstantValue(Admin);
@@ -152,7 +177,14 @@ container
 container
   .bind<IAdminCompanyManagementService>(TYPES.AdminCompanyManagementService)
   .to(AdminCompanyManagementService);
-container.bind<ISkillService>(TYPES.SkillService).to(SkillService);
+container
+  .bind<IAdminSkillService>(TYPES.AdminSkillService)
+  .to(AdminSkillService);
+// post
+container.bind<IPostService>(TYPES.PostService).to(PostService);
+// container.bind<ICommentService>(TYPES.CommentService).to(CommentService);
+// container.bind<ILikeService>(TYPES.LikeService).to(LikeService);
+container.bind<IMediaService>(TYPES.MediaService).to(MediaService);
 
 // controller*********************************************
 // user
@@ -160,6 +192,12 @@ container.bind<IAuthController>(TYPES.AuthController).to(AuthController);
 container
   .bind<IUserProfileController>(TYPES.UserProfileController)
   .to(UserProfileController);
+// post
+// container.bind<IPostController>(TYPES.PostController).to(PostController);
+// container.bind<ICommentController>(TYPES.CommentController).to(CommentController);
+// container.bind<ILikeController>(TYPES.LikeController).to(LikeController);
+// container.bind<IMediaController>(TYPES.MediaController)>to(MediaController);
+
 // company
 container
   .bind<ICompanyAuthController>(TYPES.CompanyAuthController)
@@ -179,9 +217,16 @@ container
     TYPES.AdminCompanyManagementController
   )
   .to(AdminCompanyManagementController);
-container.bind<ISkillController>(TYPES.SkillController).to(SkillController);
+container
+  .bind<IAdminSkillController>(TYPES.AdminSkillController)
+  .to(AdminSkillController);
 
 // middleware***********************
 container.bind<IAuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware);
 
+// common
+// ********************************// service
+container.bind<ISkillService>(TYPES.SkillService).to(SkillService);
+// ********************************// controller
+container.bind<ISkillController>(TYPES.SkillController).to(SkillController);
 export default container;

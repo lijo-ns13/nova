@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from "react";
 import clsx from "clsx";
-import { createJobSchema, CreateJobInput } from "../../util/jobValidtors";
+import { createJobSchema } from "../../util/jobValidtors";
 import { JobService } from "../../services/jobServices";
 import toast from "react-hot-toast";
 
@@ -65,7 +65,11 @@ const CreateJobForm: React.FC<Props> = ({ onSuccess }) => {
   ) => {
     setSalary((prev) => ({ ...prev, [field]: value }));
   };
+  const fetchSkills = async (query: string) => {
+    const res = await fetch(`/skills?query=${query}`);
 
+    return res.json();
+  };
   const handleSubmit = async (e: FormEvent) => {
     console.log("clikced");
     e.preventDefault();
@@ -112,39 +116,6 @@ const CreateJobForm: React.FC<Props> = ({ onSuccess }) => {
       setIsSubmitting(false);
     }
   };
-
-  // const FormSection = ({
-  //   title,
-  //   children,
-  // }: {
-  //   title: string;
-  //   children: React.ReactNode;
-  // }) => (
-  //   <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
-  //     <h2 className="text-lg font-semibold text-gray-800 mb-4">{title}</h2>
-  //     <div className="space-y-4">{children}</div>
-  //   </div>
-  // );
-
-  // const FormField = ({
-  //   label,
-  //   required = true,
-  //   children,
-  //   error,
-  // }: {
-  //   label: string;
-  //   required?: boolean;
-  //   children: React.ReactNode;
-  //   error?: string;
-  // }) => (
-  //   <div className="space-y-1">
-  //     <label className="block text-sm font-medium text-gray-700">
-  //       {label} {required && <span className="text-red-500">*</span>}
-  //     </label>
-  //     {children}
-  //     {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-  //   </div>
-  // );
 
   const inputClasses = (hasError: boolean) =>
     clsx(

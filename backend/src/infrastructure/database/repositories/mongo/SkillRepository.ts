@@ -34,4 +34,9 @@ export class SkillRepository implements ISkillRepository {
   async getByTitle(title: string): Promise<ISkill | null> {
     return await skillModal.findOne({ title: title });
   }
+  async searchSkills(query: string, limit = 10): Promise<string[]> {
+    const regex = new RegExp(`^${query}`, "i"); // ^ anchors to start of string
+    const skills = await skillModal.find({ title: regex }).limit(limit);
+    return skills.map((s) => s.title);
+  }
 }

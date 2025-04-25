@@ -2,11 +2,13 @@ import { Router } from "express";
 import container from "../../../../di/container";
 import { TYPES } from "../../../../di/types";
 import { IAuthMiddleware } from "../../../../core/interfaces/middlewares/IAuthMiddleware";
-import { ISkillController } from "../../../../core/interfaces/controllers/ISkillController";
+import { IAdminSkillController } from "../../../../core/interfaces/controllers/IAdminSkillController";
 
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
-const skillController = container.get<ISkillController>(TYPES.SkillController);
+const skillController = container.get<IAdminSkillController>(
+  TYPES.AdminSkillController
+);
 
 const router = Router();
 router.use(authMiddleware.authenticate("admin"));

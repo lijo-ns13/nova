@@ -2,10 +2,10 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../../di/types";
 import { ISkill } from "../../database/models/skill.modal";
 import { ISkillRepository } from "../../../core/interfaces/repositories/ISkillRepository";
-import { ISkillService } from "../../../core/interfaces/services/ISkillService";
+import { IAdminSkillService } from "../../../core/interfaces/services/IAdminSkillService";
 
 @injectable()
-export class SkillService implements ISkillService {
+export class AdminSkillService implements IAdminSkillService {
   constructor(
     @inject(TYPES.SkillRepository)
     private skillRepository: ISkillRepository

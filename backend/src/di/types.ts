@@ -18,6 +18,11 @@ export const TYPES = {
 
   JobRepository: Symbol.for("JobRepository"),
   SkillRepository: Symbol.for("SkillRepository"),
+  //                   post related
+  PostRepository: Symbol.for("PostRepository"),
+  CommentRepository: Symbol.for("CommentRepository"),
+  LikeRepository: Symbol.for("LikeRepository"),
+  MediaRepository: Symbol.for("MediaRepository"),
   // services**************************************
   // user
   UserAuthService: Symbol.for("UserAuthService"),
@@ -26,6 +31,11 @@ export const TYPES = {
   JWTService: Symbol.for("JWTService"),
   UserJobService: Symbol.for("UserJobService"),
   UserProfileService: Symbol.for("UserProfileService"),
+  // post reltaed
+  PostService: Symbol.for("PostService"),
+  CommentService: Symbol.for("CommentService"),
+  LikeService: Symbol.for("LikeService"),
+  MediaService: Symbol.for("MediaService"),
   // company
   CompanyAuthService: Symbol.for("CompanyAuthService"),
   CompanyJobService: Symbol.for("CompanyJobService"),
@@ -33,12 +43,17 @@ export const TYPES = {
   AdminAuthService: Symbol.for("AdminAuthService"),
   AdminUserManagementService: Symbol.for("AdminUserManagementService"),
   AdminCompanyManagementService: Symbol.for("AdminCompanyManagementService"),
-  SkillService: Symbol.for("SkillService"),
+  AdminSkillService: Symbol.for("AdminSkillService"),
   // controller*********************************
   // user
   AuthController: Symbol.for("AuthController"),
   UserJobController: Symbol.for("UserJobController"),
   UserProfileController: Symbol.for("UserProfileController"),
+  // pst relted
+  PostController: Symbol.for("PostController"),
+  CommentController: Symbol.for("CommentController"),
+  MediaController: Symbol.for("MediaController"),
+  LikeController: Symbol.for("LikeController"),
   // company
   CompanyAuthController: Symbol.for("CompanyAuthController"),
   CompanyJobController: Symbol.for("CompanyJobController"),
@@ -48,5 +63,12 @@ export const TYPES = {
   AdminCompanyManagementController: Symbol.for(
     "AdminCompanyManagementController"
   ),
+  AdminSkillController: Symbol.for("AdminSkillController"),
+
+  // common***********************
+
+  // ********************************// service
+  SkillService: Symbol.for("SkillService"),
+  // ********************************// controller
   SkillController: Symbol.for("SkillController"),
 };

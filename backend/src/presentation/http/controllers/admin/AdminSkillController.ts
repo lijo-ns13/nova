@@ -4,13 +4,14 @@ import { inject, injectable } from "inversify";
 import { HTTP_STATUS_CODES } from "../../../../core/enums/httpStatusCode";
 import { Request, RequestHandler, Response } from "express";
 
-import { ISkillService } from "../../../../core/interfaces/services/ISkillService";
-import { ISkillController } from "../../../../core/interfaces/controllers/ISkillController";
+import { IAdminSkillController } from "../../../../core/interfaces/controllers/IAdminSkillController";
+import { IAdminSkillService } from "../../../../core/interfaces/services/IAdminSkillService";
+
 @injectable()
-export class SkillController implements ISkillController {
+export class AdminSkillController implements IAdminSkillController {
   constructor(
-    @inject(TYPES.SkillService)
-    private skillService: ISkillService
+    @inject(TYPES.AdminSkillService)
+    private skillService: IAdminSkillService
   ) {}
   async create(req: Request, res: Response) {
     try {

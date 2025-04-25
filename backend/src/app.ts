@@ -9,6 +9,7 @@ import authRouter from "./presentation/http/routes/auth.routes";
 import userRouter from "./presentation/http/routes/user.routes";
 import companyRouter from "./presentation/http/routes/company.routes";
 import adminRouter from "./presentation/http/routes/admin.routes";
+import sharedRouter from "./presentation/http/routes/shared.routes";
 dotenv.config();
 
 const app: Application = express();
@@ -28,11 +29,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(cookieParser());
+
+app.use("/", sharedRouter);
 // user auth
 app.use("/auth", authRouter);
 app.use("/", userRouter);
 app.use("/admin", adminRouter);
 app.use("/company", companyRouter);
+
 app.use((err: Error, _req: Request, res: Response) => {
   res.status(500).json({
     message: err.message || "something wrong",
