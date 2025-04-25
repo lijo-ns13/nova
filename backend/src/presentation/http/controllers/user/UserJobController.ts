@@ -83,8 +83,10 @@ export class UserJobController implements IUserJobController {
         return;
       }
       const savedJobs = await this.jobService.getSavedJobs(user.id);
+      console.log("savedJobs", savedJobs);
       res.status(HTTP_STATUS_CODES.OK).json(savedJobs);
     } catch (error: any) {
+      console.log("errror in savedjbos get", error);
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
         .json({ message: error.message });

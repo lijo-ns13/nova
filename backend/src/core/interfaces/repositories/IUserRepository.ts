@@ -1,3 +1,4 @@
+import { IJob } from "../../../infrastructure/database/models/job.modal";
 import { IUser } from "../../../infrastructure/database/models/user.modal";
 import { IUserCertificate } from "../../../infrastructure/database/models/userCertificate.model";
 import { IUserEducation } from "../../../infrastructure/database/models/userEducation.model";
@@ -17,8 +18,10 @@ export interface IUserRepository {
   addToAppliedJobs(userId: string, jobId: string): Promise<void>;
   addToSavedJobs(userId: string, jobId: string): Promise<void>;
   removeFromSavedJobs(userId: string, jobId: string): Promise<void>;
-  getSavedJobs(userId: string): Promise<IUser | null>;
-  getAppliedJobs(userId: string): Promise<IUser | null>;
+  getSavedJobs(userId: string): Promise<(IUser & { savedJobs: IJob[] }) | null>;
+  getAppliedJobs(
+    userId: string
+  ): Promise<(IUser & { appliedJobs: IJob[] }) | null>;
 
   // User management
   findUsers(

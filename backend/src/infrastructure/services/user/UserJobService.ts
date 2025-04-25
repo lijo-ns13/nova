@@ -28,14 +28,18 @@ export class UserJobService implements IUserJobService {
     await this.userRepository.addToAppliedJobs(userId, jobId);
     return job;
   }
-  async getSavedJobs(userId: string): Promise<any> {
+  async getSavedJobs(userId: string): Promise<IJob[]> {
+    if (!userId) throw new Error("user id not found");
     console.log("userId in getSavedJob ->service", userId);
     const user = await this.userRepository.getSavedJobs(userId);
-    return user?.savedJobs || [];
+    if (!user) throw new Error("REpository realted error");
+    console.log("getSavedJobs in Service", user?.savedJobs);
+    return user?.savedJobs;
   }
 
-  async getAppliedJobs(userId: string): Promise<any> {
+  async getAppliedJobs(userId: string): Promise<IJob[]> {
     const user = await this.userRepository.getAppliedJobs(userId);
+    console.log("getApplidJobs in Service", user?.appliedJobs);
     return user?.appliedJobs || [];
   }
 

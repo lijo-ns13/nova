@@ -27,7 +27,7 @@ export default function AddEducationModal({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-
+  console.log("touched", touched);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -109,7 +109,7 @@ export default function AddEducationModal({
     }
 
     // Format validations
-    if (formData.grade && !/^[A-Za-z0-9./% -]+$/.test(formData.grade)) {
+    if (formData.grade && !/^[A-Za-z0-9.-]+$/.test(formData.grade)) {
       newErrors.grade = "Invalid grade format";
     }
 

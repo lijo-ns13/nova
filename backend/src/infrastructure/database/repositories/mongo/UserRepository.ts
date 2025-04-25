@@ -15,6 +15,7 @@ import userExperienceModel, {
 import userEducationModel, {
   IUserEducation,
 } from "../../models/userEducation.model";
+import { IJob } from "../../models/job.modal";
 @injectable()
 export class UserRepository
   extends BaseRepository<IUser>
@@ -64,15 +65,23 @@ export class UserRepository
     });
   }
 
-  async getSavedJobs(userId: string): Promise<IUser | null> {
-    const user = await userModal.findById(userId).lean();
-    console.log("no user in repo");
-    if (!user || !user.savedJobs) return null;
-    return userModal.findById(userId).populate("savedJobs");
+  async getSavedJobs(
+    userId: string
+  ): Promise<(IUser & { savedJobs: IJob[] }) | null> {
+    const user = await userModal.findById(userId).populate("savedJobs").lean(); // <- this converts the final result to a plain object
+
+    return user as (IUser & { savedJobs: IJob[] }) | null;
   }
 
-  async getAppliedJobs(userId: string): Promise<IUser | null> {
-    return userModal.findById(userId).populate("appliedJobs");
+  async getAppliedJobs(
+    userId: string
+  ): Promise<(IUser & { appliedJobs: IJob[] }) | null> {
+    const user = await userModal
+      .findById(userId)
+      .populate("appliedJobs")
+      .lean(); // <- this converts the final result to a plain object
+
+    return user as (IUser & { appliedJobs: IJob[] }) | null;
   }
   async findUsers(page: number, limit: number) {
     const skip = (page - 1) * limit;

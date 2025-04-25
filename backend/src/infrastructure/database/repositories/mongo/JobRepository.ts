@@ -131,7 +131,7 @@ export class JobRepository implements IJobRepository {
   }
 
   async getJob(jobId: string) {
-    console.log("jobId from jobrepo getJob..", jobId);
+    // console.log("jobId from jobrepo getJob..", jobId);
     return jobModal
       .find({
         status: "open",

@@ -15,15 +15,15 @@ router.use(authMiddleware.authenticate("user"));
 
 // Get all jobs
 router.get("/jobs", jobController.getAllJobs);
-
+// Get all jobs the user has applied to
+router.get("/jobs/applied-jobs", jobController.getAppliedJobs);
+// Get all jobs saved by the user
+router.get("/jobs/saved-jobs", jobController.getSavedJobs);
 // Get a specific job by ID
 router.get("/jobs/:jobId", jobController.getJob);
 
 // Apply to a job
 router.post("/jobs/:jobId/apply", jobController.applyToJob);
-
-// Get all jobs saved by the user
-router.get("/jobs/saved-jobs", jobController.getSavedJobs);
 
 // Save a job
 router.post("/jobs/:jobId/save", jobController.saveJob);
@@ -31,6 +31,4 @@ router.post("/jobs/:jobId/save", jobController.saveJob);
 // Unsave a job
 router.delete("/jobs/:jobId/unsave", jobController.unsaveJob);
 
-// Get all jobs the user has applied to
-router.get("/jobs/applied-jobs", jobController.getAppliedJobs);
 export default router;
