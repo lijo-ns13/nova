@@ -2,7 +2,7 @@ import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface IMedia extends Document {
   _id: Types.ObjectId;
-  url: string;
+  s3Key: string; // store object key, not URL
   mimeType: "image/jpeg" | "image/png" | "video/mp4";
   type: "image" | "video";
   ownerId: Types.ObjectId;
@@ -11,7 +11,7 @@ export interface IMedia extends Document {
 
 const MediaSchema = new Schema<IMedia>(
   {
-    url: { type: String, required: true },
+    s3Key: { type: String, required: true, index: true },
     mimeType: {
       type: String,
       required: true,
