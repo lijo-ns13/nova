@@ -15,5 +15,5 @@ export interface IPostService {
   getAllPost(
     page: number,
     limit: number
-  ): Promise<IPostServiceResponsePaginated[]>;
+  ): Promise<IPostServiceResponsePaginated>;
 }
