@@ -7,5 +7,6 @@ export interface IMediaService {
     ownerId: string,
     ownerModel: "User" | "Company"
   ): Promise<string[]>; // return media IDs
+  getMediaUrl(s3Key: string): Promise<string>;
   deleteMedia(mediaIds: string[]): Promise<void>;
 }

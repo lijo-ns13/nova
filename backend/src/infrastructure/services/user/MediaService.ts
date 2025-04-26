@@ -74,8 +74,8 @@ export class MediaService implements IMediaService {
           return mediaDoc._id.toString();
         })
       );
-    } catch (error) {
-      throw new Error(`Media upload failed: `);
+    } catch (error: any) {
+      throw new Error(`Media upload failed:${error.message} `);
     }
   }
 

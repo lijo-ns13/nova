@@ -97,6 +97,9 @@ import { PostService } from "../infrastructure/services/user/PostService";
 import { IMediaService } from "../core/interfaces/services/Post/IMediaService";
 import { Types } from "aws-sdk/clients/acm";
 import { MediaService } from "../infrastructure/services/user/MediaService";
+import { PostController } from "../presentation/http/controllers/user/PostController";
+import { IPostController } from "../core/interfaces/controllers/post/IPostController";
+import postModal, { IPost } from "../infrastructure/database/models/post.modal";
 
 const container = new Container();
 
@@ -143,6 +146,7 @@ container
   .bind<IUserJobController>(TYPES.UserJobController)
   .to(UserJobController);
 // post
+container.bind<Model<IPost>>(TYPES.postModal).toConstantValue(postModal);
 container.bind<IPostRepository>(TYPES.PostRepository).to(PostRepository);
 container
   .bind<ICommentRepository>(TYPES.CommentRepository)
@@ -193,7 +197,7 @@ container
   .bind<IUserProfileController>(TYPES.UserProfileController)
   .to(UserProfileController);
 // post
-// container.bind<IPostController>(TYPES.PostController).to(PostController);
+container.bind<IPostController>(TYPES.PostController).to(PostController);
 // container.bind<ICommentController>(TYPES.CommentController).to(CommentController);
 // container.bind<ILikeController>(TYPES.LikeController).to(LikeController);
 // container.bind<IMediaController>(TYPES.MediaController)>to(MediaController);

@@ -23,6 +23,8 @@ export const TYPES = {
   CommentRepository: Symbol.for("CommentRepository"),
   LikeRepository: Symbol.for("LikeRepository"),
   MediaRepository: Symbol.for("MediaRepository"),
+
+  postModal: Symbol.for("postModal"),
   // services**************************************
   // user
   UserAuthService: Symbol.for("UserAuthService"),

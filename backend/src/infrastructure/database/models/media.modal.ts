@@ -4,7 +4,6 @@ export interface IMedia extends Document {
   _id: Types.ObjectId;
   s3Key: string; // store object key, not URL
   mimeType: "image/jpeg" | "image/png" | "video/mp4";
-  type: "image" | "video";
   ownerId: Types.ObjectId;
   ownerModel: "User" | "Company";
 }
@@ -16,11 +15,6 @@ const MediaSchema = new Schema<IMedia>(
       type: String,
       required: true,
       enum: ["image/jpeg", "image/png", "video/mp4"],
-    },
-    type: {
-      type: String,
-      required: true,
-      enum: ["image", "video"],
     },
     ownerId: {
       type: Schema.Types.ObjectId,

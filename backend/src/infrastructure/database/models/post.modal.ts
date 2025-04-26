@@ -1,9 +1,8 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
+import { IUser } from "./user.modal";
 
 export interface IPost extends Document {
-  creatorId: Types.ObjectId;
-  creatorName: string;
-  creatorAvatar?: string;
+  creatorId: IUser | Types.ObjectId;
   mediaIds: Types.ObjectId[];
   description?: string;
   isDeleted: boolean;
@@ -19,8 +18,6 @@ const PostSchema = new Schema<IPost>(
       required: true,
       index: true,
     },
-    creatorName: { type: String, required: true },
-    creatorAvatar: { type: String },
     mediaIds: [{ type: Schema.Types.ObjectId, ref: "Media" }],
     description: { type: String, trim: true },
     isDeleted: { type: Boolean, default: false },
