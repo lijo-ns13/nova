@@ -43,9 +43,9 @@ const UserRoutes = () => {
         {/* we can write other user routes like dahsboard,profeliall proetected */}
         <Route path="feed" element={<FeedPage />} />
         <Route path="jobs" element={<JobPage />} />
-        <Route path="jobs/:jobId" element={<JobDetailedPage />} />
         <Route path="applied-jobs" element={<AppliedJobsPage />} />
         <Route path="saved-jobs" element={<SavedJobsPage />} />
+        <Route path="jobs/:jobId" element={<JobDetailedPage />} />
       </Route>
       {/* Protected + no user layout */}
       <Route

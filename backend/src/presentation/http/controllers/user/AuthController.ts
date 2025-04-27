@@ -35,7 +35,7 @@ export class AuthController implements IAuthController {
           .json({ success: false, errors: errObj });
       } else {
         res
-          .status(500)
+          .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
           .json({ success: false, error: error.message, some: "other error" });
       }
     }

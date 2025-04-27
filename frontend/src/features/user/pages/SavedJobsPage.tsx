@@ -94,7 +94,6 @@ const SavedJobsPage: React.FC = () => {
               showSaveButton={true}
               isSaved={true}
               onSaveToggle={() => handleUnsaveJob(job._id)}
-              showStatus={false}
             />
           ))}
         </div>
