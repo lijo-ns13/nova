@@ -58,7 +58,11 @@ export class PostService {
       // Map media IDs to signed URLs
       const mediaUrls = await Promise.all(
         post.mediaIds.map(async (media: any) => {
-          return await this._mediaService.getMediaUrl(media.s3Key);
+          const mediaUrl = await this._mediaService.getMediaUrl(media.s3Key);
+          return {
+            mediaUrl: mediaUrl,
+            mimeType: media.mimeType,
+          };
         })
       );
       const postData: IPostServiceResponse = {
@@ -66,6 +70,7 @@ export class PostService {
         creatorId: post.creatorId,
         description: post.description,
         mediaUrls: mediaUrls,
+        createdAt: new Date(post.createdAt).toISOString(),
       };
       // Include media URLs and user data in the post data
 
@@ -90,7 +95,13 @@ export class PostService {
         posts.map(async (post: any) => {
           const mediaUrls = await Promise.all(
             post.mediaIds.map(async (media: any) => {
-              return await this._mediaService.getMediaUrl(media.s3Key);
+              const mediaUrl = await this._mediaService.getMediaUrl(
+                media.s3Key
+              );
+              return {
+                mediaUrl: mediaUrl,
+                mimeType: media.mimeType,
+              };
             })
           );
 
@@ -99,6 +110,7 @@ export class PostService {
             creatorId: post.creatorId,
             description: post.description,
             mediaUrls: mediaUrls,
+            createdAt: new Date(post.createdAt).toISOString(),
           };
         })
       );

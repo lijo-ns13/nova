@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Date, Types } from "mongoose";
 import { IUser } from "../../infrastructure/database/models/user.modal";
 
 interface creatorIdUser {
@@ -35,7 +35,8 @@ export interface IPostServiceResponse {
   _id: string | Types.ObjectId; // Ensure _id is a string, not unknown
   creatorId: Types.ObjectId | IUser; // Assuming creatorId should also be a string
   description?: string; // Optional description
-  mediaUrls: string[];
+  mediaUrls: { mediaUrl: string; mimeType: string }[];
+  createdAt: string;
 }
 
 export interface IPostServiceResponsePaginated {
