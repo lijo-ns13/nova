@@ -10,6 +10,7 @@ import userRouter from "./presentation/http/routes/user.routes";
 import companyRouter from "./presentation/http/routes/company.routes";
 import adminRouter from "./presentation/http/routes/admin.routes";
 import sharedRouter from "./presentation/http/routes/shared.routes";
+import googleRouter from "./presentation/http/routes/google.routes";
 dotenv.config();
 
 const app: Application = express();
@@ -29,7 +30,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(cookieParser());
-
+app.use("/api/auth", googleRouter);
 app.use("/", sharedRouter);
 // user auth
 app.use("/auth", authRouter);
