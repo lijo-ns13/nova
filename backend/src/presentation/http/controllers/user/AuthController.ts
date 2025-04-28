@@ -1,6 +1,6 @@
 import { inject } from "inversify";
 import { Request, Response } from "express";
-import { UserAuthService } from "../../../../infrastructure/services/user/UserAuthService";
+import { UserAuthService } from "../../../../application/services/user/UserAuthService";
 import { HTTP_STATUS_CODES } from "../../../../core/enums/httpStatusCode";
 import { ZodError } from "zod";
 import { TYPES } from "../../../../di/types";

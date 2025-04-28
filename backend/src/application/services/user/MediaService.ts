@@ -7,7 +7,9 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { IMediaService } from "../../../core/interfaces/services/Post/IMediaService";
-import mediaModal, { IMedia } from "../../database/models/media.modal";
+import mediaModal, {
+  IMedia,
+} from "../../../infrastructure/database/models/media.modal";
 import { v4 as uuidv4 } from "uuid";
 import { Types } from "mongoose";
 

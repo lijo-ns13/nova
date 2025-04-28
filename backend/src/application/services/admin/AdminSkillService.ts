@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../../di/types";
-import { ISkill } from "../../database/models/skill.modal";
+import { ISkill } from "../../../infrastructure/database/models/skill.modal";
 import { ISkillRepository } from "../../../core/interfaces/repositories/ISkillRepository";
 import { IAdminSkillService } from "../../../core/interfaces/services/IAdminSkillService";
 

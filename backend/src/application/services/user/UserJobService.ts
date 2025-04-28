@@ -2,7 +2,7 @@ import { inject } from "inversify";
 import { IUserRepository } from "../../../core/interfaces/repositories/IUserRepository";
 import { IUserJobService } from "../../../core/interfaces/services/IUserJobService";
 import { TYPES } from "../../../di/types";
-import { IJob } from "../../database/models/job.modal";
+import { IJob } from "../../../infrastructure/database/models/job.modal";
 import { IJobRepository } from "../../../core/interfaces/repositories/IJobRepository";
 
 export class UserJobService implements IUserJobService {

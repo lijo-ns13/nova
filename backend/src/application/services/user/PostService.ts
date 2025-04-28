@@ -3,8 +3,10 @@ import { IPostRepository } from "../../../core/interfaces/repositories/IPostRepo
 import { Types } from "mongoose";
 import { TYPES } from "../../../di/types";
 import { IMediaService } from "../../../core/interfaces/services/Post/IMediaService";
-import postModal, { IPost } from "../../database/models/post.modal";
-import { IMedia } from "../../database/models/media.modal";
+import postModal, {
+  IPost,
+} from "../../../infrastructure/database/models/post.modal";
+import { IMedia } from "../../../infrastructure/database/models/media.modal";
 import {
   IPostServiceResponse,
   IPostServiceResponsePaginated,

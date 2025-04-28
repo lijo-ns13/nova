@@ -1,11 +1,11 @@
 import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../../core/interfaces/repositories/IUserRepository";
 import { TYPES } from "../../../di/types";
-import { IUser } from "../../database/models/user.modal";
-import { IUserEducation } from "../../database/models/userEducation.model";
-import { IUserExperience } from "../../database/models/userExperience.model";
-import { IUserProject } from "../../database/models/userProject.model";
-import { IUserCertificate } from "../../database/models/userCertificate.model";
+import { IUser } from "../../../infrastructure/database/models/user.modal";
+import { IUserEducation } from "../../../infrastructure/database/models/userEducation.model";
+import { IUserExperience } from "../../../infrastructure/database/models/userExperience.model";
+import { IUserProject } from "../../../infrastructure/database/models/userProject.model";
+import { IUserCertificate } from "../../../infrastructure/database/models/userCertificate.model";
 import { IUserProfileService } from "../../../core/interfaces/services/IUserProfileService";
 
 @injectable()
