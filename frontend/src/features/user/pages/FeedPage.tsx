@@ -1,7 +1,15 @@
+import CreatePostSection from "../componets/post/CreatePostSection";
+
 function FeedPage() {
+  const handlePostSubmit = () => {
+    console.log("Post submitted!");
+    // Later: refresh feed, send to backend, etc
+  };
+
   return (
     <>
-      <h2>feed page</h2>
+      <h1>feed page</h1>
+      <CreatePostSection onPostSubmit={handlePostSubmit} />
     </>
   );
 }

@@ -5,7 +5,6 @@ import {
   deleteCertificate,
 } from "../../services/ProfileService";
 import { useAppSelector } from "../../../../hooks/useAppSelector";
-import EditCertficateModal from "./Forms/EditCertficateModal";
 
 interface Certificate {
   _id: string;

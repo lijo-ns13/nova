@@ -23,11 +23,12 @@ const s3 = new S3Client({
 export class MediaService implements IMediaService {
   private readonly MAX_FILE_SIZE = 1024 * 1024 * 100; // 100MB
   private readonly ALLOWED_MIME_TYPES = [
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "video/mp4",
-    "video/quicktime",
+    "image/jpeg", // JPEG image
+    "image/png", // PNG image
+    "image/webp", // WebP image
+    "video/mp4", // MP4 video
+    "video/quicktime", // QuickTime video
+    "application/pdf", // PDF document
   ];
 
   async uploadMedia(

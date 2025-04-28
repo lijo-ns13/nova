@@ -4,7 +4,7 @@ import {
   addCertificate,
   editCertificate,
   deleteCertificate,
-} from "../api/certificateApi";
+} from "../../services/ProfileService";
 
 interface Certificate {
   _id?: string;

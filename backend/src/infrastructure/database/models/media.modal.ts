@@ -14,7 +14,14 @@ const MediaSchema = new Schema<IMedia>(
     mimeType: {
       type: String,
       required: true,
-      enum: ["image/jpeg", "image/png", "video/mp4"],
+      enum: [
+        "image/jpeg",
+        "image/png",
+        "video/mp4",
+        "application/pdf",
+        "video/quicktime",
+        "image/webp",
+      ],
     },
     ownerId: {
       type: Schema.Types.ObjectId,
