@@ -76,13 +76,18 @@ router.get("/google/callback", (async (req: Request, res: Response) => {
 
     const { email, name, id: googleId } = userInfo;
 
-    // Check if user already exists
     let user = await userModal.findOne({ googleId });
 
-    // Create user if not exists
     if (!user) {
-      user = new userModal({ googleId, email, name });
-      await user.save();
+      user = await userModal.findOne({ email });
+
+      if (user) {
+        user.googleId = googleId;
+        await user.save();
+      } else {
+        user = new userModal({ googleId, email, name });
+        await user.save();
+      }
     }
 
     // Generate tokens

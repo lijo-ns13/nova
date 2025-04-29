@@ -14,16 +14,19 @@ const OAuthSuccessPage = () => {
         const res = await axios.get("http://localhost:3000/api/auth/me", {
           withCredentials: true,
         });
-        const { name, email, role, profileImage, user } = res.data;
+        const { name, email, role, profilePicture, _id, user, headline } =
+          res.data;
         console.log("me res data", res.data);
         dispatch(
           login({
             name: name, // Ensure these fields are returned by SignInUser
             email: email,
             role: role,
-            profileImage: profileImage, // Adjust based on your API response,
+            profilePicture: profilePicture, // Adjust based on your API response,
             isVerified: user.isVerified,
             isBlocked: user.isBlocked,
+            id: user._id,
+            headline: headline,
           })
         );
         navigate("/feed");

@@ -26,13 +26,21 @@ interface Media {
   mediaUrl: string;
   mimeType: string;
 }
-
+export interface ILike {
+  _id: string;
+  postId: string;
+  userId:string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
 interface Post {
   _id: string;
   creatorId: User;
   description: string;
   mediaUrls: Media[];
   createdAt: string;
+  Likes: ILike[];
 }
 
 function FeedPage() {

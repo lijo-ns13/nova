@@ -8,6 +8,9 @@ import {
   FiDownload,
   FiMaximize,
 } from "react-icons/fi";
+import { useAppSelector } from "../../../../hooks/useAppSelector";
+import axios from "axios";
+import userAxios from "../../../../utils/userAxios";
 
 interface Media {
   mediaUrl: string;
@@ -19,13 +22,21 @@ interface User {
   name: string;
   profilePicture: string;
 }
-
+interface ILike {
+  _id: string;
+  postId: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
 interface Post {
   _id: string;
   creatorId: User;
   description: string;
   mediaUrls: Media[];
   createdAt: string;
+  Likes: ILike[];
 }
 
 interface PostCardProps {
@@ -33,12 +44,22 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
-  const [likeCount, setLikeCount] = useState<number>(100);
-  const [liked, setLiked] = useState<boolean>(false);
+  const { id: currentUserId } = useAppSelector((state) => state.auth);
+  const [likeCount, setLikeCount] = useState<number>(post.Likes.length);
+  const [liked, setLiked] = useState<boolean>(
+    post.Likes.some((like) => like.userId === currentUserId)
+  );
   const [expandedMedia, setExpandedMedia] = useState<string | null>(null);
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
 
-  const handleLike = () => {
+  const handleLike = async () => {
+    const res = await userAxios.post(
+      `http://localhost:3000/post/like/${post._id}`,
+      {
+        withCredentials: true,
+      }
+    );
+    console.log("res for like", res);
     setLiked(!liked);
     setLikeCount(likeCount + (liked ? -1 : 1));
   };
@@ -111,7 +132,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
       {post.mediaUrls.length > 0 && (
         <div className="relative group flex items-center justify-center gap-4">
-          {/* Left and Right Navigation for Media */}
           <button
             onClick={handlePrevMedia}
             className="absolute left-4 text-white bg-black/50 rounded-full p-2 hover:bg-black/70 transition-colors"
@@ -207,10 +227,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               />
               <span className="font-medium">{likeCount}</span>
             </button>
-            <button
-              onClick={() => console.log("hello")}
-              className="flex items-center gap-2 text-white hover:text-pink-400 transition-colors"
-            >
+            <button className="flex items-center gap-2 text-white hover:text-pink-400 transition-colors">
               <FiMessageSquare className="h-6 w-6" />
               <span className="font-medium">Comment</span>
             </button>
