@@ -22,6 +22,7 @@ export const TYPES = {
   PostRepository: Symbol.for("PostRepository"),
   CommentRepository: Symbol.for("CommentRepository"),
   LikeRepository: Symbol.for("LikeRepository"),
+  likeModal: Symbol.for("likeModal"),
   MediaRepository: Symbol.for("MediaRepository"),
 
   postModal: Symbol.for("postModal"),

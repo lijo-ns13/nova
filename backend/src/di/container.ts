@@ -100,6 +100,9 @@ import { MediaService } from "../application/services/user/MediaService";
 import { PostController } from "../presentation/http/controllers/user/PostController";
 import { IPostController } from "../core/interfaces/controllers/post/IPostController";
 import postModal, { IPost } from "../infrastructure/database/models/post.modal";
+import { LikeService } from "../application/services/user/LikeService";
+import { ILikeService } from "../core/interfaces/services/Post/ILikeService";
+import likeModal, { ILike } from "../infrastructure/database/models/like.modal";
 
 const container = new Container();
 
@@ -151,6 +154,7 @@ container.bind<IPostRepository>(TYPES.PostRepository).to(PostRepository);
 container
   .bind<ICommentRepository>(TYPES.CommentRepository)
   .to(CommentRepository);
+container.bind<Model<ILike>>(TYPES.likeModal).toConstantValue(likeModal);
 container.bind<ILikeRepository>(TYPES.LikeRepository).to(LikeRepository);
 container.bind<IMediaRepository>(TYPES.MediaRepository).to(MediaRepository);
 
@@ -187,7 +191,7 @@ container
 // post
 container.bind<IPostService>(TYPES.PostService).to(PostService);
 // container.bind<ICommentService>(TYPES.CommentService).to(CommentService);
-// container.bind<ILikeService>(TYPES.LikeService).to(LikeService);
+container.bind<ILikeService>(TYPES.LikeService).to(LikeService);
 container.bind<IMediaService>(TYPES.MediaService).to(MediaService);
 
 // controller*********************************************

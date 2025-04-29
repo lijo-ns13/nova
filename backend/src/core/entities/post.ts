@@ -1,5 +1,6 @@
 import { Date, Types } from "mongoose";
 import { IUser } from "../../infrastructure/database/models/user.modal";
+import { ILike } from "../../infrastructure/database/models/like.modal";
 
 interface creatorIdUser {
   _id: string;
@@ -31,12 +32,14 @@ export interface IUserMiniProfile {
   name: string;
   profilePicture: string;
 }
+
 export interface IPostServiceResponse {
   _id: string | Types.ObjectId; // Ensure _id is a string, not unknown
   creatorId: Types.ObjectId | IUser; // Assuming creatorId should also be a string
   description?: string; // Optional description
   mediaUrls: { mediaUrl: string; mimeType: string }[];
   createdAt: string;
+  Likes?: ILike[] | null;
 }
 
 export interface IPostServiceResponsePaginated {

@@ -56,7 +56,7 @@ export class PostService {
       // Fetch post by ID, populating mediaIds and userId fields
       const post = await this._postRepo.getPost(postId);
       if (!post) throw new Error("Post not found");
-
+      console.log("post in postservice", post);
       // Map media IDs to signed URLs
       const mediaUrls = await Promise.all(
         post.mediaIds.map(async (media: any) => {
@@ -73,6 +73,7 @@ export class PostService {
         description: post.description,
         mediaUrls: mediaUrls,
         createdAt: new Date(post.createdAt).toISOString(),
+        Likes: post.Likes,
       };
       // Include media URLs and user data in the post data
 
@@ -113,6 +114,7 @@ export class PostService {
             description: post.description,
             mediaUrls: mediaUrls,
             createdAt: new Date(post.createdAt).toISOString(),
+            Likes: post.Likes,
           };
         })
       );

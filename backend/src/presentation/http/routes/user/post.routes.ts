@@ -27,5 +27,12 @@ router.get("/post/:postId", (req, res, next) => {
 router.get("/post", (req, res, next) => {
   postController.getAllPost(req, res).catch(next); // This ensures the error is passed to Express's error handler
 });
+router.post("/post/like/:postId", (req, res, next) => {
+  postController.likeOrUnlikePost(req, res).catch(next);
+});
 
+// Get all likes for a post
+router.get("/post/like/:postId", (req, res, next) => {
+  postController.getLikesForPost(req, res).catch(next);
+});
 export default router;

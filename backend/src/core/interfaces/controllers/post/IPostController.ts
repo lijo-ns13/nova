@@ -9,4 +9,7 @@ export interface IPostController {
   // You can add more methods here, like:
   // getPostById(req: Request, res: Response): Promise<Response>;
   // deletePost(req: Request, res: Response): Promise<Response>;
+  // **like
+  likeOrUnlikePost(req: Request, res: Response): Promise<Response>;
+  getLikesForPost(req: Request, res: Response): Promise<Response>;
 }

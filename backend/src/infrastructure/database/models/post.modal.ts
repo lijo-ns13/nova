@@ -1,5 +1,6 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 import { IUser } from "./user.modal";
+import { ILike } from "./like.modal";
 
 export interface IPost extends Document {
   creatorId: IUser | Types.ObjectId;
@@ -8,6 +9,7 @@ export interface IPost extends Document {
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
+  Likes?: ILike[];
 }
 
 const PostSchema = new Schema<IPost>(
@@ -35,5 +37,9 @@ PostSchema.virtual("comments", {
   localField: "_id",
   foreignField: "postId",
 });
-
+PostSchema.virtual("Likes", {
+  ref: "Like",
+  localField: "_id",
+  foreignField: "postId",
+});
 export default mongoose.model<IPost>("Post", PostSchema);

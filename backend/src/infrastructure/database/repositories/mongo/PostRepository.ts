@@ -28,6 +28,7 @@ export class PostRepository
       .limit(limit)
       .populate("mediaIds")
       .populate("creatorId", "name profilePicture")
+      .populate({ path: "Likes" })
       .sort({ createdAt: -1 });
   }
   async totalPosts(): Promise<number> {
@@ -37,6 +38,7 @@ export class PostRepository
     return await this.model
       .findById(postId)
       .populate("mediaIds")
-      .populate("creatorId", "name profilePicture");
+      .populate("creatorId", "name profilePicture")
+      .populate({ path: "Likes" });
   }
 }

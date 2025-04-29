@@ -12,6 +12,7 @@ import { Request, Response } from "express";
 import { TYPES } from "../../../../di/types";
 import { IPostService } from "../../../../core/interfaces/services/Post/IPostService";
 import { IPostController } from "../../../../core/interfaces/controllers/post/IPostController";
+import { ILikeService } from "../../../../core/interfaces/services/Post/ILikeService";
 interface Userr {
   id: string;
   email: string;
@@ -20,7 +21,10 @@ interface Userr {
 
 @injectable()
 export class PostController implements IPostController {
-  constructor(@inject(TYPES.PostService) private _postService: IPostService) {}
+  constructor(
+    @inject(TYPES.PostService) private _postService: IPostService,
+    @inject(TYPES.LikeService) private _likeService: ILikeService
+  ) {}
 
   public async create(req: Request, res: Response) {
     try {
@@ -57,6 +61,31 @@ export class PostController implements IPostController {
       return res.status(200).json(posts);
     } catch (error: any) {
       return res.status(500).json({ error: error.message, how: "lksjfls" });
+    }
+  }
+  async likeOrUnlikePost(req: Request, res: Response) {
+    try {
+      const { postId } = req.params;
+      const userId = (req.user as Userr)?.id;
+
+      const result = await this._likeService.likeOrUnlikePost(postId, userId);
+
+      return res.status(200).json({
+        message: result.liked ? "Post liked" : "Post unliked",
+      });
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+  async getLikesForPost(req: Request, res: Response) {
+    try {
+      const { postId } = req.params;
+      const likes = await this._likeService.getLikesForPost(postId);
+
+      return res.status(200).json({ likes });
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
     }
   }
 }
