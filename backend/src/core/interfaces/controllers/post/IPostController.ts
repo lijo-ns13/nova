@@ -12,4 +12,7 @@ export interface IPostController {
   // **like
   likeOrUnlikePost(req: Request, res: Response): Promise<Response>;
   getLikesForPost(req: Request, res: Response): Promise<Response>;
+  // comment
+  createComment(req: Request, res: Response): Promise<void>;
+  getPostComments(req: Request, res: Response): Promise<void>;
 }

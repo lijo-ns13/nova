@@ -103,6 +103,8 @@ import postModal, { IPost } from "../infrastructure/database/models/post.modal";
 import { LikeService } from "../application/services/user/LikeService";
 import { ILikeService } from "../core/interfaces/services/Post/ILikeService";
 import likeModal, { ILike } from "../infrastructure/database/models/like.modal";
+import { ICommentService } from "../core/interfaces/services/ICommentService";
+import { CommentService } from "../application/services/user/CommentService";
 
 const container = new Container();
 
@@ -190,7 +192,7 @@ container
   .to(AdminSkillService);
 // post
 container.bind<IPostService>(TYPES.PostService).to(PostService);
-// container.bind<ICommentService>(TYPES.CommentService).to(CommentService);
+container.bind<ICommentService>(TYPES.CommentService).to(CommentService);
 container.bind<ILikeService>(TYPES.LikeService).to(LikeService);
 container.bind<IMediaService>(TYPES.MediaService).to(MediaService);
 

@@ -1,7 +1,26 @@
+// src/core/interfaces/repositories/ICommentRepository.ts
+import { Types } from "mongoose";
 import { IComment } from "../../../infrastructure/database/models/comment.modal";
-import { IBaseRepository } from "./IBaseRepository";
 
-export interface ICommentRepository extends IBaseRepository<IComment> {
-  findByPost(postId: string): Promise<IComment[]>;
-  findReplies(parentId: string): Promise<IComment[]>;
+export interface ICommentRepository {
+  create(comment: Partial<IComment>): Promise<IComment>;
+  findById(commentId: string): Promise<IComment | null>;
+  findByPostId(
+    postId: string,
+    page?: number,
+    limit?: number
+  ): Promise<IComment[]>;
+  findByParentId(
+    parentId: string,
+    page?: number,
+    limit?: number
+  ): Promise<IComment[]>;
+  update(
+    commentId: string,
+    updates: Partial<IComment>
+  ): Promise<IComment | null>;
+  delete(commentId: string): Promise<boolean>;
+  addLike(commentId: string, userId: string): Promise<IComment | null>;
+  removeLike(commentId: string, userId: string): Promise<IComment | null>;
+  countByPostId(postId: string): Promise<number>;
 }

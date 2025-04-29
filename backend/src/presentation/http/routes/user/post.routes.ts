@@ -35,4 +35,12 @@ router.post("/post/like/:postId", (req, res, next) => {
 router.get("/post/like/:postId", (req, res, next) => {
   postController.getLikesForPost(req, res).catch(next);
 });
+
+// comment
+router.post("/post/comment", (req, res, next) => {
+  postController.createComment(req, res).catch(next);
+});
+router.get("/post/comment/:postId", (req, res, next) => {
+  postController.getPostComments(req, res).catch(next);
+});
 export default router;

@@ -1,0 +1,214 @@
+// src/core/services/Comment/CommentService.ts
+import { injectable, inject } from "inversify";
+import { Types } from "mongoose";
+import { TYPES } from "../../../di/types";
+import {
+  ICommentService,
+  ICommentServiceResponse,
+  ICommentServiceResponsePaginated,
+} from "../../../core/interfaces/services/ICommentService";
+import { ICommentRepository } from "../../../core/interfaces/repositories/ICommentRepository";
+
+@injectable()
+export class CommentService implements ICommentService {
+  constructor(
+    @inject(TYPES.CommentRepository) private _commentRepo: ICommentRepository
+  ) {}
+
+  private mapCommentToResponse(comment: any): ICommentServiceResponse {
+    return {
+      _id: comment._id,
+      postId: comment.postId,
+      parentId: comment.parentId,
+      authorId: comment.authorId,
+      authorName: comment.authorName,
+      content: comment.content,
+      path: comment.path,
+      likes: comment.likes,
+      likeCount: comment.likeCount,
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt,
+      repliesCount: comment.repliesCount,
+    };
+  }
+
+  async createComment(
+    postId: string,
+    authorId: string,
+    authorName: string,
+    content: string,
+    parentId?: string
+  ): Promise<ICommentServiceResponse> {
+    try {
+      const path = parentId ? [new Types.ObjectId(parentId)] : [];
+
+      const comment = await this._commentRepo.create({
+        postId: new Types.ObjectId(postId),
+        parentId: parentId ? new Types.ObjectId(parentId) : null,
+        authorId: new Types.ObjectId(authorId),
+        authorName,
+        content,
+        path,
+      });
+
+      return this.mapCommentToResponse(comment);
+    } catch (error: any) {
+      throw new Error(`Failed to create comment: ${error.message}`);
+    }
+  }
+
+  async getComment(commentId: string): Promise<ICommentServiceResponse> {
+    try {
+      const comment = await this._commentRepo.findById(commentId);
+      if (!comment) throw new Error("Comment not found");
+
+      // Get replies count for this comment
+      const repliesCount = await this._commentRepo.countByPostId(commentId);
+
+      const response = this.mapCommentToResponse(comment);
+      response.repliesCount = repliesCount;
+
+      return response;
+    } catch (error: any) {
+      throw new Error(`Failed to get comment: ${error.message}`);
+    }
+  }
+
+  async getCommentsByPostId(
+    postId: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<ICommentServiceResponsePaginated> {
+    try {
+      const [comments, totalComments] = await Promise.all([
+        this._commentRepo.findByPostId(postId, page, limit),
+        this._commentRepo.countByPostId(postId),
+      ]);
+
+      // Get replies count for each comment
+      const commentsWithReplies = await Promise.all(
+        comments.map(async (comment) => {
+          const repliesCount = await this._commentRepo.countByPostId(
+            comment._id.toString()
+          );
+          const response = this.mapCommentToResponse(comment);
+          response.repliesCount = repliesCount;
+          return response;
+        })
+      );
+
+      return {
+        comments: commentsWithReplies,
+        totalComments,
+        totalPages: Math.ceil(totalComments / limit),
+        currentPage: page,
+      };
+    } catch (error: any) {
+      throw new Error(`Failed to get comments: ${error.message}`);
+    }
+  }
+
+  async getRepliesByCommentId(
+    commentId: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<ICommentServiceResponsePaginated> {
+    try {
+      const [replies, totalReplies] = await Promise.all([
+        this._commentRepo.findByParentId(commentId, page, limit),
+        this._commentRepo.countByPostId(commentId),
+      ]);
+
+      const repliesWithCounts = await Promise.all(
+        replies.map(async (reply) => {
+          const repliesCount = await this._commentRepo.countByPostId(
+            reply._id.toString()
+          );
+          const response = this.mapCommentToResponse(reply);
+          response.repliesCount = repliesCount;
+          return response;
+        })
+      );
+
+      return {
+        comments: repliesWithCounts,
+        totalComments: totalReplies,
+        totalPages: Math.ceil(totalReplies / limit),
+        currentPage: page,
+      };
+    } catch (error: any) {
+      throw new Error(`Failed to get replies: ${error.message}`);
+    }
+  }
+
+  async updateComment(
+    commentId: string,
+    content: string,
+    authorId: string
+  ): Promise<ICommentServiceResponse> {
+    try {
+      const comment = await this._commentRepo.findById(commentId);
+      if (!comment) throw new Error("Comment not found");
+
+      if (comment.authorId.toString() !== authorId) {
+        throw new Error("Unauthorized: You can only update your own comments");
+      }
+
+      const updatedComment = await this._commentRepo.update(commentId, {
+        content,
+      });
+      if (!updatedComment) throw new Error("Failed to update comment");
+
+      return this.mapCommentToResponse(updatedComment);
+    } catch (error: any) {
+      throw new Error(`Failed to update comment: ${error.message}`);
+    }
+  }
+
+  async deleteComment(commentId: string, authorId: string): Promise<boolean> {
+    try {
+      const comment = await this._commentRepo.findById(commentId);
+      if (!comment) throw new Error("Comment not found");
+
+      if (comment.authorId.toString() !== authorId) {
+        throw new Error("Unauthorized: You can only delete your own comments");
+      }
+
+      const result = await this._commentRepo.delete(commentId);
+      return result;
+    } catch (error: any) {
+      throw new Error(`Failed to delete comment: ${error.message}`);
+    }
+  }
+
+  async likeComment(
+    commentId: string,
+    userId: string
+  ): Promise<ICommentServiceResponse> {
+    try {
+      const updatedComment = await this._commentRepo.addLike(commentId, userId);
+      if (!updatedComment) throw new Error("Comment not found");
+
+      return this.mapCommentToResponse(updatedComment);
+    } catch (error: any) {
+      throw new Error(`Failed to like comment: ${error.message}`);
+    }
+  }
+
+  async unlikeComment(
+    commentId: string,
+    userId: string
+  ): Promise<ICommentServiceResponse> {
+    try {
+      const updatedComment = await this._commentRepo.removeLike(
+        commentId,
+        userId
+      );
+      if (!updatedComment) throw new Error("Comment not found");
+
+      return this.mapCommentToResponse(updatedComment);
+    } catch (error: any) {
+      throw new Error(`Failed to unlike comment: ${error.message}`);
+    }
+  }
+}
