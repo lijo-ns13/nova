@@ -2,6 +2,7 @@ import { inject } from "inversify";
 import { IUserRepository } from "../../../core/interfaces/repositories/IUserRepository";
 import { TYPES } from "../../../di/types";
 import { IAdminUserManagementService } from "../../../core/interfaces/services/IAdminUserManagementService";
+import { IUser } from "../../../infrastructure/database/models/user.modal";
 
 export class AdminUserManagementService implements IAdminUserManagementService {
   constructor(
@@ -27,22 +28,40 @@ export class AdminUserManagementService implements IAdminUserManagementService {
   }
 
   // Get users with pagination
-  async getUsers(page: number = 1, limit: number = 10) {
-    const { users, totalUsers } = await this.userRepository.findUsers(
-      page,
-      limit
-    );
+  async getUsers(page: number = 1, limit: number = 10, searchQuery?: string) {
+    try {
+      const { users, totalUsers } = await this.userRepository.findUsers(
+        page,
+        limit,
+        searchQuery
+      );
 
-    const totalPages = Math.ceil(totalUsers / limit);
+      if (!users || typeof totalUsers !== "number") {
+        throw new Error("Users or total count not found");
+      }
 
-    return {
-      users,
-      pagination: {
-        totalUsers,
-        totalPages,
-        currentPage: page,
-        usersPerPage: limit,
-      },
-    };
+      const totalPages = Math.ceil(totalUsers / limit);
+
+      return {
+        users,
+        pagination: {
+          totalUsers,
+          totalPages,
+          currentPage: page,
+          usersPerPage: limit,
+        },
+      };
+    } catch (error) {
+      throw new Error(
+        `AdminUserService.getUsers error: ${(error as Error).message}`
+      );
+    }
+  }
+
+  async searchUsers(query: string): Promise<IUser[]> {
+    if (!query.trim()) return [];
+    console.log("quesry in searachusers service", query);
+    console.log("serachUersService", this.userRepository.searchUsers(query));
+    return this.userRepository.searchUsers(query);
   }
 }

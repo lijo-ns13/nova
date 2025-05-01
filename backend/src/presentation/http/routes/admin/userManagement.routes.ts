@@ -17,6 +17,10 @@ router.use(authMiddleware.authenticate("admin"));
 // ==== User Management Routes ====
 router.patch("/users/block/:userId", AdminUserManagerController.blockUser);
 router.patch("/users/unblock/:userId", AdminUserManagerController.unblockUser);
-router.get("/users", AdminUserManagerController.getUsers);
-
+router.get("/users", (req, res) =>
+  AdminUserManagerController.getUsers(req, res)
+);
+// router.get("/users/search", (req, res) =>
+//   AdminUserManagerController.searchUsers(req, res)
+// );
 export default router;

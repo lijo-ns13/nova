@@ -26,7 +26,8 @@ export interface IUserRepository {
   // User management
   findUsers(
     page: number,
-    limit: number
+    limit: number,
+    searchQuery?: string
   ): Promise<{ users: IUser[]; totalUsers: number }>;
 
   // Profile operations
@@ -92,4 +93,7 @@ export interface IUserRepository {
     currentPassword: string,
     newPassword: string
   ): Promise<boolean>;
+
+  // serachUsers
+  searchUsers(query: string, limit?: number): Promise<IUser[]>;
 }

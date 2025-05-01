@@ -47,26 +47,45 @@ export class AdminUserManagementController
     }
   };
 
-  // Get paginated users
-  getUsers: RequestHandler = async (req: Request, res: Response) => {
+  async getUsers(req: Request, res: Response): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
+      const searchQuery = req.query.search as string | undefined;
 
       const usersData = await this.adminUserManagementService.getUsers(
         page,
-        limit
+        limit,
+        searchQuery
       );
-
+      if (!usersData) {
+        throw new Error("Service Layor not working");
+      }
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Users fetched successfully",
+        message: searchQuery
+          ? "Search results fetched successfully"
+          : "Users fetched successfully",
         data: usersData,
       });
-    } catch (error: any) {
+    } catch (error) {
+      console.error(error);
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
-  };
+  }
+  // search users
+  async searchUsers(req: Request, res: Response): Promise<void> {
+    try {
+      const query = (req.query.q as string) || "";
+      const users = await this.adminUserManagementService.searchUsers(query);
+      res.status(HTTP_STATUS_CODES.OK).json(users); // Removed 'return'
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .json({ message: "Internal Server Error" }); // Removed 'return'
+    }
+  }
 }

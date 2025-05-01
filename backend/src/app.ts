@@ -38,10 +38,9 @@ app.use("/", userRouter);
 app.use("/admin", adminRouter);
 app.use("/company", companyRouter);
 
-app.use((err: Error, _req: Request, res: Response) => {
-  res.status(500).json({
-    message: err.message || "something wrong",
-  });
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error("Global error handler:", err);
+  res.status(500).json({ message: "Internal Server Error" });
 });
 
 export default app;

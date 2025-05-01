@@ -24,6 +24,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.6.3",
     "jwt-decode": "^4.0.0",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.482.0",
     "path": "^0.12.7",
     "react": "^19.0.0",
@@ -45,6 +46,7 @@
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@tailwindcss/postcss": "^4.0.14",
+    "@types/lodash": "^4.17.16",
     "@types/node": "^22.13.10",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",

@@ -83,14 +83,7 @@ export class UserRepository
 
     return user as (IUser & { appliedJobs: IJob[] }) | null;
   }
-  async findUsers(page: number, limit: number) {
-    const skip = (page - 1) * limit;
 
-    const users = await userModal.find().skip(skip).limit(limit).exec();
-    const totalUsers = await userModal.countDocuments();
-
-    return { users, totalUsers };
-  }
   // user profile realted
   //  Get User Profile
   async getUserProfile(userId: string): Promise<IUser | null> {
@@ -383,5 +376,35 @@ export class UserRepository
     user.password = newPassword;
     await user.save();
     return true;
+  }
+  // user repositories
+  // admin serach users
+  async findUsers(page: number, limit: number, searchQuery?: string) {
+    const skip = (page - 1) * limit;
+    let query = {};
+
+    if (searchQuery && searchQuery.trim()) {
+      const regex = new RegExp(searchQuery, "i");
+      query = {
+        $or: [{ name: regex }, { email: regex }],
+      };
+    }
+
+    const users = await userModal
+      .find(query)
+      .skip(skip)
+      .limit(limit)
+      .select("-password") // Exclude password field
+      .exec();
+
+    const totalUsers = await userModal.countDocuments(query);
+
+    return { users, totalUsers };
+  }
+  // search
+  async searchUsers(query: string, limit = 10): Promise<IUser[]> {
+    const regex = new RegExp(`^${query}`, "i"); // ^ anchors to start of string
+    const users = await userModal.find({ name: regex }).limit(limit);
+    return users;
   }
 }

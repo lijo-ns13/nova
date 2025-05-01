@@ -5,7 +5,8 @@ export interface IAdminUserManagementService {
   unblockUser(userId: string): Promise<IUser | null>;
   getUsers(
     page?: number,
-    limit?: number
+    limit?: number,
+    searchQuery?: string
   ): Promise<{
     users: IUser[];
     pagination: {
@@ -15,4 +16,5 @@ export interface IAdminUserManagementService {
       usersPerPage: number;
     };
   }>;
+  searchUsers(query: string): Promise<IUser[]>;
 }
