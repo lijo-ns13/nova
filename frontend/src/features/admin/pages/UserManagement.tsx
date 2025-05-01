@@ -1,21 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getUsers, blockUser, unblockUser } from "../services/userServices";
 import { debounce } from "lodash";
-
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-  isBlocked: boolean;
-  profilePicture?: string;
-}
-
-interface Pagination {
-  totalUsers: number;
-  totalPages: number;
-  currentPage: number;
-  usersPerPage: number;
-}
+import { Pagination, User } from "../types/userTypes";
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);

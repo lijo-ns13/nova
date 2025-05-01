@@ -57,11 +57,4 @@ export class AdminUserManagementService implements IAdminUserManagementService {
       );
     }
   }
-
-  async searchUsers(query: string): Promise<IUser[]> {
-    if (!query.trim()) return [];
-    console.log("quesry in searachusers service", query);
-    console.log("serachUersService", this.userRepository.searchUsers(query));
-    return this.userRepository.searchUsers(query);
-  }
 }

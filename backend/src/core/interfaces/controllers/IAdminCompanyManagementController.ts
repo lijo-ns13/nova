@@ -1,5 +1,5 @@
 // src/core/interfaces/controllers/IAdminCompanyManagementController.ts
-import { RequestHandler } from "express";
+import { RequestHandler, Request, Response } from "express";
 
 export interface IAdminCompanyManagementController {
   getCompanyById: RequestHandler;
@@ -7,5 +7,5 @@ export interface IAdminCompanyManagementController {
   getUnverifiedCompaniesHandler: RequestHandler;
   blockCompany: RequestHandler;
   unblockCompany: RequestHandler;
-  getCompanies: RequestHandler;
+  getCompanies(req: Request, res: Response): Promise<void>;
 }

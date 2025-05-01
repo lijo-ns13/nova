@@ -14,11 +14,9 @@ export interface ICompanyRepository extends IBaseRepository<ICompany> {
 
   findCompanies(
     page: number,
-    limit: number
-  ): Promise<{
-    companies: ICompany[];
-    totalCompanies: number;
-  }>;
+    limit: number,
+    searchQuery?: string
+  ): Promise<{ companies: ICompany[]; totalCompanies: number }>;
 
   findCompaniesByFilter(
     filter: Record<string, any>,

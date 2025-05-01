@@ -1,26 +1,14 @@
 import React, { useEffect, useState } from "react";
 import adminAxios from "../../../utils/adminAxios";
+import { CompanyVerification } from "../types/types";
 
 // Types
-interface Company {
-  _id: string;
-  companyName: string;
-  email: string;
-  industryType: string;
-  foundedYear: number;
-  location: string;
-  verificationStatus: string;
-  isVerified: boolean;
-  isBlocked: boolean;
-  createdAt: string;
-  about?: string;
-  documents: string[];
-}
 
 const CompanyVerificationPage: React.FC = () => {
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [companies, setCompanies] = useState<CompanyVerification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [selectedCompany, setSelectedCompany] =
+    useState<CompanyVerification | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -44,7 +32,7 @@ const CompanyVerificationPage: React.FC = () => {
     }
   };
 
-  const openModal = (company: Company) => {
+  const openModal = (company: CompanyVerification) => {
     setSelectedCompany(company);
     setModalOpen(true);
   };

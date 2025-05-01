@@ -20,7 +20,5 @@ router.patch("/users/unblock/:userId", AdminUserManagerController.unblockUser);
 router.get("/users", (req, res) =>
   AdminUserManagerController.getUsers(req, res)
 );
-// router.get("/users/search", (req, res) =>
-//   AdminUserManagerController.searchUsers(req, res)
-// );
+
 export default router;

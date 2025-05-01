@@ -75,17 +75,4 @@ export class AdminUserManagementController
         .json({ success: false, error: (error as Error).message });
     }
   }
-  // search users
-  async searchUsers(req: Request, res: Response): Promise<void> {
-    try {
-      const query = (req.query.q as string) || "";
-      const users = await this.adminUserManagementService.searchUsers(query);
-      res.status(HTTP_STATUS_CODES.OK).json(users); // Removed 'return'
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: "Internal Server Error" }); // Removed 'return'
-    }
-  }
 }

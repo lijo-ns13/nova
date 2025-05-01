@@ -177,25 +177,33 @@ export class AdminCompanyManagementController
     }
   };
 
-  getCompanies: RequestHandler = async (req, res) => {
+  async getCompanies(req: Request, res: Response): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
+      const searchQuery = req.query.search as string | undefined;
 
-      const data = await this.adminCompanyManagementService.getCompanies(
-        page,
-        limit
-      );
-
+      const companiesData =
+        await this.adminCompanyManagementService.getCompanies(
+          page,
+          limit,
+          searchQuery
+        );
+      if (!companiesData) {
+        throw new Error("Service Layor not working");
+      }
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Companies fetched successfully",
-        data,
+        message: searchQuery
+          ? "Search results fetched successfully"
+          : "Companies fetched successfully",
+        data: companiesData,
       });
-    } catch (error: any) {
+    } catch (error) {
+      console.error(error);
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
-  };
+  }
 }

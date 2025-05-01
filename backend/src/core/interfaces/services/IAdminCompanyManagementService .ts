@@ -1,5 +1,7 @@
 // src/core/interfaces/services/IAdminCompanyManagementService.ts
 
+import { ICompany } from "../../../infrastructure/database/models/company.modal";
+
 export interface IAdminCompanyManagementService {
   deleteCompany(companyId: string): Promise<any>;
   findCompanyById(companyId: string): Promise<any>;
@@ -10,11 +12,13 @@ export interface IAdminCompanyManagementService {
   ): Promise<any>;
   blockCompany(companyId: string): Promise<any>;
   unblockCompany(companyId: string): Promise<any>;
+
   getCompanies(
     page?: number,
-    limit?: number
+    limit?: number,
+    searchQuery?: string
   ): Promise<{
-    companies: any[];
+    companies: ICompany[];
     pagination: {
       totalCompanies: number;
       totalPages: number;

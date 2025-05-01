@@ -4,5 +4,4 @@ export interface IAdminUserManagementController {
   blockUser: RequestHandler;
   unblockUser: RequestHandler;
   getUsers(req: Request, res: Response): Promise<void>;
-  searchUsers(req: Request, res: Response): Promise<void>;
 }

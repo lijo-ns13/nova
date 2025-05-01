@@ -3,13 +3,7 @@ import { SkillService } from "../services/skillServices";
 import BaseModal from "../../user/componets/modals/BaseModal";
 import { PlusCircle, Edit, Trash2, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-
-interface Skill {
-  _id: string;
-  title: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { Skill } from "../types/skills";
 
 export default function SkillList() {
   const [skills, setSkills] = useState<Skill[]>([]);

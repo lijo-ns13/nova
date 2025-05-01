@@ -38,11 +38,25 @@ export class CompanyRepository
     return companyModal.findByIdAndDelete(companyId);
   }
 
-  async findCompanies(page: number, limit: number) {
+  async findCompanies(page: number, limit: number, searchQuery?: string) {
     const skip = (page - 1) * limit;
+    let query = {};
 
-    const companies = await companyModal.find().skip(skip).limit(limit).exec();
-    const totalCompanies = await companyModal.countDocuments();
+    if (searchQuery && searchQuery.trim()) {
+      const regex = new RegExp(searchQuery, "i");
+      query = {
+        $or: [{ companyName: regex }, { email: regex }],
+      };
+    }
+
+    const companies = await companyModal
+      .find(query)
+      .skip(skip)
+      .limit(limit)
+      .select("-password") // Exclude password field
+      .exec();
+
+    const totalCompanies = await companyModal.countDocuments(query);
 
     return { companies, totalCompanies };
   }

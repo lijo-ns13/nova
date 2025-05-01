@@ -7,3 +7,10 @@ export interface ISkill {
 
 export type CreateSkillDto = Pick<ISkill, "title">;
 export type UpdateSkillDto = Partial<CreateSkillDto>;
+
+export interface Skill {
+  _id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}

@@ -16,5 +16,4 @@ export interface IAdminUserManagementService {
       usersPerPage: number;
     };
   }>;
-  searchUsers(query: string): Promise<IUser[]>;
 }

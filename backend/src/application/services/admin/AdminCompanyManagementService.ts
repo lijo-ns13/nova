@@ -54,21 +54,36 @@ export class AdminCompanyManagementService
     });
   }
 
-  async getCompanies(page: number = 1, limit: number = 10) {
-    const { companies, totalCompanies } =
-      await this.companyRepository.findCompanies(page, limit);
+  // Get users with pagination
+  async getCompanies(
+    page: number = 1,
+    limit: number = 10,
+    searchQuery?: string
+  ) {
+    try {
+      const { companies, totalCompanies } =
+        await this.companyRepository.findCompanies(page, limit, searchQuery);
 
-    const totalPages = Math.ceil(totalCompanies / limit);
+      if (!companies || typeof totalCompanies !== "number") {
+        throw new Error("Users or total count not found");
+      }
 
-    return {
-      companies,
-      pagination: {
-        totalCompanies,
-        totalPages,
-        currentPage: page,
-        companiesPerPage: limit,
-      },
-    };
+      const totalPages = Math.ceil(totalCompanies / limit);
+
+      return {
+        companies,
+        pagination: {
+          totalCompanies,
+          totalPages,
+          currentPage: page,
+          companiesPerPage: limit,
+        },
+      };
+    } catch (error) {
+      throw new Error(
+        `AdminCompanyService.getCompanies error: ${(error as Error).message}`
+      );
+    }
   }
 
   async getUnverifiedCompanies(page: number = 1, limit: number = 10) {
