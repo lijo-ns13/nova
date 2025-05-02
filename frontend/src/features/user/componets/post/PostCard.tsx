@@ -9,7 +9,7 @@ import {
   FiMaximize,
 } from "react-icons/fi";
 import { useAppSelector } from "../../../../hooks/useAppSelector";
-import axios from "axios";
+
 import userAxios from "../../../../utils/userAxios";
 
 interface Media {

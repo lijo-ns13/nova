@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import CreatePostSection from "../componets/post/CreatePostSection";
-import PostCard from "../componets/post/PostCard";
+import EnhancedPostCard from "../componets/post/EnhancedPostCard";
 import axios from "axios";
+import { useAppSelector } from "../../../hooks/useAppSelector";
 
 // Throttle function type
 function throttle<T extends (...args: any[]) => void>(func: T, limit: number) {
@@ -29,7 +30,7 @@ interface Media {
 export interface ILike {
   _id: string;
   postId: string;
-  userId:string;
+  userId: string;
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -44,10 +45,14 @@ interface Post {
 }
 
 function FeedPage() {
+  const { id } = useAppSelector((state) => state.auth);
   const [posts, setPosts] = useState<Post[]>([]); // Updated post state type
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true); // Check if more posts available
+  const [currentUserId, setCurrentUserId] = useState<string>(id); // Replace with actual user ID from auth
+
   console.log("PostsSate", posts);
+
   useEffect(() => {
     const fetchPosts = async () => {
       const res = await axios.get(`http://localhost:3000/post?page=${page}`, {
@@ -91,21 +96,25 @@ function FeedPage() {
   };
 
   return (
-    <>
-      <h1>Feed Page</h1>
+    <div className="max-w-2xl mx-auto px-4 py-6">
       <CreatePostSection onPostSubmit={handlePostSubmit} />
-      <div>
+
+      <div className="space-y-8 mt-8">
         {posts.map((post) => (
-          <PostCard key={post._id} post={post} />
+          <EnhancedPostCard
+            key={post._id}
+            post={post}
+            currentUserId={currentUserId}
+          />
         ))}
       </div>
 
       {!hasMore && (
-        <p style={{ textAlign: "center", margin: "20px" }}>
+        <p className="text-center py-6 text-gray-400 italic mt-8">
           No more posts to load!
         </p>
       )}
-    </>
+    </div>
   );
 }
 

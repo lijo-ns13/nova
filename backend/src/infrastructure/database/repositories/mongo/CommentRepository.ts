@@ -8,7 +8,12 @@ import { ICommentRepository } from "../../../../core/interfaces/repositories/ICo
 export class CommentRepository implements ICommentRepository {
   async create(comment: Partial<IComment>): Promise<IComment> {
     const newComment = await commentModal.create(comment);
-    return newComment;
+    // return newComment;
+    const populatedComment = await newComment.populate(
+      "authorId",
+      "name profilePicture"
+    );
+    return populatedComment;
   }
 
   async findById(commentId: string): Promise<IComment | null> {
@@ -26,6 +31,7 @@ export class CommentRepository implements ICommentRepository {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
+      .populate("authorId", "name profilePicture")
       .exec();
   }
 

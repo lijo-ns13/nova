@@ -74,7 +74,7 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
   return (
     <>
       {/* Post Starter Button */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 mb-6 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 mb-6 overflow-hidden w-full">
         <div className="p-4">
           <div className="flex items-center space-x-3">
             <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-400 to-blue-500 flex-shrink-0 flex items-center justify-center text-white overflow-hidden">

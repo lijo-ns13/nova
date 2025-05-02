@@ -39,15 +39,25 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
 
   // Process and add media files
   const addMediaFiles = (files: File[]) => {
-    const newMedia = files.map((file) => {
-      const isVideo = file.type.startsWith("video/");
-      return {
-        id: Math.random().toString(36).substring(2, 9),
-        file,
-        preview: URL.createObjectURL(file),
-        type: isVideo ? "video" : "image",
-      };
+    // Filter out non-image/video files
+    const validFiles = files.filter((file) => {
+      return file.type.startsWith("image/") || file.type.startsWith("video/");
     });
+
+    // Alert user about invalid files
+    if (validFiles.length < files.length) {
+      alert(
+        "Only images and videos are allowed. Other file types were ignored."
+      );
+    }
+
+    // Create media entries only for valid files
+    const newMedia = validFiles.map((file) => ({
+      id: Math.random().toString(36).substring(2, 9),
+      file,
+      preview: URL.createObjectURL(file),
+      type: file.type.startsWith("video/") ? "video" : ("image" as const),
+    }));
 
     setMedia((prev: any) => [...prev, ...newMedia]);
   };
