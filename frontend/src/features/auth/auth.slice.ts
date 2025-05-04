@@ -5,6 +5,7 @@ interface AuthState {
   isAuthenticated: boolean;
   id: string;
   name: string;
+  username: string;
   headline: string;
   email: string;
   role: string;
@@ -16,6 +17,7 @@ interface AuthState {
 const initialState: AuthState = {
   isAuthenticated: false,
   id: "",
+  username: "",
   name: "",
   email: "",
   role: "",
@@ -34,6 +36,7 @@ const authSlice = createSlice({
       action: PayloadAction<{
         id: string;
         name: string;
+        username: string;
         email: string;
         role: string;
         profilePicture?: string;
@@ -45,6 +48,7 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.id = action.payload.id;
       state.name = action.payload.name;
+      state.username = action.payload.username;
       state.email = action.payload.email;
       state.role = action.payload.role;
       state.profilePicture = action.payload.profilePicture ?? ""; // fallback if undefined
@@ -56,6 +60,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.id = "";
       state.name = "";
+      state.username = "";
       state.email = "";
       state.role = "";
       state.profilePicture = "";
@@ -69,9 +74,11 @@ const authSlice = createSlice({
         name?: string;
         headline?: string;
         profilePicture?: string;
+        username?: string;
       }>
     ) => {
       if (action.payload.name) state.name = action.payload.name;
+      if (action.payload.username) state.username = action.payload.username;
       if (action.payload.headline) state.headline = action.payload.headline;
       if (action.payload.profilePicture !== undefined) {
         state.profilePicture = action.payload.profilePicture;

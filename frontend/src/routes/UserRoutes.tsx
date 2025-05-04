@@ -16,12 +16,10 @@ import ProfilePage from "../features/user/pages/ProfilePage";
 import JobDetailedPage from "../features/user/pages/JobDetailedPage";
 import AppliedJobsPage from "../features/user/pages/AppliedJobsPage";
 import SavedJobsPage from "../features/user/pages/SavedJobsPage";
+import { useAppSelector } from "../hooks/useAppSelector";
 const UserRoutes = () => {
-  // const { name } = useAppSelector((state) => state.auth);
-  // name is Lijo N S like i want to lijo-n
-  // const modifiedName = name.toLocaleLowerCase().replace(/ /g, "-");
-  // console.log("modifiedName", modifiedName);
-  // get user role  from store here this
+  const { username } = useAppSelector((state) => state.auth);
+
   return (
     <Routes>
       {/* user auth pages */}
