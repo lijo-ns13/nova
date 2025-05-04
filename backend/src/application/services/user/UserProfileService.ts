@@ -31,10 +31,32 @@ export class UserProfileService implements IUserProfileService {
   }
 
   async updateUserProfile(userId: string, data: Partial<IUser>) {
+    if (data.username) {
+      const newUsername = data.username.trim().toLowerCase();
+
+      const isValid = /^[a-zA-Z0-9_]{3,20}$/.test(newUsername);
+      if (!isValid) {
+        throw new Error(
+          "Invalid username format. Use 3–20 letters, numbers, or underscores."
+        );
+      }
+
+      const isTaken = await this.userRepository.isUsernameTaken(
+        newUsername,
+        userId
+      );
+      if (isTaken) {
+        throw new Error("Username already exists, try another one.");
+      }
+
+      data.username = newUsername;
+    }
+
     const updated = await this.userRepository.updateUserProfile(userId, data);
     if (!updated) {
-      throw new Error("User profile update failed");
+      throw new Error("User profile update failed.");
     }
+
     return updated;
   }
 

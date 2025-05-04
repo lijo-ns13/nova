@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 export interface IUser extends Document {
   _id: Types.ObjectId;
   name: string;
-  username: String;
+  username: string;
   email: string;
   password?: string;
   profilePicture?: string;

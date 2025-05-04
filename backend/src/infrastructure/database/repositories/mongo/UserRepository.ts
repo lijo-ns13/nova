@@ -407,8 +407,14 @@ export class UserRepository
     const users = await userModal.find({ name: regex }).limit(limit);
     return users;
   }
-  async isUsernameTaken(username: string): Promise<boolean> {
-    const existingUser = await userModal.findOne({ username });
+  async isUsernameTaken(
+    username: string,
+    excludeUserId?: string
+  ): Promise<boolean> {
+    const existingUser = await userModal.findOne({
+      username,
+      _id: { $ne: excludeUserId }, // exclude the current user
+    });
     return !!existingUser;
   }
 }

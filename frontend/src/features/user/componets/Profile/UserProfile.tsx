@@ -11,6 +11,7 @@ import { useAppSelector } from "../../../../hooks/useAppSelector";
 const ProfileImage = React.lazy(() => import("./ProfileImage"));
 import { useAppDispatch } from "../../../../hooks/useAppDispatch";
 import toast from "react-hot-toast";
+import { AxiosError } from "axios";
 
 function UserProfile() {
   const dispatch = useAppDispatch();
@@ -26,7 +27,7 @@ function UserProfile() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const [formError, setFormError] = useState<string | null>(null);
   useEffect(() => {
     getUserData();
   }, []);
@@ -81,12 +82,18 @@ function UserProfile() {
         );
       }
       toast.success("Profile updated successfully");
-    } catch (error) {
-      toast.error("Profile update failed");
+    } catch (error: any) {
+      toast.error(error.response.data.message);
       console.error("Failed to update profile:", error);
-      setError("Failed to update profile. Please try again.");
+      console.log(error, "er");
+      //err.response.data.message
+      setFormError(
+        error.response.data.message ||
+          "Failed to update profile. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
+      setFormError("");
     }
   }
 
@@ -209,6 +216,12 @@ function UserProfile() {
         )}
 
         <form onSubmit={handleEditSubmit} className="flex flex-col gap-4">
+          {formError && (
+            <div className="p-3 bg-red-100 border border-red-300 text-red-800 rounded-md text-sm">
+              {formError}
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Name
