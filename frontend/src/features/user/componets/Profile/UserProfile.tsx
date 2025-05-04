@@ -20,6 +20,7 @@ function UserProfile() {
     headline: "",
     about: "",
     profilePicture: "",
+    username: "",
   });
   const [updatingUserData, setUpdatingUserData] = useState(userData);
   const [isLoading, setIsLoading] = useState(false);
@@ -41,6 +42,7 @@ function UserProfile() {
           headline: res.headline || "",
           about: res.about || "",
           profilePicture: res.profilePicture || "",
+          username: res.username,
         });
         // Initialize the form data with the same values
         setUpdatingUserData({
@@ -48,6 +50,7 @@ function UserProfile() {
           headline: res.headline || "",
           about: res.about || "",
           profilePicture: res.profilePicture || "",
+          username: res.username,
         });
       }
     } catch (error) {
@@ -225,7 +228,25 @@ function UserProfile() {
               required
             />
           </div>
-
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              username
+            </label>
+            <input
+              type="text"
+              name="username"
+              placeholder="Enter your username"
+              value={updatingUserData.username}
+              onChange={(e) =>
+                setUpdatingUserData((state) => ({
+                  ...state,
+                  username: e.target.value,
+                }))
+              }
+              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+              required
+            />
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Professional Headline
