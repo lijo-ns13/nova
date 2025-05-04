@@ -20,6 +20,7 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../../di/types";
 import { IUserAuthService } from "../../../core/interfaces/services/IUserAuthService";
 import { IJWTService } from "../../../core/interfaces/services/IJwtService";
+import { generateUsername } from "../../../shared/util/GenerateUserName";
 
 @injectable()
 export class UserAuthService implements IUserAuthService {
@@ -126,9 +127,13 @@ export class UserAuthService implements IUserAuthService {
 
     const isMatch = await bcrypt.compare(otp, otpRecord.otp);
     if (!isMatch) throw new Error("Invalid OTP");
-
+    let username = generateUsername(tempUser.name);
+    while (await this.userRepository.isUsernameTaken(username)) {
+      username = `${generateUsername(tempUser.name)}`;
+    }
     await this.userRepository.createUser({
       name: tempUser.name,
+      username: username,
       email: tempUser.email,
       password: tempUser.password,
     });
