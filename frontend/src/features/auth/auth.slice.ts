@@ -36,7 +36,7 @@ const authSlice = createSlice({
       action: PayloadAction<{
         id: string;
         name: string;
-        username: string;
+        username?: string;
         email: string;
         role: string;
         profilePicture?: string;
@@ -48,7 +48,7 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.id = action.payload.id;
       state.name = action.payload.name;
-      state.username = action.payload.username;
+      state.username = action.payload.username ?? "";
       state.email = action.payload.email;
       state.role = action.payload.role;
       state.profilePicture = action.payload.profilePicture ?? ""; // fallback if undefined
