@@ -34,6 +34,18 @@ router.get("/google", ((_req, res) => {
 
   return res.redirect(authUrl);
 }) as RequestHandler);
+async function generateUniqueUsername(baseName: string): Promise<string> {
+  const baseUsername = baseName.toLowerCase().replace(/\s+/g, "");
+  let username = baseUsername;
+  let suffix = 1;
+
+  while (await userModal.exists({ username })) {
+    username = `${baseUsername}${suffix}`;
+    suffix++;
+  }
+
+  return username;
+}
 
 /**
  * Google OAuth: Handle callback, exchange code for tokens, log in or sign up user
@@ -75,7 +87,7 @@ router.get("/google/callback", (async (req: Request, res: Response) => {
     );
 
     const { email, name, id: googleId } = userInfo;
-
+    let username = await generateUniqueUsername(name);
     let user = await userModal.findOne({ googleId });
 
     if (!user) {
@@ -85,7 +97,7 @@ router.get("/google/callback", (async (req: Request, res: Response) => {
         user.googleId = googleId;
         await user.save();
       } else {
-        user = new userModal({ googleId, email, name });
+        user = new userModal({ googleId, email, name, username });
         await user.save();
       }
     }

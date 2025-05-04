@@ -67,6 +67,7 @@ function SignInPage() {
           name: user.name, // Ensure these fields are returned by SignInUser
           email: user.email,
           role: role,
+          username: user.username,
           profilePicture: user.profilePicture, // Adjust based on your API response
           headline: user.headline,
           isBlocked: isBlocked,

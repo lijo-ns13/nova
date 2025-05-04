@@ -22,11 +22,12 @@ const OAuthSuccessPage = () => {
             name: name, // Ensure these fields are returned by SignInUser
             email: email,
             role: role,
-            profilePicture: profilePicture, // Adjust based on your API response,
+            profilePicture: user.profilePicture, // Adjust based on your API response,
             isVerified: user.isVerified,
             isBlocked: user.isBlocked,
             id: user._id,
-            headline: headline,
+            headline: user.headline,
+            username: user.username,
           })
         );
         navigate("/feed");
