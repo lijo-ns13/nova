@@ -17,6 +17,8 @@ import JobDetailedPage from "../features/user/pages/JobDetailedPage";
 import AppliedJobsPage from "../features/user/pages/AppliedJobsPage";
 import SavedJobsPage from "../features/user/pages/SavedJobsPage";
 import { useAppSelector } from "../hooks/useAppSelector";
+import ProtectedMultiRole from "./ProtectedMultiRole";
+import MainProfilePage from "../features/user/pages/MainProfilePage";
 const UserRoutes = () => {
   const { username } = useAppSelector((state) => state.auth);
 
@@ -47,13 +49,17 @@ const UserRoutes = () => {
       </Route>
       {/* Protected + no user layout */}
       <Route
-        path="user-profile"
+        path="/in/:username"
         element={
-          <Protected SpecificRole="user" redirectPath="/login">
-            <ProfilePage />
-          </Protected>
+          <ProtectedMultiRole
+            allowedRoles={["user", "admin", "company"]}
+            redirectPath="/login"
+          >
+            <MainProfilePage />
+          </ProtectedMultiRole>
         }
       ></Route>
+      {/* if same user hten his profile page if others username then there profile page just viewable not editable and also admin,company,users can view that rightnow i protexted with one orle */}
     </Routes>
   );
 };
