@@ -108,6 +108,7 @@ export class UserAuthService implements IUserAuthService {
         id: user._id,
         profilePicture: user.profilePicture,
         headline: user.headline,
+        username: user.username,
       },
       isVerified: user.isVerified,
       isBlocked: user.isBlocked,
