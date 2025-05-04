@@ -407,4 +407,8 @@ export class UserRepository
     const users = await userModal.find({ name: regex }).limit(limit);
     return users;
   }
+  async isUsernameTaken(username: string): Promise<boolean> {
+    const existingUser = await userModal.findOne({ username });
+    return !!existingUser;
+  }
 }

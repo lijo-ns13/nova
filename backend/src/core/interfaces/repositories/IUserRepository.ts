@@ -96,4 +96,5 @@ export interface IUserRepository {
 
   // serachUsers
   searchUsers(query: string, limit?: number): Promise<IUser[]>;
+  isUsernameTaken(username: string): Promise<boolean>;
 }

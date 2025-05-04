@@ -113,7 +113,7 @@ export class UserAuthService implements IUserAuthService {
     };
   }
 
-  async verifyOTP(email: string, otp: string) :Promise<{message:string}>{
+  async verifyOTP(email: string, otp: string): Promise<{ message: string }> {
     const tempUser = await this.tempUserRepository.findByEmail(email);
     if (!tempUser) throw new Error("User not found or already verified");
 
