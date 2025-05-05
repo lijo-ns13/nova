@@ -46,6 +46,7 @@ export class ProfileViewService implements IProfileViewService {
         throw new Error("User not found");
       }
       const userId = user._id;
+      console.log("userId", userId, "jldsk");
       if (!userId) {
         throw new Error("User id not found");
       }

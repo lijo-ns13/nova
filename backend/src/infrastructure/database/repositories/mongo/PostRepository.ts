@@ -3,7 +3,7 @@ import { IPostRepository } from "../../../../core/interfaces/repositories/IPostR
 import { BaseRepository } from "./BaseRepository";
 import postModal, { IPost } from "../../models/post.modal";
 import { TYPES } from "../../../../di/types";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { IPostResponse } from "../../../../core/entities/post";
 
 @injectable()

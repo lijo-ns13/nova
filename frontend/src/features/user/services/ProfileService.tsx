@@ -1,7 +1,7 @@
 import userAxios from "../../../utils/userAxios";
 
 const API_BASE_URL = "http://localhost:3000/user-profile";
-
+const BASE_URL = "http://localhost:3000";
 // User Profile
 export const getUserProfile = async (userId: string) => {
   const response = await userAxios.get(`${API_BASE_URL}/${userId}`);
@@ -184,4 +184,15 @@ export const changePassword = async (
     { withCredentials: true }
   );
   return response.data;
+};
+
+// profile view api
+
+export const getBasicUserData = async (username: string) => {
+  const res = await userAxios.get(`${BASE_URL}/api/users/${username}`);
+  return res.data;
+};
+export const getUserPostData = async (username: string) => {
+  const res = await userAxios.get(`${BASE_URL}/post/${username}`);
+  return res.data;
 };
