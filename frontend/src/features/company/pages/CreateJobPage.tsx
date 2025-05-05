@@ -2,7 +2,7 @@
 import { useState } from "react";
 import CreateJobForm from "../components/Job/CreateJobForm";
 import BigModal from "../../user/componets/modals/BigModal";
-
+import JobPostingForm from "../components/JobPostingForm";
 function CreateJobPage({ onJobCreated }: { onJobCreated: () => void }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -28,7 +28,7 @@ function CreateJobPage({ onJobCreated }: { onJobCreated: () => void }) {
         onClose={closeModal}
         title="Create New Job"
       >
-        <CreateJobForm onSuccess={handleSuccess} />
+        <JobPostingForm onSuccess={handleSuccess} />
       </BigModal>
     </>
   );
