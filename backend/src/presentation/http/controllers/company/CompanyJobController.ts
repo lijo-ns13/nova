@@ -66,7 +66,7 @@ export class CompanyJobController implements ICompanyJobController {
       res
         .status(HTTP_STATUS_CODES.CREATED)
         .json({ message: "Job created successfully", job });
-    } catch (err: any) {
+    } catch (err) {
       if (err instanceof ZodError) {
         const errObj: Record<string, string> = {};
         err.errors.forEach((err) => {
@@ -78,7 +78,7 @@ export class CompanyJobController implements ICompanyJobController {
       } else {
         res
           .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, error: err.message });
+          .json({ success: false, error: (err as Error).message });
       }
     }
   };
@@ -130,7 +130,7 @@ export class CompanyJobController implements ICompanyJobController {
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ message: "Job updated successfully", updatedJob });
-    } catch (err: any) {
+    } catch (err) {
       if (err instanceof ZodError) {
         const errObj: Record<string, string> = {};
         err.errors.forEach((err) => {
@@ -142,7 +142,7 @@ export class CompanyJobController implements ICompanyJobController {
       } else {
         res
           .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, error: err.message });
+          .json({ success: false, error: (err as Error).message });
       }
     }
   };
@@ -167,8 +167,10 @@ export class CompanyJobController implements ICompanyJobController {
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ message: "Job deleted successfully" });
-    } catch (err: any) {
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ error: err.message });
+    } catch (err) {
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ error: (err as Error).message });
     }
   };
   getJobs: RequestHandler = async (req: Request, res: Response) => {
@@ -199,10 +201,10 @@ export class CompanyJobController implements ICompanyJobController {
           totalPages: Math.ceil(total / limit),
         },
       });
-    } catch (err: any) {
+    } catch (err) {
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error: err.message });
+        .json({ success: false, error: (err as Error).message });
     }
   };
 
@@ -243,10 +245,10 @@ export class CompanyJobController implements ICompanyJobController {
           totalPages: Math.ceil(result.total / limit),
         },
       });
-    } catch (err: any) {
+    } catch (err) {
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error: err.message });
+        .json({ success: false, error: (err as Error).message });
     }
   };
   getJob: RequestHandler = async (req: Request, res: Response) => {
@@ -268,10 +270,10 @@ export class CompanyJobController implements ICompanyJobController {
       }
       console.log("result", result);
       res.status(HTTP_STATUS_CODES.OK).json({ success: true, job: result });
-    } catch (err: any) {
+    } catch (err) {
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error: err.message });
+        .json({ success: false, error: (err as Error).message });
     }
   };
 }

@@ -24,7 +24,7 @@ export class AuthController implements IAuthController {
       res
         .status(HTTP_STATUS_CODES.CREATED)
         .json({ success: true, message: "OTP sent to email", tempUser });
-    } catch (error: any) {
+    } catch (error) {
       if (error instanceof ZodError) {
         const errObj: Record<string, string> = {};
         error.errors.forEach((err) => {
@@ -36,7 +36,11 @@ export class AuthController implements IAuthController {
       } else {
         res
           .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-          .json({ success: false, error: error.message, some: "other error" });
+          .json({
+            success: false,
+            error: (error as Error).message,
+            some: "other error",
+          });
       }
     }
   };
@@ -65,7 +69,7 @@ export class AuthController implements IAuthController {
         isVerified: result.isVerified,
         isBlocked: result.isBlocked,
       });
-    } catch (error: any) {
+    } catch (error) {
       if (error instanceof ZodError) {
         const errObj: Record<string, string> = {};
         error.errors.forEach((err) => {
@@ -77,7 +81,7 @@ export class AuthController implements IAuthController {
       } else {
         res
           .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, error: error.message });
+          .json({ success: false, error: (error as Error).message });
       }
     }
   };
@@ -89,10 +93,10 @@ export class AuthController implements IAuthController {
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: result.message });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   };
 
@@ -103,10 +107,10 @@ export class AuthController implements IAuthController {
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: result.message });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   };
 
@@ -119,10 +123,10 @@ export class AuthController implements IAuthController {
         message: "Password reset token sent",
         token: result.rawToken,
       });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   };
 
@@ -133,10 +137,10 @@ export class AuthController implements IAuthController {
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: "Password reset successful" });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   };
 
@@ -147,10 +151,10 @@ export class AuthController implements IAuthController {
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: "Logged out successfully" });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   };
 }

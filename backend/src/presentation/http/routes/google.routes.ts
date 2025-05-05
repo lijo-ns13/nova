@@ -186,8 +186,8 @@ router.post("/refresh-token", (async (
 
     res.status(200).json({ message: "Access token refreshed" });
     return;
-  } catch (error: any) {
-    console.error("Error refreshing token:", error.message);
+  } catch (error) {
+    console.error("Error refreshing token:", (error as Error).message);
     res.status(401).json({ message: "Invalid or expired refresh token" });
     return;
   }
@@ -218,8 +218,8 @@ router.get("/me", (async (req: Request, res: Response) => {
       role: "user",
       user: user,
     });
-  } catch (error: any) {
-    console.error("Error getting user info:", error.message);
+  } catch (error) {
+    console.error("Error getting user info:", (error as Error).message);
     res.status(500).json({ message: "Server error" });
   }
 }) as RequestHandler);
@@ -267,8 +267,8 @@ router.get("/refresh-user", (async (req: Request, res: Response) => {
       role: "user",
       profileImage: "",
     });
-  } catch (error: any) {
-    console.error("Error in /refresh-user:", error.message);
+  } catch (error) {
+    console.error("Error in /refresh-user:", (error as Error).message);
     res.status(500).json({ message: "Server error" });
   }
 }) as RequestHandler);

@@ -35,7 +35,7 @@ export class AdminAuthController implements IAdminAuthController {
         isVerified: true,
         isBlocked: false,
       });
-    } catch (error: any) {
+    } catch (error) {
       if (error instanceof ZodError) {
         const errObj: Record<string, string> = {};
         error.errors.forEach((err) => {
@@ -48,7 +48,7 @@ export class AdminAuthController implements IAdminAuthController {
       }
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   }
 }

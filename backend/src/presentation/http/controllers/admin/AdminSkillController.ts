@@ -17,8 +17,10 @@ export class AdminSkillController implements IAdminSkillController {
     try {
       const skill = await this.skillService.create(req.body.title);
       res.status(HTTP_STATUS_CODES.CREATED).json(skill);
-    } catch (error: any) {
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ error: error.message });
+    } catch (error) {
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ error: (error as Error).message });
     }
   }
 
@@ -26,9 +28,11 @@ export class AdminSkillController implements IAdminSkillController {
     try {
       const skill = await this.skillService.update(req.params.id, req.body);
       res.status(HTTP_STATUS_CODES.OK).json(skill);
-    } catch (error: any) {
+    } catch (error) {
       // const status = error.message.includes("not found") ? 404 : 400;
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ error: error.message });
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ error: (error as Error).message });
     }
   }
 
@@ -36,9 +40,11 @@ export class AdminSkillController implements IAdminSkillController {
     try {
       await this.skillService.delete(req.params.id);
       res.status(HTTP_STATUS_CODES.OK).send();
-    } catch (error: any) {
+    } catch (error) {
       // const status = error.message.includes("not found") ? 404 : 400;
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ error: error.message });
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ error: (error as Error).message });
     }
   }
 
@@ -46,10 +52,10 @@ export class AdminSkillController implements IAdminSkillController {
     try {
       const skills = await this.skillService.getAll();
       res.status(HTTP_STATUS_CODES.OK).json(skills);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ error: error.message });
+        .json({ error: (error as Error).message });
     }
   }
 
@@ -57,8 +63,10 @@ export class AdminSkillController implements IAdminSkillController {
     try {
       const skill = await this.skillService.getById(req.params.id);
       res.status(HTTP_STATUS_CODES.OK).json(skill);
-    } catch (error: any) {
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ error: error.message });
+    } catch (error) {
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ error: (error as Error).message });
     }
   }
 }

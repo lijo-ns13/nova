@@ -52,8 +52,8 @@ export class CommentService implements ICommentService {
       });
 
       return this.mapCommentToResponse(comment);
-    } catch (error: any) {
-      throw new Error(`Failed to create comment: ${error.message}`);
+    } catch (error) {
+      throw new Error(`Failed to create comment: ${(error as Error).message}`);
     }
   }
 
@@ -69,8 +69,8 @@ export class CommentService implements ICommentService {
       response.repliesCount = repliesCount;
 
       return response;
-    } catch (error: any) {
-      throw new Error(`Failed to get comment: ${error.message}`);
+    } catch (error) {
+      throw new Error(`Failed to get comment: ${(error as Error).message}`);
     }
   }
 
@@ -103,8 +103,8 @@ export class CommentService implements ICommentService {
         totalPages: Math.ceil(totalComments / limit),
         currentPage: page,
       };
-    } catch (error: any) {
-      throw new Error(`Failed to get comments: ${error.message}`);
+    } catch (error) {
+      throw new Error(`Failed to get comments: ${(error as Error).message}`);
     }
   }
 
@@ -136,8 +136,8 @@ export class CommentService implements ICommentService {
         totalPages: Math.ceil(totalReplies / limit),
         currentPage: page,
       };
-    } catch (error: any) {
-      throw new Error(`Failed to get replies: ${error.message}`);
+    } catch (error) {
+      throw new Error(`Failed to get replies: ${(error as Error).message}`);
     }
   }
 
@@ -160,8 +160,8 @@ export class CommentService implements ICommentService {
       if (!updatedComment) throw new Error("Failed to update comment");
 
       return this.mapCommentToResponse(updatedComment);
-    } catch (error: any) {
-      throw new Error(`Failed to update comment: ${error.message}`);
+    } catch (error) {
+      throw new Error(`Failed to update comment: ${(error as Error).message}`);
     }
   }
 
@@ -176,8 +176,8 @@ export class CommentService implements ICommentService {
 
       const result = await this._commentRepo.delete(commentId);
       return result;
-    } catch (error: any) {
-      throw new Error(`Failed to delete comment: ${error.message}`);
+    } catch (error) {
+      throw new Error(`Failed to delete comment: ${(error as Error).message}`);
     }
   }
 
@@ -190,8 +190,8 @@ export class CommentService implements ICommentService {
       if (!updatedComment) throw new Error("Comment not found");
 
       return this.mapCommentToResponse(updatedComment);
-    } catch (error: any) {
-      throw new Error(`Failed to like comment: ${error.message}`);
+    } catch (error) {
+      throw new Error(`Failed to like comment: ${(error as Error).message}`);
     }
   }
 
@@ -207,8 +207,8 @@ export class CommentService implements ICommentService {
       if (!updatedComment) throw new Error("Comment not found");
 
       return this.mapCommentToResponse(updatedComment);
-    } catch (error: any) {
-      throw new Error(`Failed to unlike comment: ${error.message}`);
+    } catch (error) {
+      throw new Error(`Failed to unlike comment: ${(error as Error).message}`);
     }
   }
 }

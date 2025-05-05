@@ -22,10 +22,10 @@ export class UserJobController implements IUserJobController {
       const jobs = await this.jobService.getAllJobs();
       console.log("jobs", jobs);
       res.status(HTTP_STATUS_CODES.OK).json(jobs);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   };
   getJob: RequestHandler = async (req: Request, res: Response) => {
@@ -34,10 +34,10 @@ export class UserJobController implements IUserJobController {
       const job = await this.jobService.getJob(jobId);
       console.log("jobs", job);
       res.status(HTTP_STATUS_CODES.OK).json(job);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   };
   applyToJob: RequestHandler = async (req: Request, res: Response) => {
@@ -67,10 +67,10 @@ export class UserJobController implements IUserJobController {
         resumeUrl
       );
       res.status(HTTP_STATUS_CODES.OK).json(updatedJob);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   };
   getSavedJobs: RequestHandler = async (req: Request, res: Response) => {
@@ -85,11 +85,11 @@ export class UserJobController implements IUserJobController {
       const savedJobs = await this.jobService.getSavedJobs(user.id);
       console.log("savedJobs", savedJobs);
       res.status(HTTP_STATUS_CODES.OK).json(savedJobs);
-    } catch (error: any) {
+    } catch (error) {
       console.log("errror in savedjbos get", error);
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   };
 
@@ -98,10 +98,10 @@ export class UserJobController implements IUserJobController {
       const user = req.user as Userr;
       const appliedJobs = await this.jobService.getAppliedJobs(user.id);
       res.status(HTTP_STATUS_CODES.OK).json(appliedJobs);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   };
 
@@ -113,10 +113,10 @@ export class UserJobController implements IUserJobController {
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ message: "Job saved successfully" });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   };
 
@@ -128,10 +128,10 @@ export class UserJobController implements IUserJobController {
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ message: "Job removed from saved jobs" });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   };
 }

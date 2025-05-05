@@ -33,10 +33,10 @@ export class AdminCompanyManagementController
         success: true,
         company,
       });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   };
 
@@ -110,11 +110,11 @@ export class AdminCompanyManagementController
         success: true,
         message: `Company ${status} successfully`,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error verifying company:", error);
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   };
 
@@ -134,10 +134,10 @@ export class AdminCompanyManagementController
         message: "Unverified companies fetched successfully",
         data: result.companies,
       });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   };
 
@@ -152,10 +152,10 @@ export class AdminCompanyManagementController
         message: "Company blocked successfully",
         company,
       });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   };
 
@@ -170,10 +170,10 @@ export class AdminCompanyManagementController
         message: "Company unblocked successfully",
         company,
       });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   };
 

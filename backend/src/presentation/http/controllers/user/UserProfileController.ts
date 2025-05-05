@@ -27,10 +27,10 @@ export class UserProfileController implements IUserProfileController {
         req.params.userId
       );
       res.status(HTTP_STATUS_CODES.OK).json(user);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
 
@@ -41,10 +41,10 @@ export class UserProfileController implements IUserProfileController {
         req.body
       );
       res.status(HTTP_STATUS_CODES.OK).json(updatedUser);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
 
@@ -55,10 +55,10 @@ export class UserProfileController implements IUserProfileController {
         req.body.imageUrl
       );
       res.status(HTTP_STATUS_CODES.OK).json(updated);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
 
@@ -66,10 +66,10 @@ export class UserProfileController implements IUserProfileController {
     try {
       await this.userProfileService.deleteProfileImage(req.params.userId);
       res.status(HTTP_STATUS_CODES.OK).send();
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
 
@@ -80,10 +80,10 @@ export class UserProfileController implements IUserProfileController {
         req.body as IUserEducation
       );
       res.status(HTTP_STATUS_CODES.CREATED).json(education);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
   async editEducation(req: Request, res: Response) {
@@ -93,10 +93,10 @@ export class UserProfileController implements IUserProfileController {
         req.body as Partial<IUserEducation>
       );
       res.status(HTTP_STATUS_CODES.OK).json(updatedEducation);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
   async deleteEducation(req: Request, res: Response) {
@@ -106,10 +106,10 @@ export class UserProfileController implements IUserProfileController {
         req.params.educationId
       );
       res.status(HTTP_STATUS_CODES.OK).send();
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
 
@@ -120,10 +120,10 @@ export class UserProfileController implements IUserProfileController {
         req.body as IUserExperience
       );
       res.status(HTTP_STATUS_CODES.CREATED).json(experience);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
   async editExperience(req: Request, res: Response) {
@@ -133,10 +133,10 @@ export class UserProfileController implements IUserProfileController {
         req.body as Partial<IUserExperience>
       );
       res.status(HTTP_STATUS_CODES.OK).json(updatedExperience);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
   async deleteExperience(req: Request, res: Response) {
@@ -146,10 +146,10 @@ export class UserProfileController implements IUserProfileController {
         req.params.experienceId
       );
       res.status(HTTP_STATUS_CODES.OK).send();
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
 
@@ -160,10 +160,10 @@ export class UserProfileController implements IUserProfileController {
         req.body as IUserProject
       );
       res.status(HTTP_STATUS_CODES.CREATED).json(project);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
   async editProject(req: Request, res: Response) {
@@ -173,10 +173,10 @@ export class UserProfileController implements IUserProfileController {
         req.body as Partial<IUserProject>
       );
       res.status(HTTP_STATUS_CODES.OK).json(updatedProject);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
   async deleteProject(req: Request, res: Response) {
@@ -186,10 +186,10 @@ export class UserProfileController implements IUserProfileController {
         req.params.projectId
       );
       res.status(HTTP_STATUS_CODES.OK).send();
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
 
@@ -200,10 +200,10 @@ export class UserProfileController implements IUserProfileController {
         req.body as IUserCertificate
       );
       res.status(HTTP_STATUS_CODES.CREATED).json(certificate);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
   async editCertificate(req: Request, res: Response) {
@@ -213,10 +213,10 @@ export class UserProfileController implements IUserProfileController {
         req.body as Partial<IUserCertificate>
       );
       res.json(updatedCertificate);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
   async deleteCertificate(req: Request, res: Response) {
@@ -226,10 +226,10 @@ export class UserProfileController implements IUserProfileController {
         req.params.certificateId
       );
       res.status(HTTP_STATUS_CODES.OK).send();
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
   // Get all educations
@@ -239,10 +239,10 @@ export class UserProfileController implements IUserProfileController {
         req.params.userId
       );
       res.status(HTTP_STATUS_CODES.OK).json(educations);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
 
@@ -253,10 +253,10 @@ export class UserProfileController implements IUserProfileController {
         req.params.userId
       );
       res.status(HTTP_STATUS_CODES.OK).json(experiences);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
 
@@ -267,10 +267,10 @@ export class UserProfileController implements IUserProfileController {
         req.params.userId
       );
       res.status(HTTP_STATUS_CODES.OK).json(projects);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
 
@@ -281,10 +281,10 @@ export class UserProfileController implements IUserProfileController {
         req.params.userId
       );
       res.status(HTTP_STATUS_CODES.OK).json(certificates);
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
   async changePassword(req: Request, res: Response) {
@@ -304,10 +304,10 @@ export class UserProfileController implements IUserProfileController {
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ message: "Password updated successfully" });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: error.message });
+        .json({ message: (error as Error).message });
     }
   }
 }

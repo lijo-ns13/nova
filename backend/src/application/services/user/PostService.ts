@@ -42,12 +42,12 @@ export class PostService {
       });
 
       return post;
-    } catch (error: any) {
+    } catch (error) {
       // Cleanup uploaded media if post creation fails
       if (mediaIds.length > 0) {
         await this._mediaService.deleteMedia(mediaIds).catch(console.error);
       }
-      throw new Error(`Post creation failed:${error.message} `);
+      throw new Error(`Post creation failed:${(error as Error).message} `);
     }
   }
   // Get a single post by its ID, including media URLs
@@ -129,8 +129,8 @@ export class PostService {
         totalPages: Math.ceil(totalPosts / limit),
         currentPage: page,
       };
-    } catch (error: any) {
-      throw new Error(`Failed to get posts: ${error.message}`);
+    } catch (error) {
+      throw new Error(`Failed to get posts: ${(error as Error).message}`);
     }
   }
 }

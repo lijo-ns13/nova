@@ -29,7 +29,7 @@ export class CompanyAuthController implements ICompanyAuthController {
         message: "otp sent to email successfully",
         tempCompany,
       });
-    } catch (error: any) {
+    } catch (error) {
       if (error instanceof ZodError) {
         const errObj: Record<string, string> = {};
         error.errors.forEach((err) => {
@@ -42,7 +42,7 @@ export class CompanyAuthController implements ICompanyAuthController {
       }
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   }
 
@@ -73,7 +73,7 @@ export class CompanyAuthController implements ICompanyAuthController {
         isVerified: result.isVerified,
         isBlocked: result.isBlocked,
       });
-    } catch (error: any) {
+    } catch (error) {
       if (error instanceof ZodError) {
         const errObj: Record<string, string> = {};
         error.errors.forEach((err) => {
@@ -85,7 +85,7 @@ export class CompanyAuthController implements ICompanyAuthController {
       }
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ error: error.message });
+        .json({ error: (error as Error).message });
     }
   }
   async verify(req: Request, res: Response): Promise<void> {
@@ -97,7 +97,7 @@ export class CompanyAuthController implements ICompanyAuthController {
         message: "otp verified successfully",
         company: result.company,
       });
-    } catch (error: any) {
+    } catch (error) {
       if (error instanceof ZodError) {
         const errObj: Record<string, string> = {};
         error.errors.forEach((err) => {
@@ -107,7 +107,9 @@ export class CompanyAuthController implements ICompanyAuthController {
           .status(HTTP_STATUS_CODES.BAD_REQUEST)
           .json({ success: false, errors: errObj });
       }
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({ error: error.message });
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ error: (error as Error).message });
     }
   }
   async resend(req: Request, res: Response): Promise<void> {
@@ -135,10 +137,10 @@ export class CompanyAuthController implements ICompanyAuthController {
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: "Logged out successfully" });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   }
 }

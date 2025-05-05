@@ -11,47 +11,6 @@ const ProfileHeader = ({ userData }: ProfileHeaderProps) => {
 
   return (
     <>
-      {/* Fixed header that appears on scroll */}
-      <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
-          scrolled
-            ? "opacity-100 translate-y-0 bg-white/90 backdrop-blur-md py-3 shadow-sm"
-            : "opacity-0 -translate-y-full"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-100 shadow-sm">
-                <img
-                  src={
-                    userData?.profilePicture ||
-                    "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg"
-                  }
-                  alt={userData?.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="ml-3">
-                <div className="text-sm font-medium">{userData?.name}</div>
-                <div className="text-xs text-gray-500">
-                  {userData?.headline}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <button className="px-3 py-1.5 bg-black hover:bg-black/90 active:bg-black/80 text-white font-medium transition-colors text-sm tracking-wide">
-                CONNECT
-              </button>
-              <button className="px-3 py-1.5 bg-transparent border border-black text-black font-medium hover:bg-black/5 active:bg-black/10 transition-colors text-sm tracking-wide">
-                MESSAGE
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Hero section with cover and profile photo */}
       <section className="relative pt-20 pb-4 overflow-hidden transition-all duration-300">
         <div className="max-w-7xl mx-auto">

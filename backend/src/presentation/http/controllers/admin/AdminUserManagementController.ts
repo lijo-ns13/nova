@@ -22,10 +22,10 @@ export class AdminUserManagementController
         message: "User blocked successfully",
         data: user,
       });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   };
 
@@ -40,10 +40,10 @@ export class AdminUserManagementController
         message: "User unblocked successfully",
         data: user,
       });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: error.message });
+        .json({ success: false, error: (error as Error).message });
     }
   };
 
