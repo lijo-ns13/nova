@@ -23,4 +23,5 @@ export interface ICommentRepository {
   addLike(commentId: string, userId: string): Promise<IComment | null>;
   removeLike(commentId: string, userId: string): Promise<IComment | null>;
   countByPostId(postId: string): Promise<number>;
+  hasUserLiked(commentId: string, userId: string): Promise<boolean> 
 }

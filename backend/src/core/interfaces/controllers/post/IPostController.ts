@@ -15,4 +15,7 @@ export interface IPostController {
   // comment
   createComment(req: Request, res: Response): Promise<void>;
   getPostComments(req: Request, res: Response): Promise<void>;
+  updateComment(req: Request, res: Response): Promise<void>;
+  deleteComment(req: Request, res: Response): Promise<void>;
+  toggleLikeComment(req: Request, res: Response): Promise<void>;
 }

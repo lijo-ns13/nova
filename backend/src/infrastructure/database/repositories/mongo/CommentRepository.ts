@@ -91,6 +91,14 @@ export class CommentRepository implements ICommentRepository {
       )
       .exec();
   }
+  async hasUserLiked(commentId: string, userId: string): Promise<boolean> {
+    const comment = await commentModal.findOne({
+      _id: commentId,
+      "likes.userId": new Types.ObjectId(userId),
+    });
+
+    return !!comment;
+  }
 
   async countByPostId(postId: string): Promise<number> {
     return commentModal

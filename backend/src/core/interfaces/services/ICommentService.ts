@@ -48,11 +48,7 @@ export interface ICommentService {
     authorId: string
   ): Promise<ICommentServiceResponse>;
   deleteComment(commentId: string, authorId: string): Promise<boolean>;
-  likeComment(
-    commentId: string,
-    userId: string
-  ): Promise<ICommentServiceResponse>;
-  unlikeComment(
+  toggleLikeComment(
     commentId: string,
     userId: string
   ): Promise<ICommentServiceResponse>;

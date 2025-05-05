@@ -13,7 +13,7 @@ import { TYPES } from "../../../../di/types";
 import { IPostService } from "../../../../core/interfaces/services/Post/IPostService";
 import { IPostController } from "../../../../core/interfaces/controllers/post/IPostController";
 import { ILikeService } from "../../../../core/interfaces/services/Post/ILikeService";
-import { ICommentService } from "../../../../core/interfaces/services/ICommentService";
+import { ICommentService, ICommentServiceResponse } from "../../../../core/interfaces/services/ICommentService";
 interface Userr {
   id: string;
   email: string;
@@ -116,7 +116,46 @@ export class PostController implements IPostController {
       res.status(400).json({ message: (error as Error).message });
     }
   }
+  async updateComment(req: Request, res: Response): Promise<void> {
+    try {
+      const { commentId } = req.params;
+      const { content } = req.body;
+      const userId = (req.user as Userr)?.id;
 
+      const updatedComment: ICommentServiceResponse =
+        await this._commentService.updateComment(commentId, userId, content);
+
+      res.status(200).json(updatedComment);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  }
+
+  async deleteComment(req: Request, res: Response): Promise<void> {
+    try {
+      const { commentId } = req.params;
+      const userId = (req.user as Userr)?.id
+
+      await this._commentService.deleteComment(commentId, userId);
+      res.status(200).json({ message: "Comment deleted successfully." });
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  }
+
+  async toggleLikeComment(req: Request, res: Response): Promise<void> {
+    try {
+      const { commentId } = req.params;
+      const userId = (req.user as Userr)?.id;
+
+      const result: ICommentServiceResponse =
+        await this._commentService.toggleLikeComment(commentId, userId);
+
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  }
   async getPostComments(req: Request, res: Response): Promise<void> {
     try {
       const { postId } = req.params;

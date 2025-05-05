@@ -181,34 +181,24 @@ export class CommentService implements ICommentService {
     }
   }
 
-  async likeComment(
+  async toggleLikeComment(
     commentId: string,
     userId: string
   ): Promise<ICommentServiceResponse> {
     try {
-      const updatedComment = await this._commentRepo.addLike(commentId, userId);
+      const hasLiked = await this._commentRepo.hasUserLiked(commentId, userId);
+
+      const updatedComment = hasLiked
+        ? await this._commentRepo.removeLike(commentId, userId)
+        : await this._commentRepo.addLike(commentId, userId);
+
       if (!updatedComment) throw new Error("Comment not found");
 
       return this.mapCommentToResponse(updatedComment);
     } catch (error) {
-      throw new Error(`Failed to like comment: ${(error as Error).message}`);
-    }
-  }
-
-  async unlikeComment(
-    commentId: string,
-    userId: string
-  ): Promise<ICommentServiceResponse> {
-    try {
-      const updatedComment = await this._commentRepo.removeLike(
-        commentId,
-        userId
+      throw new Error(
+        `Failed to toggle comment like: ${(error as Error).message}`
       );
-      if (!updatedComment) throw new Error("Comment not found");
-
-      return this.mapCommentToResponse(updatedComment);
-    } catch (error) {
-      throw new Error(`Failed to unlike comment: ${(error as Error).message}`);
     }
   }
 }
