@@ -105,6 +105,10 @@ import { ILikeService } from "../core/interfaces/services/Post/ILikeService";
 import likeModal, { ILike } from "../infrastructure/database/models/like.modal";
 import { ICommentService } from "../core/interfaces/services/ICommentService";
 import { CommentService } from "../application/services/user/CommentService";
+import { IProfileViewService } from "../core/interfaces/services/IProfileViewService";
+import { ProfileViewService } from "../application/services/user/ProfileViewService";
+import { IProfileViewController } from "../core/interfaces/controllers/IProfileViewController";
+import { ProfileViewController } from "../presentation/http/controllers/ProfileViewController";
 
 const container = new Container();
 
@@ -237,6 +241,8 @@ container.bind<IAuthMiddleware>(TYPES.AuthMiddleware).to(AuthMiddleware);
 // common
 // ********************************// service
 container.bind<ISkillService>(TYPES.SkillService).to(SkillService);
+container.bind<IProfileViewService>(TYPES.ProfileViewService).to(ProfileViewService);
 // ********************************// controller
 container.bind<ISkillController>(TYPES.SkillController).to(SkillController);
+container.bind<IProfileViewController>(TYPES.ProfileViewController).to(ProfileViewController)
 export default container;

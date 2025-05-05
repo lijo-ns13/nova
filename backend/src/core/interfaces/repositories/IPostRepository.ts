@@ -3,7 +3,11 @@ import { IPostResponse } from "../../entities/post";
 import { IBaseRepository } from "./IBaseRepository";
 
 export interface IPostRepository extends IBaseRepository<IPost> {
-  findByCreator(creatorId: string): Promise<IPost[] | null>;
+  findByCreator(
+    skip: number,
+    limit: number,
+    creatorId: string
+  ): Promise<IPost[]>;
   findAllWithMediaAndCreator(skip: number, limit: number): Promise<IPost[]>;
   totalPosts(): Promise<number>;
   getPost(postId: string): Promise<IPost | null>;

@@ -15,8 +15,19 @@ export class PostRepository
     super(postModal);
   }
 
-  async findByCreator(creatorId: string): Promise<IPost[]> {
-    return this.model.find({ creatorId });
+  async findByCreator(
+    skip: number,
+    limit: number,
+    creatorId: string
+  ): Promise<IPost[]> {
+    return this.model
+      .find({ isDeleted: false, creatorId })
+      .skip(skip)
+      .limit(limit)
+      .populate("mediaIds")
+      .populate("creatorId", "name username profilePicture")
+      .populate({ path: "Likes" })
+      .sort({ createdAt: -1 });
   }
   async findAllWithMediaAndCreator(
     skip: number,
@@ -27,7 +38,7 @@ export class PostRepository
       .skip(skip)
       .limit(limit)
       .populate("mediaIds")
-      .populate("creatorId", "name profilePicture")
+      .populate("creatorId", "name username profilePicture")
       .populate({ path: "Likes" })
       .sort({ createdAt: -1 });
   }
@@ -38,7 +49,7 @@ export class PostRepository
     return await this.model
       .findById(postId)
       .populate("mediaIds")
-      .populate("creatorId", "name profilePicture")
+      .populate("creatorId", "name username profilePicture")
       .populate({ path: "Likes" });
   }
 }

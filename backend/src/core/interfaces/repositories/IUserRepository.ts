@@ -1,3 +1,4 @@
+import { PopulateOptions } from "mongoose";
 import { IJob } from "../../../infrastructure/database/models/job.modal";
 import { IUser } from "../../../infrastructure/database/models/user.modal";
 import { IUserCertificate } from "../../../infrastructure/database/models/userCertificate.model";
@@ -97,4 +98,8 @@ export interface IUserRepository {
   // serachUsers
   searchUsers(query: string, limit?: number): Promise<IUser[]>;
   isUsernameTaken(username: string, excludeUserId?: string): Promise<boolean>;
+  findOne(
+    filter: Record<string, unknown>,
+    populateOptions?: string | PopulateOptions | (string | PopulateOptions)[]
+  ): Promise<IUser | null>;
 }

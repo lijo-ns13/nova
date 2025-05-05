@@ -72,6 +72,8 @@ export const TYPES = {
 
   // ********************************// service
   SkillService: Symbol.for("SkillService"),
+  ProfileViewService: Symbol.for("ProfileViewService"),
   // ********************************// controller
   SkillController: Symbol.for("SkillController"),
+  ProfileViewController: Symbol.for("ProfileViewController"),
 };

@@ -1,4 +1,5 @@
-import { Model, Document } from "mongoose";
+import { Model, Document, PopulateOptions } from "mongoose";
+
 import { injectable } from "inversify";
 import { IBaseRepository } from "../../../../core/interfaces/repositories/IBaseRepository";
 
@@ -31,5 +32,11 @@ export abstract class BaseRepository<T extends Document>
 
   async findAll(filter: Record<string, unknown> = {}): Promise<T[]> {
     return this.model.find(filter);
+  }
+  async findOne(
+    filter: Record<string, unknown>,
+    populate: Array<{ path: string; select?: string }> = [] // Optional populate array
+  ): Promise<T | null> {
+    return this.model.findOne(filter).populate(populate); // Populate related fields
   }
 }
