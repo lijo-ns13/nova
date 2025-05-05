@@ -1,12 +1,13 @@
-import axios from "axios";
-import type React from "react";
-import { useState, useRef, type ChangeEvent } from "react";
+import React, { useState, useRef, type ChangeEvent } from "react";
+import { X, Upload, Image, Video, File, Send, Camera } from "lucide-react";
+import Avatar from "../ui/Avatar";
+import Button from "../ui/Button";
 
 interface Media {
   id: string;
   file: File;
   preview: string;
-  type: "image" | "video";
+  type: "image" | "video" | "file";
 }
 
 interface PostData {
@@ -17,17 +18,22 @@ interface PostData {
 interface CreatePostFormProps {
   onSubmit?: (data: PostData) => void;
   onClose?: () => void;
+  userProfilePic?: string;
+  userName?: string;
 }
 
 const CreatePostForm: React.FC<CreatePostFormProps> = ({
   onSubmit,
   onClose,
+  userProfilePic,
+  userName = "You",
 }) => {
   const [step, setStep] = useState<"media" | "description">("media");
   const [media, setMedia] = useState<Media[]>([]);
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [dragInvalidType, setDragInvalidType] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handle file selection
@@ -37,17 +43,27 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
     }
   };
 
+  // Determine file type
+  const getFileType = (file: File): "image" | "video" | "file" => {
+    if (file.type.startsWith("image/")) return "image";
+    if (file.type.startsWith("video/")) return "video";
+    return "file";
+  };
+
   // Process and add media files
   const addMediaFiles = (files: File[]) => {
-    // Filter out non-image/video files
+    // Filter out unsupported files
     const validFiles = files.filter((file) => {
-      return file.type.startsWith("image/") || file.type.startsWith("video/");
+      const type = getFileType(file);
+      return (
+        type === "image" || type === "video" || file.type === "application/pdf"
+      );
     });
 
     // Alert user about invalid files
     if (validFiles.length < files.length) {
       alert(
-        "Only images and videos are allowed. Other file types were ignored."
+        "Only images, videos, and PDFs are allowed. Other file types were ignored."
       );
     }
 
@@ -56,10 +72,10 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
       id: Math.random().toString(36).substring(2, 9),
       file,
       preview: URL.createObjectURL(file),
-      type: file.type.startsWith("video/") ? "video" : ("image" as const),
+      type: getFileType(file),
     }));
 
-    setMedia((prev: any) => [...prev, ...newMedia]);
+    setMedia((prev) => [...prev, ...newMedia]);
   };
 
   // Remove a media item
@@ -75,6 +91,20 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
     e.preventDefault();
     e.stopPropagation();
 
+    // Check if all files are valid types
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      const allValid = Array.from(e.dataTransfer.items).every((item) => {
+        const type = item.type;
+        return (
+          type.startsWith("image/") ||
+          type.startsWith("video/") ||
+          type === "application/pdf"
+        );
+      });
+
+      setDragInvalidType(!allValid);
+    }
+
     if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
     } else if (e.type === "dragleave") {
@@ -87,6 +117,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
+    setDragInvalidType(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       addMediaFiles(Array.from(e.dataTransfer.files));
@@ -117,33 +148,6 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
       media.forEach((item) => {
         formData.append(`media`, item.file);
       });
-      // Inside handleSubmit function
-      const logFormDataEntries = (formData: FormData) => {
-        console.log("--- FormData Entries ---");
-        for (const [key, value] of formData.entries()) {
-          console.log(key, value);
-        }
-      };
-
-      // Use it after creating formData
-      logFormDataEntries(formData); // 👈 Add this
-
-      // Example API call - replace with your actual API endpoint
-      const response = await axios.post(
-        "http://localhost:3000/post",
-        formData,
-        {
-          withCredentials: true,
-        }
-      );
-      if (!response) {
-        alert("failed");
-      } else {
-        alert("success");
-      }
-
-      // Simulate API call for now
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Call the onSubmit callback with the post data
       if (onSubmit) {
@@ -168,80 +172,109 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
 
   return (
     <div className="w-full">
-      {/* Step indicator */}
-      <div className="mb-6 flex items-center justify-between border-b pb-4">
-        <h2 className="text-xl font-bold">
-          {step === "media" ? "Add Media" : "Create Post"}
+      {/* Header with step indicator */}
+      <div className="mb-6 flex items-center justify-between border-b dark:border-gray-700 pb-4">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+          {step === "media" ? "Create New Post" : "Add Details"}
         </h2>
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           <div
-            className={`h-2.5 w-2.5 rounded-full ${
-              step === "media" ? "bg-blue-500" : "bg-gray-300"
+            className={`flex items-center justify-center h-6 w-6 rounded-full text-xs font-medium ${
+              step === "media"
+                ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300"
+                : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+            }`}
+          >
+            1
+          </div>
+          <div
+            className={`h-0.5 w-4 ${
+              step === "description"
+                ? "bg-indigo-500"
+                : "bg-gray-300 dark:bg-gray-700"
             }`}
           ></div>
-          <div className="mx-1 h-0.5 w-4 bg-gray-300"></div>
           <div
-            className={`h-2.5 w-2.5 rounded-full ${
-              step === "description" ? "bg-blue-500" : "bg-gray-300"
+            className={`flex items-center justify-center h-6 w-6 rounded-full text-xs font-medium ${
+              step === "description"
+                ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300"
+                : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
             }`}
-          ></div>
+          >
+            2
+          </div>
         </div>
       </div>
 
       {/* Media upload step */}
       {step === "media" && (
         <div className="space-y-4">
+          {/* User info */}
+          <div className="flex items-center mb-4">
+            <Avatar src={userProfilePic} alt={userName} size="md" />
+            <div className="ml-3">
+              <p className="font-medium text-gray-900 dark:text-white">
+                {userName}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Creating a post
+              </p>
+            </div>
+          </div>
+
           {/* Media preview */}
           {media.length > 0 && (
-            <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {media.map((item) => (
-                <div
-                  key={item.id}
-                  className="group relative aspect-square rounded-lg border bg-gray-100 overflow-hidden"
-                >
-                  {item.type === "image" ? (
-                    <img
-                      src={item.preview || "/placeholder.svg"}
-                      alt="Preview"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <video
-                      src={item.preview}
-                      className="h-full w-full object-cover"
-                      controls
-                    />
-                  )}
-                  <button
-                    onClick={() => removeMedia(item.id)}
-                    className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black bg-opacity-60 text-white opacity-0 transition-opacity group-hover:opacity-100"
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Selected media ({media.length})
+              </h3>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 mt-2">
+                {media.map((item) => (
+                  <div
+                    key={item.id}
+                    className="group relative aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                    {item.type === "image" ? (
+                      <img
+                        src={item.preview}
+                        alt="Preview"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : item.type === "video" ? (
+                      <video
+                        src={item.preview}
+                        className="h-full w-full object-cover"
+                        controls
+                      />
+                    ) : (
+                      <div className="h-full w-full flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800 p-4">
+                        <File className="h-10 w-10 text-gray-400 mb-2" />
+                        <span className="text-xs text-gray-500 dark:text-gray-400 text-center truncate max-w-full">
+                          {item.file.name}
+                        </span>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => removeMedia(item.id)}
+                      className="absolute right-1 top-1 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                  </button>
-                </div>
-              ))}
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {/* Drag and drop area */}
           <div
-            className={`relative flex min-h-[200px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors ${
+            className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-all ${
               dragActive
-                ? "border-blue-500 bg-blue-50"
-                : "border-gray-300 hover:bg-gray-50"
-            }`}
+                ? dragInvalidType
+                  ? "border-red-400 bg-red-50 dark:border-red-700 dark:bg-red-900/20"
+                  : "border-indigo-400 bg-indigo-50 dark:border-indigo-700 dark:bg-indigo-900/20"
+                : "border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800"
+            } ${media.length > 0 ? "py-6" : "py-10"}`}
             onClick={() => fileInputRef.current?.click()}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -253,48 +286,65 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
               ref={fileInputRef}
               onChange={handleFileChange}
               multiple
-              accept="image/*,video/*"
+              accept="image/*,video/*,application/pdf"
               className="hidden"
             />
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-500">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
+
+            <div
+              className={`flex h-14 w-14 items-center justify-center rounded-full ${
+                dragInvalidType
+                  ? "bg-red-100 text-red-500 dark:bg-red-900/50 dark:text-red-400"
+                  : "bg-indigo-100 text-indigo-500 dark:bg-indigo-900/50 dark:text-indigo-400"
+              } mb-3`}
+            >
+              {dragInvalidType ? <X size={24} /> : <Upload size={24} />}
             </div>
-            <p className="mb-1 text-sm font-medium text-gray-900">
-              {dragActive
-                ? "Drop files here"
-                : "Click to upload or drag and drop"}
+
+            <p className="mb-1 text-base font-medium text-gray-900 dark:text-white">
+              {dragInvalidType
+                ? "Unsupported file type!"
+                : dragActive
+                ? "Drop files to upload"
+                : "Add photos or videos"}
             </p>
-            <p className="text-xs text-gray-500">
-              Images and videos supported (max 10MB)
+
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center max-w-md mb-3">
+              {dragInvalidType
+                ? "Only images, videos, and PDFs are supported"
+                : "Share your moments with photos and videos. Drag and drop files or click to browse."}
             </p>
+
+            <div className="flex flex-wrap justify-center gap-2 mt-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300">
+                <Image size={12} />
+                Images
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300">
+                <Video size={12} />
+                Videos
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300">
+                <File size={12} />
+                PDFs
+              </span>
+            </div>
           </div>
 
           {/* Next button */}
-          <div className="mt-6 flex justify-end">
-            <button
+          <div className="mt-6 flex justify-between">
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
               onClick={goToDescription}
               disabled={media.length === 0}
-              className={`rounded-lg px-6 py-2.5 text-white transition-colors ${
-                media.length === 0
-                  ? "cursor-not-allowed bg-gray-300"
-                  : "bg-blue-500 hover:bg-blue-600"
+              className={`${
+                media.length === 0 ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
               Next
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -304,55 +354,46 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
         <div className="space-y-4">
           {/* Media preview (small) */}
           {media.length > 0 && (
-            <div className="mb-4 flex flex-wrap gap-2">
-              {media.map((item) => (
-                <div
-                  key={item.id}
-                  className="relative h-16 w-16 overflow-hidden rounded-md border"
+            <div className="mb-4">
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Selected media
+              </h3>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {media.map((item) => (
+                  <div
+                    key={item.id}
+                    className="relative h-16 w-16 overflow-hidden rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                  >
+                    {item.type === "image" ? (
+                      <img
+                        src={item.preview}
+                        alt="Preview"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : item.type === "video" ? (
+                      <div className="flex h-full w-full items-center justify-center bg-gray-100 dark:bg-gray-800">
+                        <Video className="h-6 w-6 text-gray-400" />
+                      </div>
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gray-100 dark:bg-gray-800">
+                        <File className="h-6 w-6 text-gray-400" />
+                      </div>
+                    )}
+                    <button
+                      onClick={() => removeMedia(item.id)}
+                      className="absolute right-0.5 top-0.5 bg-black/60 text-white rounded-full p-0.5 transition-opacity"
+                    >
+                      <X size={10} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={goBackToMedia}
+                  className="flex h-16 w-16 items-center justify-center rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
-                  {item.type === "image" ? (
-                    <img
-                      src={item.preview || "/placeholder.svg"}
-                      alt="Preview"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gray-100">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-6 w-6 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-              ))}
-              <button
-                onClick={goBackToMedia}
-                className="flex h-16 w-16 items-center justify-center rounded-md border bg-gray-50 hover:bg-gray-100"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-500"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </button>
+                  <Camera className="h-6 w-6 text-gray-400" />
+                </button>
+              </div>
             </div>
           )}
 
@@ -360,7 +401,7 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
           <div>
             <label
               htmlFor="description"
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               What's on your mind?
             </label>
@@ -369,30 +410,25 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
               rows={5}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Write something..."
-              className="w-full rounded-lg border border-gray-300 p-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder="Share your thoughts, experiences, or ask a question..."
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 text-gray-800 dark:text-gray-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-500/40 focus:outline-none transition-all"
             />
           </div>
 
           {/* Action buttons */}
           <div className="mt-6 flex justify-between">
-            <button
-              onClick={goBackToMedia}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-700 hover:bg-gray-50"
-            >
+            <Button variant="outlined" onClick={goBackToMedia}>
               Back
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
               onClick={handleSubmit}
-              disabled={isSubmitting}
-              className={`rounded-lg px-6 py-2.5 text-white transition-colors ${
-                isSubmitting
-                  ? "cursor-wait bg-blue-400"
-                  : "bg-blue-500 hover:bg-blue-600"
-              }`}
+              isLoading={isSubmitting}
+              disabled={!description.trim()}
+              icon={!isSubmitting ? <Send size={16} /> : undefined}
             >
               {isSubmitting ? "Posting..." : "Create Post"}
-            </button>
+            </Button>
           </div>
         </div>
       )}

@@ -1,13 +1,12 @@
-import type React from "react";
-
 import { useState } from "react";
+import { Image, Video, FileText } from "lucide-react";
+import Avatar from "../ui/Avatar";
 import NewModal from "../modals/NewModal";
-import { useAppSelector } from "../../../../hooks/useAppSelector";
 import CreatePostForm from "./CreatePostForm";
+import { useAppSelector } from "../../../../hooks/useAppSelector";
 
-// ✨ Create a props type
 interface CreatePostSectionProps {
-  onPostSubmit?: () => void; // It's optional and a function returning void
+  onPostSubmit?: () => void;
 }
 
 interface PostData {
@@ -16,7 +15,7 @@ interface PostData {
     id: string;
     file: File;
     preview: string;
-    type: "image" | "video";
+    type: "image" | "video" | "file";
   }[];
 }
 
@@ -24,7 +23,7 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
   onPostSubmit,
 }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const { profilePicture } = useAppSelector((state) => state.auth);
+  const { profilePicture, name } = useAppSelector((state) => state.auth);
 
   const handleOpenModal = () => {
     setOpenModal(true);
@@ -40,20 +39,18 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
       const formData = new FormData();
       formData.append("description", data.description);
 
-      data.media.forEach((item, index) => {
-        formData.append(`media[${index}]`, item.file);
+      data.media.forEach((item) => {
+        formData.append(`media`, item.file);
       });
 
       // Example API call - replace with your actual API endpoint
-      // const response = await fetch('/api/posts', {
-      //   method: 'POST',
-      //   body: formData,
-      // });
+      const response = await fetch("http://localhost:3000/post", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
 
-      // if (!response.ok) throw new Error('Failed to create post');
-
-      // Simulate API call for now
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (!response.ok) throw new Error("Failed to create post");
 
       // Call the onPostSubmit callback if provided
       if (onPostSubmit) {
@@ -62,34 +59,56 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
 
       // Close the modal
       handleCloseModal();
-
-      // Show success message or update UI
-      console.log("Post created successfully!");
     } catch (error) {
       console.error("Error creating post:", error);
-      // Handle error (show error message, etc.)
     }
   };
 
   return (
     <>
-      {/* Post Starter Button */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 mb-6 overflow-hidden w-full">
+      {/* Post creation card */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="p-4">
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-400 to-blue-500 flex-shrink-0 flex items-center justify-center text-white overflow-hidden">
-              <img
-                src={profilePicture || "/placeholder.svg"}
-                alt="Profile"
-                className="h-full w-full object-cover rounded-full"
-              />
-            </div>
+          <div className="flex items-center gap-3">
+            <Avatar
+              src={profilePicture}
+              alt={name || "Your profile"}
+              size="md"
+            />
             <div
-              className="flex-grow bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded-full px-4 py-2 cursor-pointer transition-all"
               onClick={handleOpenModal}
+              className="flex-grow bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-full px-4 py-2.5 cursor-pointer transition-all"
             >
-              <div className="text-gray-500">Start a post</div>
+              <div className="text-gray-500 dark:text-gray-400 text-sm">
+                What's on your mind?
+              </div>
             </div>
+          </div>
+
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+            <button
+              onClick={handleOpenModal}
+              className="flex items-center gap-2 py-1.5 px-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-sm"
+            >
+              <Image size={18} className="text-indigo-500" />
+              <span>Photo</span>
+            </button>
+
+            <button
+              onClick={handleOpenModal}
+              className="flex items-center gap-2 py-1.5 px-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-sm"
+            >
+              <Video size={18} className="text-green-500" />
+              <span>Video</span>
+            </button>
+
+            <button
+              onClick={handleOpenModal}
+              className="flex items-center gap-2 py-1.5 px-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-sm"
+            >
+              <FileText size={18} className="text-amber-500" />
+              <span>Document</span>
+            </button>
           </div>
         </div>
       </div>
@@ -104,6 +123,8 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
         <CreatePostForm
           onSubmit={handlePostSubmit}
           onClose={handleCloseModal}
+          userProfilePic={profilePicture}
+          userName={name}
         />
       </NewModal>
     </>
