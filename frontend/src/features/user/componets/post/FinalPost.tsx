@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import Avatar from "../ui/Avatar";
 import Button from "../ui/Button";
-import CommentSection from "./CommentSection";
+import CommentSection from "./CommentSection/CommentSection";
 import { Link } from "react-router-dom";
 
 interface Media {
