@@ -1,10 +1,10 @@
 import userAxios from "../../../utils/userAxios";
-import { PaginatedJobResponse } from "../types/jobTypes";
+import { JobFilterParams, PaginatedJobResponse } from "../types/jobTypes";
 
 const API_BASE_URL = "http://localhost:3000";
 
 export const getJobs = async (
-  filters: JobFilterOptions = {}
+  filters: JobFilterParams = {}
 ): Promise<PaginatedJobResponse> => {
   const params = new URLSearchParams();
 

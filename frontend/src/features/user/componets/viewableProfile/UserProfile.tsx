@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { getBasicUserData } from "../../services/ProfileService";
 import { Menu } from "lucide-react";
 import { UserData } from "../../../../types/profile";
-import Navbar from "../NavBar";
 import ProfileHeader from "./ProfileHeader";
 import ProfileTabs from "./ProfileTabs";
 import AboutSectionViewable from "./tabs/AboutSectionViewable";
