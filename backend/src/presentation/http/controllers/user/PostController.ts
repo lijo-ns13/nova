@@ -13,7 +13,10 @@ import { TYPES } from "../../../../di/types";
 import { IPostService } from "../../../../core/interfaces/services/Post/IPostService";
 import { IPostController } from "../../../../core/interfaces/controllers/post/IPostController";
 import { ILikeService } from "../../../../core/interfaces/services/Post/ILikeService";
-import { ICommentService, ICommentServiceResponse } from "../../../../core/interfaces/services/ICommentService";
+import {
+  ICommentService,
+  ICommentServiceResponse,
+} from "../../../../core/interfaces/services/ICommentService";
 interface Userr {
   id: string;
   email: string;
@@ -123,7 +126,7 @@ export class PostController implements IPostController {
       const userId = (req.user as Userr)?.id;
 
       const updatedComment: ICommentServiceResponse =
-        await this._commentService.updateComment(commentId, userId, content);
+        await this._commentService.updateComment(commentId, content, userId);
 
       res.status(200).json(updatedComment);
     } catch (error) {
@@ -134,7 +137,7 @@ export class PostController implements IPostController {
   async deleteComment(req: Request, res: Response): Promise<void> {
     try {
       const { commentId } = req.params;
-      const userId = (req.user as Userr)?.id
+      const userId = (req.user as Userr)?.id;
 
       await this._commentService.deleteComment(commentId, userId);
       res.status(200).json({ message: "Comment deleted successfully." });

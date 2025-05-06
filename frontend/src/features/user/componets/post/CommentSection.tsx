@@ -22,6 +22,7 @@ import {
   updateComment as updateCommentAPI,
   deleteComment as deleteCommentAPI,
 } from "../../services/PostService";
+import { Link } from "react-router-dom";
 
 interface CommentAuthor {
   _id: string;
@@ -437,9 +438,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({
           <div className="flex-1">
             <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl px-4 py-3 group-hover:bg-gray-100 dark:group-hover:bg-gray-700 transition-colors">
               <div className="flex justify-between items-start mb-1">
-                <span className="font-semibold text-gray-900 dark:text-white text-sm">
-                  {comment?.authorId?.name}
-                </span>
+                <Link to={`/in/${comment?.authorId?.username}`}>
+                  <span className="font-semibold text-gray-900 dark:text-white text-sm">
+                    {comment?.authorId?.name}
+                  </span>
+                </Link>
                 <span className="text-xs text-gray-500 dark:text-gray-400">
                   {formatTimeAgo(comment.createdAt)}
                 </span>

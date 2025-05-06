@@ -31,7 +31,7 @@ export class CommentRepository implements ICommentRepository {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("authorId", "name profilePicture")
+      .populate("authorId", "name profilePicture username")
       .exec();
   }
 

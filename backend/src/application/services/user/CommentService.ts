@@ -149,7 +149,7 @@ export class CommentService implements ICommentService {
     try {
       const comment = await this._commentRepo.findById(commentId);
       if (!comment) throw new Error("Comment not found");
-
+      console.log(comment, authorId, "lkdsjfkl");
       if (comment.authorId.toString() !== authorId) {
         throw new Error("Unauthorized: You can only update your own comments");
       }
