@@ -4,6 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+
 // routers
 import authRouter from "./routes/auth.routes";
 import userRouter from "./routes/user.routes";

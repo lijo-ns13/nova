@@ -15,9 +15,13 @@ import { useAppDispatch } from "../../../../hooks/useAppDispatch";
 import toast from "react-hot-toast";
 
 function ProfileImage() {
+  const { id, profilePicture: userProfilePicture } = useAppSelector(
+    (state) => state.auth
+  );
   const dispatch = useAppDispatch();
   const [isImageModalOpen, setIsImageModalOpen] = useState<boolean>(false);
-  const [profilePicture, setProfilePicture] = useState<string>("");
+  const [profilePicture, setProfilePicture] =
+    useState<string>(userProfilePicture);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [srcImage, setSrcImage] = useState<string | null>(null);
   const [isCropping, setIsCropping] = useState<boolean>(false);
@@ -27,7 +31,7 @@ function ProfileImage() {
     height: 30,
     x: 0,
     y: 0,
-    aspect: 1,
+    // aspect: 1,
   });
   const [completedCrop, setCompletedCrop] = useState<ReactCropType | null>(
     null
@@ -35,7 +39,6 @@ function ProfileImage() {
   const imageRef = useRef<HTMLImageElement>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { id } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     if (id) {

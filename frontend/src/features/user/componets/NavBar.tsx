@@ -29,7 +29,9 @@ const Navbar: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const { name, profilePicture } = useAppSelector((state) => state.auth);
+  const { name, profilePicture, username } = useAppSelector(
+    (state) => state.auth
+  );
   const navRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -373,7 +375,7 @@ const Navbar: React.FC = () => {
                     </p>
                   </div>
                   <Link
-                    to="/profile"
+                    to={`/in/${username}`}
                     className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     Your Profile
