@@ -6,8 +6,10 @@ import SignIn from "../features/admin/pages/SignIn";
 import Dashboard from "../features/admin/pages/Dashboard";
 import AdminLayout from "../layouts/AdminLayout";
 import Protected from "./Protected";
-import UserManagement from "../features/admin/pages/UserManagement";
-import CompanyManagement from "../features/admin/pages/CompanyManagement";
+// import UserManagement from "../features/admin/pages/UserManagement";
+import UserManagement from "../features/admin/components/UserManagement/UserManagement";
+// import CompanyManagement from "../features/admin/pages/CompanyManagement";
+import CompanyMangement from "../features/admin/components/CompanyManagement/CompanyManagement";
 import CompanyVerificationPage from "../features/admin/pages/CompanyVerification";
 
 import SkillList from "../features/admin/pages/SkillList";
@@ -26,7 +28,7 @@ const AdminRoutes = () => {
       >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/user-management" element={<UserManagement />} />
-        <Route path="/company-management" element={<CompanyManagement />} />
+        <Route path="/company-management" element={<CompanyMangement />} />
         <Route
           path="/company-verification"
           element={<CompanyVerificationPage />}
