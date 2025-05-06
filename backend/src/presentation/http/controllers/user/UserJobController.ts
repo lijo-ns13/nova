@@ -2,7 +2,7 @@ import { Request, RequestHandler, Response } from "express";
 
 import { IUserJobService } from "../../../../core/interfaces/services/IUserJobService";
 import { TYPES } from "../../../../di/types";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { HTTP_STATUS_CODES } from "../../../../core/enums/httpStatusCode";
 import { IUserJobController } from "../../../../core/interfaces/controllers/IUserJobController";
 
@@ -12,7 +12,7 @@ interface Userr {
   role: string;
 }
 
-// 8*88888
+@injectable()
 export class UserJobController implements IUserJobController {
   constructor(
     @inject(TYPES.UserJobService) private jobService: IUserJobService
