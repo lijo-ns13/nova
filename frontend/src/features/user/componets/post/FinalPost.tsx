@@ -2,18 +2,15 @@ import React, { useState } from "react";
 import {
   Heart,
   MessageCircle,
-  Share,
-  Bookmark,
   MoreHorizontal,
   Download,
-  Maximize2,
-  X,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import Avatar from "../ui/Avatar";
 import Button from "../ui/Button";
 import CommentSection from "./CommentSection";
+import { Link } from "react-router-dom";
 
 interface Media {
   mediaUrl: string;
@@ -24,6 +21,7 @@ interface User {
   _id: string;
   name: string;
   profilePicture: string;
+  username: string;
 }
 
 interface ILike {
@@ -59,7 +57,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
   const [showComments, setShowComments] = useState<boolean>(false);
   const [isLikeAnimating, setIsLikeAnimating] = useState<boolean>(false);
-
+  console.log(expandedMedia);
   const handleLike = async () => {
     try {
       if (onLike) {
@@ -131,9 +129,11 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
           bordered
         />
         <div className="ml-3 flex-1">
-          <h3 className="text-base font-semibold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer">
-            {post.creatorId.name}
-          </h3>
+          <Link to={`/in/${post.creatorId.username}`}>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer">
+              {post.creatorId.name}
+            </h3>
+          </Link>{" "}
           <p className="flex items-center text-xs text-gray-500 dark:text-gray-400">
             {formatDate(post.createdAt)}
           </p>
@@ -183,24 +183,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
                       loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300"></div>
-                    <div className="absolute bottom-3 right-3 flex space-x-2 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300">
-                      <button
-                        onClick={() =>
-                          handleMediaAction(media.mediaUrl, "expand")
-                        }
-                        className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all"
-                      >
-                        <Maximize2 size={16} />
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleMediaAction(media.mediaUrl, "download")
-                        }
-                        className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all"
-                      >
-                        <Download size={16} />
-                      </button>
-                    </div>
+                    <div className="absolute bottom-3 right-3 flex space-x-2 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300"></div>
                   </div>
                 ) : media.mimeType === "application/pdf" ? (
                   <div className="py-10 px-4 text-center bg-gray-50 dark:bg-gray-800">
@@ -270,31 +253,6 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
         </div>
       )}
 
-      {/* Expanded Media Overlay */}
-      {expandedMedia && (
-        <div
-          className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setExpandedMedia(null)}
-        >
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setExpandedMedia(null);
-            }}
-            className="absolute top-4 right-4 text-white hover:text-indigo-400 transition-colors bg-black/30 rounded-full p-2"
-            aria-label="Close expanded view"
-          >
-            <X size={24} />
-          </button>
-          <img
-            src={expandedMedia}
-            alt="Expanded media"
-            className="max-w-full max-h-[90vh] object-contain rounded-lg"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-      )}
-
       {/* Post Actions */}
       <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
         <div className="flex items-center justify-between">
@@ -327,21 +285,6 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
             >
               <MessageCircle className="h-5 w-5" />
               <span className="text-sm font-medium">Comments</span>
-            </button>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button
-              className="text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors hover:scale-110"
-              aria-label="Share post"
-            >
-              <Share className="h-5 w-5" />
-            </button>
-            <button
-              className="text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors hover:scale-110"
-              aria-label="Save post"
-            >
-              <Bookmark className="h-5 w-5" />
             </button>
           </div>
         </div>
