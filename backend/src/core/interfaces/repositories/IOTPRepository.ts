@@ -1,6 +1,6 @@
 // src/core/interfaces/repositories/IOTPRepository.ts
 import { IBaseRepository } from "./IBaseRepository";
-import { IOTP } from "../../../infrastructure/database/models/otp.modal";
+import { IOTP } from "../../../models/otp.modal";
 import { Types } from "mongoose";
 export interface createOtpDTO {
   accountId: Types.ObjectId; // The ID of the user or company

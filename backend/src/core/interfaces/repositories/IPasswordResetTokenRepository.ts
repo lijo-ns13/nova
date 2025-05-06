@@ -1,6 +1,6 @@
 // src/core/interfaces/repositories/IPasswordResetTokenRepository.ts
 import { IBaseRepository } from "./IBaseRepository";
-import { IPasswordResetToken } from "../../../infrastructure/database/models/PasswordResetToken";
+import { IPasswordResetToken } from "../../../models/PasswordResetToken";
 import { Types } from "mongoose";
 export interface CreatePasswordResetTokenDto {
   token: string;

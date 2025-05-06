@@ -1,9 +1,6 @@
 // src/core/interfaces/services/ICompanyJobService.ts
 
-import {
-  IJob,
-  JobApplication,
-} from "../../../infrastructure/database/models/job.modal";
+import { IJob, JobApplication } from "../../../models/job.modal";
 import { CreateJobDto, UpdateJobDto } from "../repositories/IJobRepository";
 
 export interface ICompanyJobService {

@@ -1,10 +1,10 @@
 // src/core/interfaces/services/IUserProfileService.ts
 
-import { IUser } from "../../../infrastructure/database/models/user.modal";
-import { IUserEducation } from "../../../infrastructure/database/models/userEducation.model";
-import { IUserExperience } from "../../../infrastructure/database/models/userExperience.model";
-import { IUserProject } from "../../../infrastructure/database/models/userProject.model";
-import { IUserCertificate } from "../../../infrastructure/database/models/userCertificate.model";
+import { IUser } from "../../../models/user.modal";
+import { IUserEducation } from "../../../models/userEducation.model";
+import { IUserExperience } from "../../../models/userExperience.model";
+import { IUserProject } from "../../../models/userProject.model";
+import { IUserCertificate } from "../../../models/userCertificate.model";
 
 export interface IUserProfileService {
   getUserProfile(userId: string): Promise<IUser>;

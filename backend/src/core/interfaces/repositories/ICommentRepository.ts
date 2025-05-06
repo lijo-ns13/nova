@@ -1,6 +1,6 @@
 // src/core/interfaces/repositories/ICommentRepository.ts
 import { Types } from "mongoose";
-import { IComment } from "../../../infrastructure/database/models/comment.modal";
+import { IComment } from "../../../models/comment.modal";
 
 export interface ICommentRepository {
   create(comment: Partial<IComment>): Promise<IComment>;
@@ -23,5 +23,5 @@ export interface ICommentRepository {
   addLike(commentId: string, userId: string): Promise<IComment | null>;
   removeLike(commentId: string, userId: string): Promise<IComment | null>;
   countByPostId(postId: string): Promise<number>;
-  hasUserLiked(commentId: string, userId: string): Promise<boolean> 
+  hasUserLiked(commentId: string, userId: string): Promise<boolean>;
 }

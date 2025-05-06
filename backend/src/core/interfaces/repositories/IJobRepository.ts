@@ -1,7 +1,4 @@
-import {
-  IJob,
-  JobApplication,
-} from "../../../infrastructure/database/models/job.modal";
+import { IJob, JobApplication } from "../../../models/job.modal";
 export interface JobFilters {
   title?: string;
   location?: string;

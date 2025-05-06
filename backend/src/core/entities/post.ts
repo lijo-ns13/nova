@@ -1,6 +1,6 @@
 import { Date, Types } from "mongoose";
-import { IUser } from "../../infrastructure/database/models/user.modal";
-import { ILike } from "../../infrastructure/database/models/like.modal";
+import { IUser } from "../../models/user.modal";
+import { ILike } from "../../models/like.modal";
 
 interface creatorIdUser {
   _id: string;

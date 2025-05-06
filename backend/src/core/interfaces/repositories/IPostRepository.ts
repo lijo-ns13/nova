@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { IPost } from "../../../infrastructure/database/models/post.modal";
+import { IPost } from "../../../models/post.modal";
 import { IPostResponse } from "../../entities/post";
 import { IBaseRepository } from "./IBaseRepository";
 

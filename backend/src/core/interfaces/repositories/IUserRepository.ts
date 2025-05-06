@@ -1,10 +1,10 @@
 import { PopulateOptions } from "mongoose";
-import { IJob } from "../../../infrastructure/database/models/job.modal";
-import { IUser } from "../../../infrastructure/database/models/user.modal";
-import { IUserCertificate } from "../../../infrastructure/database/models/userCertificate.model";
-import { IUserEducation } from "../../../infrastructure/database/models/userEducation.model";
-import { IUserExperience } from "../../../infrastructure/database/models/userExperience.model";
-import { IUserProject } from "../../../infrastructure/database/models/userProject.model";
+import { IJob } from "../../../models/job.modal";
+import { IUser } from "../../../models/user.modal";
+import { IUserCertificate } from "../../../models/userCertificate.model";
+import { IUserEducation } from "../../../models/userEducation.model";
+import { IUserExperience } from "../../../models/userExperience.model";
+import { IUserProject } from "../../../models/userProject.model";
 
 export interface IUserRepository {
   // Core user operations

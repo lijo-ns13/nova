@@ -1,6 +1,6 @@
 // src/core/interfaces/services/IAdminCompanyManagementService.ts
 
-import { ICompany } from "../../../infrastructure/database/models/company.modal";
+import { ICompany } from "../../../models/company.modal";
 
 export interface IAdminCompanyManagementService {
   deleteCompany(companyId: string): Promise<any>;

@@ -5,12 +5,12 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 // routers
-import authRouter from "./presentation/http/routes/auth.routes";
-import userRouter from "./presentation/http/routes/user.routes";
-import companyRouter from "./presentation/http/routes/company.routes";
-import adminRouter from "./presentation/http/routes/admin.routes";
-import sharedRouter from "./presentation/http/routes/shared.routes";
-import googleRouter from "./presentation/http/routes/google.routes";
+import authRouter from "./routes/auth.routes";
+import userRouter from "./routes/user.routes";
+import companyRouter from "./routes/company.routes";
+import adminRouter from "./routes/admin.routes";
+import sharedRouter from "./routes/shared.routes";
+import googleRouter from "./routes/google.routes";
 dotenv.config();
 
 const app: Application = express();

@@ -1,6 +1,6 @@
 // src/core/interfaces/services/IProfileViewService.ts
 
-import { IUser } from "../../../infrastructure/database/models/user.modal";
+import { IUser } from "../../../models/user.modal";
 
 export interface IProfileViewService {
   /**

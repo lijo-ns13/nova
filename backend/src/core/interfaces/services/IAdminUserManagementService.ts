@@ -1,4 +1,4 @@
-import { IUser } from "../../../infrastructure/database/models/user.modal";
+import { IUser } from "../../../models/user.modal";
 
 export interface IAdminUserManagementService {
   blockUser(userId: string): Promise<IUser | null>;

@@ -1,4 +1,4 @@
-import { IPost } from "../../../../infrastructure/database/models/post.modal";
+import { IPost } from "../../../../models/post.modal";
 import { Express } from "express";
 import {
   IPostServiceResponse,

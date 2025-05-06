@@ -1,4 +1,4 @@
-import { IJob } from "../../../infrastructure/database/models/job.modal";
+import { IJob } from "../../../models/job.modal";
 
 export interface IUserJobService {
   // Get all jobs that are open and not past deadline

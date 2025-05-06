@@ -1,4 +1,4 @@
-import { ILike } from "../../../infrastructure/database/models/like.modal";
+import { ILike } from "../../../models/like.modal";
 import { IBaseRepository } from "./IBaseRepository";
 
 export interface ILikeRepository extends IBaseRepository<ILike> {
