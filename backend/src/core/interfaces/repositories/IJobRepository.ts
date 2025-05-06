@@ -2,7 +2,23 @@ import {
   IJob,
   JobApplication,
 } from "../../../infrastructure/database/models/job.modal";
+export interface JobFilters {
+  title?: string;
+  location?: string;
+  jobType?: string | string[];
+  employmentType?: string | string[];
+  experienceLevel?: string | string[];
+  skills?: string[]; // ObjectId strings
+  minSalary?: number;
+  maxSalary?: number;
+  company?: string; // ObjectId string
+}
 
+export interface PaginatedJobResult {
+  jobs: IJob[];
+  total: number;
+  totalPages: number;
+}
 export interface CreateJobDto {
   title: string;
   description: string;
@@ -62,6 +78,10 @@ export interface IJobRepository {
     limit: number
   ): Promise<{ applications: JobApplication[]; total: number } | null>;
   getJob(jobId: string): Promise<any>;
-  getAllJobs(): Promise<IJob[]>;
+  getAllJobs(
+    page?: number,
+    limit?: number,
+    filters?: JobFilters
+  ): Promise<PaginatedJobResult>;
   applyToJob(jobId: string, userId: string, resumeUrl: string): Promise<IJob>;
 }

@@ -2,7 +2,11 @@ import { IJob } from "../../../infrastructure/database/models/job.modal";
 
 export interface IUserJobService {
   // Get all jobs that are open and not past deadline
-  getAllJobs(): Promise<IJob[]>;
+  getAllJobs(
+    page?: number,
+    limit?: number,
+    filters?: Record<string, any>
+  ): Promise<{ jobs: IJob[]; total: number; totalPages: number }>;
 
   // Get a single job by ID (only if open and not past deadline)
   getJob(jobId: string): Promise<IJob | null>;

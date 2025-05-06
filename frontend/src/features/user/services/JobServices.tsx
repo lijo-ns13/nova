@@ -1,13 +1,63 @@
 import userAxios from "../../../utils/userAxios";
+import { PaginatedJobResponse } from "../types/jobTypes";
 
 const API_BASE_URL = "http://localhost:3000";
 
-// Get all jobs
-export const getJobs = async () => {
-  const response = await userAxios.get(`${API_BASE_URL}/jobs`);
+export const getJobs = async (
+  filters: JobFilterOptions = {}
+): Promise<PaginatedJobResponse> => {
+  const params = new URLSearchParams();
+
+  // Add pagination params
+  if (filters.page) params.append("page", filters.page.toString());
+  if (filters.limit) params.append("limit", filters.limit.toString());
+
+  // Add filter params
+  if (filters.title) params.append("title", filters.title);
+  if (filters.location) params.append("location", filters.location);
+  if (filters.jobType) {
+    if (Array.isArray(filters.jobType)) {
+      filters.jobType.forEach((type) => params.append("jobType", type));
+    } else {
+      params.append("jobType", filters.jobType);
+    }
+  }
+  if (filters.employmentType) {
+    if (Array.isArray(filters.employmentType)) {
+      filters.employmentType.forEach((type) =>
+        params.append("employmentType", type)
+      );
+    } else {
+      params.append("employmentType", filters.employmentType);
+    }
+  }
+  if (filters.experienceLevel) {
+    if (Array.isArray(filters.experienceLevel)) {
+      filters.experienceLevel.forEach((level) =>
+        params.append("experienceLevel", level)
+      );
+    } else {
+      params.append("experienceLevel", filters.experienceLevel);
+    }
+  }
+  if (filters.skills) {
+    if (Array.isArray(filters.skills)) {
+      filters.skills.forEach((skill) => params.append("skills", skill));
+    } else {
+      params.append("skills", filters.skills);
+    }
+  }
+  if (filters.minSalary)
+    params.append("minSalary", filters.minSalary.toString());
+  if (filters.maxSalary)
+    params.append("maxSalary", filters.maxSalary.toString());
+  if (filters.company) params.append("company", filters.company);
+
+  const response = await userAxios.get(
+    `${API_BASE_URL}/jobs?${params.toString()}`
+  );
   return response.data;
 };
-
 // Get one job by ID
 export const getJob = async (jobId: string) => {
   const response = await userAxios.get(`${API_BASE_URL}/jobs/${jobId}`);

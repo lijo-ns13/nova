@@ -143,17 +143,74 @@ export class JobRepository implements IJobRepository {
         { path: "company", select: "-password -documents" },
       ]);
   }
-  async getAllJobs(): Promise<IJob[]> {
-    return jobModal
-      .find({
-        status: "open",
-        applicationDeadline: { $gte: new Date() },
-      })
+  async getAllJobs(
+    page: number = 1,
+    limit: number = 10,
+    filters: Record<string, any> = {}
+  ): Promise<{ jobs: IJob[]; total: number; totalPages: number }> {
+    // Base query for open jobs with valid deadline
+    const query: any = {
+      status: "open",
+      applicationDeadline: { $gte: new Date() },
+    };
+
+    // Apply filters if provided
+    if (filters) {
+      if (filters.title) {
+        query.title = { $regex: filters.title, $options: "i" };
+      }
+      if (filters.location) {
+        query.location = { $regex: filters.location, $options: "i" };
+      }
+      if (filters.jobType) {
+        query.jobType = {
+          $in: Array.isArray(filters.jobType)
+            ? filters.jobType
+            : [filters.jobType],
+        };
+      }
+      if (filters.employmentType) {
+        query.employmentType = {
+          $in: Array.isArray(filters.employmentType)
+            ? filters.employmentType
+            : [filters.employmentType],
+        };
+      }
+      if (filters.experienceLevel) {
+        query.experienceLevel = {
+          $in: Array.isArray(filters.experienceLevel)
+            ? filters.experienceLevel
+            : [filters.experienceLevel],
+        };
+      }
+      if (filters.skills) {
+        query.skillsRequired = { $in: filters.skills };
+      }
+      if (filters.minSalary) {
+        query["salary.min"] = { $gte: Number(filters.minSalary) };
+      }
+      if (filters.maxSalary) {
+        query["salary.max"] = { $lte: Number(filters.maxSalary) };
+      }
+      if (filters.company) {
+        query.company = filters.company;
+      }
+    }
+
+    const total = await jobModal.countDocuments(query);
+    const totalPages = Math.ceil(total / limit);
+
+    const jobs = await jobModal
+      .find(query)
       .populate([
         { path: "skillsRequired" },
         { path: "company", select: "-password -documents" },
       ])
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    return { jobs, total, totalPages };
   }
 
   async applyToJob(

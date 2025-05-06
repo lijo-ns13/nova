@@ -17,15 +17,46 @@ export class UserJobController implements IUserJobController {
   constructor(
     @inject(TYPES.UserJobService) private jobService: IUserJobService
   ) {}
-  getAllJobs: RequestHandler = async (_req: Request, res: Response) => {
+  getAllJobs: RequestHandler = async (req: Request, res: Response) => {
     try {
-      const jobs = await this.jobService.getAllJobs();
-      console.log("jobs", jobs);
-      res.status(HTTP_STATUS_CODES.OK).json(jobs);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      // Extract filters from query params
+      const filters: Record<string, any> = {};
+
+      if (req.query.title) filters.title = req.query.title;
+      if (req.query.location) filters.location = req.query.location;
+      if (req.query.jobType) filters.jobType = req.query.jobType;
+      if (req.query.employmentType)
+        filters.employmentType = req.query.employmentType;
+      if (req.query.experienceLevel)
+        filters.experienceLevel = req.query.experienceLevel;
+      if (req.query.skills)
+        filters.skills = Array.isArray(req.query.skills)
+          ? req.query.skills
+          : [req.query.skills];
+      if (req.query.minSalary) filters.minSalary = req.query.minSalary;
+      if (req.query.maxSalary) filters.maxSalary = req.query.maxSalary;
+      if (req.query.company) filters.company = req.query.company;
+
+      const result = await this.jobService.getAllJobs(page, limit, filters);
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        data: result.jobs,
+        pagination: {
+          page,
+          limit,
+          total: result.total,
+          totalPages: result.totalPages,
+        },
+      });
     } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
   };
   getJob: RequestHandler = async (req: Request, res: Response) => {

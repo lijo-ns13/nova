@@ -13,8 +13,12 @@ export class UserJobService implements IUserJobService {
     private userRepository: IUserRepository
   ) {}
 
-  async getAllJobs(): Promise<IJob[]> {
-    return this.jobRepository.getAllJobs();
+  async getAllJobs(
+    page: number = 1,
+    limit: number = 10,
+    filters: Record<string, any> = {}
+  ): Promise<{ jobs: IJob[]; total: number; totalPages: number }> {
+    return this.jobRepository.getAllJobs(page, limit, filters);
   }
   async getJob(jobId: string) {
     return this.jobRepository.getJob(jobId);
