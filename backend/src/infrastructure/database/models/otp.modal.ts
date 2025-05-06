@@ -52,5 +52,5 @@ OTPSchema.pre<IOTP>("save", async function (next) {
   }
 });
 
-OTPSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 60 }); //expire after 1 minute
+OTPSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); //expire after 1 minute
 export default mongoose.model<IOTP>("OTP", OTPSchema);

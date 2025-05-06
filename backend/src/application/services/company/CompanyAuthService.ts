@@ -123,6 +123,7 @@ export class CompanyAuthService implements ICompanyAuthService {
       location: tempCompany.location,
     };
     const companyData = await this.companyRepository.create(tempCompanyData);
+    await this.tempCompanyRepository.delete(tempCompany._id.toString());
     return { message: "verfied successfull", company: companyData };
   }
   async resendOTP(email: string): Promise<{ message: string }> {
