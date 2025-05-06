@@ -291,7 +291,9 @@ export class UserProfileController implements IUserProfileController {
     try {
       const { currentPassword, newPassword, confirmPassword } = req.body;
       if (!currentPassword || !newPassword || !confirmPassword) {
-        res.status(400).json({ message: "Please provide all fields" });
+        res
+          .status(HTTP_STATUS_CODES.BAD_REQUEST)
+          .json({ message: "Please provide all fields" });
         return;
       }
       console.log("req.body", req.body);

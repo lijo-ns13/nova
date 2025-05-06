@@ -9,6 +9,7 @@ import {
 } from "express";
 import userModal from "../../../infrastructure/database/models/user.modal";
 import { JWTService } from "../../../shared/util/jwt.service";
+import { HTTP_STATUS_CODES } from "../../../core/enums/httpStatusCode";
 
 // ENV variables
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
@@ -54,7 +55,9 @@ router.get("/google/callback", (async (req: Request, res: Response) => {
   const code = req.query.code as string;
 
   if (!code) {
-    return res.status(400).json({ message: "No code provided" });
+    return res
+      .status(HTTP_STATUS_CODES.BAD_REQUEST)
+      .json({ message: "No code provided" });
   }
 
   try {
@@ -137,7 +140,7 @@ router.get("/google/callback", (async (req: Request, res: Response) => {
       error.response?.data || error.message
     );
     return res
-      .status(500)
+      .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
       .json({ message: "Authentication failed", error: error });
   }
 }) as RequestHandler);
@@ -152,7 +155,9 @@ router.post("/refresh-token", (async (
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
-    res.status(401).json({ message: "No refresh token provided" });
+    res
+      .status(HTTP_STATUS_CODES.UNAUTHORIZED)
+      .json({ message: "No refresh token provided" });
     return;
   }
 
@@ -160,7 +165,9 @@ router.post("/refresh-token", (async (
     const decoded = jwtService.verifyRefreshToken("user", refreshToken);
 
     if (!decoded) {
-      res.status(401).json({ message: "Invalid refresh token" });
+      res
+        .status(HTTP_STATUS_CODES.UNAUTHORIZED)
+        .json({ message: "Invalid refresh token" });
       return;
     }
 
@@ -184,11 +191,15 @@ router.post("/refresh-token", (async (
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
-    res.status(200).json({ message: "Access token refreshed" });
+    res
+      .status(HTTP_STATUS_CODES.OK)
+      .json({ message: "Access token refreshed" });
     return;
   } catch (error) {
     console.error("Error refreshing token:", (error as Error).message);
-    res.status(401).json({ message: "Invalid or expired refresh token" });
+    res
+      .status(HTTP_STATUS_CODES.UNAUTHORIZED)
+      .json({ message: "Invalid or expired refresh token" });
     return;
   }
 }) as RequestHandler);
@@ -197,13 +208,17 @@ router.get("/me", (async (req: Request, res: Response) => {
     const token = req.cookies.accessToken;
 
     if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res
+        .status(HTTP_STATUS_CODES.UNAUTHORIZED)
+        .json({ message: "Unauthorized" });
     }
 
     const decoded = jwtService.verifyAccessToken("user", token);
 
     if (!decoded) {
-      return res.status(401).json({ message: "Invalid token" });
+      return res
+        .status(HTTP_STATUS_CODES.UNAUTHORIZED)
+        .json({ message: "Invalid token" });
     }
 
     const user = await userModal.findById(decoded.id);
@@ -220,14 +235,18 @@ router.get("/me", (async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error getting user info:", (error as Error).message);
-    res.status(500).json({ message: "Server error" });
+    res
+      .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+      .json({ message: "Server error" });
   }
 }) as RequestHandler);
 router.get("/refresh-user", (async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
-    return res.status(401).json({ message: "No refresh token found" });
+    return res
+      .status(HTTP_STATUS_CODES.UNAUTHORIZED)
+      .json({ message: "No refresh token found" });
   }
 
   try {
@@ -235,7 +254,9 @@ router.get("/refresh-user", (async (req: Request, res: Response) => {
     const decoded = jwtService.verifyRefreshToken("user", refreshToken);
 
     if (!decoded) {
-      return res.status(401).json({ message: "Invalid refresh token" });
+      return res
+        .status(HTTP_STATUS_CODES.UNAUTHORIZED)
+        .json({ message: "Invalid refresh token" });
     }
 
     // Find user by ID
@@ -261,7 +282,7 @@ router.get("/refresh-user", (async (req: Request, res: Response) => {
     });
 
     // Return user data to frontend
-    res.status(200).json({
+    res.status(HTTP_STATUS_CODES.OK).json({
       name: user.name,
       email: user.email,
       role: "user",
@@ -269,7 +290,9 @@ router.get("/refresh-user", (async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error in /refresh-user:", (error as Error).message);
-    res.status(500).json({ message: "Server error" });
+    res
+      .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+      .json({ message: "Server error" });
   }
 }) as RequestHandler);
 const catchAsync =
@@ -283,14 +306,16 @@ router.get(
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
-      return res.status(401).json({ message: "No refresh token provided" });
+      return res
+        .status(HTTP_STATUS_CODES.UNAUTHORIZED)
+        .json({ message: "No refresh token provided" });
     }
 
     const decoded = jwtService.verifyRefreshToken("user", refreshToken);
 
     if (!decoded) {
       return res
-        .status(401)
+        .status(HTTP_STATUS_CODES.UNAUTHORIZED)
         .json({ message: "Invalid or expired refresh token" });
     }
 
@@ -315,7 +340,9 @@ router.get(
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
-    return res.status(200).json({ message: "Access token refreshed" });
+    return res
+      .status(HTTP_STATUS_CODES.OK)
+      .json({ message: "Access token refreshed" });
   })
 );
 

@@ -51,7 +51,9 @@ export class CompanyAuthController implements ICompanyAuthController {
       const parsed = signInCompanyRequestSchema.parse(req.body);
       const result = await this.authService.signIn(parsed);
       if (!result) {
-        res.status(400).json({ message: "not slfjlsjf" });
+        res
+          .status(HTTP_STATUS_CODES.BAD_REQUEST)
+          .json({ message: "not slfjlsjf" });
         return;
       }
       res.cookie("refreshToken", result.refreshToken, {

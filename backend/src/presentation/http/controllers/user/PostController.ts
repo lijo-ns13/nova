@@ -17,6 +17,7 @@ import {
   ICommentService,
   ICommentServiceResponse,
 } from "../../../../core/interfaces/services/ICommentService";
+import { HTTP_STATUS_CODES } from "../../../../core/enums/httpStatusCode";
 interface Userr {
   id: string;
   email: string;
@@ -44,10 +45,10 @@ export class PostController implements IPostController {
         mediaFiles
       );
 
-      return res.status(201).json(post);
+      return res.status(HTTP_STATUS_CODES.CREATED).json(post);
     } catch (err) {
       return res
-        .status(500)
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
         .json({ error: (err as Error).message, how: "lksjfls" });
     }
   }
@@ -55,10 +56,12 @@ export class PostController implements IPostController {
     try {
       const { postId } = req.params;
       const post = await this._postService.getPost(postId);
-      return res.status(200).json({ success: true, post: post });
+      return res
+        .status(HTTP_STATUS_CODES.OK)
+        .json({ success: true, post: post });
     } catch (error) {
       return res
-        .status(500)
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
         .json({ error: (error as Error).message, how: "lksjfls" });
     }
   }
@@ -67,10 +70,10 @@ export class PostController implements IPostController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const posts = await this._postService.getAllPost(page, limit);
-      return res.status(200).json(posts);
+      return res.status(HTTP_STATUS_CODES.OK).json(posts);
     } catch (error) {
       return res
-        .status(500)
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
         .json({ error: (error as Error).message, how: "lksjfls" });
     }
   }
@@ -81,11 +84,13 @@ export class PostController implements IPostController {
 
       const result = await this._likeService.likeOrUnlikePost(postId, userId);
 
-      return res.status(200).json({
+      return res.status(HTTP_STATUS_CODES.OK).json({
         message: result.liked ? "Post liked" : "Post unliked",
       });
     } catch (error) {
-      return res.status(500).json({ error: (error as Error).message });
+      return res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .json({ error: (error as Error).message });
     }
   }
 
@@ -94,9 +99,11 @@ export class PostController implements IPostController {
       const { postId } = req.params;
       const likes = await this._likeService.getLikesForPost(postId);
 
-      return res.status(200).json({ likes });
+      return res.status(HTTP_STATUS_CODES.OK).json({ likes });
     } catch (error) {
-      return res.status(500).json({ error: (error as Error).message });
+      return res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .json({ error: (error as Error).message });
     }
   }
   // comment related
@@ -114,9 +121,11 @@ export class PostController implements IPostController {
         parentId
       );
 
-      res.status(201).json(comment);
+      res.status(HTTP_STATUS_CODES.CREATED).json(comment);
     } catch (error) {
-      res.status(400).json({ message: (error as Error).message });
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ message: (error as Error).message });
     }
   }
   async updateComment(req: Request, res: Response): Promise<void> {
@@ -128,9 +137,11 @@ export class PostController implements IPostController {
       const updatedComment: ICommentServiceResponse =
         await this._commentService.updateComment(commentId, content, userId);
 
-      res.status(200).json(updatedComment);
+      res.status(HTTP_STATUS_CODES.OK).json(updatedComment);
     } catch (error) {
-      res.status(500).json({ message: (error as Error).message });
+      res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .json({ message: (error as Error).message });
     }
   }
 
@@ -140,9 +151,13 @@ export class PostController implements IPostController {
       const userId = (req.user as Userr)?.id;
 
       await this._commentService.deleteComment(commentId, userId);
-      res.status(200).json({ message: "Comment deleted successfully." });
+      res
+        .status(HTTP_STATUS_CODES.OK)
+        .json({ message: "Comment deleted successfully." });
     } catch (error) {
-      res.status(500).json({ message: (error as Error).message });
+      res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .json({ message: (error as Error).message });
     }
   }
 
@@ -154,9 +169,11 @@ export class PostController implements IPostController {
       const result: ICommentServiceResponse =
         await this._commentService.toggleLikeComment(commentId, userId);
 
-      res.status(200).json(result);
+      res.status(HTTP_STATUS_CODES.OK).json(result);
     } catch (error) {
-      res.status(500).json({ message: (error as Error).message });
+      res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .json({ message: (error as Error).message });
     }
   }
   async getPostComments(req: Request, res: Response): Promise<void> {
@@ -171,9 +188,11 @@ export class PostController implements IPostController {
         limit
       );
 
-      res.status(200).json(result);
+      res.status(HTTP_STATUS_CODES.OK).json(result);
     } catch (error) {
-      res.status(400).json({ message: (error as Error).message });
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ message: (error as Error).message });
     }
   }
 }
