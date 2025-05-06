@@ -7,10 +7,10 @@ import { ISkillService } from "../core/interfaces/services/ISkillService";
 export class SkillService implements ISkillService {
   constructor(
     @inject(TYPES.SkillRepository)
-    private skillRepository: ISkillRepository
+    private _skillRepository: ISkillRepository
   ) {}
   async searchSkills(query: string): Promise<string[]> {
     if (!query.trim()) return [];
-    return this.skillRepository.searchSkills(query);
+    return this._skillRepository.searchSkills(query);
   }
 }

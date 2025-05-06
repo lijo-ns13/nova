@@ -10,12 +10,12 @@ import { IAdminAuthService } from "../../core/interfaces/services/IAdminAuthServ
 export class AdminAuthService implements IAdminAuthService {
   constructor(
     @inject(TYPES.AdminRepository)
-    private admiRepository: IAdminRepository,
+    private _admiRepository: IAdminRepository,
     @inject(TYPES.JWTService)
-    private jwtService: IJWTService
+    private _jwtService: IJWTService
   ) {}
   async signIn(payload: AdminSignInRequestDTO) {
-    const admin = await this.admiRepository.findByEmail(payload.email);
+    const admin = await this._admiRepository.findByEmail(payload.email);
     if (!admin) throw new Error("Admin not found");
 
     const isPasswordValid = await bcrypt.compare(
@@ -24,12 +24,12 @@ export class AdminAuthService implements IAdminAuthService {
     );
     if (!isPasswordValid) throw new Error("Invalid credentials");
 
-    const accessToken = this.jwtService.generateAccessToken("admin", {
+    const accessToken = this._jwtService.generateAccessToken("admin", {
       id: admin.id.toString(),
       email: admin.email,
       role: "admin",
     });
-    const refreshToken = this.jwtService.generateRefreshToken("admin", {
+    const refreshToken = this._jwtService.generateRefreshToken("admin", {
       id: admin.id.toString(),
       email: admin.email,
       role: "admin",

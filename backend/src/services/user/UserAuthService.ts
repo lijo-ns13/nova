@@ -25,20 +25,20 @@ import { generateUsername } from "../../shared/util/GenerateUserName";
 @injectable()
 export class UserAuthService implements IUserAuthService {
   constructor(
-    @inject(TYPES.EmailService) private emailService: IEmailService,
-    @inject(TYPES.UserRepository) private userRepository: IUserRepository,
-    @inject(TYPES.OTPRepository) private otpRepository: IOTPRepository,
+    @inject(TYPES.EmailService) private _emailService: IEmailService,
+    @inject(TYPES.UserRepository) private _userRepository: IUserRepository,
+    @inject(TYPES.OTPRepository) private _otpRepository: IOTPRepository,
     @inject(TYPES.TempUserRepository)
-    private tempUserRepository: ITempUserRepository,
+    private _tempUserRepository: ITempUserRepository,
     @inject(TYPES.PasswordResetTokenRepository)
-    private passwordResetTokenRepository: IPasswordResetTokenRepository,
+    private _passwordResetTokenRepository: IPasswordResetTokenRepository,
     @inject(TYPES.JWTService)
-    private jwtService: IJWTService
+    private _jwtService: IJWTService
   ) {}
 
   async signUp(payload: SignupRequestDTO): Promise<SignUpResponseDTO> {
-    const existingUser = await this.userRepository.findByEmail(payload.email);
-    const existingTempUser = await this.tempUserRepository.findByEmail(
+    const existingUser = await this._userRepository.findByEmail(payload.email);
+    const existingTempUser = await this._tempUserRepository.findByEmail(
       payload.email
     );
 
@@ -48,7 +48,7 @@ export class UserAuthService implements IUserAuthService {
         "You tried too many times. Please try again later.**temp user exists**"
       );
 
-    const tempUser = await this.tempUserRepository.createTempUser({
+    const tempUser = await this._tempUserRepository.createTempUser({
       name: payload.name,
       email: payload.email,
       password: payload.password,
@@ -57,14 +57,14 @@ export class UserAuthService implements IUserAuthService {
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 1 * 60 * 1000); // 1 minute
 
-    await this.otpRepository.createOTP({
+    await this._otpRepository.createOTP({
       accountId: tempUser._id,
       accountType: "user",
       otp: otp,
       expiresAt: expiresAt,
     });
 
-    await this.emailService.sendOTP(tempUser.email, otp);
+    await this._emailService.sendOTP(tempUser.email, otp);
 
     return {
       id: tempUser._id.toString(),
@@ -76,7 +76,7 @@ export class UserAuthService implements IUserAuthService {
   }
 
   async signIn(payload: SigninRequestDTO): Promise<SignInResponseDTO> {
-    const user = await this.userRepository.findByEmail(payload.email, true);
+    const user = await this._userRepository.findByEmail(payload.email, true);
     if (!user) throw new Error("User not found");
     if (!user.password) {
       throw new Error("Google signin users dont have");
@@ -87,13 +87,13 @@ export class UserAuthService implements IUserAuthService {
     );
     if (!isPasswordValid) throw new Error("Invalid password");
 
-    const userAccessToken = this.jwtService.generateAccessToken("user", {
+    const userAccessToken = this._jwtService.generateAccessToken("user", {
       id: user._id.toString(),
       email: user.email,
       role: "user",
     });
 
-    const userRefreshToken = this.jwtService.generateRefreshToken("user", {
+    const userRefreshToken = this._jwtService.generateRefreshToken("user", {
       id: user._id.toString(),
       email: user.email,
       role: "user",
@@ -116,10 +116,10 @@ export class UserAuthService implements IUserAuthService {
   }
 
   async verifyOTP(email: string, otp: string): Promise<{ message: string }> {
-    const tempUser = await this.tempUserRepository.findByEmail(email);
+    const tempUser = await this._tempUserRepository.findByEmail(email);
     if (!tempUser) throw new Error("User not found or already verified");
 
-    const otpRecord = await this.otpRepository.findOTPByAccount(
+    const otpRecord = await this._otpRepository.findOTPByAccount(
       tempUser._id,
       "user"
     );
@@ -129,10 +129,10 @@ export class UserAuthService implements IUserAuthService {
     const isMatch = await bcrypt.compare(otp, otpRecord.otp);
     if (!isMatch) throw new Error("Invalid OTP");
     let username = generateUsername(tempUser.name);
-    while (await this.userRepository.isUsernameTaken(username)) {
+    while (await this._userRepository.isUsernameTaken(username)) {
       username = `${generateUsername(tempUser.name)}`;
     }
-    await this.userRepository.createUser({
+    await this._userRepository.createUser({
       name: tempUser.name,
       username: username,
       email: tempUser.email,
@@ -143,10 +143,10 @@ export class UserAuthService implements IUserAuthService {
   }
 
   async resendOTP(email: string): Promise<{ message: string }> {
-    const tempUser = await this.tempUserRepository.findByEmail(email);
+    const tempUser = await this._tempUserRepository.findByEmail(email);
     if (!tempUser) throw new Error("User not found or already verified");
 
-    const otpRecord = await this.otpRepository.findOTPByAccount(
+    const otpRecord = await this._otpRepository.findOTPByAccount(
       tempUser._id,
       "user"
     );
@@ -157,12 +157,12 @@ export class UserAuthService implements IUserAuthService {
     const hashedOTP = await bcrypt.hash(newOTP, 10);
 
     if (otpRecord) {
-      await this.otpRepository.updateOTP(otpRecord._id, {
+      await this._otpRepository.updateOTP(otpRecord._id, {
         otp: hashedOTP,
         expiresAt: expiresAt,
       });
     } else {
-      await this.otpRepository.createOTP({
+      await this._otpRepository.createOTP({
         accountId: tempUser._id,
         accountType: "user",
         otp: hashedOTP,
@@ -170,29 +170,29 @@ export class UserAuthService implements IUserAuthService {
       });
     }
 
-    await this.emailService.sendOTP(tempUser.email, newOTP);
+    await this._emailService.sendOTP(tempUser.email, newOTP);
 
     return { message: "OTP resent successfully. Please check your email." };
   }
 
   async forgetPassword(email: string): Promise<{ rawToken: string }> {
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this._userRepository.findByEmail(email);
     if (!user) throw new Error("User not found");
 
     const userId = user._id;
 
-    await this.passwordResetTokenRepository.deleteByAccount(userId, "user");
+    await this._passwordResetTokenRepository.deleteByAccount(userId, "user");
 
     const { rawToken, hashedToken, expiresAt } = generatePasswordResetToken();
 
-    await this.passwordResetTokenRepository.createToken({
+    await this._passwordResetTokenRepository.createToken({
       token: hashedToken,
       accountId: userId,
       accountType: "user",
       expiresAt,
     });
 
-    await this.emailService.sendPasswordResetEmail(user.email, rawToken);
+    await this._emailService.sendPasswordResetEmail(user.email, rawToken);
 
     return { rawToken };
   }
@@ -206,7 +206,7 @@ export class UserAuthService implements IUserAuthService {
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    const tokenDoc = await this.passwordResetTokenRepository.findByToken(
+    const tokenDoc = await this._passwordResetTokenRepository.findByToken(
       hashedToken
     );
     if (!tokenDoc || tokenDoc.expiresAt < new Date())
@@ -217,12 +217,12 @@ export class UserAuthService implements IUserAuthService {
       throw new Error("Invalid account type for this operation");
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await this.userRepository.updatePassword(
+    await this._userRepository.updatePassword(
       accountId.toString(),
       hashedPassword
     );
 
-    await this.passwordResetTokenRepository.deleteByAccount(
+    await this._passwordResetTokenRepository.deleteByAccount(
       accountId,
       accountType
     );

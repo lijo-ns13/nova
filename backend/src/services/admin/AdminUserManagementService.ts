@@ -7,30 +7,30 @@ import { IUser } from "../../models/user.modal";
 export class AdminUserManagementService implements IAdminUserManagementService {
   constructor(
     @inject(TYPES.UserRepository)
-    private userRepository: IUserRepository
+    private _userRepository: IUserRepository
   ) {}
   // Block user
   async blockUser(userId: string) {
-    const user = await this.userRepository.findById(userId);
+    const user = await this._userRepository.findById(userId);
     if (!user) throw new Error("User not found");
     if (user.isBlocked) throw new Error("User is already blocked");
 
-    return this.userRepository.updateUser(userId, { isBlocked: true });
+    return this._userRepository.updateUser(userId, { isBlocked: true });
   }
 
   // Unblock user
   async unblockUser(userId: string) {
-    const user = await this.userRepository.findById(userId);
+    const user = await this._userRepository.findById(userId);
     if (!user) throw new Error("User not found");
     if (!user.isBlocked) throw new Error("User is already unblocked");
 
-    return this.userRepository.updateUser(userId, { isBlocked: false });
+    return this._userRepository.updateUser(userId, { isBlocked: false });
   }
 
   // Get users with pagination
   async getUsers(page: number = 1, limit: number = 10, searchQuery?: string) {
     try {
-      const { users, totalUsers } = await this.userRepository.findUsers(
+      const { users, totalUsers } = await this._userRepository.findUsers(
         page,
         limit,
         searchQuery

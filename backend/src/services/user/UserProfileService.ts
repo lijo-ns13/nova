@@ -12,10 +12,10 @@ import { IUserProfileService } from "../../core/interfaces/services/IUserProfile
 export class UserProfileService implements IUserProfileService {
   constructor(
     @inject(TYPES.UserRepository)
-    private userRepository: IUserRepository
+    private _userRepository: IUserRepository
   ) {}
   async getUserProfile(userId: string): Promise<IUser> {
-    const user = await this.userRepository.getUserProfile(userId);
+    const user = await this._userRepository.getUserProfile(userId);
     if (!user) {
       throw new Error("User not found");
     }
@@ -23,7 +23,7 @@ export class UserProfileService implements IUserProfileService {
   }
 
   async getUserProfileWithDetails(userId: string): Promise<IUser> {
-    const user = await this.userRepository.getUserProfileWithDetails(userId);
+    const user = await this._userRepository.getUserProfileWithDetails(userId);
     if (!user) {
       throw new Error("User not found");
     }
@@ -41,7 +41,7 @@ export class UserProfileService implements IUserProfileService {
         );
       }
 
-      const isTaken = await this.userRepository.isUsernameTaken(
+      const isTaken = await this._userRepository.isUsernameTaken(
         newUsername,
         userId
       );
@@ -52,7 +52,7 @@ export class UserProfileService implements IUserProfileService {
       data.username = newUsername;
     }
 
-    const updated = await this.userRepository.updateUserProfile(userId, data);
+    const updated = await this._userRepository.updateUserProfile(userId, data);
     if (!updated) {
       throw new Error("User profile update failed.");
     }
@@ -62,7 +62,7 @@ export class UserProfileService implements IUserProfileService {
 
   // Profile image management
   async updateProfileImage(userId: string, imageUrl: string) {
-    const updateImg = await this.userRepository.updateProfileImage(
+    const updateImg = await this._userRepository.updateProfileImage(
       userId,
       imageUrl
     );
@@ -73,7 +73,7 @@ export class UserProfileService implements IUserProfileService {
   }
 
   async deleteProfileImage(userId: string): Promise<boolean> {
-    const deleted = await this.userRepository.deleteProfileImage(userId);
+    const deleted = await this._userRepository.deleteProfileImage(userId);
     if (!deleted) {
       throw new Error("Failed to delete profile image");
     }
@@ -85,14 +85,14 @@ export class UserProfileService implements IUserProfileService {
     userId: string,
     education: IUserEducation
   ): Promise<IUserEducation> {
-    return await this.userRepository.addEducation(userId, education);
+    return await this._userRepository.addEducation(userId, education);
   }
 
   async editEducation(
     educationId: string,
     data: Partial<IUserEducation>
   ): Promise<IUserEducation> {
-    const updated = await this.userRepository.updateEducation(
+    const updated = await this._userRepository.updateEducation(
       educationId,
       data
     );
@@ -103,7 +103,7 @@ export class UserProfileService implements IUserProfileService {
   }
 
   async deleteEducation(userId: string, educationId: string): Promise<boolean> {
-    const deleted = await this.userRepository.deleteEducation(
+    const deleted = await this._userRepository.deleteEducation(
       userId,
       educationId
     );
@@ -118,14 +118,14 @@ export class UserProfileService implements IUserProfileService {
     userId: string,
     experience: IUserExperience
   ): Promise<IUserExperience> {
-    return await this.userRepository.addExperience(userId, experience);
+    return await this._userRepository.addExperience(userId, experience);
   }
 
   async editExperience(
     experienceId: string,
     data: Partial<IUserExperience>
   ): Promise<IUserExperience> {
-    const updated = await this.userRepository.updateExperience(
+    const updated = await this._userRepository.updateExperience(
       experienceId,
       data
     );
@@ -139,7 +139,7 @@ export class UserProfileService implements IUserProfileService {
     userId: string,
     experienceId: string
   ): Promise<boolean> {
-    const deleted = await this.userRepository.deleteExperience(
+    const deleted = await this._userRepository.deleteExperience(
       userId,
       experienceId
     );
@@ -154,14 +154,14 @@ export class UserProfileService implements IUserProfileService {
     userId: string,
     project: IUserProject
   ): Promise<IUserProject> {
-    return await this.userRepository.addProject(userId, project);
+    return await this._userRepository.addProject(userId, project);
   }
 
   async editProject(
     projectId: string,
     data: Partial<IUserProject>
   ): Promise<IUserProject> {
-    const updated = await this.userRepository.updateProject(projectId, data);
+    const updated = await this._userRepository.updateProject(projectId, data);
     if (!updated) {
       throw new Error("Failed to update project");
     }
@@ -169,7 +169,7 @@ export class UserProfileService implements IUserProfileService {
   }
 
   async deleteProject(userId: string, projectId: string): Promise<boolean> {
-    const deleted = await this.userRepository.deleteProject(userId, projectId);
+    const deleted = await this._userRepository.deleteProject(userId, projectId);
     if (!deleted) {
       throw new Error("Failed to delete project");
     }
@@ -181,14 +181,14 @@ export class UserProfileService implements IUserProfileService {
     userId: string,
     certificate: IUserCertificate
   ): Promise<IUserCertificate> {
-    return await this.userRepository.addCertificate(userId, certificate);
+    return await this._userRepository.addCertificate(userId, certificate);
   }
 
   async editCertificate(
     certificateId: string,
     data: Partial<IUserCertificate>
   ): Promise<IUserCertificate> {
-    const updated = await this.userRepository.updateCertificate(
+    const updated = await this._userRepository.updateCertificate(
       certificateId,
       data
     );
@@ -202,7 +202,7 @@ export class UserProfileService implements IUserProfileService {
     userId: string,
     certificateId: string
   ): Promise<boolean> {
-    const deleted = await this.userRepository.deleteCertificate(
+    const deleted = await this._userRepository.deleteCertificate(
       userId,
       certificateId
     );
@@ -213,22 +213,22 @@ export class UserProfileService implements IUserProfileService {
   }
   // Education
   async getAllEducations(userId: string): Promise<IUserEducation[]> {
-    return await this.userRepository.getAllEducations(userId);
+    return await this._userRepository.getAllEducations(userId);
   }
 
   // Experience
   async getAllExperiences(userId: string): Promise<IUserExperience[]> {
-    return await this.userRepository.getAllExperiences(userId);
+    return await this._userRepository.getAllExperiences(userId);
   }
 
   // Projects
   async getAllProjects(userId: string): Promise<IUserProject[]> {
-    return await this.userRepository.getAllProjects(userId);
+    return await this._userRepository.getAllProjects(userId);
   }
 
   // Certificates
   async getAllCertificates(userId: string): Promise<IUserCertificate[]> {
-    return await this.userRepository.getAllCertificates(userId);
+    return await this._userRepository.getAllCertificates(userId);
   }
   async changePassword(
     userId: string,
@@ -239,7 +239,7 @@ export class UserProfileService implements IUserProfileService {
     if (newPassword !== confirmPassword) {
       throw new Error("New password and confirm password must match");
     }
-    await this.userRepository.changePassword(
+    await this._userRepository.changePassword(
       userId,
       currentPassword,
       newPassword

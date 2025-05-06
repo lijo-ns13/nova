@@ -9,47 +9,49 @@ export class AdminCompanyManagementService
 {
   constructor(
     @inject(TYPES.CompanyRepository)
-    private companyRepository: ICompanyRepository
+    private _companyRepository: ICompanyRepository
   ) {}
   async deleteCompany(companyId: string) {
-    const company = await this.companyRepository.findById(companyId);
+    const company = await this._companyRepository.findById(companyId);
     if (!company) throw new Error("Company not found");
 
-    return this.companyRepository.deleteCompany(companyId);
+    return this._companyRepository.deleteCompany(companyId);
   }
   async findCompanyById(companyId: string) {
     return this.getCompanyById(companyId);
   }
   async getCompanyById(companyId: string) {
-    const company = await this.companyRepository.findById(companyId);
+    const company = await this._companyRepository.findById(companyId);
     if (!company) throw new Error("Company not found");
     return company;
   }
 
   async verifyCompany(companyId: string, status: "accepted" | "rejected") {
-    const company = await this.companyRepository.findById(companyId);
+    const company = await this._companyRepository.findById(companyId);
     if (!company) throw new Error("Company not found");
 
     const isVerified = status === "accepted";
 
-    return this.companyRepository.updateCompany(companyId, {
+    return this._companyRepository.updateCompany(companyId, {
       verificationStatus: status,
       isVerified: isVerified,
     });
   }
 
   async blockCompany(companyId: string) {
-    const company = await this.companyRepository.findById(companyId);
+    const company = await this._companyRepository.findById(companyId);
     if (!company) throw new Error("Company not found");
 
-    return this.companyRepository.updateCompany(companyId, { isBlocked: true });
+    return this._companyRepository.updateCompany(companyId, {
+      isBlocked: true,
+    });
   }
 
   async unblockCompany(companyId: string) {
-    const company = await this.companyRepository.findById(companyId);
+    const company = await this._companyRepository.findById(companyId);
     if (!company) throw new Error("Company not found");
 
-    return this.companyRepository.updateCompany(companyId, {
+    return this._companyRepository.updateCompany(companyId, {
       isBlocked: false,
     });
   }
@@ -62,7 +64,7 @@ export class AdminCompanyManagementService
   ) {
     try {
       const { companies, totalCompanies } =
-        await this.companyRepository.findCompanies(page, limit, searchQuery);
+        await this._companyRepository.findCompanies(page, limit, searchQuery);
 
       if (!companies || typeof totalCompanies !== "number") {
         throw new Error("Users or total count not found");
@@ -90,7 +92,7 @@ export class AdminCompanyManagementService
     const filter = { isVerified: false };
 
     const { companies, totalCompanies } =
-      await this.companyRepository.findCompaniesByFilter(filter, page, limit);
+      await this._companyRepository.findCompaniesByFilter(filter, page, limit);
 
     const totalPages = Math.ceil(totalCompanies / limit);
 

@@ -8,18 +8,18 @@ import { IAdminSkillService } from "../../core/interfaces/services/IAdminSkillSe
 export class AdminSkillService implements IAdminSkillService {
   constructor(
     @inject(TYPES.SkillRepository)
-    private skillRepository: ISkillRepository
+    private _skillRepository: ISkillRepository
   ) {}
   async create(title: string): Promise<ISkill> {
     if (!title.trim()) {
       throw new Error("Skill title cannot be empty");
     }
     const lowerTitle = title.trim();
-    const existingSkill = await this.skillRepository.getByTitle(lowerTitle);
+    const existingSkill = await this._skillRepository.getByTitle(lowerTitle);
     if (existingSkill) {
       throw new Error("Skill already exists");
     }
-    return this.skillRepository.create(title);
+    return this._skillRepository.create(title);
   }
 
   async update(id: string, updates: Partial<ISkill>): Promise<ISkill> {
@@ -28,12 +28,12 @@ export class AdminSkillService implements IAdminSkillService {
     }
     const lowerTitle = updates.title;
     if (lowerTitle) {
-      const existingSkill = await this.skillRepository.getByTitle(lowerTitle);
+      const existingSkill = await this._skillRepository.getByTitle(lowerTitle);
       if (existingSkill) {
         throw new Error("Skill already exists");
       }
     }
-    const updated = await this.skillRepository.update(id, updates);
+    const updated = await this._skillRepository.update(id, updates);
     if (!updated) {
       throw new Error("Skill not found");
     }
@@ -41,12 +41,12 @@ export class AdminSkillService implements IAdminSkillService {
   }
 
   async delete(id: string): Promise<void> {
-    const exists = await this.skillRepository.getById(id);
+    const exists = await this._skillRepository.getById(id);
     if (!exists) {
       throw new Error("Skill not found");
     }
 
-    const success = await this.skillRepository.delete(id);
+    const success = await this._skillRepository.delete(id);
     if (!success) {
       throw new Error("Failed to delete skill");
     }
@@ -65,7 +65,7 @@ export class AdminSkillService implements IAdminSkillService {
     if (page < 1) page = 1;
     if (limit < 1 || limit > 100) limit = 10;
 
-    const { skills, total } = await this.skillRepository.getAll(
+    const { skills, total } = await this._skillRepository.getAll(
       page,
       limit,
       search
@@ -79,7 +79,7 @@ export class AdminSkillService implements IAdminSkillService {
     };
   }
   async getById(id: string): Promise<ISkill> {
-    const skill = await this.skillRepository.getById(id);
+    const skill = await this._skillRepository.getById(id);
     if (!skill) {
       throw new Error("Skill not found");
     }

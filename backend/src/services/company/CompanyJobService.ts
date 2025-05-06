@@ -7,19 +7,19 @@ import {
   UpdateJobDto,
 } from "../../core/interfaces/repositories/IJobRepository";
 import { TYPES } from "../../di/types";
-import { IJob, JobApplication } from "../../database/models/job.modal";
+import { IJob, JobApplication } from "../../models/job.modal";
 import { ICompanyJobService } from "../../core/interfaces/services/ICompanyJobService";
 
 export class CompanyJobService implements ICompanyJobService {
   constructor(
     @inject(TYPES.JobRepository)
-    private jobRepository: IJobRepository
+    private _jobRepository: IJobRepository
   ) {}
   async createJob(
     createJobDto: CreateJobDto,
     companyId: string
   ): Promise<IJob> {
-    return await this.jobRepository.createJob(createJobDto, companyId);
+    return await this._jobRepository.createJob(createJobDto, companyId);
   }
 
   async updateJob(
@@ -27,18 +27,18 @@ export class CompanyJobService implements ICompanyJobService {
     companyId: string,
     updateJobDto: UpdateJobDto
   ): Promise<IJob | null> {
-    return await this.jobRepository.updateJob(jobId, companyId, updateJobDto);
+    return await this._jobRepository.updateJob(jobId, companyId, updateJobDto);
   }
 
   async deleteJob(jobId: string, companyId: string): Promise<boolean> {
-    return await this.jobRepository.deleteJob(jobId, companyId);
+    return await this._jobRepository.deleteJob(jobId, companyId);
   }
   async getJobs(
     companyId: string,
     page: number,
     limit: number
   ): Promise<{ jobs: IJob[]; total: number }> {
-    return await this.jobRepository.getJobs(companyId, page, limit);
+    return await this._jobRepository.getJobs(companyId, page, limit);
   }
 
   async getJobApplications(
@@ -47,7 +47,7 @@ export class CompanyJobService implements ICompanyJobService {
     page: number,
     limit: number
   ): Promise<{ applications: JobApplication[]; total: number } | null> {
-    return await this.jobRepository.getJobApplications(
+    return await this._jobRepository.getJobApplications(
       jobId,
       companyId,
       page,
@@ -55,6 +55,6 @@ export class CompanyJobService implements ICompanyJobService {
     );
   }
   async getJob(jobId: string) {
-    return await this.jobRepository.getJob(jobId);
+    return await this._jobRepository.getJob(jobId);
   }
 }
