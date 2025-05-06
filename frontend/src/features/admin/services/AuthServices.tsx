@@ -1,5 +1,7 @@
 import axios from "axios";
-const BASE_URL = "http://localhost:3000/auth/admin";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const BASE_URL = `${API_BASE_URL}/auth/admin`;
 export const SignInAdmin = async (email: string, password: string) => {
   try {
     const result = axios.post(

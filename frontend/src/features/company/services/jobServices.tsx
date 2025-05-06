@@ -1,7 +1,9 @@
 // src/modules/company/services/jobService.ts
 import companyAxios from "../../../utils/companyAxios";
 
-const BASE_URL = "http://localhost:3000/company/job";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const BASE_URL = `${API_BASE_URL}/company/job`;
 
 export const JobService = {
   async createJob(data: any) {

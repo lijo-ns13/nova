@@ -1,7 +1,9 @@
 import userAxios from "../../../utils/userAxios";
 
-const API_BASE_URL = "http://localhost:3000/user-profile";
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const API_BASE_URL = `${BASE_URL}/user-profile`;
+
 // User Profile
 export const getUserProfile = async (userId: string) => {
   const response = await userAxios.get(`${API_BASE_URL}/${userId}`);

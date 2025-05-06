@@ -1,6 +1,8 @@
 import axios from "axios";
 import toast from "react-hot-toast";
-const BASE_URL = "http://localhost:3000/auth/company";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const BASE_URL = `${API_BASE_URL}/auth/company`;
 export const signUpCompany = async (
   companyName: string,
   email: string,

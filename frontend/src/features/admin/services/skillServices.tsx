@@ -1,6 +1,8 @@
 import adminAxios from "../../../utils/adminAxios";
 import { ISkill, CreateSkillDto, UpdateSkillDto } from "../types/skills";
-const API_BASE_URL = "http://localhost:3000/admin/skills";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const API_BASE_URL = `${BASE_URL}/admin/skills`;
 
 export const SkillService = {
   async createSkill(data: CreateSkillDto): Promise<ISkill> {
