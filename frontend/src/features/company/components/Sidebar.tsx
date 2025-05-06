@@ -6,7 +6,7 @@ const Sidebar = () => {
   // Navigation items
   const navItems = [
     { name: "Dashboard", path: "/company/dashboard", icon: "📊" },
-    { name: "Post Job", path: "/company/jobs", icon: "📝" },
+    // { name: "Post Job", path: "/company/jobs", icon: "📝" },
     { name: "Manage Jobs", path: "/company/manage-jobs", icon: "📋" },
     { name: "Applications", path: "/applications", icon: "👥" },
     { name: "Messages", path: "/messages", icon: "💬" },

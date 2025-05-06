@@ -5,6 +5,8 @@ import AdminRoutes from "./routes/AdminRoutes";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LockedDashboard from "./features/company/pages/LockedDashboard";
 import { Toaster } from "react-hot-toast";
+import ProtectedMultiRole from "./routes/ProtectedMultiRole";
+import MainProfilePage from "./features/user/pages/MainProfilePage";
 function App() {
   return (
     <BrowserRouter>
@@ -12,6 +14,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         {/* userroutes */}
         <Route path="/*" element={<UserRoutes />} />
+
         {/* companyroutes */}
         <Route path="/company/*" element={<CompanyRoutes />} />
         <Route path="/admin/*" element={<AdminRoutes />} />

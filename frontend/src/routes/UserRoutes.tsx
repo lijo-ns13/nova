@@ -12,16 +12,14 @@ import FeedPage from "../features/user/pages/FeedPage";
 import JobPage from "../features/user/pages/JobPage";
 import Protected from "./Protected";
 import OAuthSuccessPage from "../features/user/pages/OAuthSuccess";
-import ProfilePage from "../features/user/pages/ProfilePage";
+
 import JobDetailedPage from "../features/user/pages/JobDetailedPage";
 import AppliedJobsPage from "../features/user/pages/AppliedJobsPage";
 import SavedJobsPage from "../features/user/pages/SavedJobsPage";
-import { useAppSelector } from "../hooks/useAppSelector";
+
 import ProtectedMultiRole from "./ProtectedMultiRole";
 import MainProfilePage from "../features/user/pages/MainProfilePage";
 const UserRoutes = () => {
-  const { username } = useAppSelector((state) => state.auth);
-
   return (
     <Routes>
       {/* user auth pages */}

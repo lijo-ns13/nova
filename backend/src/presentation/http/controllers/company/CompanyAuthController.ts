@@ -72,6 +72,7 @@ export class CompanyAuthController implements ICompanyAuthController {
         user: result.company,
         isVerified: result.isVerified,
         isBlocked: result.isBlocked,
+        username: "company",
       });
     } catch (error) {
       if (error instanceof ZodError) {

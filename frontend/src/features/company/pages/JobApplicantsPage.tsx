@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { JobService } from "../services/jobServices";
 import { useEffect, useState } from "react";
 import {
@@ -24,6 +24,7 @@ interface Applicant {
     name: string;
     email: string;
     profilePicture: string;
+    username: string;
   };
 }
 
@@ -267,9 +268,11 @@ function JobApplicantsPage() {
 
                   {/* Applicant Details */}
                   <div className="flex-1 min-w-0">
-                    <h2 className="text-xl font-bold text-gray-900">
-                      {applicant.user.name}
-                    </h2>
+                    <Link to={`/in/${applicant.user.username}`}>
+                      <h2 className="text-xl font-bold text-gray-900">
+                        {applicant.user.name}
+                      </h2>
+                    </Link>
                     <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm">
                       <div className="flex items-center gap-2 text-gray-600">
                         <FaRegEnvelope className="flex-shrink-0" />
