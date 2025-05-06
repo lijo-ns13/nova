@@ -58,3 +58,27 @@ export const fetchComments = async (postId: string, page: number) => {
   );
   return response.data;
 };
+export const toggleCommentLike = async (commentId: string) => {
+  const response = await userAxios.post(
+    `${BASE_URL}/post/comment/${commentId}/like`, // Removed colon
+    { withCredentials: true }
+  );
+  return response.data;
+};
+
+export const updateComment = async (commentId: string, content: string) => {
+  const response = await userAxios.put(
+    `${BASE_URL}/post/comment/${commentId}`, // Removed colon
+    { content },
+    { withCredentials: true }
+  );
+  return response.data;
+};
+
+export const deleteComment = async (commentId: string) => {
+  const response = await userAxios.delete(
+    `${BASE_URL}/post/comment/${commentId}`, // Removed colon
+    { withCredentials: true }
+  );
+  return response.data;
+};

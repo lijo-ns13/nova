@@ -9,16 +9,25 @@ import {
   ChevronDown,
   ChevronUp,
   MessageSquare,
+  Pencil,
+  X,
 } from "lucide-react";
 import Avatar from "../ui/Avatar";
 import Button from "../ui/Button";
 import { useAppSelector } from "../../../../hooks/useAppSelector";
-import { AddComment, fetchComments } from "../../services/PostService";
+import {
+  AddComment,
+  fetchComments,
+  toggleCommentLike,
+  updateComment as updateCommentAPI,
+  deleteComment as deleteCommentAPI,
+} from "../../services/PostService";
 
 interface CommentAuthor {
   _id: string;
   name: string;
   profilePicture: string;
+  username: string;
 }
 
 interface Comment {
@@ -55,6 +64,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   const [totalPages, setTotalPages] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const replyInputRef = useRef<HTMLInputElement>(null);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const editInputRef = useRef<HTMLInputElement>(null);
+
   const { name: authorName } = useAppSelector((state) => state.auth);
   // Mock function to simulate API call for comments
   const fetchComment = async (
@@ -62,6 +75,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     page: number,
     initialLoad = false
   ) => {
+    console.log(initialLoad);
     // This would be replaced with your actual API call
     try {
       const response = await fetchComments(postId, page);
@@ -107,6 +121,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         const processedComments = processCommentsHierarchy(res.comments);
 
         setComments(processedComments);
+        console.log("comments", comments);
         setTotalPages(res.totalPages);
         setCurrentPage(res.currentPage);
       } catch (error) {
@@ -279,10 +294,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     });
   };
 
-  const handleLikeComment = (commentId: string) => {
-    setComments((prev) => likeComment(prev, commentId));
-  };
-
   const likeComment = (comments: Comment[], commentId: string): Comment[] => {
     return comments.map((comment) => {
       if (comment._id === commentId) {
@@ -304,10 +315,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     });
   };
 
-  const handleDeleteComment = (commentId: string) => {
-    setComments((prev) => deleteComment(prev, commentId));
-  };
-
   const deleteComment = (comments: Comment[], commentId: string): Comment[] => {
     return comments.filter((comment) => {
       if (comment._id === commentId) {
@@ -319,7 +326,23 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       return true;
     });
   };
+  const handleLikeComment = async (commentId: string) => {
+    try {
+      await toggleCommentLike(commentId);
+      setComments((prev) => likeComment(prev, commentId));
+    } catch (error) {
+      console.error("Error liking comment:", error);
+    }
+  };
 
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await deleteCommentAPI(commentId);
+      setComments((prev) => deleteComment(prev, commentId));
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
+  };
   const formatTimeAgo = (dateString: string) => {
     const now = new Date();
     const commentDate = new Date(dateString);
@@ -338,7 +361,52 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
     return commentDate.toLocaleDateString();
   };
+  const startEditing = (comment: Comment) => {
+    setEditingCommentId(comment._id);
+    setEditContent(comment.content);
+    setTimeout(() => {
+      if (editInputRef.current) {
+        editInputRef.current.focus();
+      }
+    }, 10);
+  };
 
+  const cancelEditing = () => {
+    setEditingCommentId(null);
+    setEditContent("");
+  };
+  const handleUpdateComment = async (commentId: string) => {
+    if (!editContent.trim()) return;
+
+    try {
+      await updateCommentAPI(commentId, editContent);
+      setComments((prev) => updateCommentInState(prev, commentId, editContent));
+      cancelEditing();
+    } catch (error) {
+      console.error("Error updating comment:", error);
+    }
+  };
+  const updateCommentInState = (
+    comments: Comment[],
+    commentId: string,
+    newContent: string
+  ): Comment[] => {
+    return comments.map((comment) => {
+      if (comment._id === commentId) {
+        return {
+          ...comment,
+          content: newContent,
+          updatedAt: new Date().toISOString(),
+        };
+      } else if (comment.replies && comment.replies.length > 0) {
+        return {
+          ...comment,
+          replies: updateCommentInState(comment.replies, commentId, newContent),
+        };
+      }
+      return comment;
+    });
+  };
   // Recursive comment rendering component
   const CommentItem = ({
     comment,
@@ -350,6 +418,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     const isAuthor = comment?.authorId?._id === currentUserId;
     const hasReplies = comment.repliesCount > 0;
     const isReplying = replyingTo === comment?._id;
+    const isEditing = editingCommentId === comment._id;
 
     return (
       <div
@@ -375,9 +444,37 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                   {formatTimeAgo(comment.createdAt)}
                 </span>
               </div>
-              <p className="text-gray-700 dark:text-gray-300 text-sm break-words whitespace-pre-line">
-                {comment?.content}
-              </p>
+
+              {isEditing ? (
+                <div className="relative">
+                  <input
+                    ref={editInputRef}
+                    type="text"
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-2 px-3 text-gray-800 dark:text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                  />
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                    <button
+                      onClick={() => handleUpdateComment(comment._id)}
+                      className="text-green-500 hover:text-green-600 p-1"
+                      disabled={!editContent.trim()}
+                    >
+                      <Send size={14} />
+                    </button>
+                    <button
+                      onClick={cancelEditing}
+                      className="text-gray-400 hover:text-gray-500 p-1"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-gray-700 dark:text-gray-300 text-sm break-words whitespace-pre-line">
+                  {comment?.content}
+                </p>
+              )}
             </div>
 
             <div className="flex items-center gap-4 px-2 mt-1.5 text-xs">
@@ -431,13 +528,22 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
                 <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-1 w-32 hidden group-hover:block z-10">
                   {isAuthor ? (
-                    <button
-                      className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700/50"
-                      onClick={() => handleDeleteComment(comment._id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      <span>Delete</span>
-                    </button>
+                    <>
+                      <button
+                        className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-indigo-500 hover:bg-gray-100 dark:hover:bg-gray-700/50"
+                        onClick={() => startEditing(comment)}
+                      >
+                        <Pencil className="w-4 h-4" />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700/50"
+                        onClick={() => handleDeleteComment(comment._id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>Delete</span>
+                      </button>
+                    </>
                   ) : (
                     <button className="flex items-center gap-2 w-full px-3 py-2 text-left text-sm text-yellow-500 hover:bg-gray-100 dark:hover:bg-gray-700/50">
                       <Flag className="w-4 h-4" />
