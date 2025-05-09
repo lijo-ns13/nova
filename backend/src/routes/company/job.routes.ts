@@ -11,7 +11,7 @@ const jobController = container.get<ICompanyJobController>(
 
 const router = Router();
 router.use(authMiddleware.authenticate("company"));
-
+router.use(authMiddleware.check());
 router.post("/job", jobController.createJob);
 router.put("/job/:jobId", jobController.updateJob);
 router.delete("/job/:jobId", jobController.deleteJob);

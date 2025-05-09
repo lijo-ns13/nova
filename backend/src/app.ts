@@ -12,7 +12,11 @@ import companyRouter from "./routes/company.routes";
 import adminRouter from "./routes/admin.routes";
 import sharedRouter from "./routes/shared.routes";
 import googleRouter from "./routes/google.routes";
+import container from "./di/container";
+import { IAuthMiddleware } from "./interfaces/middlewares/IAuthMiddleware";
+import { TYPES } from "./di/types";
 dotenv.config();
+const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const app: Application = express();
 const corsOptions = {
@@ -35,8 +39,9 @@ app.use("/api/auth", googleRouter);
 app.use("/", sharedRouter);
 // user auth
 app.use("/auth", authRouter);
-app.use("/", userRouter);
+
 app.use("/admin", adminRouter);
+app.use("/", userRouter);
 app.use("/company", companyRouter);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

@@ -11,6 +11,7 @@ const userProfileController = container.get<IUserProfileController>(
 
 const router = Router();
 router.use(authMiddleware.authenticate("user"));
+router.use(authMiddleware.check());
 router.patch("/change-password", (req, res) =>
   userProfileController.changePassword(req, res)
 );

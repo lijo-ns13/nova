@@ -4,7 +4,10 @@ import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
 } from "axios";
-
+import { logOut } from "../features/user/services/AuthServices";
+import { logout } from "../features/auth/auth.slice";
+import { store } from "../store/store";
+import toast from "react-hot-toast";
 // Backend base URL
 const BASE_URL = "http://localhost:3000/company";
 
@@ -53,7 +56,16 @@ companyAxios.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
+    if (error.response?.status === 403) {
+      // Optional: Show alert or use custom toast
+      toast.error("Access denied: You are blocked. Redirecting to login.");
+      await logOut();
+      store.dispatch(logout());
+      // Redirect to login page with optional query param/message
+      // window.location.href = "/login?error=blocked";
 
+      return Promise.reject(error);
+    }
     return Promise.reject(error);
   }
 );

@@ -6,6 +6,7 @@ import { TYPES } from "../di/types";
 const router = Router();
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
+// router.use(authMiddleware.check());
 // job
-router.use("/", authMiddleware.check(), JobRouter);
+router.use("/", JobRouter);
 export default router;

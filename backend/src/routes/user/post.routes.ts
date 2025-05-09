@@ -17,6 +17,7 @@ export const uploadMedia = upload.array("media"); // 'media' should match your f
 
 const router = Router();
 router.use(authMiddleware.authenticate("user"));
+router.use(authMiddleware.check());
 
 router.post("/post", uploadMedia, (req, res, next) => {
   postController.create(req, res).catch(next); // This ensures the error is passed to Express's error handler

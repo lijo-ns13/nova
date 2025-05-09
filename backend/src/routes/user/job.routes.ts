@@ -12,7 +12,7 @@ const jobController = container.get<IUserJobController>(
 
 const router = Router();
 router.use(authMiddleware.authenticate("user"));
-
+router.use(authMiddleware.check());
 // Get all jobs
 router.get("/jobs", jobController.getAllJobs);
 // Get all jobs the user has applied to

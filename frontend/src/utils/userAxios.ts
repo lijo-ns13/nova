@@ -7,7 +7,10 @@ import axios, {
 
 // Backend base URL
 const BASE_URL = "http://localhost:3000/";
-
+import { logOut } from "../features/user/services/AuthServices";
+import { logout } from "../features/auth/auth.slice";
+import { store } from "../store/store";
+import toast from "react-hot-toast";
 const userAxios: AxiosInstance = axios.create({
   baseURL: BASE_URL,
   withCredentials: true, // Sends cookies automatically
@@ -52,6 +55,16 @@ userAxios.interceptors.response.use(
         // Optionally redirect or logout
         return Promise.reject(refreshError);
       }
+    }
+    if (error.response?.status === 403) {
+      // Optional: Show alert or use custom toast
+      toast.error("Access denied: You are blocked. Redirecting to login.");
+      await logOut();
+      store.dispatch(logout());
+      // Redirect to login page with optional query param/message
+      // window.location.href = "/login?error=blocked";
+
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);

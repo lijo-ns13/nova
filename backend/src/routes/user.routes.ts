@@ -7,8 +7,8 @@ import { IAuthMiddleware } from "../interfaces/middlewares/IAuthMiddleware";
 import { TYPES } from "../di/types";
 const router = Router();
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
-router.use(authMiddleware.check());
-// job
+// router.use(authMiddleware.check());
+
 router.use("/", JobRouter);
 router.use("/user-profile", profileRouter);
 router.use("/", postRouter);

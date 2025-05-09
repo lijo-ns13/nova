@@ -214,7 +214,7 @@ export class AuthMiddleware implements IAuthMiddleware {
     ): Promise<void> => {
       try {
         const user = req.user as IUserr;
-
+        console.log("usersrrs", user);
         if (!user) {
           res
             .status(HTTP_STATUS_CODES.UNAUTHORIZED)
