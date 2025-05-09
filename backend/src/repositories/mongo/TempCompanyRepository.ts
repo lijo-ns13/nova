@@ -1,7 +1,7 @@
 // src/infrastructure/database/repositories/mongo/TempCompanyRepository.ts
 import { inject, injectable } from "inversify";
 import { Model } from "mongoose";
-import { ITempCompanyRepository } from "../../core/interfaces/repositories/ITempCompanyRepository";
+import { ITempCompanyRepository } from "../../interfaces/repositories/ITempCompanyRepository";
 import companyTempModal, {
   ITempCompany,
 } from "../../models/company.temp.modal";

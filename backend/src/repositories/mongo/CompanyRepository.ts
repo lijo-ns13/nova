@@ -1,7 +1,7 @@
 // src/infrastructure/database/repositories/mongo/CompanyRepository.ts
 import { inject, injectable } from "inversify";
 import { Model } from "mongoose";
-import { ICompanyRepository } from "../../core/interfaces/repositories/ICompanyRepository";
+import { ICompanyRepository } from "../../interfaces/repositories/ICompanyRepository";
 import companyModal, { ICompany } from "../../models/company.modal";
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";

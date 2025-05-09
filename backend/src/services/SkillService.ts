@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
-import { ISkillRepository } from "../core/interfaces/repositories/ISkillRepository";
+import { ISkillRepository } from "../interfaces/repositories/ISkillRepository";
 import { TYPES } from "../di/types";
-import { ISkillService } from "../core/interfaces/services/ISkillService";
+import { ISkillService } from "../interfaces/services/ISkillService";
 
 @injectable()
 export class SkillService implements ISkillService {

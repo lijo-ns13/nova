@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { Model } from "mongoose";
-import { IUserRepository } from "../../core/interfaces/repositories/IUserRepository";
+import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import userModal, { IUser } from "../../models/user.modal";
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";

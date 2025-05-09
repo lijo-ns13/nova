@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { ISkill } from "../../models/skill.modal";
-import { ISkillRepository } from "../../core/interfaces/repositories/ISkillRepository";
-import { IAdminSkillService } from "../../core/interfaces/services/IAdminSkillService";
+import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
+import { IAdminSkillService } from "../../interfaces/services/IAdminSkillService";
 
 @injectable()
 export class AdminSkillService implements IAdminSkillService {

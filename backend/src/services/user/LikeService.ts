@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify";
-import { ILikeService } from "../../core/interfaces/services/Post/ILikeService";
-import { ILikeRepository } from "../../core/interfaces/repositories/ILikeRepository";
+import { ILikeService } from "../../interfaces/services/Post/ILikeService";
+import { ILikeRepository } from "../../interfaces/repositories/ILikeRepository";
 import { TYPES } from "../../di/types";
 import { Types } from "mongoose";
 

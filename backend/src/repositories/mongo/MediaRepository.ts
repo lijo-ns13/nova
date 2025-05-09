@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { IMediaRepository } from "../../core/interfaces/repositories/IMediaRepository";
+import { IMediaRepository } from "../../interfaces/repositories/IMediaRepository";
 import { BaseRepository } from "./BaseRepository";
 import mediaModal, { IMedia } from "../../models/media.modal";
 

@@ -1,11 +1,11 @@
-import { IUserRepository } from "../../core/interfaces/repositories/IUserRepository";
+import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { TYPES } from "../../di/types";
 import { inject, injectable } from "inversify";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { Request, RequestHandler, Response } from "express";
 
-import { IAdminSkillController } from "../../core/interfaces/controllers/IAdminSkillController";
-import { IAdminSkillService } from "../../core/interfaces/services/IAdminSkillService";
+import { IAdminSkillController } from "../../interfaces/controllers/IAdminSkillController";
+import { IAdminSkillService } from "../../interfaces/services/IAdminSkillService";
 
 @injectable()
 export class AdminSkillController implements IAdminSkillController {

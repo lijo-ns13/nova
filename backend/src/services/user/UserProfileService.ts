@@ -1,12 +1,12 @@
 import { inject, injectable } from "inversify";
-import { IUserRepository } from "../../core/interfaces/repositories/IUserRepository";
+import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { TYPES } from "../../di/types";
 import { IUser } from "../../models/user.modal";
 import { IUserEducation } from "../../models/userEducation.model";
 import { IUserExperience } from "../../models/userExperience.model";
 import { IUserProject } from "../../models/userProject.model";
 import { IUserCertificate } from "../../models/userCertificate.model";
-import { IUserProfileService } from "../../core/interfaces/services/IUserProfileService";
+import { IUserProfileService } from "../../interfaces/services/IUserProfileService";
 
 @injectable()
 export class UserProfileService implements IUserProfileService {

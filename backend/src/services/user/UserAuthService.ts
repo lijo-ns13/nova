@@ -8,18 +8,18 @@ import {
 } from "../../core/dtos/response/user.response.dto";
 import * as bcrypt from "bcryptjs";
 import { JWTService } from "../../shared/util/jwt.service";
-import { IUserRepository } from "../../core/interfaces/repositories/IUserRepository";
-import { ITempUserRepository } from "../../core/interfaces/repositories/ITempUserRepository";
-import { IOTPRepository } from "../../core/interfaces/repositories/IOTPRepository";
-import { IPasswordResetTokenRepository } from "../../core/interfaces/repositories/IPasswordResetTokenRepository";
-import { IEmailService } from "../../core/interfaces/services/IEmailService";
+import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
+import { ITempUserRepository } from "../../interfaces/repositories/ITempUserRepository";
+import { IOTPRepository } from "../../interfaces/repositories/IOTPRepository";
+import { IPasswordResetTokenRepository } from "../../interfaces/repositories/IPasswordResetTokenRepository";
+import { IEmailService } from "../../interfaces/services/IEmailService";
 import { generateOTP } from "../../shared/util/otp.util";
 import { generatePasswordResetToken } from "../../shared/util/generatePasswordResetToken ";
 import crypto from "crypto";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
-import { IUserAuthService } from "../../core/interfaces/services/IUserAuthService";
-import { IJWTService } from "../../core/interfaces/services/IJwtService";
+import { IUserAuthService } from "../../interfaces/services/IUserAuthService";
+import { IJWTService } from "../../interfaces/services/IJwtService";
 import { generateUsername } from "../../shared/util/GenerateUserName";
 
 @injectable()

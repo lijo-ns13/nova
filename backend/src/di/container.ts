@@ -3,27 +3,27 @@ import { TYPES } from "./types";
 
 import userModal from "../models/user.modal";
 
-import { IUserRepository } from "../core/interfaces/repositories/IUserRepository";
-import { ITempUserRepository } from "../core/interfaces/repositories/ITempUserRepository";
+import { IUserRepository } from "../interfaces/repositories/IUserRepository";
+import { ITempUserRepository } from "../interfaces/repositories/ITempUserRepository";
 
 import { TempUserRepository } from "../repositories/mongo/TempUserRepository";
 import { UserRepository } from "../repositories/mongo/UserRepository";
-import { ITempCompanyRepository } from "../core/interfaces/repositories/ITempCompanyRepository";
+import { ITempCompanyRepository } from "../interfaces/repositories/ITempCompanyRepository";
 import { TempCompanyRepository } from "../repositories/mongo/TempCompanyRepository";
-import { ICompanyRepository } from "../core/interfaces/repositories/ICompanyRepository";
+import { ICompanyRepository } from "../interfaces/repositories/ICompanyRepository";
 import { CompanyRepository } from "../repositories/mongo/CompanyRepository";
-import { IOTPRepository } from "../core/interfaces/repositories/IOTPRepository";
-import { IPasswordResetTokenRepository } from "../core/interfaces/repositories/IPasswordResetTokenRepository";
+import { IOTPRepository } from "../interfaces/repositories/IOTPRepository";
+import { IPasswordResetTokenRepository } from "../interfaces/repositories/IPasswordResetTokenRepository";
 import { OTPRepository } from "../repositories/mongo/OTPRepository";
 import { PasswordResetTokenRepository } from "../repositories/mongo/PasswordResetTokenRepository";
-import { IUserAuthService } from "../core/interfaces/services/IUserAuthService";
-import { IEmailService } from "../core/interfaces/services/IEmailService";
+import { IUserAuthService } from "../interfaces/services/IUserAuthService";
+import { IEmailService } from "../interfaces/services/IEmailService";
 import { EmailService } from "../services/user/Email.Service";
 import { UserAuthService } from "../services/user/UserAuthService";
 import { AuthMiddleware } from "../middlewares/auth.middleware";
 import { JWTService } from "../shared/util/jwt.service";
 import { AuthController } from "../controllers/user/AuthController";
-import { IAuthController } from "../core/interfaces/controllers/IUserAuthController";
+import { IAuthController } from "../interfaces/controllers/IUserAuthController";
 import { IUser } from "../models/user.modal";
 import { Model } from "mongoose";
 import otpModal, { IOTP } from "../models/otp.modal";
@@ -33,76 +33,80 @@ import PasswordResetToken, {
 } from "../models/PasswordResetToken";
 import { CompanyAuthController } from "../controllers/company/CompanyAuthController";
 import { CompanyAuthService } from "../services/company/CompanyAuthService";
-import { ICompanyAuthService } from "../core/interfaces/services/ICompanyAuthService";
-import { ICompanyAuthController } from "../core/interfaces/controllers/ICompanyAuthController";
+import { ICompanyAuthService } from "../interfaces/services/ICompanyAuthService";
+import { ICompanyAuthController } from "../interfaces/controllers/ICompanyAuthController";
 import companyModal, { ICompany } from "../models/company.modal";
 import companyTempModal, { ITempCompany } from "../models/company.temp.modal";
 import { Admin } from "../models/admin.modal";
 import { AdminRepository } from "../repositories/mongo/AdminRepository";
-import { IAdminRepository } from "../core/interfaces/repositories/IAdminRepository";
+import { IAdminRepository } from "../interfaces/repositories/IAdminRepository";
 import { AdminAuthService } from "../services/admin/AdminAuthService";
-import { IAdminAuthService } from "../core/interfaces/services/IAdminAuthService";
+import { IAdminAuthService } from "../interfaces/services/IAdminAuthService";
 import { AdminAuthController } from "../controllers/admin/AdminAuthController";
-import { IAdminAuthController } from "../core/interfaces/controllers/IAdminAuthController";
-import { IJobRepository } from "../core/interfaces/repositories/IJobRepository";
+import { IAdminAuthController } from "../interfaces/controllers/IAdminAuthController";
+import { IJobRepository } from "../interfaces/repositories/IJobRepository";
 import { JobRepository } from "../repositories/mongo/JobRepository";
-import { IUserJobService } from "../core/interfaces/services/IUserJobService";
+import { IUserJobService } from "../interfaces/services/IUserJobService";
 import { UserJobService } from "../services/user/UserJobService";
-import { IUserJobController } from "../core/interfaces/controllers/IUserJobController";
+import { IUserJobController } from "../interfaces/controllers/IUserJobController";
 import { UserJobController } from "../controllers/user/UserJobController";
-import { IAuthMiddleware } from "../core/interfaces/middlewares/IAuthMiddleware";
-import { IJWTService } from "../core/interfaces/services/IJwtService";
-import { ICompanyJobService } from "../core/interfaces/services/ICompanyJobService";
+import { IAuthMiddleware } from "../interfaces/middlewares/IAuthMiddleware";
+import { IJWTService } from "../interfaces/services/IJwtService";
+import { ICompanyJobService } from "../interfaces/services/ICompanyJobService";
 import { CompanyJobService } from "../services/company/CompanyJobService";
 import { CompanyJobController } from "../controllers/company/CompanyJobController";
-import { ICompanyJobController } from "../core/interfaces/controllers/ICompanyJobController";
-import { IAdminUserManagementService } from "../core/interfaces/services/IAdminUserManagementService";
+import { ICompanyJobController } from "../interfaces/controllers/ICompanyJobController";
+import { IAdminUserManagementService } from "../interfaces/services/IAdminUserManagementService";
 import { AdminUserManagementService } from "../services/admin/AdminUserManagementService";
-import { IAdminUserManagementController } from "../core/interfaces/controllers/IAdminUserManagementController ";
+import { IAdminUserManagementController } from "../interfaces/controllers/IAdminUserManagementController ";
 import { AdminUserManagementController } from "../controllers/admin/AdminUserManagementController";
-import { IAdminCompanyManagementController } from "../core/interfaces/controllers/IAdminCompanyManagementController";
+import { IAdminCompanyManagementController } from "../interfaces/controllers/IAdminCompanyManagementController";
 import { AdminCompanyManagementController } from "../controllers/admin/AdminCompanyManagementController";
-import { IAdminCompanyManagementService } from "../core/interfaces/services/IAdminCompanyManagementService ";
+import { IAdminCompanyManagementService } from "../interfaces/services/IAdminCompanyManagementService ";
 import { AdminCompanyManagementService } from "../services/admin/AdminCompanyManagementService";
-import { ISkillRepository } from "../core/interfaces/repositories/ISkillRepository";
+import { ISkillRepository } from "../interfaces/repositories/ISkillRepository";
 import { SkillRepository } from "../repositories/mongo/SkillRepository";
 import { AdminSkillController } from "../controllers/admin/AdminSkillController";
-import { IAdminSkillService } from "../core/interfaces/services/IAdminSkillService";
+import { IAdminSkillService } from "../interfaces/services/IAdminSkillService";
 import { AdminSkillService } from "../services/admin/AdminSkillService";
-import { IAdminSkillController } from "../core/interfaces/controllers/IAdminSkillController";
+import { IAdminSkillController } from "../interfaces/controllers/IAdminSkillController";
 import { UserProfileController } from "../controllers/user/UserProfileController";
-import { IUserProfileService } from "../core/interfaces/services/IUserProfileService";
+import { IUserProfileService } from "../interfaces/services/IUserProfileService";
 import { UserProfileService } from "../services/user/UserProfileService";
-import { IUserProfileController } from "../core/interfaces/controllers/IUserProfileController";
+import { IUserProfileController } from "../interfaces/controllers/IUserProfileController";
 import { SkillService } from "../services/SkillService";
-import { ISkillService } from "../core/interfaces/services/ISkillService";
+import { ISkillService } from "../interfaces/services/ISkillService";
 import { SkillController } from "../controllers/SkillController";
-import { ISkillController } from "../core/interfaces/controllers/ISkillController";
-import { IPostRepository } from "../core/interfaces/repositories/IPostRepository";
+import { ISkillController } from "../interfaces/controllers/ISkillController";
+import { IPostRepository } from "../interfaces/repositories/IPostRepository";
 import { PostRepository } from "../repositories/mongo/PostRepository";
-import { ICommentRepository } from "../core/interfaces/repositories/ICommentRepository";
+import { ICommentRepository } from "../interfaces/repositories/ICommentRepository";
 import { CommentRepository } from "../repositories/mongo/CommentRepository";
-import { ILikeRepository } from "../core/interfaces/repositories/ILikeRepository";
+import { ILikeRepository } from "../interfaces/repositories/ILikeRepository";
 import { LikeRepository } from "../repositories/mongo/LikeRepository";
-import { IMediaRepository } from "../core/interfaces/repositories/IMediaRepository";
+import { IMediaRepository } from "../interfaces/repositories/IMediaRepository";
 import { MediaRepository } from "../repositories/mongo/MediaRepository";
-import { IPostService } from "../core/interfaces/services/Post/IPostService";
+import { IPostService } from "../interfaces/services/Post/IPostService";
 import { PostService } from "../services/user/PostService";
-import { IMediaService } from "../core/interfaces/services/Post/IMediaService";
+import { IMediaService } from "../interfaces/services/Post/IMediaService";
 import { Types } from "aws-sdk/clients/acm";
 import { MediaService } from "../services/user/MediaService";
 import { PostController } from "../controllers/user/PostController";
-import { IPostController } from "../core/interfaces/controllers/post/IPostController";
+import { IPostController } from "../interfaces/controllers/post/IPostController";
 import postModal, { IPost } from "../models/post.modal";
 import { LikeService } from "../services/user/LikeService";
-import { ILikeService } from "../core/interfaces/services/Post/ILikeService";
+import { ILikeService } from "../interfaces/services/Post/ILikeService";
 import likeModal, { ILike } from "../models/like.modal";
-import { ICommentService } from "../core/interfaces/services/ICommentService";
+import { ICommentService } from "../interfaces/services/ICommentService";
 import { CommentService } from "../services/user/CommentService";
-import { IProfileViewService } from "../core/interfaces/services/IProfileViewService";
+import { IProfileViewService } from "../interfaces/services/IProfileViewService";
 import { ProfileViewService } from "../services/user/ProfileViewService";
-import { IProfileViewController } from "../core/interfaces/controllers/IProfileViewController";
+import { IProfileViewController } from "../interfaces/controllers/IProfileViewController";
 import { ProfileViewController } from "../controllers/ProfileViewController";
+import { ICompanyService } from "../interfaces/services/ICompanyService";
+import { CompanyService } from "../services/company/CompanyService";
+import { IUserService } from "../interfaces/services/IUserService";
+import { UserService } from "../services/user/UserService";
 
 const container = new Container();
 
@@ -170,6 +174,7 @@ container.bind<IJWTService>(TYPES.JWTService).to(JWTService);
 container
   .bind<IUserProfileService>(TYPES.UserProfileService)
   .to(UserProfileService);
+container.bind<IUserService>(TYPES.UserService).to(UserService);
 // company
 container
   .bind<ICompanyAuthService>(TYPES.CompanyAuthService)
@@ -177,6 +182,7 @@ container
 container
   .bind<ICompanyJobService>(TYPES.CompanyJobService)
   .to(CompanyJobService);
+container.bind<ICompanyService>(TYPES.CompanyService).to(CompanyService);
 // admin
 container.bind<IAdminAuthService>(TYPES.AdminAuthService).to(AdminAuthService);
 container

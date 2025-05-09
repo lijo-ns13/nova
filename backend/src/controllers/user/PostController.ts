@@ -10,13 +10,13 @@ import {
 import { injectable, inject } from "inversify";
 import { Request, Response } from "express";
 import { TYPES } from "../../di/types";
-import { IPostService } from "../../core/interfaces/services/Post/IPostService";
-import { IPostController } from "../../core/interfaces/controllers/post/IPostController";
-import { ILikeService } from "../../core/interfaces/services/Post/ILikeService";
+import { IPostService } from "../../interfaces/services/Post/IPostService";
+import { IPostController } from "../../interfaces/controllers/post/IPostController";
+import { ILikeService } from "../../interfaces/services/Post/ILikeService";
 import {
   ICommentService,
   ICommentServiceResponse,
-} from "../../core/interfaces/services/ICommentService";
+} from "../../interfaces/services/ICommentService";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 interface Userr {
   id: string;

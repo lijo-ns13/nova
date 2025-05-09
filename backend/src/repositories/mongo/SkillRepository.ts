@@ -1,4 +1,4 @@
-import { ISkillRepository } from "../../core/interfaces/repositories/ISkillRepository";
+import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
 import skillModal, { ISkill } from "../../models/skill.modal";
 
 export class SkillRepository implements ISkillRepository {

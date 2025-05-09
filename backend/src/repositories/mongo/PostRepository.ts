@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { IPostRepository } from "../../core/interfaces/repositories/IPostRepository";
+import { IPostRepository } from "../../interfaces/repositories/IPostRepository";
 import { BaseRepository } from "./BaseRepository";
 import postModal, { IPost } from "../../models/post.modal";
 import { TYPES } from "../../di/types";

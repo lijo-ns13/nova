@@ -4,7 +4,7 @@ import {
   CreateJobDto,
   IJobRepository,
   UpdateJobDto,
-} from "../../core/interfaces/repositories/IJobRepository";
+} from "../../interfaces/repositories/IJobRepository";
 import jobModal, { IJob, ApplicationStatus } from "../../models/job.modal";
 
 export class JobRepository implements IJobRepository {

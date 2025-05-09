@@ -2,7 +2,7 @@
 import { injectable } from "inversify";
 import { Types } from "mongoose";
 import commentModal, { IComment } from "../../models/comment.modal";
-import { ICommentRepository } from "../../core/interfaces/repositories/ICommentRepository";
+import { ICommentRepository } from "../../interfaces/repositories/ICommentRepository";
 
 @injectable()
 export class CommentRepository implements ICommentRepository {

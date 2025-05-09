@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import { Model } from "mongoose";
 import { ITempUser } from "../../models/user.temp.modal";
-import { ITempUserRepository } from "../../core/interfaces/repositories/ITempUserRepository";
+import { ITempUserRepository } from "../../interfaces/repositories/ITempUserRepository";
 import userTempModal from "../../models/user.temp.modal";
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";

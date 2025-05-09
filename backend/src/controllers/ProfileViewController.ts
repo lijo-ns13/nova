@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../di/types";
-import { IProfileViewService } from "../core/interfaces/services/IProfileViewService";
+import { IProfileViewService } from "../interfaces/services/IProfileViewService";
 import { HTTP_STATUS_CODES } from "../core/enums/httpStatusCode";
-import { IProfileViewController } from "../core/interfaces/controllers/IProfileViewController";
+import { IProfileViewController } from "../interfaces/controllers/IProfileViewController";
 
 @injectable()
 export class ProfileViewController implements IProfileViewController {

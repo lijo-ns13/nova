@@ -1,9 +1,9 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
-import { ICompanyRepository } from "../../core/interfaces/repositories/ICompanyRepository";
-import { ITempCompanyRepository } from "../../core/interfaces/repositories/ITempCompanyRepository";
-import { ICompanyAuthService } from "../../core/interfaces/services/ICompanyAuthService";
-import { IOTPRepository } from "../../core/interfaces/repositories/IOTPRepository";
+import { ICompanyRepository } from "../../interfaces/repositories/ICompanyRepository";
+import { ITempCompanyRepository } from "../../interfaces/repositories/ITempCompanyRepository";
+import { ICompanyAuthService } from "../../interfaces/services/ICompanyAuthService";
+import { IOTPRepository } from "../../interfaces/repositories/IOTPRepository";
 import { SignUpCompanyRequestDTO } from "../../core/dtos/company/company.signup.dto";
 import {
   SignInCompanyRequestDTO,
@@ -13,8 +13,8 @@ import bcrypt from "bcrypt";
 import { generateOTP } from "../../shared/util/otp.util";
 import { sendOTPEmail } from "../../shared/util/email.util";
 import { JWTService } from "../../shared/util/jwt.service";
-import { IEmailService } from "../../core/interfaces/services/IEmailService";
-import { IJWTService } from "../../core/interfaces/services/IJwtService";
+import { IEmailService } from "../../interfaces/services/IEmailService";
+import { IJWTService } from "../../interfaces/services/IJwtService";
 
 @injectable()
 export class CompanyAuthService implements ICompanyAuthService {

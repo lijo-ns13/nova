@@ -2,14 +2,14 @@ import { injectable, inject } from "inversify";
 
 import { TYPES } from "../../di/types";
 import { Types } from "mongoose";
-import { IUserRepository } from "../../core/interfaces/repositories/IUserRepository";
-import { IProfileViewService } from "../../core/interfaces/services/IProfileViewService";
+import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
+import { IProfileViewService } from "../../interfaces/services/IProfileViewService";
 import { IUser } from "../../models/user.modal";
-import { IPostRepository } from "../../core/interfaces/repositories/IPostRepository";
+import { IPostRepository } from "../../interfaces/repositories/IPostRepository";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { IPostServiceResponse } from "../../core/entities/post";
 import { IPost } from "../../models/post.modal";
-import { IMediaService } from "../../core/interfaces/services/Post/IMediaService";
+import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 
 @injectable()
 export class ProfileViewService implements IProfileViewService {

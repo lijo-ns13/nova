@@ -34,6 +34,7 @@ export const TYPES = {
   JWTService: Symbol.for("JWTService"),
   UserJobService: Symbol.for("UserJobService"),
   UserProfileService: Symbol.for("UserProfileService"),
+  UserService: Symbol.for("UserService"),
   // post reltaed
   PostService: Symbol.for("PostService"),
   CommentService: Symbol.for("CommentService"),
@@ -42,6 +43,7 @@ export const TYPES = {
   // company
   CompanyAuthService: Symbol.for("CompanyAuthService"),
   CompanyJobService: Symbol.for("CompanyJobService"),
+  CompanyService: Symbol.for("CompanyService"),
   // admin
   AdminAuthService: Symbol.for("AdminAuthService"),
   AdminUserManagementService: Symbol.for("AdminUserManagementService"),

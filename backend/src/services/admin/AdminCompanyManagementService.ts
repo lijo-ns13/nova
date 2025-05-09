@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
-import { IUserRepository } from "../../core/interfaces/repositories/IUserRepository";
+import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { TYPES } from "../../di/types";
-import { ICompanyRepository } from "../../core/interfaces/repositories/ICompanyRepository";
-import { IAdminCompanyManagementService } from "../../core/interfaces/services/IAdminCompanyManagementService ";
+import { ICompanyRepository } from "../../interfaces/repositories/ICompanyRepository";
+import { IAdminCompanyManagementService } from "../../interfaces/services/IAdminCompanyManagementService ";
 @injectable()
 export class AdminCompanyManagementService
   implements IAdminCompanyManagementService

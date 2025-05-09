@@ -4,7 +4,7 @@ import { BaseRepository } from "./BaseRepository"; // Import BaseRepository
 
 import { Model, Types } from "mongoose";
 import likeModal, { ILike } from "../../models/like.modal";
-import { ILikeRepository } from "../../core/interfaces/repositories/ILikeRepository";
+import { ILikeRepository } from "../../interfaces/repositories/ILikeRepository";
 import { TYPES } from "../../di/types";
 
 @injectable()

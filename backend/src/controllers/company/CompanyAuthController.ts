@@ -1,12 +1,12 @@
 import { inject } from "inversify";
-import { ICompanyAuthController } from "../../core/interfaces/controllers/ICompanyAuthController";
-import { ICompanyAuthService } from "../../core/interfaces/services/ICompanyAuthService";
+import { ICompanyAuthController } from "../../interfaces/controllers/ICompanyAuthController";
+import { ICompanyAuthService } from "../../interfaces/services/ICompanyAuthService";
 import { TYPES } from "../../di/types";
 import { signUpCompanyRequestSchema } from "../../core/dtos/company/company.signup.dto";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { ZodError } from "zod";
 import { signInCompanyRequestSchema } from "../../core/dtos/company/company.signin.dto";
-import { IJWTService } from "../../core/interfaces/services/IJwtService";
+import { IJWTService } from "../../interfaces/services/IJwtService";
 import { Request, Response } from "express";
 export class CompanyAuthController implements ICompanyAuthController {
   constructor(

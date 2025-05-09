@@ -1,10 +1,10 @@
-import { IUserRepository } from "../../core/interfaces/repositories/IUserRepository";
+import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { TYPES } from "../../di/types";
 import { inject } from "inversify";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { Request, RequestHandler, Response } from "express";
-import { IAdminUserManagementController } from "../../core/interfaces/controllers/IAdminUserManagementController ";
-import { IAdminUserManagementService } from "../../core/interfaces/services/IAdminUserManagementService";
+import { IAdminUserManagementController } from "../../interfaces/controllers/IAdminUserManagementController ";
+import { IAdminUserManagementService } from "../../interfaces/services/IAdminUserManagementService";
 export class AdminUserManagementController
   implements IAdminUserManagementController
 {

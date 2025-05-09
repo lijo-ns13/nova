@@ -1,8 +1,8 @@
 import { Router } from "express";
 import container from "../../di/container";
 import { TYPES } from "../../di/types";
-import { IAuthMiddleware } from "../../core/interfaces/middlewares/IAuthMiddleware";
-import { ICompanyJobController } from "../../core/interfaces/controllers/ICompanyJobController";
+import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
+import { ICompanyJobController } from "../../interfaces/controllers/ICompanyJobController";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const jobController = container.get<ICompanyJobController>(

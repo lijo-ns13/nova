@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../di/types";
-import { ISkillService } from "../core/interfaces/services/ISkillService";
-import { ISkillController } from "../core/interfaces/controllers/ISkillController";
+import { ISkillService } from "../interfaces/services/ISkillService";
+import { ISkillController } from "../interfaces/controllers/ISkillController";
 import { HTTP_STATUS_CODES } from "../core/enums/httpStatusCode";
 
 @injectable()

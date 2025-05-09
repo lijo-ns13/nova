@@ -5,10 +5,10 @@ import {
   CreateJobDto,
   IJobRepository,
   UpdateJobDto,
-} from "../../core/interfaces/repositories/IJobRepository";
+} from "../../interfaces/repositories/IJobRepository";
 import { TYPES } from "../../di/types";
 import { IJob, JobApplication } from "../../models/job.modal";
-import { ICompanyJobService } from "../../core/interfaces/services/ICompanyJobService";
+import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
 
 export class CompanyJobService implements ICompanyJobService {
   constructor(

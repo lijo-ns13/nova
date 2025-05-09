@@ -2,7 +2,7 @@
 import jwt, { Secret } from "jsonwebtoken";
 import { injectable } from "inversify";
 import { JWT_SECRETS } from "./jwt.constants";
-import { IJWTService } from "../../core/interfaces/services/IJwtService";
+import { IJWTService } from "../../interfaces/services/IJwtService";
 
 export interface JwtPayload {
   id: string;

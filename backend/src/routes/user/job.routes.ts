@@ -1,9 +1,9 @@
-import { IUserJobController } from "../../core/interfaces/controllers/IUserJobController";
+import { IUserJobController } from "../../interfaces/controllers/IUserJobController";
 
 import { Router } from "express";
 import container from "../../di/container";
 import { TYPES } from "../../di/types";
-import { IAuthMiddleware } from "../../core/interfaces/middlewares/IAuthMiddleware";
+import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const jobController = container.get<IUserJobController>(

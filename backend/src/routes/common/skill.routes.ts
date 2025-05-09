@@ -2,7 +2,7 @@ import { Router } from "express";
 import container from "../../di/container";
 import { TYPES } from "../../di/types";
 
-import { ISkillController } from "../../core/interfaces/controllers/ISkillController";
+import { ISkillController } from "../../interfaces/controllers/ISkillController";
 
 const skillController = container.get<ISkillController>(TYPES.SkillController);
 

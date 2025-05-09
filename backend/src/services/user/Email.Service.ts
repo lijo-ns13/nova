@@ -1,7 +1,7 @@
 // src/infrastructure/services/EmailService.ts
 import nodemailer from "nodemailer";
 import { injectable } from "inversify";
-import { IEmailService } from "../../core/interfaces/services/IEmailService";
+import { IEmailService } from "../../interfaces/services/IEmailService";
 
 @injectable()
 export class EmailService implements IEmailService {

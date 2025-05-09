@@ -1,9 +1,9 @@
 import { Router } from "express";
 import container from "../../di/container";
 import { TYPES } from "../../di/types";
-import { IAuthMiddleware } from "../../core/interfaces/middlewares/IAuthMiddleware";
+import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 
-import { IAdminCompanyManagementController } from "../../core/interfaces/controllers/IAdminCompanyManagementController";
+import { IAdminCompanyManagementController } from "../../interfaces/controllers/IAdminCompanyManagementController";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const AdminCompanyManagerController =

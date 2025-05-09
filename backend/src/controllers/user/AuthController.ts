@@ -8,8 +8,8 @@ import {
   signinRequestSchema,
   signupRequestSchema,
 } from "../../core/dtos/request/user.request.dto";
-import { IAuthController } from "../../core/interfaces/controllers/IUserAuthController";
-import { IUserAuthService } from "../../core/interfaces/services/IUserAuthService";
+import { IAuthController } from "../../interfaces/controllers/IUserAuthController";
+import { IUserAuthService } from "../../interfaces/services/IUserAuthService";
 console.log("✅ AuthController loaded");
 
 export class AuthController implements IAuthController {

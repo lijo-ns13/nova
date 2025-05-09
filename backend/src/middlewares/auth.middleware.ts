@@ -2,14 +2,22 @@
 import { inject, injectable } from "inversify";
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS_CODES } from "../core/enums/httpStatusCode";
-import { IAuthMiddleware } from "../core/interfaces/middlewares/IAuthMiddleware";
-import { IJWTService } from "../core/interfaces/services/IJwtService";
+import { IAuthMiddleware } from "../interfaces/middlewares/IAuthMiddleware";
+import { IJWTService } from "../interfaces/services/IJwtService";
 import { TYPES } from "../di/types";
-
+import { IUserService } from "../interfaces/services/IUserService";
+import { ICompanyService } from "../interfaces/services/ICompanyService";
+interface IUserr {
+  id: string;
+  email: string;
+  role: "admin" | "company" | "user";
+}
 @injectable()
 export class AuthMiddleware implements IAuthMiddleware {
   constructor(
-    @inject(TYPES.JWTService) private jwtService: IJWTService // If JWTService is also injected
+    @inject(TYPES.JWTService) private jwtService: IJWTService,
+    @inject(TYPES.UserService) private userService: IUserService,
+    @inject(TYPES.CompanyService) private companyService: ICompanyService
   ) {}
 
   authenticate(role: "user" | "admin" | "company") {
@@ -193,6 +201,53 @@ export class AuthMiddleware implements IAuthMiddleware {
         res
           .status(HTTP_STATUS_CODES.UNAUTHORIZED)
           .json({ message: "Unauthorized" });
+      }
+    };
+  }
+
+  // for block users /company at a time
+  check() {
+    return async (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ): Promise<void> => {
+      try {
+        const user = req.user as IUserr;
+
+        if (!user) {
+          res
+            .status(HTTP_STATUS_CODES.UNAUTHORIZED)
+            .json({ message: "Unauthorized: No user data" });
+          return;
+        }
+
+        if (user.role === "user") {
+          const dbUser = await this.userService.getUserData(user.id);
+          if (!dbUser || dbUser.isBlocked) {
+            res
+              .status(HTTP_STATUS_CODES.FORBIDDEN)
+              .json({ message: "Access denied: User is blocked" });
+            return;
+          }
+        }
+
+        if (user.role === "company") {
+          const dbCompany = await this.companyService.getCompanyData(user.id);
+          if (!dbCompany || dbCompany.isBlocked) {
+            res
+              .status(HTTP_STATUS_CODES.FORBIDDEN)
+              .json({ message: "Access denied: Company is blocked" });
+            return;
+          }
+        }
+
+        next();
+      } catch (error) {
+        console.error("CheckBlockedMiddleware Error:", error);
+        res
+          .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+          .json({ message: "Server error during block check" });
       }
     };
   }

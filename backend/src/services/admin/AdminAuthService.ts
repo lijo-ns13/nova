@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
-import { IJWTService } from "../../core/interfaces/services/IJwtService";
-import { IAdminRepository } from "../../core/interfaces/repositories/IAdminRepository";
+import { IJWTService } from "../../interfaces/services/IJwtService";
+import { IAdminRepository } from "../../interfaces/repositories/IAdminRepository";
 import { AdminSignInRequestDTO } from "../../core/dtos/admin/admin.auth.request.dto";
-import { IAdminAuthService } from "../../core/interfaces/services/IAdminAuthService";
+import { IAdminAuthService } from "../../interfaces/services/IAdminAuthService";
 
 @injectable()
 export class AdminAuthService implements IAdminAuthService {

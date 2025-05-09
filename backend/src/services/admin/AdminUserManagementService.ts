@@ -1,7 +1,7 @@
 import { inject } from "inversify";
-import { IUserRepository } from "../../core/interfaces/repositories/IUserRepository";
+import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { TYPES } from "../../di/types";
-import { IAdminUserManagementService } from "../../core/interfaces/services/IAdminUserManagementService";
+import { IAdminUserManagementService } from "../../interfaces/services/IAdminUserManagementService";
 import { IUser } from "../../models/user.modal";
 
 export class AdminUserManagementService implements IAdminUserManagementService {

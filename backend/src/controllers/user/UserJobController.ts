@@ -1,10 +1,10 @@
 import { Request, RequestHandler, Response } from "express";
 
-import { IUserJobService } from "../../core/interfaces/services/IUserJobService";
+import { IUserJobService } from "../../interfaces/services/IUserJobService";
 import { TYPES } from "../../di/types";
 import { inject, injectable } from "inversify";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
-import { IUserJobController } from "../../core/interfaces/controllers/IUserJobController";
+import { IUserJobController } from "../../interfaces/controllers/IUserJobController";
 
 interface Userr {
   id: string;

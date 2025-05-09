@@ -4,7 +4,7 @@ import { Model, Types } from "mongoose";
 import {
   createOtpDTO,
   IOTPRepository,
-} from "../../core/interfaces/repositories/IOTPRepository";
+} from "../../interfaces/repositories/IOTPRepository";
 import otpModal, { IOTP } from "../../models/otp.modal";
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";

@@ -1,10 +1,10 @@
-import { IUserJobController } from "../../core/interfaces/controllers/IUserJobController";
+import { IUserJobController } from "../../interfaces/controllers/IUserJobController";
 
 import { Router } from "express";
 import container from "../../di/container";
 import { TYPES } from "../../di/types";
-import { IAuthMiddleware } from "../../core/interfaces/middlewares/IAuthMiddleware";
-import { IPostController } from "../../core/interfaces/controllers/post/IPostController";
+import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
+import { IPostController } from "../../interfaces/controllers/post/IPostController";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const postController = container.get<IPostController>(TYPES.PostController);

@@ -1,8 +1,8 @@
 import { injectable, inject } from "inversify";
-import { IPostRepository } from "../../core/interfaces/repositories/IPostRepository";
+import { IPostRepository } from "../../interfaces/repositories/IPostRepository";
 import { Types } from "mongoose";
 import { TYPES } from "../../di/types";
-import { IMediaService } from "../../core/interfaces/services/Post/IMediaService";
+import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import postModal, { IPost } from "../../models/post.modal";
 import { IMedia } from "../../models/media.modal";
 import {

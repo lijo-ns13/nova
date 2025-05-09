@@ -2,9 +2,9 @@ import { TYPES } from "../../di/types";
 import { inject, injectable } from "inversify";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { Request, RequestHandler, Response } from "express";
-import { IAdminCompanyManagementService } from "../../core/interfaces/services/IAdminCompanyManagementService ";
+import { IAdminCompanyManagementService } from "../../interfaces/services/IAdminCompanyManagementService ";
 import { sendVerificationCompanyEmail } from "../../shared/util/email.verification.company";
-import { IAdminCompanyManagementController } from "../../core/interfaces/controllers/IAdminCompanyManagementController";
+import { IAdminCompanyManagementController } from "../../interfaces/controllers/IAdminCompanyManagementController";
 
 @injectable()
 export class AdminCompanyManagementController

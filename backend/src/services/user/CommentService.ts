@@ -6,8 +6,8 @@ import {
   ICommentService,
   ICommentServiceResponse,
   ICommentServiceResponsePaginated,
-} from "../../core/interfaces/services/ICommentService";
-import { ICommentRepository } from "../../core/interfaces/repositories/ICommentRepository";
+} from "../../interfaces/services/ICommentService";
+import { ICommentRepository } from "../../interfaces/repositories/ICommentRepository";
 
 @injectable()
 export class CommentService implements ICommentService {

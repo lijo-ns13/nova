@@ -11,8 +11,8 @@ import {
   createJobSchema,
   updateJobSchema,
 } from "../../core/dtos/company/job.validation.dto";
-import { ICompanyJobService } from "../../core/interfaces/services/ICompanyJobService";
-import { ICompanyJobController } from "../../core/interfaces/controllers/ICompanyJobController";
+import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
+import { ICompanyJobController } from "../../interfaces/controllers/ICompanyJobController";
 interface Userr {
   id: string;
   email: string;

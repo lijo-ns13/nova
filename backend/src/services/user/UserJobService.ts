@@ -1,9 +1,9 @@
 import { inject } from "inversify";
-import { IUserRepository } from "../../core/interfaces/repositories/IUserRepository";
-import { IUserJobService } from "../../core/interfaces/services/IUserJobService";
+import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
+import { IUserJobService } from "../../interfaces/services/IUserJobService";
 import { TYPES } from "../../di/types";
 import { IJob } from "../../models/job.modal";
-import { IJobRepository } from "../../core/interfaces/repositories/IJobRepository";
+import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 
 export class UserJobService implements IUserJobService {
   constructor(

@@ -2,12 +2,12 @@ import { Request, Response } from "express";
 import { TYPES } from "../../di/types";
 import { inject, injectable } from "inversify";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
-import { IUserProfileService } from "../../core/interfaces/services/IUserProfileService";
+import { IUserProfileService } from "../../interfaces/services/IUserProfileService";
 import { IUserEducation } from "../../models/userEducation.model";
 import { IUserExperience } from "../../models/userExperience.model";
 import { IUserProject } from "../../models/userProject.model";
 import { IUserCertificate } from "../../models/userCertificate.model";
-import { IUserProfileController } from "../../core/interfaces/controllers/IUserProfileController";
+import { IUserProfileController } from "../../interfaces/controllers/IUserProfileController";
 
 interface Userr {
   id: string;

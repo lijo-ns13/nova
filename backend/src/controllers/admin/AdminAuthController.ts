@@ -1,10 +1,10 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
-import { IAdminAuthService } from "../../core/interfaces/services/IAdminAuthService";
-import { IJWTService } from "../../core/interfaces/services/IJwtService";
+import { IAdminAuthService } from "../../interfaces/services/IAdminAuthService";
+import { IJWTService } from "../../interfaces/services/IJwtService";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { ZodError } from "zod";
-import { IAdminAuthController } from "../../core/interfaces/controllers/IAdminAuthController";
+import { IAdminAuthController } from "../../interfaces/controllers/IAdminAuthController";
 import { Request, Response } from "express";
 @injectable()
 export class AdminAuthController implements IAdminAuthController {

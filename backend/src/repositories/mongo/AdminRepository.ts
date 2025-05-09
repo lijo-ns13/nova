@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import { Model } from "mongoose";
 import { TYPES } from "../../di/types";
 import { BaseRepository } from "./BaseRepository";
-import { IAdminRepository } from "../../core/interfaces/repositories/IAdminRepository";
+import { IAdminRepository } from "../../interfaces/repositories/IAdminRepository";
 import { IAdmin } from "../../models/admin.modal";
 
 @injectable()
