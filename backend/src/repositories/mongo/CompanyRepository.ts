@@ -5,7 +5,7 @@ import { ICompanyRepository } from "../../interfaces/repositories/ICompanyReposi
 import companyModal, { ICompany } from "../../models/company.modal";
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";
-
+import bcrypt from "bcrypt";
 @injectable()
 export class CompanyRepository
   extends BaseRepository<ICompany>
@@ -77,5 +77,65 @@ export class CompanyRepository
     const totalCompanies = await companyModal.countDocuments(filter);
 
     return { companies, totalCompanies };
+  }
+  async changePassword(
+    companyId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<boolean> {
+    const company = await companyModal.findById(companyId).select("+password");
+    if (!company) throw new Error("User not found");
+    if (!company.password)
+      throw new Error("google users cant change there password");
+    const isMatch = await bcrypt.compare(currentPassword, company.password);
+    if (!isMatch) throw new Error("Current password is incorrect");
+
+    company.password = newPassword;
+    await company.save();
+    return true;
+  }
+  async getCompanyProfile(companyId: string): Promise<ICompany | null> {
+    return await companyModal.findById(companyId);
+  }
+  // Update Profile Image
+  async updateProfileImage(
+    companyId: string,
+    imageUrl: string
+  ): Promise<ICompany | null> {
+    return await companyModal.findByIdAndUpdate(
+      companyId,
+      { profilePicture: imageUrl },
+      { new: true }
+    );
+  }
+
+  //  Delete Profile Image
+  async deleteProfileImage(companyId: string): Promise<boolean> {
+    return (
+      (await companyModal.findByIdAndUpdate(companyId, {
+        profilePicture: null,
+      })) !== null
+    );
+  }
+  async updateCompanyProfile(
+    companyId: string,
+    data: Partial<ICompany>
+  ): Promise<ICompany | null> {
+    return await companyModal.findByIdAndUpdate(companyId, data, { new: true });
+  }
+  async isUsernameTaken(
+    username: string,
+    excludeCompanyId?: string
+  ): Promise<boolean> {
+    const existingUser = await companyModal.findOne({
+      username,
+      _id: { $ne: excludeCompanyId }, // exclude the current user
+    });
+    return !!existingUser;
+  }
+  async getCompanyProfileWithDetails(
+    companyId: string
+  ): Promise<ICompany | null> {
+    return companyModal.findById(companyId); // or populate if needed
   }
 }

@@ -107,6 +107,10 @@ import { ICompanyService } from "../interfaces/services/ICompanyService";
 import { CompanyService } from "../services/company/CompanyService";
 import { IUserService } from "../interfaces/services/IUserService";
 import { UserService } from "../services/user/UserService";
+import { ICompanyProfileService } from "../interfaces/services/ICompanyProfileService";
+import { CompanyProfileService } from "../services/company/CompanyProfileService";
+import { ICompanyProfileController } from "../interfaces/controllers/ICompanyProfileController";
+import { CompanyProfileController } from "../controllers/company/CompanyProfileController";
 
 const container = new Container();
 
@@ -127,6 +131,7 @@ container
 container
   .bind<Model<ICompany>>(TYPES.CompanyModal)
   .toConstantValue(companyModal);
+
 container
   .bind<ICompanyRepository>(TYPES.CompanyRepository)
   .to(CompanyRepository);
@@ -183,6 +188,7 @@ container
   .bind<ICompanyJobService>(TYPES.CompanyJobService)
   .to(CompanyJobService);
 container.bind<ICompanyService>(TYPES.CompanyService).to(CompanyService);
+
 // admin
 container.bind<IAdminAuthService>(TYPES.AdminAuthService).to(AdminAuthService);
 container
@@ -219,6 +225,7 @@ container
 container
   .bind<ICompanyJobController>(TYPES.CompanyJobController)
   .to(CompanyJobController);
+
 // admin
 container
   .bind<IAdminAuthController>(TYPES.AdminAuthController)
@@ -249,4 +256,12 @@ container.bind<ISkillController>(TYPES.SkillController).to(SkillController);
 container
   .bind<IProfileViewController>(TYPES.ProfileViewController)
   .to(ProfileViewController);
+
+container
+  .bind<ICompanyProfileService>(TYPES.CompanyProfileService)
+  .to(CompanyProfileService);
+container
+  .bind<ICompanyProfileController>(TYPES.CompanyProfileController)
+  .to(CompanyProfileController);
+
 export default container;

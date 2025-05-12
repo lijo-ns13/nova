@@ -44,6 +44,7 @@ export const IndustryTypes = [
 export interface ICompany extends Document {
   _id: mongoose.Types.ObjectId;
   companyName: string;
+  username: string;
   password: string;
   about: string;
   email: string;
@@ -57,6 +58,7 @@ export interface ICompany extends Document {
   isVerified: boolean;
   verificationStatus: "pending" | "accepted" | "rejected";
   isBlocked: boolean;
+  profilePicture: string;
 }
 
 const companySchema = new Schema<ICompany>(
@@ -64,6 +66,12 @@ const companySchema = new Schema<ICompany>(
     companyName: {
       type: String,
       required: true,
+    },
+    username: {
+      type: String,
+      required: false,
+      trim: true,
+      unique: true,
     },
     password: {
       type: String,
@@ -117,6 +125,10 @@ const companySchema = new Schema<ICompany>(
       type: String,
       enum: ["pending", "accepted", "rejected"],
       default: "pending",
+    },
+    profilePicture: {
+      type: String,
+      default: "",
     },
   },
   {

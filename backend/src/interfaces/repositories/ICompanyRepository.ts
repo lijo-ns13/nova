@@ -26,4 +26,24 @@ export interface ICompanyRepository extends IBaseRepository<ICompany> {
     companies: ICompany[];
     totalCompanies: number;
   }>;
+  getCompanyProfile(companyId: string): Promise<ICompany | null>;
+  getCompanyProfileWithDetails(companyId: string): Promise<ICompany | null>;
+  updateCompanyProfile(
+    companyId: string,
+    data: Partial<ICompany>
+  ): Promise<ICompany | null>;
+  updateProfileImage(
+    companyId: string,
+    imageUrl: string
+  ): Promise<ICompany | null>;
+  deleteProfileImage(companyId: string): Promise<boolean>;
+  changePassword(
+    companyId: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<boolean>;
+  isUsernameTaken(
+    username: string,
+    excludeCompanyId?: string
+  ): Promise<boolean>;
 }

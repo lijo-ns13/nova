@@ -4,7 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-
+dotenv.config();
 // routers
 import authRouter from "./routes/auth.routes";
 import userRouter from "./routes/user.routes";
@@ -15,12 +15,12 @@ import googleRouter from "./routes/google.routes";
 import container from "./di/container";
 import { IAuthMiddleware } from "./interfaces/middlewares/IAuthMiddleware";
 import { TYPES } from "./di/types";
-dotenv.config();
+
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const app: Application = express();
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: process.env.FRONTEND_URL,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
@@ -35,10 +35,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(cookieParser());
+app.use("/auth", authRouter);
+
 app.use("/api/auth", googleRouter);
 app.use("/", sharedRouter);
-// user auth
-app.use("/auth", authRouter);
 
 app.use("/admin", adminRouter);
 app.use("/", userRouter);
