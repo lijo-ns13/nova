@@ -5,7 +5,7 @@ import SignIn from "../features/company/pages/SignIn";
 import SignUp from "../features/company/pages/SignUp";
 import ForgetPassword from "../features/company/pages/ForgetPassword";
 import VerifyEmail from "../features/company/pages/VerifyEmail";
-
+import CompanyProfilePage from "../features/company/pages/CompanyProfilePage";
 // protected pages
 import Dashboard from "../features/company/pages/Dashboard";
 import CompanyLayout from "../layouts/CompanyLayout";
@@ -33,7 +33,7 @@ const CompanyRoutes = () => {
       >
         {/* protected routes here */}
         <Route path="/dashboard" element={<Dashboard />} />
-
+        <Route path="/profile" element={<CompanyProfilePage />} />
         <Route path="/manage-jobs" element={<ManageJobsPage />} />
         <Route path="/jobs/:jobId" element={<JobDetailedPage />} />
         <Route path="/job/applicants/:jobId" element={<JobApplicantsPage />} />
