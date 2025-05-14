@@ -249,4 +249,9 @@ export class JobRepository implements IJobRepository {
 
     return job;
   }
+  async findUsersByFilter(
+    filter: Record<string, any>,
+    page: number = 1,
+    limit: number = 10
+  ) {}
 }

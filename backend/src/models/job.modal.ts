@@ -1,6 +1,7 @@
 // src/shared/models/job.model.ts
 import mongoose, { Schema, Document, Types } from "mongoose";
 import { IUser } from "./user.modal";
+import { ICompany } from "./company.modal";
 
 export enum EmploymentType {
   FULL_TIME = "full-time",
@@ -10,20 +11,6 @@ export enum EmploymentType {
   INTERNSHIP = "internship",
   FREELANCE = "freelance",
 }
-
-export enum JobType {
-  REMOTE = "remote",
-  HYBRID = "hybrid",
-  ON_SITE = "on-site",
-}
-
-export enum ExperienceLevel {
-  ENTRY = "entry",
-  MID = "mid",
-  SENIOR = "senior",
-  LEAD = "lead",
-}
-
 export enum ApplicationStatus {
   APPLIED = "applied",
   SHORTLISTED = "shortlisted",
@@ -43,25 +30,24 @@ export enum ApplicationStatus {
 
   WITHDRAWN = "withdrawn",
 }
+export enum JobType {
+  REMOTE = "remote",
+  HYBRID = "hybrid",
+  ON_SITE = "on-site",
+}
+
+export enum ExperienceLevel {
+  ENTRY = "entry",
+  MID = "mid",
+  SENIOR = "senior",
+  LEAD = "lead",
+}
 
 export interface SalaryRange {
   currency: string;
   min: number;
   max: number;
   isVisibleToApplicants: boolean;
-}
-
-export interface JobApplication {
-  user: mongoose.Types.ObjectId | IUser;
-  appliedAt: Date;
-  resumeUrl: string;
-  status: ApplicationStatus;
-  rejectionReason?: string;
-  notes?: string;
-  statusHistory?: {
-    status: ApplicationStatus;
-    changedAt: Date;
-  }[];
 }
 
 export interface IJob extends Document {
@@ -71,23 +57,18 @@ export interface IJob extends Document {
   jobType: JobType;
   employmentType: EmploymentType;
   experienceLevel: ExperienceLevel;
-
-  company: Types.ObjectId;
-
+  company: Types.ObjectId | ICompany;
   skillsRequired: Types.ObjectId[];
   salary: SalaryRange;
   benefits: string[];
   perks?: string[];
   applicationDeadline: Date;
-
-  applications: JobApplication[];
-
   status: "open" | "closed" | "filled";
-  createdBy: { type: Schema.Types.ObjectId; ref: "Company"; required: true };
-
+  createdBy: Types.ObjectId | IUser;
   createdAt: Date;
   updatedAt: Date;
 }
+
 const JobSchema = new Schema<IJob>(
   {
     title: {
@@ -95,16 +76,19 @@ const JobSchema = new Schema<IJob>(
       required: true,
       trim: true,
       minlength: 5,
+      maxlength: 100,
     },
     description: {
       type: String,
       required: true,
       minlength: 50,
+      maxlength: 5000,
     },
     location: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 100,
     },
     jobType: {
       type: String,
@@ -119,6 +103,11 @@ const JobSchema = new Schema<IJob>(
     experienceLevel: {
       type: String,
       enum: Object.values(ExperienceLevel),
+      required: true,
+    },
+    company: {
+      type: Schema.Types.ObjectId,
+      ref: "Company",
       required: true,
     },
     skillsRequired: [
@@ -146,8 +135,7 @@ const JobSchema = new Schema<IJob>(
           validator: function (this: IJob, value: number) {
             return value >= this.salary.min;
           },
-          message:
-            "Maximum salary must be greater than or equal to minimum salary",
+          message: "Maximum salary must be ≥ minimum salary",
         },
       },
       isVisibleToApplicants: {
@@ -158,10 +146,10 @@ const JobSchema = new Schema<IJob>(
     benefits: {
       type: [String],
       required: true,
-      validate: [
-        (val: string[]) => val.length > 0,
-        "At least one benefit is required",
-      ],
+      validate: {
+        validator: (val: string[]) => val.length > 0,
+        message: "At least one benefit is required",
+      },
     },
     perks: {
       type: [String],
@@ -169,48 +157,13 @@ const JobSchema = new Schema<IJob>(
     applicationDeadline: {
       type: Date,
       required: true,
-    },
-    company: {
-      type: Schema.Types.ObjectId,
-      ref: "Company",
-      required: true,
-    },
-    applications: [
-      {
-        user: {
-          type: Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
+      validate: {
+        validator: function (this: IJob, value: Date) {
+          return value > new Date();
         },
-        appliedAt: {
-          type: Date,
-          default: Date.now,
-        },
-        resumeUrl: {
-          type: String,
-          required: true,
-        },
-        status: {
-          type: String,
-          enum: Object.values(ApplicationStatus),
-          default: ApplicationStatus.APPLIED,
-        },
-        rejectionReason: String,
-        notes: String,
-        statusHistory: [
-          {
-            status: {
-              type: String,
-              enum: Object.values(ApplicationStatus),
-            },
-            changedAt: {
-              type: Date,
-              default: Date.now,
-            },
-          },
-        ],
+        message: "Deadline must be in the future",
       },
-    ],
+    },
     status: {
       type: String,
       enum: ["open", "closed", "filled"],
@@ -219,6 +172,7 @@ const JobSchema = new Schema<IJob>(
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   {
@@ -228,27 +182,26 @@ const JobSchema = new Schema<IJob>(
   }
 );
 
-// Indexing
+// Virtual for application count
+JobSchema.virtual("applicationCount", {
+  ref: "Application",
+  localField: "_id",
+  foreignField: "job",
+  count: true,
+});
+
+// Indexes
 JobSchema.index({ title: "text", description: "text" });
 JobSchema.index({ company: 1, status: 1 });
 JobSchema.index({ "salary.min": 1, "salary.max": 1 });
 JobSchema.index({ applicationDeadline: 1 });
+JobSchema.index({ createdAt: -1 });
 
 // Pre-save validation
 JobSchema.pre<IJob>("save", function (next) {
   if (this.salary.min > this.salary.max) {
-    return next(
-      new Error("Minimum salary cannot be greater than maximum salary")
-    );
+    throw new Error("Minimum salary cannot be greater than maximum salary");
   }
-
-  const userSet = new Set(this.applications.map((a) => a.user.toString()));
-  if (userSet.size !== this.applications.length) {
-    return next(
-      new Error("Duplicate applications from the same user are not allowed")
-    );
-  }
-
   next();
 });
 

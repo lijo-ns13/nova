@@ -33,7 +33,7 @@ const CompanyRoutes = () => {
       >
         {/* protected routes here */}
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<CompanyProfilePage />} />
+        {/* <Route path="/profile" element={<CompanyProfilePage />} /> */}
         <Route path="/manage-jobs" element={<ManageJobsPage />} />
         <Route path="/jobs/:jobId" element={<JobDetailedPage />} />
         <Route path="/job/applicants/:jobId" element={<JobApplicantsPage />} />
