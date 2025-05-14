@@ -385,4 +385,41 @@ export class CompanyJobController implements ICompanyJobController {
       });
     }
   }
+  async getApplicantDetails(req: Request, res: Response): Promise<void> {
+    try {
+      const { applicationId } = req.params;
+
+      if (!applicationId) {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
+          success: false,
+          message: "Application ID required",
+        });
+        return;
+      }
+
+      const applicant = await this.jobService.getApplicantDetails(
+        applicationId
+      );
+
+      if (!applicant) {
+        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
+          success: false,
+          message: "Application not found",
+        });
+        return;
+      }
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Application details get successfully",
+        applicant,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
 }

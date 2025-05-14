@@ -100,4 +100,5 @@ export interface IJobRepository {
     applicationId: string,
     rejectionReason?: string
   ): Promise<boolean>;
+  getApplicantDetails(applicantId: string): Promise<any>;
 }

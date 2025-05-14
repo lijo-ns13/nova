@@ -107,4 +107,12 @@ export class CompanyJobService implements ICompanyJobService {
       throw new Error("Failed to reject application");
     }
   }
+  async getApplicantDetails(applicationId: string): Promise<any> {
+    try {
+      return await this._jobRepository.getApplicantDetails(applicationId);
+    } catch (error) {
+      console.error("Error get application:", error);
+      throw new Error("Failed to get application");
+    }
+  }
 }

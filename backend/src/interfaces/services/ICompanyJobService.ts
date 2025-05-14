@@ -41,4 +41,5 @@ export interface ICompanyJobService {
     applicationId: string,
     rejectionReason?: string
   ): Promise<boolean>;
+  getApplicantDetails(applicationId: string): Promise<any>;
 }
