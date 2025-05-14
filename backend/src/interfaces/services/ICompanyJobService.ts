@@ -1,6 +1,6 @@
 // src/core/interfaces/services/ICompanyJobService.ts
 
-import { IJob, JobApplication } from "../../models/job.modal";
+import { IJob } from "../../models/job.modal";
 import { CreateJobDto, UpdateJobDto } from "../repositories/IJobRepository";
 
 export interface ICompanyJobService {
@@ -25,7 +25,13 @@ export interface ICompanyJobService {
     companyId: string,
     page: number,
     limit: number
-  ): Promise<{ applications: JobApplication[]; total: number } | null>;
+  ): Promise<{ applications: any[]; total: number } | null>;
 
   getJob(jobId: string): Promise<IJob | null>;
+  getApplications(
+    page: number,
+    limit: number,
+    filters: Record<string, any>,
+    jobId: string
+  ): Promise<any>;
 }

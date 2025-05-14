@@ -6,6 +6,7 @@ import {
   UpdateJobDto,
 } from "../../interfaces/repositories/IJobRepository";
 import jobModal, { IJob, ApplicationStatus } from "../../models/job.modal";
+import applicationModal, { IApplication } from "../../models/application.modal";
 
 export class JobRepository implements IJobRepository {
   async createJob(
@@ -63,73 +64,36 @@ export class JobRepository implements IJobRepository {
   ): Promise<{ applications: any[]; total: number } | null> {
     const skip = (page - 1) * limit;
 
-    const result = await jobModal.aggregate([
-      {
-        $match: {
-          _id: new mongoose.Types.ObjectId(jobId),
-          company: new mongoose.Types.ObjectId(companyId),
-        },
-      },
-      {
-        $project: {
-          applications: 1,
-        },
-      },
-      {
-        $unwind: "$applications",
-      },
-      {
-        $sort: { "applications.appliedAt": -1 }, // optional: sort by latest
-      },
-      {
-        $facet: {
-          paginatedApplications: [
-            { $skip: skip },
-            { $limit: limit },
-            {
-              $lookup: {
-                from: "users",
-                localField: "applications.user",
-                foreignField: "_id",
-                as: "userData",
-              },
-            },
-            {
-              $unwind: "$userData",
-            },
-            {
-              $project: {
-                _id: "$applications._id",
-                resumeUrl: "$applications.resumeUrl",
-                status: "$applications.status",
-                statusHistory: "$applications.statusHistory",
-                appliedAt: "$applications.appliedAt",
-                user: "$userData",
-              },
-            },
-          ],
-          totalCount: [
-            {
-              $count: "total",
-            },
-          ],
-        },
-      },
-      {
-        $project: {
-          applications: "$paginatedApplications",
-          total: {
-            $ifNull: [{ $arrayElemAt: ["$totalCount.total", 0] }, 0],
-          },
-        },
-      },
+    // First verify the job belongs to the company
+    const job = await jobModal.findOne({
+      _id: jobId,
+      company: companyId,
+    });
+
+    if (!job) {
+      return null;
+    }
+
+    const [applications, total] = await Promise.all([
+      applicationModal
+        .find({ job: jobId })
+        .populate({
+          path: "user",
+          select: "-password -documents", // exclude sensitive fields
+        })
+        .populate({
+          path: "statusHistory.changedBy",
+          select: "name email", // only include necessary fields
+        })
+        .sort({ appliedAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      applicationModal.countDocuments({ job: jobId }),
     ]);
 
-    return result.length > 0
-      ? { applications: result[0].applications, total: result[0].total }
-      : null;
+    return { applications, total };
   }
-
   async getJob(jobId: string) {
     // console.log("jobId from jobrepo getJob..", jobId);
     return jobModal
@@ -216,42 +180,168 @@ export class JobRepository implements IJobRepository {
   async applyToJob(
     jobId: string,
     userId: string,
-    resumeUrl: string
-  ): Promise<IJob> {
+    resumeUrl: string,
+    coverLetter?: string
+  ): Promise<IApplication> {
     const job = await jobModal.findById(jobId);
     if (!job) {
       throw new Error("Job not found");
     }
 
-    const alreadyApplied = job.applications.find(
-      (app) => app.user.toString() === userId
-    );
+    // Check if application deadline has passed
+    if (job.applicationDeadline < new Date()) {
+      throw new Error("Application deadline has passed");
+    }
 
-    if (alreadyApplied) {
+    // Check if user already applied
+    const existingApplication = await applicationModal.findOne({
+      job: jobId,
+      user: userId,
+    });
+
+    if (existingApplication) {
       throw new Error("User has already applied for this job");
     }
 
-    const newApplication = {
-      user: new Types.ObjectId(userId),
+    // Create new application
+    const application = new applicationModal({
+      job: jobId,
+      user: userId,
       appliedAt: new Date(),
       resumeUrl,
+      coverLetter,
       status: ApplicationStatus.APPLIED,
       statusHistory: [
         {
           status: ApplicationStatus.APPLIED,
           changedAt: new Date(),
+          changedBy: userId,
         },
       ],
-    };
+    });
 
-    job.applications.push(newApplication);
-    await job.save();
-
-    return job;
+    await application.save();
+    return application;
   }
-  async findUsersByFilter(
+  async findApplicationsByFilter(
     filter: Record<string, any>,
     page: number = 1,
-    limit: number = 10
-  ) {}
+    limit: number = 10,
+    jobId: string
+  ): Promise<{ applications: any[]; total: number }> {
+    const skip = (page - 1) * limit;
+
+    // Build the query for applications collection
+    const query: any = {};
+
+    // Job filter (always apply from jobId param)
+    if (jobId) {
+      query.job = new mongoose.Types.ObjectId(jobId);
+
+      // If companyId is provided, ensure the job belongs to that company
+      if (filter.companyId) {
+        const jobExists = await jobModal.exists({
+          _id: jobId,
+          company: filter.companyId,
+        });
+        if (!jobExists) {
+          return { applications: [], total: 0 };
+        }
+      }
+    }
+
+    // Status filter
+    if (filter.status) {
+      query.status = {
+        $in: Array.isArray(filter.status) ? filter.status : [filter.status],
+      };
+    }
+
+    // Date range filters
+    if (filter.dateFrom || filter.dateTo) {
+      query.appliedAt = {};
+      if (filter.dateFrom) query.appliedAt.$gte = new Date(filter.dateFrom);
+      if (filter.dateTo) query.appliedAt.$lte = new Date(filter.dateTo);
+    }
+
+    // User ID filter
+    if (filter.userId) {
+      query.user = new mongoose.Types.ObjectId(filter.userId);
+    }
+
+    // Aggregation pipeline
+    const aggregationPipeline: any[] = [
+      { $match: query },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+      { $unwind: "$userDetails" },
+      {
+        $lookup: {
+          from: "jobs",
+          localField: "job",
+          foreignField: "_id",
+          as: "jobDetails",
+        },
+      },
+      { $unwind: "$jobDetails" },
+      {
+        $project: {
+          _id: 1,
+          appliedAt: 1,
+          resumeUrl: 1,
+          coverLetter: 1,
+          status: 1,
+          statusHistory: 1,
+          user: {
+            _id: "$userDetails._id",
+            name: "$userDetails.name",
+            email: "$userDetails.email",
+            avatar: "$userDetails.avatar",
+          },
+          job: {
+            _id: "$jobDetails._id",
+            title: "$jobDetails.title",
+            company: "$jobDetails.company",
+          },
+        },
+      },
+    ];
+
+    // Search filter by user name or email (after lookup)
+    if (filter.search) {
+      aggregationPipeline.push({
+        $match: {
+          $or: [
+            { "user.name": { $regex: filter.search, $options: "i" } },
+            { "user.email": { $regex: filter.search, $options: "i" } },
+          ],
+        },
+      });
+    }
+
+    aggregationPipeline.push(
+      { $sort: { appliedAt: -1 } },
+      {
+        $facet: {
+          paginatedResults: [{ $skip: skip }, { $limit: limit }],
+          totalCount: [{ $count: "total" }],
+        },
+      },
+      {
+        $project: {
+          applications: "$paginatedResults",
+          total: { $ifNull: [{ $arrayElemAt: ["$totalCount.total", 0] }, 0] },
+        },
+      }
+    );
+
+    const result = await applicationModal.aggregate(aggregationPipeline);
+    return result[0] || { applications: [], total: 0 };
+  }
 }

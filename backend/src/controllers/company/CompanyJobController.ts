@@ -276,4 +276,39 @@ export class CompanyJobController implements ICompanyJobController {
         .json({ success: false, error: (err as Error).message });
     }
   };
+  // updated
+  async getApplications(req: Request, res: Response): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const { jobId } = req.params;
+      // Extract filters from query params
+      const filters: Record<string, any> = {
+        ...req.query,
+      };
+
+      // Remove pagination params from filters
+      delete filters.page;
+      delete filters.limit;
+
+      const applicationsData = await this.jobService.getApplications(
+        page,
+        limit,
+        filters,
+        jobId
+      );
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Applications fetched successfully",
+        data: applicationsData,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: (error as Error).message,
+      });
+    }
+  }
 }

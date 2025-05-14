@@ -1,6 +1,6 @@
 // src/core/interfaces/controllers/IJobController.ts
 
-import { RequestHandler } from "express";
+import { RequestHandler, Request, Response } from "express";
 
 export interface ICompanyJobController {
   createJob: RequestHandler;
@@ -9,4 +9,5 @@ export interface ICompanyJobController {
   getJobs: RequestHandler;
   getJobApplications: RequestHandler;
   getJob: RequestHandler;
+  getApplications(req: Request, res: Response): Promise<void>;
 }

@@ -7,7 +7,7 @@ import {
   UpdateJobDto,
 } from "../../interfaces/repositories/IJobRepository";
 import { TYPES } from "../../di/types";
-import { IJob, JobApplication } from "../../models/job.modal";
+import { IJob } from "../../models/job.modal";
 import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
 
 export class CompanyJobService implements ICompanyJobService {
@@ -46,7 +46,7 @@ export class CompanyJobService implements ICompanyJobService {
     companyId: string,
     page: number,
     limit: number
-  ): Promise<{ applications: JobApplication[]; total: number } | null> {
+  ): Promise<{ applications: any[]; total: number } | null> {
     return await this._jobRepository.getJobApplications(
       jobId,
       companyId,
@@ -56,5 +56,31 @@ export class CompanyJobService implements ICompanyJobService {
   }
   async getJob(jobId: string) {
     return await this._jobRepository.getJob(jobId);
+  }
+  async getApplications(
+    page: number = 1,
+    limit: number = 10,
+    filters: Record<string, any> = {},
+    jobId: string
+  ) {
+    const { applications, total } =
+      await this._jobRepository.findApplicationsByFilter(
+        filters,
+        page,
+        limit,
+        jobId
+      );
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      applications,
+      pagination: {
+        totalApplications: total,
+        totalPages,
+        currentPage: page,
+        applicationsPerPage: limit,
+      },
+    };
   }
 }

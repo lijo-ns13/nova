@@ -1,4 +1,4 @@
-import { IJob, JobApplication } from "../../models/job.modal";
+import { IJob } from "../../models/job.modal";
 export interface JobFilters {
   title?: string;
   location?: string;
@@ -73,12 +73,24 @@ export interface IJobRepository {
     companyId: string,
     page: number,
     limit: number
-  ): Promise<{ applications: JobApplication[]; total: number } | null>;
+  ): Promise<{ applications: any[]; total: number } | null>;
   getJob(jobId: string): Promise<any>;
   getAllJobs(
     page?: number,
     limit?: number,
     filters?: JobFilters
   ): Promise<PaginatedJobResult>;
-  applyToJob(jobId: string, userId: string, resumeUrl: string): Promise<IJob>;
+  applyToJob(
+    jobId: string,
+    userId: string,
+    resumeUrl: string,
+    coverLetter?: string
+  ): Promise<any>;
+  // updated
+  findApplicationsByFilter(
+    filter: Record<string, any>,
+    page: number,
+    limit: number,
+    jobId: string
+  ): Promise<any>;
 }
