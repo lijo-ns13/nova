@@ -344,4 +344,29 @@ export class JobRepository implements IJobRepository {
     const result = await applicationModal.aggregate(aggregationPipeline);
     return result[0] || { applications: [], total: 0 };
   }
+  // new changest for shorlist,reject
+  async shortlistApplication(applicationId: string): Promise<boolean> {
+    const updated = await applicationModal.findByIdAndUpdate(
+      applicationId,
+      { status: ApplicationStatus.SHORTLISTED },
+      { new: true }
+    );
+    return !!updated;
+  }
+
+  async rejectApplication(
+    applicationId: string,
+    rejectionReason?: string
+  ): Promise<boolean> {
+    const updated = await applicationModal.findByIdAndUpdate(
+      applicationId,
+      { status: ApplicationStatus.REJECTED, rejectionReason: rejectionReason },
+      { new: true }
+    );
+    return !!updated;
+  }
+  // applicant detailed page
+  async getApplicantDetails(applicantId: string): Promise<any> {
+    return await applicationModal.findById(applicantId).populate("user");
+  }
 }

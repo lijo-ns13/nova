@@ -13,12 +13,6 @@ export interface IApplication extends Document {
   status: ApplicationStatus;
   rejectionReason?: string;
   notes?: string;
-  statusHistory: {
-    status: ApplicationStatus;
-    changedAt: Date;
-    changedBy: Types.ObjectId | IUser;
-    reason?: string;
-  }[];
 }
 
 const ApplicationSchema = new Schema<IApplication>(
@@ -66,28 +60,6 @@ const ApplicationSchema = new Schema<IApplication>(
       type: String,
       maxlength: 1000,
     },
-    statusHistory: [
-      {
-        status: {
-          type: String,
-          enum: Object.values(ApplicationStatus),
-          required: true,
-        },
-        changedAt: {
-          type: Date,
-          default: Date.now,
-        },
-        changedBy: {
-          type: Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
-        },
-        reason: {
-          type: String,
-          maxlength: 500,
-        },
-      },
-    ],
   },
   {
     timestamps: true,

@@ -14,7 +14,7 @@ import Protected from "./Protected";
 import ManageJobsPage from "../features/company/pages/ManageJobsPage";
 import JobDetailedPage from "../features/company/pages/JobDetailedPage";
 import JobApplicantsPage from "../features/company/pages/JobApplicantsPage";
-
+import CompanyApplicantsPage from "../features/company/pages/CompanyApplicantsPage";
 const CompanyRoutes = () => {
   return (
     <Routes>
@@ -36,7 +36,10 @@ const CompanyRoutes = () => {
         {/* <Route path="/profile" element={<CompanyProfilePage />} /> */}
         <Route path="/manage-jobs" element={<ManageJobsPage />} />
         <Route path="/jobs/:jobId" element={<JobDetailedPage />} />
-        <Route path="/job/applicants/:jobId" element={<JobApplicantsPage />} />
+        <Route
+          path="/job/applicants/:jobId"
+          element={<CompanyApplicantsPage />}
+        />
       </Route>
     </Routes>
   );

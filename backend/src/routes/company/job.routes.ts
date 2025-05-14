@@ -15,6 +15,12 @@ router.use(authMiddleware.check());
 router.get("/job/:jobId/applicants", (req, res, next) =>
   jobController.getApplications(req, res).catch(next)
 );
+router.patch("/job/shortlist/:applicationId", (req, res, next) =>
+  jobController.shortlistApplication(req, res).catch(next)
+);
+router.patch("/job/reject/:applicationId", (req, res, next) =>
+  jobController.rejectApplication(req, res).catch(next)
+);
 router.post("/job", jobController.createJob);
 router.put("/job/:jobId", jobController.updateJob);
 router.delete("/job/:jobId", jobController.deleteJob);

@@ -83,4 +83,28 @@ export class CompanyJobService implements ICompanyJobService {
       },
     };
   }
+  // updated
+  async shortlistApplication(applicationId: string): Promise<boolean> {
+    try {
+      return await this._jobRepository.shortlistApplication(applicationId);
+    } catch (error) {
+      console.error("Error shortlisting application:", error);
+      throw new Error("Failed to shortlist application");
+    }
+  }
+
+  async rejectApplication(
+    applicationId: string,
+    rejectionReason?: string
+  ): Promise<boolean> {
+    try {
+      return await this._jobRepository.rejectApplication(
+        applicationId,
+        rejectionReason
+      );
+    } catch (error) {
+      console.error("Error rejecting application:", error);
+      throw new Error("Failed to reject application");
+    }
+  }
 }

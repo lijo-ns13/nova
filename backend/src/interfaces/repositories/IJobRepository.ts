@@ -93,4 +93,11 @@ export interface IJobRepository {
     limit: number,
     jobId: string
   ): Promise<any>;
+  // new update
+  shortlistApplication(applicationId: string): Promise<boolean>;
+
+  rejectApplication(
+    applicationId: string,
+    rejectionReason?: string
+  ): Promise<boolean>;
 }

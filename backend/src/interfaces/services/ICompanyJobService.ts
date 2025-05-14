@@ -34,4 +34,11 @@ export interface ICompanyJobService {
     filters: Record<string, any>,
     jobId: string
   ): Promise<any>;
+  // updated
+  shortlistApplication(applicationId: string): Promise<boolean>;
+
+  rejectApplication(
+    applicationId: string,
+    rejectionReason?: string
+  ): Promise<boolean>;
 }

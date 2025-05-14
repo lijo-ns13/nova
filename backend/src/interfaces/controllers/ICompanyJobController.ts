@@ -10,4 +10,6 @@ export interface ICompanyJobController {
   getJobApplications: RequestHandler;
   getJob: RequestHandler;
   getApplications(req: Request, res: Response): Promise<void>;
+  shortlistApplication(req: Request, res: Response): Promise<void>;
+  rejectApplication(req: Request, res: Response): Promise<void>;
 }

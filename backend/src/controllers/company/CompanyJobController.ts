@@ -311,4 +311,78 @@ export class CompanyJobController implements ICompanyJobController {
       });
     }
   }
+  // updated
+  async shortlistApplication(req: Request, res: Response): Promise<void> {
+    try {
+      const { applicationId } = req.params;
+
+      if (!applicationId) {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
+          success: false,
+          message: "Application ID required",
+        });
+        return;
+      }
+
+      const success = await this.jobService.shortlistApplication(applicationId);
+
+      if (!success) {
+        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
+          success: false,
+          message: "Application not found",
+        });
+        return;
+      }
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Application shortlisted successfully",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async rejectApplication(req: Request, res: Response): Promise<void> {
+    try {
+      const { applicationId } = req.params;
+      const { rejectionReason } = req.body;
+
+      if (!applicationId) {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
+          success: false,
+          message: "Application ID required",
+        });
+        return;
+      }
+
+      const success = await this.jobService.rejectApplication(
+        applicationId,
+        rejectionReason
+      );
+
+      if (!success) {
+        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
+          success: false,
+          message: "Application not found",
+        });
+        return;
+      }
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Application rejected successfully",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
 }
