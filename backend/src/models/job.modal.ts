@@ -28,7 +28,19 @@ export enum ApplicationStatus {
   APPLIED = "applied",
   SHORTLISTED = "shortlisted",
   REJECTED = "rejected",
+
+  INTERVIEW_SCHEDULED = "interview_scheduled",
+  INTERVIEW_CANCELLED = "interview_cancelled",
+
+  INTERVIEW_ACCEPTED_BY_USER = "interview_accepted_by_user",
+  INTERVIEW_REJECTED_BY_USER = "interview_rejected_by_user",
+
+  INTERVIEW_FAILED = "interview_failed",
+  INTERVIEW_PASSED = "interview_passed",
+
+  OFFERED = "offered",
   SELECTED = "selected",
+
   WITHDRAWN = "withdrawn",
 }
 
@@ -52,19 +64,6 @@ export interface JobApplication {
   }[];
 }
 
-export interface InterviewDetails {
-  scheduledAt: Date;
-  interviewers: mongoose.Types.ObjectId[]; // Ref: User
-  meetLink?: string;
-  feedback?: string;
-  webrtcSession?: {
-    sessionId?: string;
-    startedAt?: Date;
-    endedAt?: Date;
-    recordingUrl?: string;
-  };
-}
-
 export interface IJob extends Document {
   title: string;
   description: string;
@@ -82,13 +81,6 @@ export interface IJob extends Document {
   applicationDeadline: Date;
 
   applications: JobApplication[];
-  selectedCandidates: mongoose.Types.ObjectId[] | IUser[];
-  rejectedCandidates: {
-    user: mongoose.Types.ObjectId | IUser;
-    reason: string;
-  }[];
-
-  interviewDetails?: InterviewDetails;
 
   status: "open" | "closed" | "filled";
   createdBy: { type: Schema.Types.ObjectId; ref: "Company"; required: true };
@@ -219,42 +211,6 @@ const JobSchema = new Schema<IJob>(
         ],
       },
     ],
-    selectedCandidates: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-    rejectedCandidates: [
-      {
-        user: {
-          type: Schema.Types.ObjectId,
-          ref: "User",
-          required: true,
-        },
-        reason: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
-    interviewDetails: {
-      scheduledAt: Date,
-      interviewers: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: "User",
-        },
-      ],
-      meetLink: String,
-      feedback: String,
-      webrtcSession: {
-        sessionId: String,
-        startedAt: Date,
-        endedAt: Date,
-        recordingUrl: String,
-      },
-    },
     status: {
       type: String,
       enum: ["open", "closed", "filled"],
