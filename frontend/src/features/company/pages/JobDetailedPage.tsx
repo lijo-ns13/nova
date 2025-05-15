@@ -5,9 +5,7 @@ import { useNavigate } from "react-router-dom";
 import ConfirmSoftDeleteModal from "../../user/componets/modals/ConfirmSoftDeleteModal";
 import {
   BriefcaseIcon,
-  CalendarIcon,
   CurrencyDollarIcon,
-  MapPinIcon,
   ClockIcon,
   BuildingOfficeIcon,
   ChartBarIcon,
@@ -25,12 +23,11 @@ function JobDetailedPage() {
   const [job, setJob] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     if (jobId) {
       fetchJob(jobId);
     }
-  }, [jobId]);
+  }, [jobId, isModalOpen]);
   const handleEdit = () => {
     setIsModalOpen(true);
   };
@@ -76,11 +73,11 @@ function JobDetailedPage() {
     title,
     description,
     location,
-    employmentType,
+    // employmentType,
     experienceLevel,
     salary,
     applicationDeadline,
-    jobType,
+    // jobType,
     benefits,
     perks,
     skillsRequired,
@@ -118,10 +115,12 @@ function JobDetailedPage() {
                   }}
                   title={"Update Job"}
                 >
-                  <UpdateJobForm
-                    jobId={jobId || undefined}
-                    onSuccess={() => setIsModalOpen(false)}
-                  />
+                  {jobId && (
+                    <UpdateJobForm
+                      jobId={jobId}
+                      onSuccess={() => setIsModalOpen(false)}
+                    />
+                  )}
                 </BigModal>
                 <button
                   className="btn btn-outline gap-2"

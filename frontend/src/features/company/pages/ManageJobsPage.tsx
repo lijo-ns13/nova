@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { JobService } from "../services/jobServices";
-// import { Job } from "../types/job";
 import Spinner from "../components/Spinner";
 import CreateJobPage from "./CreateJobPage";
+
 function ManageJobsPage() {
   const [jobs, setJobs] = useState([]);
   const [page, setPage] = useState(1);
@@ -11,6 +11,7 @@ function ManageJobsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const fetchJobs = useCallback(async () => {
     try {
@@ -29,7 +30,11 @@ function ManageJobsPage() {
 
   useEffect(() => {
     fetchJobs();
-  }, [fetchJobs]);
+  }, [fetchJobs, refreshTrigger]);
+
+  const handleJobUpdated = useCallback(() => {
+    setRefreshTrigger((prev) => prev + 1);
+  }, []);
 
   if (loading) {
     return <Spinner />;
@@ -59,7 +64,11 @@ function ManageJobsPage() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {jobs.map((job: any) => (
-              <JobCard key={job._id} job={job} />
+              <JobCard
+                key={job._id}
+                job={job}
+                onJobUpdated={handleJobUpdated}
+              />
             ))}
           </div>
 
@@ -74,11 +83,18 @@ function ManageJobsPage() {
   );
 }
 
-function JobCard({ job }: { job: any }) {
+function JobCard({
+  job,
+  onJobUpdated,
+}: {
+  job: any;
+  onJobUpdated: () => void;
+}) {
   return (
     <Link
       to={`/company/jobs/${job._id}`}
       className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden"
+      onClick={() => onJobUpdated()}
     >
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
