@@ -64,7 +64,6 @@ export interface IJob extends Document {
   perks?: string[];
   applicationDeadline: Date;
   status: "open" | "closed" | "filled";
-  createdBy: Types.ObjectId | IUser;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -168,11 +167,6 @@ const JobSchema = new Schema<IJob>(
       type: String,
       enum: ["open", "closed", "filled"],
       default: "open",
-    },
-    createdBy: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
     },
   },
   {

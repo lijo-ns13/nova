@@ -23,19 +23,16 @@ const FormSection = ({
 
 const FormField = ({
   label,
-  required = true,
   children,
   error,
 }: {
   label: string;
-  required?: boolean;
   children: React.ReactNode;
   error?: string;
 }) => (
   <div className="space-y-1">
-    <label className="block text-sm font-medium text-gray-700">
-      {label} {required && <span className="text-red-500">*</span>}
-    </label>
+    <label className="block text-sm font-medium text-gray-700">{label}</label>
+
     {children}
     {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
   </div>
@@ -137,7 +134,7 @@ const CreateJobForm: React.FC<Props> = ({ onSuccess }) => {
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         <FormSection title="Basic Information">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField label="Job Title" error={errors.title}>
+            <FormField label="jgob Title" error={errors.title}>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}

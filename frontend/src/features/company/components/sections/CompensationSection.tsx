@@ -24,7 +24,6 @@ const CompensationSection: React.FC<CompensationSectionProps> = ({
         <FormField
           label="Salary Range"
           htmlFor="salary"
-          required={false}
           error={errors["salary.min"] || errors["salary.max"]}
           helpText="Enter the salary range for this position"
         >
@@ -86,7 +85,6 @@ const CompensationSection: React.FC<CompensationSectionProps> = ({
         <FormField
           label="Benefits"
           htmlFor="benefits"
-          required={false}
           error={errors.benefits}
           helpText="Add the benefits offered with this position"
         >

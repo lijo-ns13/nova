@@ -47,7 +47,6 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
         <FormField
           label="Job Title"
           htmlFor="title"
-          required
           error={errors.title}
           className="md:col-span-2"
         >
@@ -58,16 +57,10 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
             onChange={handleInputChange}
             placeholder="e.g. Senior React Developer"
             error={!!errors.title}
-            required
           />
         </FormField>
 
-        <FormField
-          label="Location"
-          htmlFor="location"
-          required
-          error={errors.location}
-        >
+        <FormField label="Location" htmlFor="location" error={errors.location}>
           <InputField
             id="location"
             name="location"
@@ -75,16 +68,10 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
             onChange={handleInputChange}
             placeholder="e.g. New York, NY or Remote"
             error={!!errors.location}
-            required
           />
         </FormField>
 
-        <FormField
-          label="Job Type"
-          htmlFor="jobType"
-          required
-          error={errors.jobType}
-        >
+        <FormField label="Job Type" htmlFor="jobType" error={errors.jobType}>
           <SelectField
             id="jobType"
             name="jobType"
@@ -93,14 +80,12 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
             options={jobTypeOptions}
             placeholder="Select Job Type"
             error={!!errors.jobType}
-            required
           />
         </FormField>
 
         <FormField
           label="Employment Type"
           htmlFor="employmentType"
-          required
           error={errors.employmentType}
         >
           <SelectField
@@ -111,14 +96,12 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
             options={employmentTypeOptions}
             placeholder="Select Employment Type"
             error={!!errors.employmentType}
-            required
           />
         </FormField>
 
         <FormField
           label="Experience Level"
           htmlFor="experienceLevel"
-          required
           error={errors.experienceLevel}
         >
           <SelectField
@@ -129,14 +112,12 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
             options={experienceLevelOptions}
             placeholder="Select Experience Level"
             error={!!errors.experienceLevel}
-            required
           />
         </FormField>
 
         <FormField
           label="Application Deadline"
           htmlFor="applicationDeadline"
-          required={false}
           error={errors.applicationDeadline}
         >
           <InputField

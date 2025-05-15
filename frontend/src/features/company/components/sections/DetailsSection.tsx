@@ -23,7 +23,6 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({
       <FormField
         label="Description"
         htmlFor="description"
-        required
         error={errors.description}
       >
         <TextAreaField
@@ -34,14 +33,12 @@ const DetailsSection: React.FC<DetailsSectionProps> = ({
           placeholder="Provide a detailed description of the role, responsibilities, and requirements..."
           rows={5}
           error={!!errors.description}
-          required
         />
       </FormField>
 
       <FormField
         label="Required Skills"
         htmlFor="skills"
-        required
         error={errors.skillsRequired}
         helpText="Add all skills required for this position"
       >
