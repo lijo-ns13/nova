@@ -61,7 +61,7 @@ function SignInPage() {
       if (!res || !res.role || !res.user) {
         throw new Error("Invalid email or password."); // Or whatever makes sense
       }
-      const { user, role, isVerified, isBlocked, username } = res;
+      const { user, role, isVerified, isBlocked } = res;
       if (isVerified) {
         dispatch(
           login({
@@ -72,7 +72,7 @@ function SignInPage() {
             profilePicture: user.profilePicture, // Adjust based on your API response
             isVerified: isVerified,
             isBlocked: isBlocked,
-            username: username,
+            username: user.username,
           })
         );
         navigate("/company/dashboard");
