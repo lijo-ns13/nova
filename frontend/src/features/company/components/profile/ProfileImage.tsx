@@ -116,7 +116,6 @@ function ProfileImage() {
   const handleApplyCrop = async () => {
     console.log("buton clickied apply corop");
     if (!completedCrop || !previewCanvasRef.current) {
-      toast.error("this error");
       return;
     }
     setIsUploading(true);
@@ -153,7 +152,6 @@ function ProfileImage() {
   };
 
   const handleDeleteImage = async () => {
-    if (!id) return;
     try {
       await deleteProfileImage();
       setProfilePicture("");
