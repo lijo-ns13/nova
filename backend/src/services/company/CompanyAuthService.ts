@@ -15,6 +15,7 @@ import { sendOTPEmail } from "../../shared/util/email.util";
 import { JWTService } from "../../shared/util/jwt.service";
 import { IEmailService } from "../../interfaces/services/IEmailService";
 import { IJWTService } from "../../interfaces/services/IJwtService";
+import { generateUsername } from "../../shared/util/GenerateUserName";
 
 @injectable()
 export class CompanyAuthService implements ICompanyAuthService {
@@ -112,6 +113,10 @@ export class CompanyAuthService implements ICompanyAuthService {
     if (!isMatch) {
       throw new Error("Invalid OTP");
     }
+    let username = generateUsername(tempCompany.companyName);
+    while (await this._companyRepository.isUsernameTaken(username)) {
+      username = `${generateUsername(tempCompany.companyName)}`;
+    }
     const tempCompanyData = {
       companyName: tempCompany.companyName,
       password: tempCompany.password,
@@ -121,7 +126,9 @@ export class CompanyAuthService implements ICompanyAuthService {
       foundedYear: tempCompany.foundedYear,
       documents: tempCompany.documents,
       location: tempCompany.location,
+      username: username,
     };
+
     const companyData = await this._companyRepository.create(tempCompanyData);
     await this._tempCompanyRepository.delete(tempCompany._id.toString());
     return { message: "verfied successfull", company: companyData };
