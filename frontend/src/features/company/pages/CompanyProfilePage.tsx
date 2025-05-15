@@ -1,180 +1,391 @@
-import React, { useState, useEffect } from "react";
-import { Loader2, Settings, AlertCircle } from "lucide-react";
-import CompanyProfileService from "../services/companyProfileService";
+import { useState, useEffect } from "react";
 import {
-  getCompanyProfileWithDetails,
+  getCompanyProfile,
   updateCompanyProfile,
 } from "../services/companyProfileService";
-import { CompanyProfile } from "../types/company.types";
-import ProfileHeader from "../components/profile/ProfileHeader";
-import ProfileDetails from "../components/profile/ProfileDetails";
-import ProfileEditModal from "../components/profile/ProfileEditModal";
-import ProfileImageModal from "../components/profile/ProfileImageModal";
-import PasswordChangeModal from "../components/profile/PasswordChangeModal";
-import SecuritySection from "../components/profile/SecuritySection";
-import Button from "../../../components/ui/Button";
+import { useAppSelector } from "../../../hooks/useAppSelector";
+import ProfileImage from "../components/profile/ProfileImage";
+import { useAppDispatch } from "../../../hooks/useAppDispatch";
+import toast from "react-hot-toast";
+import BaseModal from "../../user/componets/modals/BaseModal";
 
-const CompanyProfilePage: React.FC = () => {
-  const [profile, setProfile] = useState<CompanyProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+function CompanyProfilePage() {
+  const dispatch = useAppDispatch();
+  const { id: companyId } = useAppSelector((state) => state.auth);
+  const [companyData, setCompanyData] = useState({
+    companyName: "",
+    about: "",
+    email: "",
+    industryType: "",
+    foundedYear: "",
+    location: "",
+    profilePicture: "",
+  });
+  const [updatingCompanyData, setUpdatingCompanyData] = useState(companyData);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Modal states
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-
-  // Success message state
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchProfileData();
+    getCompanyData();
   }, []);
 
-  // Hide success message after 3 seconds
-  useEffect(() => {
-    if (successMessage) {
-      const timer = setTimeout(() => {
-        setSuccessMessage(null);
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [successMessage]);
-
-  const fetchProfileData = async () => {
+  async function getCompanyData() {
+    setIsLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      setError(null);
-
-      const response =
-        await CompanyProfileService.getCompanyProfileWithDetails();
-
-      if (response) {
-        setProfile(response.data);
-      } else {
-        setError("Failed to load profile data");
+      const res = await getCompanyProfile();
+      const ress = res.data;
+      if (res) {
+        setCompanyData({
+          companyName: ress.companyName || "",
+          about: ress.about || "",
+          email: ress.email || "",
+          industryType: ress.industryType || "",
+          foundedYear: ress.foundedYear?.toString() || "",
+          location: ress.location || "",
+          profilePicture: ress.profilePicture || "",
+        });
+        // Initialize the form data with the same values
+        setUpdatingCompanyData({
+          companyName: ress.companyName || "",
+          about: ress.about || "",
+          email: ress.email || "",
+          industryType: ress.industryType || "",
+          foundedYear: ress.foundedYear?.toString() || "",
+          location: ress.location || "",
+          profilePicture: ress.profilePicture || "",
+        });
       }
-    } catch (err) {
-      setError("An error occurred while fetching profile data");
-      console.error(err);
+    } catch (error) {
+      console.error("Failed to fetch company data:", error);
+      setError("Failed to load company profile. Please try again later.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  };
+  }
 
-  const handleProfileUpdate = (updatedProfile: CompanyProfile) => {
-    setProfile(updatedProfile);
-    setSuccessMessage("Profile updated successfully");
-  };
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const handleImageUpdate = (imageUrl: string) => {
-    if (profile) {
-      setProfile({
-        ...profile,
-        imageUrl,
-      });
-      setSuccessMessage("Profile image updated successfully");
+  async function handleEditSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const res = await updateCompanyProfile(companyId, updatingCompanyData);
+      if (res) {
+        setCompanyData(updatingCompanyData);
+        setIsEditModalOpen(false);
+        toast.success("Company profile updated successfully");
+      }
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || "Failed to update company profile"
+      );
+      console.error("Failed to update company profile:", error);
+      setFormError(
+        error.response?.data?.message ||
+          "Failed to update company profile. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+      setFormError("");
     }
-  };
+  }
 
-  const handleImageDelete = () => {
-    if (profile) {
-      setProfile({
-        ...profile,
-        imageUrl: undefined,
-      });
-      setSuccessMessage("Profile image removed successfully");
-    }
-  };
-
-  const handlePasswordChanged = () => {
-    setSuccessMessage("Password changed successfully");
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <Loader2 size={40} className="text-blue-600 animate-spin mb-4" />
-        <p className="text-gray-600">Loading profile...</p>
+      <div className="flex justify-center items-center h-64">
+        <div className="relative w-16 h-16">
+          <div className="absolute top-0 left-0 w-full h-full border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          <div className="absolute top-1 left-1 w-14 h-14 border-4 border-white/70 border-b-transparent rounded-full animate-spin-slow"></div>
+        </div>
       </div>
     );
   }
 
-  if (error || !profile) {
+  if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
-          <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Error Loading Profile
-          </h2>
-          <p className="text-gray-600 mb-6">
-            {error || "Failed to load profile data"}
-          </p>
-          <Button onClick={fetchProfileData}>Try Again</Button>
+      <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-xl p-6 max-w-4xl mx-auto my-8">
+        <div className="text-red-500 mb-4 flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+              clipRule="evenodd"
+            />
+          </svg>
+          {error}
         </div>
+        <button
+          onClick={getCompanyData}
+          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg"
+        >
+          Retry
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Success message */}
-      {successMessage && (
-        <div className="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50 animate-fade-in-out">
-          {successMessage}
-        </div>
-      )}
+    <div className="relative z-10">
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+        <ProfileImage imageUrl={companyData.profilePicture} />
 
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
-        {/* Header */}
-        <ProfileHeader
-          profile={profile}
-          onEditProfile={() => setIsEditModalOpen(true)}
-          onEditImage={() => setIsImageModalOpen(true)}
-        />
+        {/* Company Details */}
+        <div className="flex-grow text-center md:text-left">
+          <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                {companyData.companyName || "Company Name"}
+              </h1>
+              <p className="text-indigo-100 text-lg md:text-xl">
+                {companyData.industryType || "Industry Type"}
+              </p>
 
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main content - Profile details */}
-          <div className="lg:col-span-2 space-y-6">
-            <ProfileDetails profile={profile} />
+              <div className="flex flex-wrap gap-2 mt-4 justify-center md:justify-start">
+                <span className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-full text-sm">
+                  {companyData.location || "Location"}
+                </span>
+                <span className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-full text-sm">
+                  Founded: {companyData.foundedYear || "Year"}
+                </span>
+                <span className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-full text-sm">
+                  {companyData.email || "Email"}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg text-white transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+              </svg>
+              Edit Profile
+            </button>
           </div>
 
-          {/* Sidebar - Security settings */}
-          <div className="lg:col-span-1 space-y-6">
-            <SecuritySection
-              onChangePassword={() => setIsPasswordModalOpen(true)}
-            />
-          </div>
+          {companyData.about && (
+            <div className="mt-6 max-w-2xl">
+              <h3 className="text-xl font-semibold text-white mb-2">
+                About Us
+              </h3>
+              <p className="text-indigo-100 leading-relaxed">
+                {companyData.about}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Edit Profile Modal */}
-      <ProfileEditModal
-        profile={profile}
+      {/* Edit Company Profile Modal */}
+      <BaseModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        onProfileUpdate={handleProfileUpdate}
-      />
+        title="Edit Company Profile"
+      >
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-red-500 mr-2 flex-shrink-0 mt-0.5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <p className="text-red-700 text-sm">{error}</p>
+          </div>
+        )}
 
-      {/* Profile Image Modal */}
-      <ProfileImageModal
-        currentImageUrl={profile.imageUrl}
-        isOpen={isImageModalOpen}
-        onClose={() => setIsImageModalOpen(false)}
-        onImageUpdate={handleImageUpdate}
-        onImageDelete={handleImageDelete}
-      />
+        <form onSubmit={handleEditSubmit} className="flex flex-col gap-4">
+          {formError && (
+            <div className="p-3 bg-red-100 border border-red-300 text-red-800 rounded-md text-sm">
+              {formError}
+            </div>
+          )}
 
-      {/* Password Change Modal */}
-      <PasswordChangeModal
-        isOpen={isPasswordModalOpen}
-        onClose={() => setIsPasswordModalOpen(false)}
-        onPasswordChanged={handlePasswordChanged}
-      />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Company Name
+            </label>
+            <input
+              type="text"
+              name="companyName"
+              placeholder="Enter company name"
+              value={updatingCompanyData.companyName}
+              onChange={(e) =>
+                setUpdatingCompanyData((state) => ({
+                  ...state,
+                  companyName: e.target.value,
+                }))
+              }
+              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter company email"
+              value={updatingCompanyData.email}
+              onChange={(e) =>
+                setUpdatingCompanyData((state) => ({
+                  ...state,
+                  email: e.target.value,
+                }))
+              }
+              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Industry Type
+            </label>
+            <input
+              type="text"
+              name="industryType"
+              placeholder="e.g. Software Development, Finance, etc."
+              value={updatingCompanyData.industryType}
+              onChange={(e) =>
+                setUpdatingCompanyData((state) => ({
+                  ...state,
+                  industryType: e.target.value,
+                }))
+              }
+              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Founded Year
+            </label>
+            <input
+              type="text"
+              name="foundedYear"
+              placeholder="e.g. 2020"
+              value={updatingCompanyData.foundedYear}
+              onChange={(e) =>
+                setUpdatingCompanyData((state) => ({
+                  ...state,
+                  foundedYear: e.target.value,
+                }))
+              }
+              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Location
+            </label>
+            <input
+              type="text"
+              name="location"
+              placeholder="Enter company location"
+              value={updatingCompanyData.location}
+              onChange={(e) =>
+                setUpdatingCompanyData((state) => ({
+                  ...state,
+                  location: e.target.value,
+                }))
+              }
+              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              About
+            </label>
+            <textarea
+              name="about"
+              placeholder="Tell us about your company"
+              value={updatingCompanyData.about}
+              onChange={(e) =>
+                setUpdatingCompanyData((state) => ({
+                  ...state,
+                  about: e.target.value,
+                }))
+              }
+              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+              rows={5}
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 mt-4">
+            <button
+              type="button"
+              onClick={() => setIsEditModalOpen(false)}
+              className="px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg flex items-center justify-center"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </button>
+          </div>
+        </form>
+      </BaseModal>
     </div>
   );
-};
+}
 
 export default CompanyProfilePage;

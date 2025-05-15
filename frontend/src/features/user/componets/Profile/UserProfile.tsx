@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import BaseModal from "../modals/BaseModal";
 import { updateProfile as updateSlice } from "../../../auth/auth.slice";

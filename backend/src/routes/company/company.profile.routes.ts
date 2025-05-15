@@ -25,7 +25,7 @@ router.get("/details", (req, res, next) =>
 );
 
 // PUT /api/company/profile - Update profile info
-router.put("/", (req, res, next) =>
+router.patch("/", (req, res, next) =>
   profileController.updateCompanyProfile(req, res).catch(next)
 );
 

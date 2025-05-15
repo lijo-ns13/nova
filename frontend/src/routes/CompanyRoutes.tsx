@@ -40,6 +40,7 @@ const CompanyRoutes = () => {
           path="/job/applicants/:jobId"
           element={<CompanyApplicantsPage />}
         />
+        <Route path="/company-profile" element={<CompanyProfilePage />} />
       </Route>
     </Routes>
   );
