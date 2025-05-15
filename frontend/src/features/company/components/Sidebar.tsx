@@ -11,7 +11,7 @@ const Sidebar = () => {
     { name: "Applications", path: "/applications", icon: "👥" },
     { name: "Messages", path: "/messages", icon: "💬" },
     { name: "Notifications", path: "/notifications", icon: "🔔" },
-    { name: "Company Profile", path: "/profile", icon: "🏢" },
+    { name: "Company Profile", path: "/company/company-profile", icon: "🏢" },
   ];
 
   return (
