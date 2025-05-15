@@ -69,7 +69,7 @@ function SignInPage() {
             name: user.name, // Ensure these fields are returned by SignInUser
             email: user.email,
             role: role,
-            profilePicture: "", // Adjust based on your API response
+            profilePicture: user.profilePicture, // Adjust based on your API response
             isVerified: isVerified,
             isBlocked: isBlocked,
             username: username,

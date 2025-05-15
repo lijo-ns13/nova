@@ -128,9 +128,10 @@ function ProfileImage() {
           const res = await updateProfileImage(url);
 
           if (res) {
+            console.log("res", res);
             dispatch(
               updateSlice({
-                profilePicture: res.profilePicture,
+                profilePicture: res.data.profilePicture,
               })
             );
           }
