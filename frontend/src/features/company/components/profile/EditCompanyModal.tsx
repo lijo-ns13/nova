@@ -39,33 +39,57 @@ function EditCompanyModal({
 
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
+    const currentYear = new Date().getFullYear();
 
-    // Required fields
+    // Company Name validation
     if (!formData.companyName.trim()) {
       errors.companyName = "Company name is required";
+    } else if (formData.companyName.length < 2) {
+      errors.companyName = "Company name must be at least 2 characters long";
+    } else if (formData.companyName.length > 100) {
+      errors.companyName = "Company name cannot exceed 100 characters";
     }
 
+    // Username validation
     if (!formData.username.trim()) {
       errors.username = "Username is required";
+    } else if (!/^[a-zA-Z0-9_-]{3,30}$/.test(formData.username)) {
+      errors.username =
+        "Username must be 3-30 characters and can only contain letters, numbers, underscores, and hyphens";
     }
 
+    // Email validation
     if (!formData.email.trim()) {
       errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email = "Please enter a valid email address";
     }
 
-    // Founded year validation
+    // Industry Type validation
+    if (!formData.industryType) {
+      errors.industryType = "Please select an industry type";
+    } else if (!IndustryTypes.includes(formData.industryType)) {
+      errors.industryType = "Invalid industry type selected";
+    }
+
+    // Founded Year validation
     if (formData.foundedYear) {
       const yearValue = Number(formData.foundedYear);
       if (isNaN(yearValue)) {
         errors.foundedYear = "Founded year must be a number";
-      } else {
-        const currentYear = new Date().getFullYear();
-        if (yearValue < 1800 || yearValue > currentYear) {
-          errors.foundedYear = `Year must be between 1800 and ${currentYear}`;
-        }
+      } else if (yearValue < 1800 || yearValue > currentYear) {
+        errors.foundedYear = `Year must be between 1800 and ${currentYear}`;
       }
+    }
+
+    // Location validation
+    if (formData.location && formData.location.length > 200) {
+      errors.location = "Location cannot exceed 200 characters";
+    }
+
+    // About validation
+    if (formData.about && formData.about.length > 2000) {
+      errors.about = "Company description cannot exceed 2000 characters";
     }
 
     setFieldErrors(errors);
@@ -75,8 +99,8 @@ function EditCompanyModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate form before submission
     if (!validateForm()) {
+      toast.error("Please correct the form");
       return;
     }
 
@@ -84,10 +108,8 @@ function EditCompanyModal({
     setGeneralError(null);
 
     try {
-      // Prepare data for submission
       const submissionData = {
         ...formData,
-        // Convert founded year to number if it exists
         foundedYear: formData.foundedYear
           ? Number(formData.foundedYear)
           : undefined,
@@ -96,7 +118,9 @@ function EditCompanyModal({
       const response = await updateCompanyProfile(submissionData);
 
       if (response) {
+        toast.success("Company profile updated successfully");
         onSubmit(formData);
+        onClose();
       }
     } catch (error: any) {
       console.error("Failed to update company profile:", error);
@@ -141,7 +165,6 @@ function EditCompanyModal({
           value={formData.companyName}
           onChange={(e) => handleChange("companyName", e.target.value)}
           error={fieldErrors.companyName}
-          required
         />
 
         <FormField
@@ -152,10 +175,9 @@ function EditCompanyModal({
           value={formData.username}
           onChange={(e) => handleChange("username", e.target.value)}
           error={fieldErrors.username}
-          required
         />
 
-        <FormField
+        {/* <FormField
           label="Email"
           name="email"
           type="email"
@@ -164,21 +186,36 @@ function EditCompanyModal({
           onChange={(e) => handleChange("email", e.target.value)}
           error={fieldErrors.email}
           required
-        />
+        /> */}
 
-        <select
-          name="industryType"
-          value={formData.industryType}
-          onChange={(e) => handleChange("industryType", e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-md"
-        >
-          <option value="">Select Industry</option>
-          {IndustryTypes.map((industry) => (
-            <option key={industry} value={industry}>
-              {industry}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-col gap-1">
+          <label
+            htmlFor="industryType"
+            className="text-sm font-medium text-gray-700"
+          >
+            Industry Type
+          </label>
+          <select
+            id="industryType"
+            name="industryType"
+            value={formData.industryType}
+            onChange={(e) => handleChange("industryType", e.target.value)}
+            className={`w-full p-2 border rounded-md ${
+              fieldErrors.industryType ? "border-red-500" : "border-gray-300"
+            }`}
+          >
+            <option value="">Select Industry</option>
+            {IndustryTypes.map((industry) => (
+              <option key={industry} value={industry}>
+                {industry}
+              </option>
+            ))}
+          </select>
+          {fieldErrors.industryType && (
+            <p className="text-sm text-red-600">{fieldErrors.industryType}</p>
+          )}
+        </div>
+
         <FormField
           label="Founded Year"
           name="foundedYear"
