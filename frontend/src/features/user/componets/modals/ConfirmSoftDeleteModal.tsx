@@ -62,11 +62,9 @@ const ConfirmSoftDeleteModal = ({
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Delete {itemType}?
+                    {itemType}?
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400 mt-1">
-                    This action is permanent and cannot be undone
-                  </p>
+                  <p className="text-gray-500 dark:text-gray-400 mt-1"></p>
                 </div>
               </div>
 
@@ -75,33 +73,11 @@ const ConfirmSoftDeleteModal = ({
                 {itemName && (
                   <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
                     <p className="text-center font-medium text-red-700 dark:text-red-300">
-                      You're deleting:{" "}
+                      You're ...:{" "}
                       <span className="font-semibold">{itemName}</span>
                     </p>
                   </div>
                 )}
-
-                <div className="space-y-3 text-gray-600 dark:text-gray-300">
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
-                    <ExclamationTriangleIcon className="w-6 h-6 text-red-500 shrink-0" />
-                    <div>
-                      <p className="font-medium">Irreversible Action</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        All associated data will be permanently removed
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
-                    <ArrowPathIcon className="w-6 h-6 text-gray-500 shrink-0" />
-                    <div>
-                      <p className="font-medium">No Recovery Option</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        This cannot be undone or recovered later
-                      </p>
-                    </div>
-                  </div>
-                </div>
 
                 {extraMessage && (
                   <div className="text-sm text-center px-4 py-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-700 dark:text-blue-300">
@@ -124,7 +100,7 @@ const ConfirmSoftDeleteModal = ({
                   className="flex-1 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-br from-red-500 to-orange-500 rounded-lg hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[1.02]"
                 >
                   <TrashIcon className="w-5 h-5 text-white" />
-                  Confirm Delete
+                  Confirm
                 </button>
               </div>
             </div>

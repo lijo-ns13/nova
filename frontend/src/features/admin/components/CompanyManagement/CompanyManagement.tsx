@@ -13,6 +13,7 @@ import PaginationComponent from "../UserManagement/Pagination";
 import CompanyTable from "./CompanyTable";
 import CompanyCard from "./CompanyCard";
 import LoadingIndicator from "../UserManagement/LoadingIndicator";
+import ConfirmSoftDeleteModal from "../../../user/componets/modals/ConfirmSoftDeleteModal";
 
 const CompanyManagement: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -25,6 +26,10 @@ const CompanyManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [modalAction, setModalAction] = useState<"block" | "unblock">("block");
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   // Debounced fetch function
   const debouncedFetchCompanies = debounce(
@@ -64,24 +69,27 @@ const CompanyManagement: React.FC = () => {
     fetchCompanies(1);
   }, []);
 
-  const handleBlock = async (company: Company) => {
-    const confirmBlock = window.confirm(
-      `Are you sure you want to ${company.isBlocked ? "unblock" : "block"} ${
-        company.companyName
-      }?`
-    );
-    if (confirmBlock) {
-      try {
-        if (company.isBlocked) {
-          await unblockCompany(company._id);
-        } else {
-          await blockCompany(company._id);
-        }
-        fetchCompanies(pagination.currentPage);
-      } catch (err: any) {
-        console.error("Error updating company status:", err);
-        setError(err.message || "Failed to update company status");
+  const handleBlock = (company: Company) => {
+    setSelectedCompany(company);
+    setModalAction(company.isBlocked ? "unblock" : "block");
+    setShowModal(true);
+  };
+
+  const handleConfirmAction = async () => {
+    if (!selectedCompany) return;
+
+    try {
+      if (selectedCompany.isBlocked) {
+        await unblockCompany(selectedCompany._id);
+      } else {
+        await blockCompany(selectedCompany._id);
       }
+      setShowModal(false);
+      fetchCompanies(pagination.currentPage);
+    } catch (err: any) {
+      console.error("Error updating company status:", err);
+      setError(err.message || "Failed to update company status");
+      setShowModal(false);
     }
   };
 
@@ -175,6 +183,16 @@ const CompanyManagement: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmSoftDeleteModal
+        isOpen={showModal}
+        onConfirm={handleConfirmAction}
+        onCancel={() => setShowModal(false)}
+        itemType={modalAction === "block" ? "block" : "unblock"}
+        itemName={selectedCompany?.companyName || "Company"}
+        extraMessage={`Are you sure you want to ${modalAction} this company?`}
+      />
     </div>
   );
 };

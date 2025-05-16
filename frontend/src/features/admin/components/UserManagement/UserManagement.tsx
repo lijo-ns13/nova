@@ -9,6 +9,7 @@ import Pagination from "./Pagination";
 import UserTable from "./UserTable";
 import UserCard from "./UserCard";
 import LoadingIndicator from "./LoadingIndicator";
+import ConfirmSoftDeleteModal from "../../../user/componets/modals/ConfirmSoftDeleteModal";
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -23,6 +24,11 @@ const UserManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [modalAction, setModalAction] = useState<"block" | "unblock">("block");
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   // Debounced fetch function
   const debouncedFetchUsers = debounce(
@@ -55,27 +61,38 @@ const UserManagement: React.FC = () => {
   }, [page, searchQuery]);
 
   const handleBlock = async (userId: string) => {
-    const confirmBlock = window.confirm(
-      "Are you sure you want to block this user?"
-    );
-    if (confirmBlock) {
-      try {
-        await blockUser(userId);
-        fetchUsers(page); // Refresh current view
-      } catch (err: any) {
-        console.error("Error blocking user:", err);
-        setError(err.response?.data?.message || "Failed to block user");
-      }
+    const user = users.find((u) => u._id === userId);
+    if (user) {
+      setSelectedUser(user);
+      setModalAction("block");
+      setShowModal(true);
     }
   };
 
   const handleUnblock = async (userId: string) => {
+    const user = users.find((u) => u._id === userId);
+    if (user) {
+      setSelectedUser(user);
+      setModalAction("unblock");
+      setShowModal(true);
+    }
+  };
+
+  const handleConfirmAction = async () => {
+    if (!selectedUser) return;
+
     try {
-      await unblockUser(userId);
+      if (modalAction === "block") {
+        await blockUser(selectedUser._id);
+      } else {
+        await unblockUser(selectedUser._id);
+      }
       fetchUsers(page); // Refresh current view
+      setShowModal(false);
     } catch (err: any) {
-      console.error("Error unblocking user:", err);
-      setError(err.response?.data?.message || "Failed to unblock user");
+      console.error(`Error ${modalAction}ing user:`, err);
+      setError(err.response?.data?.message || `Failed to ${modalAction} user`);
+      setShowModal(false);
     }
   };
 
@@ -89,8 +106,8 @@ const UserManagement: React.FC = () => {
     setPage(1);
   };
 
-  function handlePageChange(): void {
-    throw new Error("Function not implemented.");
+  function handlePageChange(newPage: number): void {
+    setPage(newPage);
   }
 
   return (
@@ -188,6 +205,16 @@ const UserManagement: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmSoftDeleteModal
+        isOpen={showModal}
+        onConfirm={handleConfirmAction}
+        onCancel={() => setShowModal(false)}
+        itemType={modalAction === "block" ? "block" : "unblock"}
+        itemName={selectedUser?.name || "User"}
+        extraMessage={`Are you sure you want to ${modalAction} this user?`}
+      />
     </div>
   );
 };
