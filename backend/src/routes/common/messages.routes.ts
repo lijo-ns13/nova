@@ -1,7 +1,7 @@
 // routes/message.routes.ts (or controller)
 import express from "express";
 import Message from "../../models/message.modal";
-
+import userModal from "../../models/user.modal";
 const router = express.Router();
 
 router.get("/:userId/:otherUserId", async (req, res) => {
