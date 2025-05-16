@@ -11,5 +11,5 @@ const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 router.use("/skill", skillRouter);
 router.use("/api", ProfileViewRouter);
-router.use("/messages", messageRoutes);
+router.use("/api/messages", messageRoutes);
 export default router;

@@ -34,26 +34,41 @@ export const initSocketServer = (server: Server) => {
       socket.emit("unreadMessages", unreadMessages);
     });
 
-    // Sending a new message
     socket.on(
       "sendMessage",
       async ({
         sender,
         receiver,
         content,
+        tempId,
       }: {
         sender: string;
         receiver: string;
         content: string;
+        tempId?: string;
       }) => {
-        const message = await Message.create({ sender, receiver, content });
-
-        const receiverUser = await User.findById(receiver);
-        if (receiverUser?.socketId) {
-          io.to(receiverUser.socketId).emit("receiveMessage", message);
+        try {
+          console.log("sender,recieiver,content", sender, receiver, content);
+          const message = await Message.create({ sender, receiver, content });
+          await message.save();
+          if (!message) console.log("failed to create message in db");
+          const receiverUser = await User.findById(receiver);
+          if (receiverUser?.socketId) {
+            io.to(receiverUser.socketId).emit("receiveMessage", message);
+          }
+          console.log("message send socket");
+          // Confirm to sender message is sent with the same tempId
+          if (tempId) {
+            socket.emit(`messageSent-${tempId}`, message);
+          } else {
+            socket.emit("messageSent", message);
+          }
+        } catch (error) {
+          console.error("Error sending message:", error);
+          if (tempId) {
+            socket.emit(`messageFailed-${tempId}`);
+          }
         }
-        // Confirm to sender message is sent
-        socket.emit("messageSent", message);
       }
     );
 

@@ -16,7 +16,7 @@ import OAuthSuccessPage from "../features/user/pages/OAuthSuccess";
 import JobDetailedPage from "../features/user/pages/JobDetailedPage";
 import AppliedJobsPage from "../features/user/pages/AppliedJobsPage";
 import SavedJobsPage from "../features/user/pages/SavedJobsPage";
-
+import ChatPage from "../features/user/pages/ChatPage";
 import ProtectedMultiRole from "./ProtectedMultiRole";
 import MainProfilePage from "../features/user/pages/MainProfilePage";
 const UserRoutes = () => {
@@ -44,6 +44,7 @@ const UserRoutes = () => {
         <Route path="applied-jobs" element={<AppliedJobsPage />} />
         <Route path="saved-jobs" element={<SavedJobsPage />} />
         <Route path="jobs/:jobId" element={<JobDetailedPage />} />
+        <Route path="message/:otherUserId" element={<ChatPage />} />
       </Route>
       {/* Protected + no user layout */}
       <Route

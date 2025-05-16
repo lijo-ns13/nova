@@ -4,14 +4,14 @@ import Message from "../../models/message.modal";
 
 const router = express.Router();
 
-router.get("/:userId/:chatPartnerId", async (req, res) => {
-  const { userId, chatPartnerId } = req.params;
-
+router.get("/:userId/:otherUserId", async (req, res) => {
+  const { userId, otherUserId } = req.params;
+  console.log("userid,otheruserid", userId, otherUserId);
   try {
     const messages = await Message.find({
       $or: [
-        { sender: userId, receiver: chatPartnerId },
-        { sender: chatPartnerId, receiver: userId },
+        { sender: userId, receiver: otherUserId },
+        { sender: otherUserId, receiver: userId },
       ],
     }).sort({ timestamp: 1 }); // ascending order
 
