@@ -1,11 +1,6 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ExclamationTriangleIcon,
-  ArrowPathIcon,
-  TrashIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/solid";
+import { TrashIcon, XMarkIcon } from "@heroicons/react/24/solid";
 
 interface ConfirmSoftDeleteModalProps {
   isOpen: boolean;
