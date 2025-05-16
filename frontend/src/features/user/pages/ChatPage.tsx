@@ -5,14 +5,14 @@ import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { PaperPlaneRight, Spinner } from "@phosphor-icons/react";
 import userAxios from "../../../utils/userAxios";
-import debounce from "lodash.debounce"; // <-- Add this line
+import debounce from "lodash.debounce";
 
 const ChatPage = () => {
   const { otherUserId } = useParams();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [isTyping, setIsTyping] = useState(false); // <-- New state
+  const [isTyping, setIsTyping] = useState(false);
   const { id: userId } = useAppSelector((state) => state.auth);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -59,15 +59,37 @@ const ChatPage = () => {
       }
     });
 
+    socket.on("messagesRead", ({ receiver }) => {
+      if (receiver === otherUserId) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.receiver === receiver ? { ...msg, isRead: true } : msg
+          )
+        );
+      }
+    });
+
     return () => {
       socket.off("receiveMessage");
       socket.off("typing");
+      socket.off("messagesRead");
     };
   }, [otherUserId, userId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+
+    // Send read notification if there are unread messages
+    const hasUnread = messages.some(
+      (msg) => msg.sender === otherUserId && !msg.isRead
+    );
+    if (hasUnread) {
+      socket.emit("readMessages", {
+        sender: otherUserId,
+        receiver: userId,
+      });
+    }
+  }, [messages, otherUserId, userId]);
 
   const handleSend = () => {
     if (!newMessage.trim()) return;
@@ -79,6 +101,7 @@ const ChatPage = () => {
       content: newMessage,
       createdAt: new Date().toISOString(),
       _id: tempId,
+      isRead: false,
     };
 
     setMessages((prev) => [...prev, msg]);
@@ -105,7 +128,7 @@ const ChatPage = () => {
   const debouncedTyping = useRef(
     debounce((sender: string, receiver: string) => {
       socket.emit("typing", { sender, receiver });
-    }, 10)
+    }, 200)
   ).current;
 
   const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,11 +188,12 @@ const ChatPage = () => {
               >
                 <p className="text-sm">{msg.content}</p>
                 <p
-                  className={`text-xs mt-1 ${
+                  className={`text-xs mt-1 flex items-center gap-1 ${
                     msg.sender === userId ? "text-blue-100" : "text-gray-500"
                   }`}
                 >
                   {format(new Date(msg.createdAt), "h:mm a")}
+                  {msg.sender === userId && msg.isRead && <span>✓</span>}
                 </p>
               </div>
             </div>
