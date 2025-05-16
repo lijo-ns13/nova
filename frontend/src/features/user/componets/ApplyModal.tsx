@@ -30,26 +30,24 @@ function ApplyModal({ jobId, onClose, onApplySuccess }: ApplyModalProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check if file is PDF or image
-    if (!file.type.match("application/pdf")) {
-      // For images, show crop UI
-      const reader = new FileReader();
-      reader.onload = () => {
-        setSrcImage(reader.result as string);
-        setIsCropping(true);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      // For PDFs, upload directly
-      handleUpload(file);
+    // Check if file is an image
+    if (!file.type.match("image.*")) {
+      setError("Please upload an image file (JPEG, PNG, etc.)");
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSrcImage(reader.result as string);
+      setIsCropping(true);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleUpload = async (file: File | Blob) => {
     setUploading(true);
     try {
       const url = await uploadToCloudinary(file);
-      console.log("url", url);
       setResumeUrl(url);
       setError("");
     } catch (err) {
@@ -109,10 +107,10 @@ function ApplyModal({ jobId, onClose, onApplySuccess }: ApplyModalProps) {
       onApplySuccess();
     } catch (err: any) {
       setError(
-        err.response.data.message ||
+        err.response?.data?.message ||
           "Failed to submit application. Please try again."
       );
-      console.log("eror", err);
+      console.error("error", err);
     }
   };
 
@@ -152,11 +150,11 @@ function ApplyModal({ jobId, onClose, onApplySuccess }: ApplyModalProps) {
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Resume (PDF or Image)
+                Upload Resume (Image only)
               </label>
               <input
                 type="file"
-                accept=".pdf,.png,.jpg,.jpeg"
+                accept=".png,.jpg,.jpeg"
                 onChange={handleImageSelect}
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 disabled={uploading}
