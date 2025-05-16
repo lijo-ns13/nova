@@ -2,25 +2,26 @@ import { useEffect, useState, useRef } from "react";
 import socket from "../../../socket/socket";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import { useParams } from "react-router-dom";
-// import userAxios from "../../../utils/userAxios";
 import { format } from "date-fns";
 import { PaperPlaneRight, Spinner } from "@phosphor-icons/react";
 import userAxios from "../../../utils/userAxios";
+import debounce from "lodash.debounce"; // <-- Add this line
 
 const ChatPage = () => {
   const { otherUserId } = useParams();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isTyping, setIsTyping] = useState(false); // <-- New state
   const { id: userId } = useAppSelector((state) => state.auth);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch messages on load
   useEffect(() => {
     if (!socket.connected) {
       socket.connect();
       socket.emit("login", userId);
     }
+
     const fetchMessages = async () => {
       try {
         setIsLoading(true);
@@ -40,7 +41,6 @@ const ChatPage = () => {
 
     fetchMessages();
 
-    // Listen for incoming messages
     socket.on("receiveMessage", (msg) => {
       if (
         (msg.sender === otherUserId && msg.receiver === userId) ||
@@ -50,12 +50,21 @@ const ChatPage = () => {
       }
     });
 
+    socket.on("typing", ({ sender }) => {
+      if (sender === otherUserId) {
+        setIsTyping(true);
+        setTimeout(() => {
+          setIsTyping(false);
+        }, 2000);
+      }
+    });
+
     return () => {
       socket.off("receiveMessage");
+      socket.off("typing");
     };
   }, [otherUserId, userId]);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -72,11 +81,9 @@ const ChatPage = () => {
       _id: tempId,
     };
 
-    // Optimistic UI update
     setMessages((prev) => [...prev, msg]);
     setNewMessage("");
 
-    // Emit message with tempId
     socket.emit("sendMessage", {
       sender: userId,
       receiver: otherUserId,
@@ -84,18 +91,28 @@ const ChatPage = () => {
       tempId,
     });
 
-    // Listen for success
     socket.once(`messageSent-${tempId}`, (confirmedMessage) => {
       setMessages((prev) =>
         prev.map((m) => (m._id === tempId ? confirmedMessage : m))
       );
     });
 
-    // Listen for failure
     socket.once(`messageFailed-${tempId}`, () => {
       setMessages((prev) => prev.filter((m) => m._id !== tempId));
-      // Optionally show an error toast or retry button here
     });
+  };
+
+  const debouncedTyping = useRef(
+    debounce((sender: string, receiver: string) => {
+      socket.emit("typing", { sender, receiver });
+    }, 10)
+  ).current;
+
+  const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    if (userId && otherUserId) {
+      debouncedTyping(userId, otherUserId);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -115,14 +132,12 @@ const ChatPage = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      {/* Chat header */}
       <div className="bg-white p-4 shadow-sm">
         <h1 className="text-xl font-semibold text-gray-800">
           Chat with {otherUserId}
         </h1>
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-500">
@@ -160,16 +175,20 @@ const ChatPage = () => {
             </div>
           ))
         )}
+
+        {isTyping && (
+          <div className="text-sm text-gray-500 ml-2">Typing...</div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <div className="bg-white p-4 border-t">
         <div className="flex items-center rounded-full bg-gray-100 px-4 py-2">
           <input
             type="text"
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={handleTyping}
             onKeyPress={handleKeyPress}
             placeholder="Type your message..."
             className="flex-1 bg-transparent outline-none text-gray-800 placeholder-gray-400"
