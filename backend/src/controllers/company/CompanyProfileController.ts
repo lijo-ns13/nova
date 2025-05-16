@@ -39,7 +39,7 @@ export class CompanyProfileController implements ICompanyProfileController {
     @inject(TYPES.CompanyProfileService)
     private companyProfileService: ICompanyProfileService
   ) {
-    console.log("companyProfileService:", this.companyProfileService);
+    // console.log("companyProfileService:", this.companyProfileService);
   }
 
   async getCompanyProfile(req: Request, res: Response): Promise<void> {

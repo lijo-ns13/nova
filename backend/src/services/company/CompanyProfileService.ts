@@ -10,7 +10,7 @@ export class CompanyProfileService implements ICompanyProfileService {
     @inject(TYPES.CompanyRepository)
     private _companyRepository: ICompanyRepository
   ) {
-    console.log("ProfileRepo", this._companyRepository);
+    // console.log("ProfileRepo", this._companyRepository);
   }
 
   async getCompanyProfile(companyId: string): Promise<ICompany> {
