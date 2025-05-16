@@ -89,7 +89,7 @@ const UserManagement: React.FC = () => {
     setPage(1);
   };
 
-  function handlePageChange(page: number): void {
+  function handlePageChange(): void {
     throw new Error("Function not implemented.");
   }
 

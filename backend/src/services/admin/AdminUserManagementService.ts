@@ -28,7 +28,7 @@ export class AdminUserManagementService implements IAdminUserManagementService {
   }
 
   // Get users with pagination
-  async getUsers(page: number = 1, limit: number = 10, searchQuery?: string) {
+  async getUsers(page: number = 1, limit: number = 1, searchQuery?: string) {
     try {
       const { users, totalUsers } = await this._userRepository.findUsers(
         page,

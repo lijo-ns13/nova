@@ -50,7 +50,7 @@ export class AdminUserManagementController
   async getUsers(req: Request, res: Response): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
+      const limit = parseInt(req.query.limit as string) || 1;
       const searchQuery = req.query.search as string | undefined;
 
       const usersData = await this.adminUserManagementService.getUsers(
