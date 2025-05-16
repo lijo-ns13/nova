@@ -19,6 +19,7 @@ import {
   Moon,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import socket from "../../../socket/socket";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -115,7 +116,9 @@ const Navbar: React.FC = () => {
   const handleLogout = async () => {
     try {
       await logOut();
+      socket.disconnect();
       dispatch(logout());
+
       toast.success("Logged out successfully");
     } catch (error) {
       console.error("Logout failed:", error);

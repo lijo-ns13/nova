@@ -1,8 +1,10 @@
 import React from "react";
+import socket from "../../../socket/socket";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Googlebutton: React.FC = () => {
   const handleLogin = () => {
-    window.location.href = "http://localhost:3000/api/auth/google"; // Backend route
+    window.location.href = `${API_BASE_URL}/api/auth/google`; // Backend route
   };
 
   return (

@@ -4,6 +4,7 @@ import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { login } from "../../auth/auth.slice";
 
 import axios from "axios";
+import socket from "../../../socket/socket";
 const OAuthSuccessPage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -30,6 +31,10 @@ const OAuthSuccessPage = () => {
             username: user.username,
           })
         );
+        if (!socket.connected) {
+          socket.connect();
+          socket.emit("login", user._id);
+        }
         navigate("/feed");
       } catch (error) {
         console.error("Auth failed", error);

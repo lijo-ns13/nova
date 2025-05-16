@@ -6,6 +6,7 @@ import { useAppSelector } from "../../../hooks/useAppSelector";
 import { login } from "../../auth/auth.slice";
 import { useNavigate } from "react-router-dom";
 import Googlebutton from "../componets/GoogleButton";
+import socket from "../../../socket/socket";
 function SignInPage() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   useEffect(() => {
@@ -74,6 +75,12 @@ function SignInPage() {
           isVerified: isVerified,
         })
       );
+
+      if (!socket.connected) {
+        socket.connect();
+        socket.emit("login", user.id);
+      }
+
       navigate("/feed");
     } catch (err: any) {
       console.error("API Error:", err);
