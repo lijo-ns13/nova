@@ -24,6 +24,8 @@ export interface IUser extends Document {
   isVerified: boolean;
   appliedJobs: mongoose.Types.ObjectId[] | [];
   savedJobs: mongoose.Types.ObjectId[] | [];
+  socketId?:string;
+  online?:boolean;
 }
 
 const userSchema = new Schema<IUser>(
@@ -119,6 +121,15 @@ const userSchema = new Schema<IUser>(
         ref: "Job",
       },
     ],
+    // socket 
+    socketId: {
+  type: String,
+  default: null,
+},
+online: {
+  type: Boolean,
+  default: false,
+},
   },
   {
     timestamps: true,

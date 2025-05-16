@@ -10,7 +10,6 @@ import {
 } from "../../core/dtos/request/user.request.dto";
 import { IAuthController } from "../../interfaces/controllers/IUserAuthController";
 import { IUserAuthService } from "../../interfaces/services/IUserAuthService";
-console.log("✅ AuthController loaded");
 
 export class AuthController implements IAuthController {
   constructor(
