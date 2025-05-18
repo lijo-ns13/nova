@@ -62,6 +62,7 @@ const CompanyApplicantPage: React.FC = () => {
       let result;
       if (jobId) {
         result = await applicantService.getApplications(jobId, filters);
+        console.log("result", result);
       }
       if (result) {
         setApplications(result.data.applications);

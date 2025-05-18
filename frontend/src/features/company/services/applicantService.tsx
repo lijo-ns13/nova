@@ -18,6 +18,7 @@ export interface Application {
   appliedAt: string;
   resumeUrl: string;
   coverLetter?: string;
+  username?: string;
   status: "applied" | "shortlisted" | "rejected";
   statusHistory?: Array<{
     status: string;

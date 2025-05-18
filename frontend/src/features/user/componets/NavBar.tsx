@@ -141,7 +141,7 @@ const Navbar: React.FC = () => {
   const navLinks = [
     { path: "/feed", label: "Home", icon: <Home size={20} /> },
     { path: "/jobs", label: "Jobs", icon: <Briefcase size={20} /> },
-    { path: "/networking", label: "My Network", icon: <Users size={20} /> },
+    { path: "/message", label: "Messages", icon: <Users size={20} /> },
   ];
 
   return (

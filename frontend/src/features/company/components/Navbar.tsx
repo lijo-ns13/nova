@@ -9,7 +9,6 @@ const Navbar = () => {
   async function handleLogout() {
     await logOut();
     dispatch(logout());
-    alert("Logged out successfully");
   }
 
   return (

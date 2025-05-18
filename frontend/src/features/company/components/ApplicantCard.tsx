@@ -72,7 +72,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                   {applicant.user.name}
                 </h2>
                 <a
-                  href={`/profile/${applicant.user._id}`}
+                  href={`/in/${applicant?.user._id}`}
                   className="inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700 transition-colors"
                 >
                   <ExternalLink size={14} />

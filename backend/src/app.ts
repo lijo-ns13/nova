@@ -15,6 +15,7 @@ import googleRouter from "./routes/google.routes";
 import container from "./di/container";
 import { IAuthMiddleware } from "./interfaces/middlewares/IAuthMiddleware";
 import { TYPES } from "./di/types";
+import { HTTP_STATUS_CODES } from "./core/enums/httpStatusCode";
 
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
@@ -46,7 +47,9 @@ app.use("/company", companyRouter);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error("Global error handler:", err);
-  res.status(500).json({ message: "Internal Server Error" });
+  res
+    .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+    .json({ message: "Internal Server Error" });
 });
 
 export default app;

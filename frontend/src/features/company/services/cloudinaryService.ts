@@ -12,6 +12,7 @@ export const uploadToCloudinary = async (
   // Use environment variables for these values!
   formData.append("upload_preset", uploadPreset);
   formData.append("cloud_name", cloudName);
+  // formData.append("resource_type", "raw");
 
   try {
     const response = await fetch(
