@@ -1,10 +1,7 @@
 import userAxios from "../../../utils/userAxios";
 import { JobFilterParams, PaginatedJobResponse } from "../types/jobTypes";
 
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-
 
 export const getJobs = async (
   filters: JobFilterParams = {}

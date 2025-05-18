@@ -1,8 +1,5 @@
-import  { useEffect, useState } from "react";
-import {
-  Search,
-  Filter,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Search, Filter } from "lucide-react";
 import JobCard from "../componets/job/JobCard";
 import FilterPanel from "../componets/job/FilterPanel";
 import Pagination from "../componets/job/Pagination";
@@ -13,6 +10,7 @@ function JobPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [locationTerm, setLocationTerm] = useState("");
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
     limit: 10,
@@ -38,6 +36,7 @@ function JobPage() {
       const res = await getJobs({
         ...filters,
         title: searchTerm,
+        location: locationTerm,
         page: pagination.page,
         limit: pagination.limit,
       });
@@ -89,7 +88,7 @@ function JobPage() {
             <input
               type="text"
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Search jobs, companies, or locations"
+              placeholder="Search by job title or company"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyPress={(e) => {
@@ -97,6 +96,21 @@ function JobPage() {
               }}
             />
           </div>
+
+          {/* Location Search */}
+          <div className="relative flex-grow">
+            <input
+              type="text"
+              className="block w-full pl-3 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Search by location"
+              value={locationTerm}
+              onChange={(e) => setLocationTerm(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") handleSearch();
+              }}
+            />
+          </div>
+
           <button
             className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 shadow-sm hover:bg-gray-50 transition-colors duration-200"
             onClick={() => setShowFilters(!showFilters)}
