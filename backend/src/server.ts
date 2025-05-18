@@ -1,4 +1,5 @@
 // server.ts
+import { ExpressPeerServer } from "peerjs-server";
 import { createServer } from "http";
 import { connectDB } from "./shared/config/db.config";
 import app from "./app";
@@ -10,8 +11,13 @@ const PORT = process.env.PORT || 5000;
   await connectDB();
 
   const server = createServer(app); // <-- Create HTTP server manually
-  initSocketServer(server);         // <-- Initialize socket server here
+  initSocketServer(server); // <-- Initialize socket server here
+  const peerServer = ExpressPeerServer(server, {
+    debug: true,
+    path: "/peerjs",
+  });
 
+  app.use("/peerjs", peerServer); // <-- PeerJS route
   server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
