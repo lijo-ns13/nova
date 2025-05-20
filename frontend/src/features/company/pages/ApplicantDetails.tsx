@@ -99,7 +99,7 @@ export default function ApplicantDetailPage() {
         />
         <div>
           <h2 className="text-xl font-semibold">{user.name}</h2>
-          <Link to={`/company/in/${user.username}`}>
+          <Link to={`/in/${user.username}`}>
             <p className="text-gray-500">@{user.username}</p>
           </Link>
         </div>
