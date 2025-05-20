@@ -26,7 +26,12 @@ export const GetPosts = async (jobId: string, resumeUrl: string) => {
 };
 
 // *************likes related
-
+export const getPostLikes = async (postId: string) => {
+  const response = await userAxios.get(`${BASE_URL}/post/like/${postId}`, {
+    withCredentials: true,
+  });
+  return response.data;
+};
 // *(********) comment realted
 
 export const AddComment = async (

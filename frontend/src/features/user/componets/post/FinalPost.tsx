@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  Heart,
   MessageCircle,
   MoreHorizontal,
   Download,
@@ -12,6 +11,7 @@ import Avatar from "../ui/Avatar";
 import Button from "../ui/Button";
 import CommentSection from "./CommentSection/CommentSection";
 import { Link } from "react-router-dom";
+import LikesButton from "./PostLikes/LikesButton";
 
 interface Media {
   mediaUrl: string;
@@ -293,28 +293,14 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
       <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-5">
-            <button
-              onClick={handleLike}
-              className={`group flex items-center gap-2 transition-all ${
-                liked
-                  ? "text-pink-500"
-                  : "text-gray-500 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-500"
-              }`}
-              aria-label={liked ? "Unlike" : "Like"}
-            >
-              <span className="relative">
-                <Heart
-                  className={`h-5 w-5 transition-all duration-300 ${
-                    liked ? "fill-current scale-110" : "group-hover:scale-110"
-                  }`}
-                />
-                {isLikeAnimating && (
-                  <span className="absolute -inset-1 animate-ping opacity-75 h-7 w-7 rounded-full bg-pink-400"></span>
-                )}
-              </span>
-              <span className="text-sm font-medium">{likeCount}</span>
-              {/* in here i want to show the liked person accounts i have a api for that to get liked persons profilepicture,name */}
-            </button>
+            <LikesButton
+              postId={post._id}
+              likeCount={likeCount}
+              liked={liked}
+              isLikeAnimating={isLikeAnimating}
+              onLike={handleLike}
+            />
+
             <button
               className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
               onClick={toggleComments}
