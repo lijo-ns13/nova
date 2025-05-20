@@ -5,7 +5,7 @@ import { BaseRepository } from "./BaseRepository";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import { Model, Types } from "mongoose";
 import { TYPES } from "../../di/types";
-
+import { MongoServerError } from "mongodb";
 @injectable()
 export class ApplicationRepository
   extends BaseRepository<IApplication>
@@ -26,15 +26,21 @@ export class ApplicationRepository
         job: new Types.ObjectId(data.job),
         user: new Types.ObjectId(data.user),
         resumeMediaId: new Types.ObjectId(data.resumeMediaId),
-        status: "APPLIED",
+        // status: "applied",
         appliedAt: new Date(),
       });
 
       await application.save();
       return application;
     } catch (error) {
+      if (error instanceof MongoServerError && error.code === 11000) {
+        // Optional: customize message by inspecting `error.keyPattern`
+        throw new Error("You have already applied for this job.");
+      }
       console.error("Error creating application:", error);
-      throw new Error("Failed to create application");
+      throw new Error(
+        (error as Error).message || "Failed to create application"
+      );
     }
   }
   async updateStatus(

@@ -54,7 +54,9 @@ export class UserJobService implements IUserJobService {
         user: userId,
         resumeMediaId: mediaId,
       });
-
+      if (!application) {
+        throw new Error("appliction can't creat");
+      }
       // Add to user's applied jobs
       await this._userRepository.addToAppliedJobs(userId, jobId);
 

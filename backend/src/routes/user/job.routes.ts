@@ -10,7 +10,7 @@ import multer from "multer";
 const storage = multer.memoryStorage(); // Suitable for cloud uploads like S3
 const upload = multer({ storage });
 
-export const uploadMedia = upload.array("media"); // 'media' should match your form field name
+export const uploadMedia = upload.single("resume"); // 'media' should match your form field name
 
 const jobController = container.get<IUserJobController>(
   TYPES.UserJobController

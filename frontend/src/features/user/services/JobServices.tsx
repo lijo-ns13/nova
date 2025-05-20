@@ -64,12 +64,32 @@ export const getJob = async (jobId: string) => {
   return response.data;
 };
 
-// Apply to a job
-export const applyJob = async (jobId: string, resumeUrl: string) => {
+interface ApplyJobParams {
+  jobId: string;
+  resumeFile: File;
+  coverLetter?: string;
+}
+
+export const applyJob = async ({
+  jobId,
+  resumeFile,
+  coverLetter,
+}: ApplyJobParams) => {
+  const formData = new FormData();
+  formData.append("resume", resumeFile);
+  if (coverLetter) {
+    formData.append("coverLetter", coverLetter);
+  }
+
   const response = await userAxios.post(
     `${API_BASE_URL}/jobs/${jobId}/apply`,
-    { resumeUrl },
-    { withCredentials: true }
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    }
   );
   return response.data;
 };

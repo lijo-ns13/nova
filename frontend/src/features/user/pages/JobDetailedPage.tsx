@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getJob, saveJob, unsaveJob } from "../services/JobServices";
@@ -624,7 +622,7 @@ function JobDetailedPage() {
       </div>
 
       {/* Apply Modal */}
-      {showApplyModal && job && (
+      {showApplyModal && (
         <ApplyModal
           jobId={job._id}
           onClose={() => setShowApplyModal(false)}
@@ -633,6 +631,14 @@ function JobDetailedPage() {
             setShowApplyModal(false);
           }}
         />
+      )}
+      {applicationSuccess && (
+        <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-md z-50 animate-fade-in">
+          <div className="flex items-center">
+            <Check className="h-5 w-5 mr-2 text-green-600" />
+            <span>Application submitted successfully!</span>
+          </div>
+        </div>
       )}
     </div>
   );

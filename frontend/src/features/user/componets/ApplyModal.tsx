@@ -1,9 +1,11 @@
 import { useState, useRef } from "react";
-import ReactCrop, { Crop } from "react-image-crop";
-import "react-image-crop/dist/ReactCrop.css";
-import { uploadToCloudinary } from "../../company/services/cloudinaryService";
+import {
+  DocumentTextIcon,
+  PaperClipIcon,
+  CheckIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import { applyJob } from "../services/JobServices";
-import { CheckIcon } from "@heroicons/react/24/outline";
 
 interface ApplyModalProps {
   jobId: string;
@@ -11,106 +13,69 @@ interface ApplyModalProps {
   onApplySuccess: () => void;
 }
 
-function ApplyModal({ jobId, onClose, onApplySuccess }: ApplyModalProps) {
-  const [crop, setCrop] = useState<Crop>({
-    unit: "%",
-    x: 25,
-    y: 25,
-    width: 50,
-    height: 50,
-  });
-  const [srcImage, setSrcImage] = useState<string | null>(null);
-  const [isCropping, setIsCropping] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [resumeUrl, setResumeUrl] = useState("");
+export default function ApplyModal({
+  jobId,
+  onClose,
+  onApplySuccess,
+}: ApplyModalProps) {
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const imageRef = useRef<HTMLImageElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check if file is an image
-    if (!file.type.match("image.*")) {
-      setError("Please upload an image file (JPEG, PNG, etc.)");
+    // Validate file type
+    if (file.type !== "application/pdf") {
+      setError("Only PDF files are accepted");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setSrcImage(reader.result as string);
-      setIsCropping(true);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleUpload = async (file: File | Blob) => {
-    setUploading(true);
-    try {
-      const url = await uploadToCloudinary(file);
-      setResumeUrl(url);
-      setError("");
-    } catch (err) {
-      setError("Failed to upload resume. Please try again.");
-      console.error(err);
-    } finally {
-      setUploading(false);
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      setError("File size must be less than 5MB");
+      return;
     }
+
+    setResumeFile(file);
+    setError("");
   };
 
-  const handleCropComplete = () => {
-    if (!imageRef.current || !crop.width || !crop.height) return;
-
-    const canvas = document.createElement("canvas");
-    const scaleX = imageRef.current.naturalWidth / imageRef.current.width;
-    const scaleY = imageRef.current.naturalHeight / imageRef.current.height;
-
-    canvas.width = crop.width * scaleX;
-    canvas.height = crop.height * scaleY;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.drawImage(
-      imageRef.current,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
-      0,
-      0,
-      crop.width * scaleX,
-      crop.height * scaleY
-    );
-
-    canvas.toBlob(
-      async (blob) => {
-        if (!blob) return;
-        await handleUpload(blob);
-        setIsCropping(false);
-        setSrcImage(null);
-      },
-      "image/jpeg",
-      0.9
-    );
+  const removeFile = () => {
+    setResumeFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!resumeUrl) {
+    setError("");
+
+    if (!resumeFile) {
       setError("Please upload your resume");
       return;
     }
 
+    setIsSubmitting(true);
     try {
-      await applyJob(jobId, resumeUrl);
+      await applyJob({
+        jobId,
+        resumeFile,
+        coverLetter,
+      });
       onApplySuccess();
     } catch (err: any) {
       setError(
         err.response?.data?.message ||
           "Failed to submit application. Please try again."
       );
-      console.error("error", err);
+      console.error("Application error:", err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -123,21 +88,9 @@ function ApplyModal({ jobId, onClose, onApplySuccess }: ApplyModalProps) {
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700"
-              aria-label="Close modal"
+              disabled={isSubmitting}
             >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <XMarkIcon className="h-6 w-6" />
             </button>
           </div>
 
@@ -150,73 +103,109 @@ function ApplyModal({ jobId, onClose, onApplySuccess }: ApplyModalProps) {
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Resume (Image only)
+                Resume (PDF only)
               </label>
-              <input
-                type="file"
-                accept=".png,.jpg,.jpeg"
-                onChange={handleImageSelect}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                disabled={uploading}
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="resume-upload"
+                  disabled={isSubmitting}
+                />
+                <label
+                  htmlFor="resume-upload"
+                  className="flex-1 cursor-pointer bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 px-4 rounded-md border border-gray-300 flex items-center justify-center gap-2"
+                >
+                  <PaperClipIcon className="h-5 w-5" />
+                  <span>Choose file</span>
+                </label>
+              </div>
+              {resumeFile && (
+                <div className="mt-2 flex items-center justify-between bg-blue-50 p-2 rounded-md">
+                  <div className="flex items-center gap-2">
+                    <DocumentTextIcon className="h-5 w-5 text-blue-600" />
+                    <span className="text-sm truncate">{resumeFile.name}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removeFile}
+                    className="text-red-500 hover:text-red-700"
+                    disabled={isSubmitting}
+                  >
+                    <XMarkIcon className="h-5 w-5" />
+                  </button>
+                </div>
+              )}
+              <p className="mt-1 text-xs text-gray-500">
+                PDF files only (max 5MB)
+              </p>
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="coverLetter"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Cover Letter (Optional)
+              </label>
+              <textarea
+                id="coverLetter"
+                rows={4}
+                value={coverLetter}
+                onChange={(e) => setCoverLetter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Explain why you're a good fit for this position..."
+                disabled={isSubmitting}
               />
             </div>
 
-            {isCropping && srcImage && (
-              <div className="mb-4">
-                <ReactCrop
-                  crop={crop}
-                  onChange={(c) => setCrop(c)}
-                  onComplete={handleCropComplete}
-                >
-                  <img
-                    ref={imageRef}
-                    src={srcImage}
-                    alt="Resume preview"
-                    className="max-w-full max-h-64 object-contain"
-                  />
-                </ReactCrop>
-                <button
-                  type="button"
-                  onClick={handleCropComplete}
-                  className="mt-2 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
-                  disabled={uploading}
-                >
-                  Crop and Save
-                </button>
-              </div>
-            )}
-
-            {uploading && (
-              <div className="mb-4 flex items-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-2"></div>
-                <span>Uploading resume...</span>
-              </div>
-            )}
-
-            {resumeUrl && !uploading && (
-              <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-md">
-                <div className="flex items-center">
-                  <CheckIcon className="h-5 w-5 mr-2" />
-                  <span>Resume uploaded successfully</span>
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-3 pt-4">
               <button
                 type="button"
                 onClick={onClose}
                 className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                disabled={uploading}
+                disabled={isSubmitting}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={!resumeUrl || uploading}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                disabled={!resumeFile || isSubmitting}
               >
-                Submit Application
+                {isSubmitting ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Applying...
+                  </>
+                ) : (
+                  <>
+                    <CheckIcon className="h-4 w-4" />
+                    Submit Application
+                  </>
+                )}
               </button>
             </div>
           </form>
@@ -225,5 +214,3 @@ function ApplyModal({ jobId, onClose, onApplySuccess }: ApplyModalProps) {
     </div>
   );
 }
-
-export default ApplyModal;
