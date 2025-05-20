@@ -74,34 +74,50 @@ export class UserJobController implements IUserJobController {
   applyToJob: RequestHandler = async (req: Request, res: Response) => {
     try {
       const { jobId } = req.params;
-      const userId = (req.user as Userr)?.id; // Assuming auth middleware adds req.user
+      const userId = (req.user as Userr)?.id;
+      const resumeFile = req.file as Express.Multer.File; // Changed from resumeUrl to file
 
       if (!userId) {
-        res
-          .status(HTTP_STATUS_CODES.UNAUTHORIZED)
-          .json({ message: "User not authenticated or user ID missing" });
+        res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
+          success: false,
+          message: "User not authenticated or user ID missing",
+        });
         return;
       }
 
-      const { resumeUrl } = req.body;
-
-      if (!resumeUrl) {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ message: "Resume URL is required" });
+      if (!resumeFile) {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
+          success: false,
+          message: "Resume file is required",
+        });
         return;
       }
 
-      const updatedJob = await this.jobService.applyToJob(
+      // Optional: Validate file type
+      if (resumeFile.mimetype !== "application/pdf") {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
+          success: false,
+          message: "Only PDF files are accepted for resumes",
+        });
+        return;
+      }
+
+      const application = await this.jobService.applyToJob(
         jobId,
         userId,
-        resumeUrl
+        resumeFile
       );
-      res.status(HTTP_STATUS_CODES.OK).json(updatedJob);
+
+      res.status(HTTP_STATUS_CODES.CREATED).json({
+        success: true,
+        data: application,
+      });
     } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
+      console.error("Error in applyToJob:", error);
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
   };
   getSavedJobs: RequestHandler = async (req: Request, res: Response) => {

@@ -3,12 +3,15 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 import { ApplicationStatus } from "./job.modal";
 import { IUser } from "./user.modal";
 import { IJob } from "./job.modal";
+import container from "../di/container";
+import { IMediaService } from "../interfaces/services/Post/IMediaService";
+import { TYPES } from "../di/types";
 
 export interface IApplication extends Document {
-  job: Types.ObjectId | IJob;
-  user: Types.ObjectId | IUser;
+  job: Types.ObjectId | IJob | string;
+  user: Types.ObjectId | IUser | string;
   appliedAt: Date;
-  resumeUrl: string;
+  resumeMediaId: Types.ObjectId | string;
   coverLetter?: string;
   status: ApplicationStatus;
   rejectionReason?: string;
@@ -38,13 +41,11 @@ const ApplicationSchema = new Schema<IApplication>(
       default: Date.now,
       index: true,
     },
-    resumeUrl: {
-      type: String,
+    resumeMediaId: {
+      // Changed field name and type
+      type: Schema.Types.ObjectId,
+      ref: "Media",
       required: true,
-      validate: {
-        validator: (v: string) => v.startsWith("http"),
-        message: "Resume URL must be a valid link",
-      },
     },
     coverLetter: {
       type: String,

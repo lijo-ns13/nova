@@ -5,6 +5,12 @@ import container from "../../di/container";
 import { TYPES } from "../../di/types";
 import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
+import multer from "multer";
+
+const storage = multer.memoryStorage(); // Suitable for cloud uploads like S3
+const upload = multer({ storage });
+
+export const uploadMedia = upload.array("media"); // 'media' should match your form field name
 
 const jobController = container.get<IUserJobController>(
   TYPES.UserJobController
@@ -23,7 +29,7 @@ router.get("/jobs/saved-jobs", jobController.getSavedJobs);
 router.get("/jobs/:jobId", jobController.getJob);
 
 // Apply to a job
-router.post("/jobs/:jobId/apply", jobController.applyToJob);
+router.post("/jobs/:jobId/apply", uploadMedia, jobController.applyToJob);
 
 // Save a job
 router.post("/jobs/:jobId/save", jobController.saveJob);

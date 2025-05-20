@@ -14,4 +14,9 @@ export interface IApplicationRepository extends IBaseRepository<IApplication> {
   findByUserId(userId: string): Promise<IApplication[]>;
   findByIdWithUserAndJob(applicationId: string): Promise<IApplication | null>;
   findByJobIdAndPop(userId: string): Promise<any>;
+  create(data: {
+    job: string;
+    user: string;
+    resumeMediaId: string;
+  }): Promise<IApplication>;
 }

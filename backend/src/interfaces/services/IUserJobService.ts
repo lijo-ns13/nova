@@ -1,3 +1,4 @@
+import { IApplication } from "../../models/application.modal";
 import { IJob } from "../../models/job.modal";
 
 export interface IUserJobService {
@@ -12,7 +13,12 @@ export interface IUserJobService {
   getJob(jobId: string): Promise<IJob | null>;
 
   // Apply to a job and record the application in the user's record
-  applyToJob(jobId: string, userId: string, resumeUrl: string): Promise<IJob>;
+  applyToJob(
+    jobId: string,
+    userId: string,
+    resumeFile: Express.Multer.File,
+    coverLetter?: string
+  ): Promise<IApplication>;
 
   // Get jobs the user has saved
   getSavedJobs(userId: string): Promise<IJob[]>;

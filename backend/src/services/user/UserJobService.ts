@@ -5,6 +5,8 @@ import { TYPES } from "../../di/types";
 import { IJob } from "../../models/job.modal";
 import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
+import { IMediaService } from "../../interfaces/services/Post/IMediaService";
+import { IApplication } from "../../models/application.modal";
 
 export class UserJobService implements IUserJobService {
   constructor(
@@ -13,7 +15,9 @@ export class UserJobService implements IUserJobService {
     @inject(TYPES.UserRepository)
     private _userRepository: IUserRepository,
     @inject(TYPES.ApplicationRepository)
-    private __applicationRepo: IApplicationRepository
+    private _applicationRepo: IApplicationRepository,
+    @inject(TYPES.MediaService)
+    private _mediaService: IMediaService
   ) {}
 
   async getAllJobs(
@@ -29,11 +33,36 @@ export class UserJobService implements IUserJobService {
   async applyToJob(
     jobId: string,
     userId: string,
-    resumeUrl: string
-  ): Promise<IJob> {
-    const job = await this._jobRepository.applyToJob(jobId, userId, resumeUrl);
-    await this._userRepository.addToAppliedJobs(userId, jobId);
-    return job;
+    resumeFile: Express.Multer.File
+  ): Promise<IApplication> {
+    try {
+      // Validate file type again (redundant but safe)
+      if (resumeFile.mimetype !== "application/pdf") {
+        throw new Error("Only PDF files are allowed for resumes");
+      }
+
+      // Upload resume to S3
+      const [mediaId] = await this._mediaService.uploadMedia(
+        [resumeFile],
+        userId,
+        "User"
+      );
+
+      // Create application record
+      const application = await this._applicationRepo.create({
+        job: jobId,
+        user: userId,
+        resumeMediaId: mediaId,
+      });
+
+      // Add to user's applied jobs
+      await this._userRepository.addToAppliedJobs(userId, jobId);
+
+      return application;
+    } catch (error) {
+      console.error("Error in applyToJob service:", error);
+      throw new Error(`Failed to apply to job: ${(error as Error).message}`);
+    }
   }
   async getSavedJobs(userId: string): Promise<IJob[]> {
     if (!userId) throw new Error("user id not found");
@@ -45,7 +74,7 @@ export class UserJobService implements IUserJobService {
   }
 
   async getAppliedJobs(userId: string): Promise<any> {
-    const appliedJobs = await this.__applicationRepo.findByJobIdAndPop(userId);
+    const appliedJobs = await this._applicationRepo.findByJobIdAndPop(userId);
     return appliedJobs;
   }
 

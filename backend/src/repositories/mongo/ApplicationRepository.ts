@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import applicationModal, { IApplication } from "../../models/application.modal";
 import { BaseRepository } from "./BaseRepository";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { TYPES } from "../../di/types";
 
 @injectable()
@@ -16,7 +16,27 @@ export class ApplicationRepository
   ) {
     super(applicationModal);
   }
+  async create(data: {
+    job: string;
+    user: string;
+    resumeMediaId: string;
+  }): Promise<IApplication> {
+    try {
+      const application = new applicationModal({
+        job: new Types.ObjectId(data.job),
+        user: new Types.ObjectId(data.user),
+        resumeMediaId: new Types.ObjectId(data.resumeMediaId),
+        status: "APPLIED",
+        appliedAt: new Date(),
+      });
 
+      await application.save();
+      return application;
+    } catch (error) {
+      console.error("Error creating application:", error);
+      throw new Error("Failed to create application");
+    }
+  }
   async updateStatus(
     applicationId: string,
     status: string,
