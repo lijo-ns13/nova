@@ -64,7 +64,8 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     // Update application status
     await this._applicationRepo.updateStatus(
       applicationId,
-      ApplicationStatus.INTERVIEW_SCHEDULED
+      ApplicationStatus.INTERVIEW_SCHEDULED,
+      new Date(scheduledAt)
     );
 
     return interview;

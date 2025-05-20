@@ -60,6 +60,7 @@ export class CompanyInterviewController implements ICompanyInterviewController {
         scheduledAt,
         roomId
       );
+
       const io = req.app.get("io");
       io?.to(userId).emit("interview-scheduled", {
         roomId,

@@ -19,10 +19,11 @@ export class ApplicationRepository
 
   async updateStatus(
     applicationId: string,
-    status: string
+    status: string,
+    scheduledAt?: Date
   ): Promise<IApplication | null> {
     return this.model
-      .findByIdAndUpdate(applicationId, { status }, { new: true })
+      .findByIdAndUpdate(applicationId, { status, scheduledAt }, { new: true })
       .exec();
   }
 

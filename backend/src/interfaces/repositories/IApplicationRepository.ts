@@ -7,7 +7,8 @@ import { IApplication } from "../../models/application.modal";
 export interface IApplicationRepository extends IBaseRepository<IApplication> {
   updateStatus(
     applicationId: string,
-    status: string
+    status: string,
+    scheduledAt?: Date
   ): Promise<IApplication | null>;
   findByJobId(jobId: string): Promise<IApplication[]>;
   findByUserId(userId: string): Promise<IApplication[]>;
