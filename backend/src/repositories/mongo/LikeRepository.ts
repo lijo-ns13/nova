@@ -40,6 +40,8 @@ export class LikeRepository
 
   // Custom method: Find all likes for a given postId
   async findLikesByPostId(postId: string): Promise<ILike[]> {
-    return this.model.find({ postId: new Types.ObjectId(postId) });
+    return this.model
+      .find({ postId: new Types.ObjectId(postId) })
+      .populate("userId", "name profilePicture username");
   }
 }

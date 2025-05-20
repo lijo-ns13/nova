@@ -313,6 +313,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
                 )}
               </span>
               <span className="text-sm font-medium">{likeCount}</span>
+              {/* in here i want to show the liked person accounts i have a api for that to get liked persons profilepicture,name */}
             </button>
             <button
               className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors"
