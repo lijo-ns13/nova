@@ -17,4 +17,10 @@ export interface ICompanyInterviewController {
     res: Response,
     next?: NextFunction
   ): Promise<void>;
+
+  getApplicationInterviews(
+    req: Request,
+    res: Response,
+    next?: NextFunction
+  ): Promise<void>;
 }

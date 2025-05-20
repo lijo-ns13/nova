@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import companyAxios from "../../../utils/companyAxios";
+import ScheduleInterviewModal from "../components/modal/ScheduleInterviewModal";
 
 export enum ApplicationStatus {
   APPLIED = "applied",
@@ -49,6 +50,7 @@ export default function ApplicantDetailPage() {
   const [application, setApplication] = useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   console.log("applicatoin", application);
   useEffect(() => {
     async function fetchApplication() {
@@ -124,14 +126,16 @@ export default function ApplicantDetailPage() {
         </a>
       </div>
 
-      {/* Application Status */}
-      <div>
-        <h3 className="text-lg font-medium">Status</h3>
-        <p className="capitalize text-green-700">{status.replace(/_/g, " ")}</p>
-        <p className="text-sm text-gray-500 mt-1">
-          Applied on {new Date(appliedAt).toLocaleDateString()}
-        </p>
-      </div>
+      <ScheduleInterviewModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        applicationId={application._id}
+        userId={user._id}
+        onInterviewScheduled={() => {
+          // Optional: Refresh interview list or show success toast
+          console.log("Interview Scheduled!");
+        }}
+      />
 
       {/* Status Based UI */}
       <div>
@@ -140,8 +144,8 @@ export default function ApplicantDetailPage() {
             case ApplicationStatus.SHORTLISTED:
               return (
                 <button
-                  onClick={handleScheduleInterview}
-                  className="px-4 py-2 mt-4 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  onClick={() => setIsModalOpen(true)}
+                  className="mt-4 bg-green-600 text-white px-4 py-2 rounded"
                 >
                   Schedule Interview
                 </button>

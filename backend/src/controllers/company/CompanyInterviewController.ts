@@ -88,6 +88,23 @@ export class CompanyInterviewController implements ICompanyInterviewController {
         .json({ success: false, message: (err as Error).message });
     }
   }
+  async getApplicationInterviews(req: Request, res: Response): Promise<void> {
+    try {
+      const { applicationId } = req.params;
+      const companyId = (req.user as Userr)?.id;
+      const applicationInterview =
+        await this.companyInterviewService.getApplicationInterviews(
+          applicationId,
+          companyId
+        );
+      res.status(200).json({ success: true, data: applicationInterview });
+    } catch (err) {
+      console.log("error", err);
+      res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (err as Error).message });
+    }
+  }
   async getApplicantDetails(req: Request, res: Response): Promise<void> {
     try {
       const { applicationId } = req.params;

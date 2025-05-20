@@ -65,6 +65,18 @@ export class CompanyInterviewService implements ICompanyInterviewService {
   async getComanyInterviews(companyId: string): Promise<any> {
     return this._interviewRepo.findByCompanyId(companyId);
   }
+  async getApplicationInterviews(
+    applicationId: string,
+    companyId: string
+  ): Promise<any> {
+    const interview = await this._interviewRepo.findOne({
+      applicationId: applicationId,
+    });
+    if (interview?.companyId != companyId) {
+      throw new Error("only get own ocmpany interviews");
+    }
+    return interview;
+  }
   async getApplicantDetails(
     applicationId: string,
     companyId: string

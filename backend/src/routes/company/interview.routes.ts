@@ -16,6 +16,9 @@ router.use(authMiddleware.check());
 router.post("/interview", (req, res, next) =>
   interviewController.createInterview(req, res).catch(next)
 );
+router.get("/application/interview/:applicationId", (req, res, next) =>
+  interviewController.getApplicationInterviews(req, res).catch(next)
+);
 router.get("/application/:applicationId", (req, res, next) =>
   interviewController.getApplicantDetails(req, res).catch(next)
 );
