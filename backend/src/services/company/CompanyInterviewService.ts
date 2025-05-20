@@ -31,11 +31,19 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     if (applicant.status != "shortlisted") {
       throw new Error("only shedule interview for shortlisted application");
     }
+
     const existingInterview = await this._interviewRepo.findByTimeSlot(
       companyId,
       new Date(scheduledAt)
     );
-
+    const alreadyCreatedInterview =
+      await this._interviewRepo.findByCompanyIdApplicantId(
+        companyId,
+        applicationId
+      );
+    if (alreadyCreatedInterview) {
+      throw new Error("you already created interview for this applicant");
+    }
     if (existingInterview) {
       throw new Error(
         "Conflict: Company already has an interview at this time."

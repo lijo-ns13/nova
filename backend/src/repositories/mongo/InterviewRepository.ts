@@ -33,4 +33,11 @@ export class InterviewRepository
   ): Promise<IInterview | null> {
     return this.model.findOne({ companyId, scheduledAt }).exec();
   }
+  async findByCompanyIdApplicantId(
+    companyId: string,
+    applicationId: string
+  ): Promise<boolean> {
+    const result = await this.model.findOne({ companyId, applicationId });
+    return !!result;
+  }
 }

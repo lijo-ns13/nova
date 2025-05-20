@@ -13,6 +13,7 @@ export interface IApplication extends Document {
   status: ApplicationStatus;
   rejectionReason?: string;
   notes?: string;
+  scheduledAt?: Date;
 }
 
 const ApplicationSchema = new Schema<IApplication>(
@@ -22,6 +23,9 @@ const ApplicationSchema = new Schema<IApplication>(
       ref: "Job",
       required: true,
       index: true,
+    },
+    scheduledAt: {
+      type: Date,
     },
     user: {
       type: Schema.Types.ObjectId,
