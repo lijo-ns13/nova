@@ -37,4 +37,38 @@ export class EmailService implements IEmailService {
       html: `<p>Click <a href="${resetLink}">here</a> to reset your password</p>`,
     });
   }
+  async sendInterviewLink(
+    email: string,
+    roomId: string,
+    scheduledAt: Date
+  ): Promise<void> {
+    const interviewLink = `${process.env.FRONTEND_URL}/interview/${roomId}`;
+    const formattedDate = new Intl.DateTimeFormat("en-US", {
+      dateStyle: "full",
+      timeStyle: "short",
+      timeZone: "Asia/Kolkata", // You can customize the time zone
+    }).format(scheduledAt);
+
+    await this.transporter.sendMail({
+      from: `"Your App Name" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Interview Invitation – Scheduled Details Inside",
+      html: `
+      <p>Dear Candidate,</p>
+
+      <p>We are pleased to inform you that your interview has been scheduled. Please find the details below:</p>
+
+      <ul>
+        <li><strong>Date & Time:</strong> ${formattedDate}</li>
+        <li><strong>Interview Room:</strong> <a href="${interviewLink}">Join Here</a></li>
+      </ul>
+
+      <p>Please ensure you are online and ready to join the interview a few minutes before the scheduled time.</p>
+
+      <p>If you have any questions, feel free to reach out.</p>
+
+      <p>Best regards,<br>Your App Name Team</p>
+    `,
+    });
+  }
 }

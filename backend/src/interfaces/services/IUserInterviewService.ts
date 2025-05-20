@@ -5,4 +5,5 @@ export interface IUserInterviewService {
     applicationId: string,
     status: string
   ): Promise<IApplication | null>;
+  findInterview(applicationId: string, userId: string): Promise<any>;
 }
