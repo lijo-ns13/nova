@@ -1,15 +1,17 @@
 // src/modules/job/repositories/InterviewRepository.ts
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { Interview, IInterview } from "../../models/interview.modal";
 import { BaseRepository } from "../../repositories/mongo/BaseRepository";
 import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRepository";
+import { Model } from "mongoose";
+import { TYPES } from "../../di/types";
 
 @injectable()
 export class InterviewRepository
   extends BaseRepository<IInterview>
   implements IInterviewRepository
 {
-  constructor() {
+  constructor(@inject(TYPES.Interview) Interview: Model<IInterview>) {
     super(Interview);
   }
 

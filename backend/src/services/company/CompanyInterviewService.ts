@@ -2,7 +2,10 @@
 import { inject } from "inversify";
 import { TYPES } from "../../di/types";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
-import { IInterviewRepository } from "../../core/entities/interview.interface";
+import { IInterview } from "../../core/entities/interview.interface";
+import { ApplicationStatus } from "../../models/job.modal";
+import { ICompanyInterviewService } from "../../interfaces/services/ICompanyInterviewService";
+import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRepository";
 
 export class CompanyInterviewService implements ICompanyInterviewService {
   constructor(
@@ -18,7 +21,7 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     applicationId: string,
     scheduledAt: string,
     roomId: string
-  ): Promise<IInterview> {
+  ): Promise<any> {
     // Check for existing interview at this time
     const existingInterview = await this._interviewRepo.findByTimeSlot(
       companyId,
@@ -51,7 +54,7 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     return interview;
   }
 
-  async getComanyInterviews(companyId: string): Promise<IInterview[]> {
+  async getComanyInterviews(companyId: string): Promise<any> {
     return this._interviewRepo.findByCompanyId(companyId);
   }
 }

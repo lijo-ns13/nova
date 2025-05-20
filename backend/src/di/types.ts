@@ -1,3 +1,5 @@
+import applicationModal from "../models/application.modal";
+
 export const TYPES = {
   // Repositories
   UserModal: Symbol.for("UserModal"),
@@ -83,7 +85,9 @@ export const TYPES = {
 
   //comapnyside interivew
   InterviewRepository: Symbol.for("InterviewRepository"),
+  Interview: Symbol.for("Interview"),
   ApplicationRepository: Symbol.for("ApplicationRepository"),
+  applicationModal: Symbol.for("applicationModal"),
   CompanyInterviewService: Symbol.for("CompanyInterviewService"),
   CompanyInterviewController: Symbol.for("CompanyInterviewController"),
 };

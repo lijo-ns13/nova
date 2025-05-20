@@ -1,15 +1,19 @@
 // src/modules/job/repositories/ApplicationRepository.ts
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import applicationModal, { IApplication } from "../../models/application.modal";
 import { BaseRepository } from "./BaseRepository";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
+import { Model } from "mongoose";
+import { TYPES } from "../../di/types";
 
 @injectable()
 export class ApplicationRepository
   extends BaseRepository<IApplication>
   implements IApplicationRepository
 {
-  constructor() {
+  constructor(
+    @inject(TYPES.applicationModal) applicationModal: Model<IApplication>
+  ) {
     super(applicationModal);
   }
 

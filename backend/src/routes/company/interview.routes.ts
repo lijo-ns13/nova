@@ -1,31 +1,20 @@
 import { Router } from "express";
-import { inject, injectable } from "inversify";
-import { INTERVIEW_TYPES } from "./interview.types";
-import { InterviewController } from "./interview.controller";
+import container from "../../di/container";
+import { TYPES } from "../../di/types";
+import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
+import { ICompanyInterviewController } from "../../interfaces/controllers/ICompanyInterviewController";
+const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
-@injectable()
-export class InterviewRouter {
-  public router: Router;
+const interviewController = container.get<ICompanyInterviewController>(
+  TYPES.CompanyInterviewController
+);
 
-  constructor(
-    @inject(INTERVIEW_TYPES.Controller) private controller: InterviewController
-  ) {
-    this.router = Router();
-    this.initializeRoutes();
-  }
+const router = Router();
+router.use(authMiddleware.authenticate("company"));
+router.use(authMiddleware.check());
 
-  private initializeRoutes() {
-    this.router.post(
-      "/",
-      this.controller.scheduleInterview.bind(this.controller)
-    );
-    this.router.put(
-      "/:id/result",
-      this.controller.markInterviewResult.bind(this.controller)
-    );
-    this.router.get(
-      "/company/:companyId",
-      this.controller.getCompanyInterviews.bind(this.controller)
-    );
-  }
-}
+router.post("/", (req, res, next) =>
+  interviewController.createInterview(req, res).catch(next)
+);
+
+export default router;

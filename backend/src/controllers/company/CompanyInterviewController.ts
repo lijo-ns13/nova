@@ -14,6 +14,7 @@ interface Userr {
 
 import { ZodError } from "zod";
 import { ICompanyInterviewController } from "../../interfaces/controllers/ICompanyInterviewController";
+import { ICompanyInterviewService } from "../../interfaces/services/ICompanyInterviewService";
 
 // Helper function to format Zod errors
 const formatZodError = (error: ZodError): Record<string, string> => {
@@ -38,6 +39,21 @@ export class CompanyInterviewController implements ICompanyInterviewController {
     try {
       const { userId, applicationId, scheduledAt } = req.body;
       const companyId = (req.user as Userr)?.id; // Assumes auth middleware sets req.user
+      if (!userId || !applicationId || !scheduledAt) {
+        res
+          .status(400)
+          .json({
+            success: false,
+            message: "please provide userid,applicationid,scheuldedat",
+          });
+        return;
+      }
+      if (!companyId) {
+        res
+          .status(400)
+          .json({ success: false, message: "companyid not found" });
+        return;
+      }
       const roomId = uuidv4();
       const interview = await this.companyInterviewService.createInterview(
         companyId,
