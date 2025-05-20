@@ -42,9 +42,9 @@ export class ApplicationRepository
       .populate("job") // optional
       .exec();
   }
-  async findByJobIdAndPop(jobId: string, userId: string): Promise<any> {
+  async findByJobIdAndPop(userId: string): Promise<any> {
     return this.model
-      .find({ job: jobId, user: userId })
+      .find({ user: userId })
       .populate("job", "title description location jobType")
       .exec();
   }

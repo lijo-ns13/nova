@@ -1,28 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAppliedJobs } from "../services/JobServices";
-import JobCard from "../componets/JobCard";
 import Spinner from "../../company/components/Spinner";
 import EmptyState from "../componets/EmptyState";
 
 interface AppliedJob {
   _id: string;
-  title: string;
-  company: string;
-  description: string;
-  location: string;
-  salary?: {
-    min?: number;
-    max?: number;
-    currency?: string;
+  job: {
+    _id: string;
+    title: string;
+    description: string;
+    location: string;
+    jobType: string;
   };
-  appliedAt: Date;
-  status: "pending" | "reviewed" | "interview" | "rejected" | "accepted";
-  isSaved: boolean;
+  appliedAt: string;
+  status: "applied" | "shortlisted" | "interview" | "rejected" | "accepted";
+  resumeUrl: string;
 }
 
 const AppliedJobsPage: React.FC = () => {
-  const [jobs, setJobs] = useState<AppliedJob[]>([]);
+  const [applications, setApplications] = useState<AppliedJob[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -31,18 +28,7 @@ const AppliedJobsPage: React.FC = () => {
       try {
         setLoading(true);
         const data = await getAppliedJobs();
-        const transformedJobs = data.map((job: any) => ({
-          _id: job._id,
-          title: job.title,
-          company: job.company.name || job.company,
-          description: job.description || "No description available",
-          location: job.location,
-          salary: job.salary,
-          appliedAt: job.applications[0]?.appliedAt || new Date(),
-          status: job.applications[0]?.status || "pending",
-          isSaved: job.isSaved || false,
-        }));
-        setJobs(transformedJobs);
+        setApplications(data);
       } catch (error) {
         console.error("Error fetching applied jobs:", error);
       } finally {
@@ -67,7 +53,7 @@ const AppliedJobsPage: React.FC = () => {
         </button>
       </div>
 
-      {jobs.length === 0 ? (
+      {applications.length === 0 ? (
         <EmptyState
           title="No Applications Yet"
           description="You haven't applied to any jobs yet. Browse available jobs and apply to get started."
@@ -75,16 +61,73 @@ const AppliedJobsPage: React.FC = () => {
           onAction={() => navigate("/jobs")}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {jobs.map((job) => (
-            <JobCard
-              key={job._id}
-              job={job}
-              showSaveButton={true}
-              isSaved={job.isSaved}
-              onSaveToggle={() => {}}
-              showStatus={true}
-            />
+        <div className="grid grid-cols-1 gap-6">
+          {applications.map((application) => (
+            <div
+              key={application._id}
+              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300"
+              onClick={() => navigate(`/jobs/applications/${application._id}`)}
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    {application.job.title}
+                  </h3>
+                  <p className="text-gray-600 line-clamp-2 mt-2">
+                    {application.job.description.replace(/[\n]/g, " ")}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {application.job.jobType}
+                    </span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      {application.job.location}
+                    </span>
+                  </div>
+                </div>
+                <div className="ml-4 flex flex-col items-end">
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      application.status === "accepted"
+                        ? "bg-green-100 text-green-800"
+                        : application.status === "rejected"
+                        ? "bg-red-100 text-red-800"
+                        : application.status === "interview"
+                        ? "bg-purple-100 text-purple-800"
+                        : "bg-blue-100 text-blue-800"
+                    }`}
+                  >
+                    {application.status.charAt(0).toUpperCase() +
+                      application.status.slice(1)}
+                  </span>
+                  <span className="text-sm text-gray-500 mt-2">
+                    Applied:{" "}
+                    {new Date(application.appliedAt).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-4 flex justify-between items-center">
+                <a
+                  href={application.resumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 text-sm"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  View Submitted Resume
+                </a>
+                <button
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/jobs/${application.job._id}`);
+                  }}
+                >
+                  View Job Details
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       )}

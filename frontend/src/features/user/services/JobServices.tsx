@@ -107,7 +107,7 @@ export const getSavedJobs = async () => {
 
 // Get all applied jobs
 export const getAppliedJobs = async () => {
-  const response = await userAxios.get(`${API_BASE_URL}/jobs/applied-jobs`, {
+  const response = await userAxios.get(`${API_BASE_URL}/jobs/applied-jobs/`, {
     withCredentials: true,
   });
   return response.data;
