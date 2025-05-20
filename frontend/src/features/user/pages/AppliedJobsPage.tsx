@@ -14,8 +14,20 @@ interface AppliedJob {
     jobType: string;
   };
   appliedAt: string;
-  status: "applied" | "shortlisted" | "interview" | "rejected" | "accepted";
+  status:
+    | "applied"
+    | "shortlisted"
+    | "interview_scheduled"
+    | "rejected"
+    | "interview_cancelled"
+    | "interview_accepted_by_user"
+    | "interview_rejected_by_user"
+    | "interview_failed"
+    | "interview_passed"
+    | "offered"
+    | "selected";
   resumeUrl: string;
+  rejectionReason?: string;
 }
 
 const AppliedJobsPage: React.FC = () => {
@@ -86,20 +98,6 @@ const AppliedJobsPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="ml-4 flex flex-col items-end">
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      application.status === "accepted"
-                        ? "bg-green-100 text-green-800"
-                        : application.status === "rejected"
-                        ? "bg-red-100 text-red-800"
-                        : application.status === "interview"
-                        ? "bg-purple-100 text-purple-800"
-                        : "bg-blue-100 text-blue-800"
-                    }`}
-                  >
-                    {application.status.charAt(0).toUpperCase() +
-                      application.status.slice(1)}
-                  </span>
                   <span className="text-sm text-gray-500 mt-2">
                     Applied:{" "}
                     {new Date(application.appliedAt).toLocaleDateString()}
@@ -127,6 +125,51 @@ const AppliedJobsPage: React.FC = () => {
                   View Job Details
                 </button>
               </div>
+
+              {/* Application Status */}
+              <div className="mt-4">
+                <span className="text-sm font-medium text-gray-700">
+                  Status:{" "}
+                  <span className="capitalize text-blue-600">
+                    {application.status.replace(/_/g, " ")}
+                  </span>
+                </span>
+              </div>
+
+              {/* Rejection Reason */}
+              {application.status === "rejected" &&
+                application.rejectionReason && (
+                  <div className="mt-3 p-3 bg-red-50 border border-red-200 text-red-700 rounded">
+                    <strong>Rejection Reason:</strong>{" "}
+                    {application.rejectionReason}
+                  </div>
+                )}
+
+              {/* Interview Action Buttons */}
+              {application.status === "interview_scheduled" && (
+                <div className="mt-4 flex gap-3">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("Accept Interview:", application._id);
+                      // API call here
+                    }}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition text-sm"
+                  >
+                    Accept Interview
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("Reject Interview:", application._id);
+                      // API call here
+                    }}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition text-sm"
+                  >
+                    Reject Interview
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
