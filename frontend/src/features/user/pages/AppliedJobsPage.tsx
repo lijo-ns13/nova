@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  Briefcase as BriefcaseBusiness,
+  ChevronLeft,
+  Filter,
+  RefreshCw,
+} from "lucide-react";
+import ApplicationCard from "../componets/application/ApplicationCard";
+import Spinner from "../componets/ui/Spinner";
+import EmptyState from "../componets/ui/EmptyState";
+import ConfirmationModal from "../componets/ui/ConfirmationModal";
+import { useToast } from "../componets/ui/ToastProvider";
 import { getAppliedJobs } from "../services/JobServices";
-import Spinner from "../../company/components/Spinner";
-import EmptyState from "../componets/EmptyState";
-
 interface AppliedJob {
   _id: string;
   job: {
@@ -28,152 +35,239 @@ interface AppliedJob {
     | "selected";
   resumeUrl: string;
   rejectionReason?: string;
+  scheduledAt?: Date | string;
 }
 
 const AppliedJobsPage: React.FC = () => {
   const [applications, setApplications] = useState<AppliedJob[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [confirmationModal, setConfirmationModal] = useState<{
+    isOpen: boolean;
+    applicationId: string;
+    action: "accept" | "reject";
+  }>({ isOpen: false, applicationId: "", action: "accept" });
+
+  const { showToast } = useToast();
 
   useEffect(() => {
-    const fetchAppliedJobs = async () => {
-      try {
-        setLoading(true);
-        const data = await getAppliedJobs();
-        setApplications(data);
-      } catch (error) {
-        console.error("Error fetching applied jobs:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAppliedJobs();
   }, []);
 
-  if (loading) return <Spinner />;
+  const fetchAppliedJobs = async () => {
+    try {
+      setLoading(true);
+      const data = await getAppliedJobs();
+      setApplications(data);
+    } catch (error) {
+      console.error("Error fetching applied jobs:", error);
+      showToast("error", "Failed to load your applications. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshApplications = async () => {
+    try {
+      setIsRefreshing(true);
+      const data = await getAppliedJobs();
+      setApplications(data);
+      showToast("success", "Applications refreshed successfully!");
+    } catch (error) {
+      console.error("Error refreshing applications:", error);
+      showToast("error", "Failed to refresh applications. Please try again.");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const handleInterviewResponse = async (
+    applicationId: string,
+    action: "accept" | "reject"
+  ) => {
+    try {
+      setProcessingId(applicationId);
+      await updateInterviewStatus(applicationId, {
+        status:
+          action === "accept"
+            ? "interview_accepted_by_user"
+            : "interview_rejected_by_user",
+      });
+
+      // Optimistically update UI
+      setApplications((prev) =>
+        prev.map((app) =>
+          app._id === applicationId
+            ? {
+                ...app,
+                status:
+                  action === "accept"
+                    ? "interview_accepted_by_user"
+                    : "interview_rejected_by_user",
+              }
+            : app
+        )
+      );
+
+      showToast(
+        "success",
+        `Interview ${
+          action === "accept" ? "accepted" : "rejected"
+        } successfully!`
+      );
+    } catch (error) {
+      console.error(`Failed to ${action} interview:`, error);
+      showToast("error", `Failed to ${action} interview. Please try again.`);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const openConfirmationModal = (
+    applicationId: string,
+    action: "accept" | "reject"
+  ) => {
+    setConfirmationModal({
+      isOpen: true,
+      applicationId,
+      action,
+    });
+  };
+
+  const closeConfirmationModal = () => {
+    setConfirmationModal({
+      isOpen: false,
+      applicationId: "",
+      action: "accept",
+    });
+  };
+
+  const confirmInterviewAction = () => {
+    const { applicationId, action } = confirmationModal;
+    handleInterviewResponse(applicationId, action);
+    closeConfirmationModal();
+  };
+
+  const navigateToJobs = () => {
+    showToast(
+      "info",
+      "This would navigate to the jobs page in a complete application"
+    );
+  };
+
+  const navigateToApplicationDetail = (applicationId: string) => {
+    showToast("info", `Viewing details for application ${applicationId}`);
+  };
+
+  const navigateToJobDetail = (jobId: string) => {
+    showToast("info", `Viewing details for job ${jobId}`);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner size="large" />
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Your Applications</h1>
-        <button
-          onClick={() => navigate("/jobs")}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-        >
-          Browse Jobs
-        </button>
+    <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Your Applications
+            </h1>
+            <p className="text-gray-600">
+              Manage and track your job applications
+            </p>
+          </div>
+          <div className="flex space-x-3 mt-4 sm:mt-0">
+            <button
+              onClick={refreshApplications}
+              disabled={isRefreshing}
+              className="flex items-center px-3 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <RefreshCw
+                size={16}
+                className={`mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+              />
+              {isRefreshing ? "Refreshing..." : "Refresh"}
+            </button>
+            <button
+              onClick={navigateToJobs}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <BriefcaseBusiness size={16} className="mr-2" />
+              Browse Jobs
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-wrap items-center justify-between">
+          <div className="flex items-center">
+            <span className="text-gray-700 mr-2">Applications:</span>
+            <span className="font-medium">{applications.length}</span>
+          </div>
+          <div className="flex mt-3 sm:mt-0">
+            <button className="flex items-center text-gray-700 hover:text-gray-900">
+              <Filter size={16} className="mr-1" />
+              <span>Filter</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {applications.length === 0 ? (
         <EmptyState
+          icon={<BriefcaseBusiness size={48} />}
           title="No Applications Yet"
           description="You haven't applied to any jobs yet. Browse available jobs and apply to get started."
           actionText="Browse Jobs"
-          onAction={() => navigate("/jobs")}
+          onAction={navigateToJobs}
         />
       ) : (
         <div className="grid grid-cols-1 gap-6">
           {applications.map((application) => (
-            <div
+            <ApplicationCard
               key={application._id}
-              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300"
-              onClick={() => navigate(`/jobs/applications/${application._id}`)}
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-gray-800">
-                    {application.job.title}
-                  </h3>
-                  <p className="text-gray-600 line-clamp-2 mt-2">
-                    {application.job.description.replace(/[\n]/g, " ")}
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {application.job.jobType}
-                    </span>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                      {application.job.location}
-                    </span>
-                  </div>
-                </div>
-                <div className="ml-4 flex flex-col items-end">
-                  <span className="text-sm text-gray-500 mt-2">
-                    Applied:{" "}
-                    {new Date(application.appliedAt).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-4 flex justify-between items-center">
-                <a
-                  href={application.resumeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 text-sm"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  View Submitted Resume
-                </a>
-                <button
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/jobs/${application.job._id}`);
-                  }}
-                >
-                  View Job Details
-                </button>
-              </div>
-
-              {/* Application Status */}
-              <div className="mt-4">
-                <span className="text-sm font-medium text-gray-700">
-                  Status:{" "}
-                  <span className="capitalize text-blue-600">
-                    {application.status.replace(/_/g, " ")}
-                  </span>
-                </span>
-              </div>
-
-              {/* Rejection Reason */}
-              {application.status === "rejected" &&
-                application.rejectionReason && (
-                  <div className="mt-3 p-3 bg-red-50 border border-red-200 text-red-700 rounded">
-                    <strong>Rejection Reason:</strong>{" "}
-                    {application.rejectionReason}
-                  </div>
-                )}
-
-              {/* Interview Action Buttons */}
-              {application.status === "interview_scheduled" && (
-                <div className="mt-4 flex gap-3">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log("Accept Interview:", application._id);
-                      // API call here
-                    }}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition text-sm"
-                  >
-                    Accept Interview
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log("Reject Interview:", application._id);
-                      // API call here
-                    }}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition text-sm"
-                  >
-                    Reject Interview
-                  </button>
-                </div>
-              )}
-            </div>
+              application={application}
+              processingId={processingId}
+              onViewJobDetails={navigateToJobDetail}
+              onAcceptInterview={(id) => openConfirmationModal(id, "accept")}
+              onRejectInterview={(id) => openConfirmationModal(id, "reject")}
+              onClick={() => navigateToApplicationDetail(application._id)}
+            />
           ))}
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={confirmationModal.isOpen}
+        title={`${
+          confirmationModal.action === "accept" ? "Accept" : "Reject"
+        } Interview Confirmation`}
+        message={`Are you sure you want to ${
+          confirmationModal.action
+        } this interview? ${
+          confirmationModal.action === "reject"
+            ? "This action may impact your candidacy for future positions."
+            : "By accepting, you confirm your availability for the scheduled time."
+        }`}
+        confirmText={
+          confirmationModal.action === "accept"
+            ? "Yes, Accept Interview"
+            : "Yes, Reject Interview"
+        }
+        cancelText="Cancel"
+        confirmType={
+          confirmationModal.action === "accept" ? "success" : "danger"
+        }
+        onConfirm={confirmInterviewAction}
+        onCancel={closeConfirmationModal}
+      />
     </div>
   );
 };

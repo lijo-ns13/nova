@@ -112,3 +112,15 @@ export const getAppliedJobs = async () => {
   });
   return response.data;
 };
+
+export const updateInterviewStatus = async (
+  applicationId: string,
+  payload: {
+    status: "interview_accepted_by_user" | "interview_rejected_by_user";
+  }
+) => {
+  const response = await userAxios.patch(
+    `${API_BASE_URL}/interview/updatestatus/${applicationId}/${payload.status}`
+  );
+  return response.data;
+};
