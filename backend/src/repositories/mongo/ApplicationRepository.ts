@@ -33,4 +33,13 @@ export class ApplicationRepository
   async findByUserId(userId: string): Promise<IApplication[]> {
     return this.model.find({ user: userId }).exec();
   }
+  async findByIdWithUserAndJob(
+    applicationId: string
+  ): Promise<IApplication | null> {
+    return this.model
+      .findById(applicationId)
+      .populate("userDetails", "name username profilePicture") // select specific fields
+      .populate("jobDetails", "title description") // optional
+      .exec();
+  }
 }

@@ -40,12 +40,10 @@ export class CompanyInterviewController implements ICompanyInterviewController {
       const { userId, applicationId, scheduledAt } = req.body;
       const companyId = (req.user as Userr)?.id; // Assumes auth middleware sets req.user
       if (!userId || !applicationId || !scheduledAt) {
-        res
-          .status(400)
-          .json({
-            success: false,
-            message: "please provide userid,applicationid,scheuldedat",
-          });
+        res.status(400).json({
+          success: false,
+          message: "please provide userid,applicationid,scheuldedat",
+        });
         return;
       }
       if (!companyId) {
@@ -88,6 +86,31 @@ export class CompanyInterviewController implements ICompanyInterviewController {
       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: (err as Error).message });
+    }
+  }
+  async getApplicantDetails(req: Request, res: Response): Promise<void> {
+    try {
+      const { applicationId } = req.params;
+      if (!applicationId) {
+        res
+          .status(400)
+          .json({ success: false, message: "applicatinId not found" });
+        return;
+      }
+      const application =
+        await this.companyInterviewService.getApplicantDetails(applicationId);
+      if (!application) {
+        res
+          .status(400)
+          .json({ success: false, message: "application not found" });
+        return;
+      }
+      res.status(200).json({ success: true, application });
+    } catch (error) {
+      console.log("error", error);
+      res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
     }
   }
 }

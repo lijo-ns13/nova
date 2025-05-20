@@ -12,5 +12,5 @@ const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 // job
 router.use("/", JobRouter);
 router.use("/profile", profileRouter);
-router.use("/interview", interviewRouter);
+router.use("/", interviewRouter);
 export default router;

@@ -13,8 +13,10 @@ const router = Router();
 router.use(authMiddleware.authenticate("company"));
 router.use(authMiddleware.check());
 
-router.post("/", (req, res, next) =>
+router.post("/interview", (req, res, next) =>
   interviewController.createInterview(req, res).catch(next)
 );
-
+router.get("/applicant/:applicationId", (req, res, next) =>
+  interviewController.getApplicantDetails(req, res).catch(next)
+);
 export default router;

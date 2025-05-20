@@ -6,6 +6,7 @@ import { IInterview } from "../../core/entities/interview.interface";
 import { ApplicationStatus } from "../../models/job.modal";
 import { ICompanyInterviewService } from "../../interfaces/services/ICompanyInterviewService";
 import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRepository";
+import { IApplication } from "../../models/application.modal";
 
 export class CompanyInterviewService implements ICompanyInterviewService {
   constructor(
@@ -56,5 +57,10 @@ export class CompanyInterviewService implements ICompanyInterviewService {
 
   async getComanyInterviews(companyId: string): Promise<any> {
     return this._interviewRepo.findByCompanyId(companyId);
+  }
+  async getApplicantDetails(
+    appliationId: string
+  ): Promise<IApplication | null> {
+    return this._applicationRepo.findByIdWithUserAndJob(appliationId);
   }
 }

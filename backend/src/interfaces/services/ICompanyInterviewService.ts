@@ -1,5 +1,6 @@
 // src/interfaces/services/ICompanyInterviewService.ts
 import { IInterview } from "../../core/entities/interview.interface";
+import { IApplication } from "../../models/application.modal";
 
 export interface ICompanyInterviewService {
   createInterview(
@@ -11,4 +12,5 @@ export interface ICompanyInterviewService {
   ): Promise<IInterview>;
 
   getComanyInterviews(companyId: string): Promise<IInterview[]>;
+  getApplicantDetails(appliationId: string): Promise<IApplication | null>;
 }

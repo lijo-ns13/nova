@@ -12,4 +12,9 @@ export interface ICompanyInterviewController {
     res: Response,
     next?: NextFunction
   ): Promise<void>;
+  getApplicantDetails(
+    req: Request,
+    res: Response,
+    next?: NextFunction
+  ): Promise<void>;
 }

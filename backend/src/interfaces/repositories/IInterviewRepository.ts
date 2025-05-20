@@ -12,4 +12,5 @@ export interface IInterviewRepository extends IBaseRepository<IInterview> {
     companyId: string,
     scheduledAt: Date
   ): Promise<IInterview | null>;
+  
 }
