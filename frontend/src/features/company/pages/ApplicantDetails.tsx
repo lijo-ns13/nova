@@ -1,65 +1,38 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+
+import { Application, ApplicationStatus } from "../types/applicationTypes";
+import ApplicantHeader from "../components/interview/ApplicantHeader";
+import DetailCard from "../components/interview/DetailCard";
+import ResumeCard from "../components/interview/ResumeCard";
+import StatusActions from "../components/interview/StatusActions";
+import LoadingSpinner from "../components/interview/LoadingSpinner";
+import ErrorDisplay from "../components/interview/ErrorDisplay";
+import SkeletonLoader from "../components/interview/SkeletonLoader";
+import { formatDate } from "../util/dateUtils";
 import companyAxios from "../../../utils/companyAxios";
-import ScheduleInterviewModal from "../components/modal/ScheduleInterviewModal";
 
-export enum ApplicationStatus {
-  APPLIED = "applied",
-  SHORTLISTED = "shortlisted",
-  REJECTED = "rejected",
+// This is a mock implementation for demonstration purposes
+// In a real app, this would come from react-router-dom
 
-  INTERVIEW_SCHEDULED = "interview_scheduled",
-  INTERVIEW_CANCELLED = "interview_cancelled",
-
-  INTERVIEW_ACCEPTED_BY_USER = "interview_accepted_by_user",
-  INTERVIEW_REJECTED_BY_USER = "interview_rejected_by_user",
-
-  INTERVIEW_FAILED = "interview_failed",
-  INTERVIEW_PASSED = "interview_passed",
-
-  OFFERED = "offered",
-  SELECTED = "selected",
-
-  WITHDRAWN = "withdrawn",
-}
-
-interface UserDetails {
-  _id: string;
-  name: string;
-  username: string;
-  profilePicture: string | null;
-}
-
-interface JobDetails {
-  _id: string;
-  title: string;
-}
-
-interface Application {
-  _id: string;
-  resumeUrl: string;
-  status: ApplicationStatus;
-  appliedAt: string;
-  user: UserDetails;
-  job: JobDetails;
-  rejectionReason?: string; // optional
-}
-
-export default function ApplicantDetailPage() {
-  const { applicationId } = useParams<{ applicationId: string }>();
+const ApplicantDetailPage: React.FC = () => {
+  // In a real app with React Router, use useParams()
+  // For this example we're using a mock to show functionality
+  const { applicationId } = useParams();
   const [application, setApplication] = useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  console.log("applicatoin", application);
+
   useEffect(() => {
     async function fetchApplication() {
       setLoading(true);
       setError(null);
+
       try {
         const res = await companyAxios.get(`/application/${applicationId}`, {
           withCredentials: true,
         });
+
         if (res.data.success) {
           setApplication(res.data.application);
         } else {
@@ -72,157 +45,126 @@ export default function ApplicantDetailPage() {
         setLoading(false);
       }
     }
+
+    // In a real application, uncomment this:
     fetchApplication();
   }, [applicationId]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
-  if (!application) return <div>No application found</div>;
+  const handleRetry = () => {
+    // Refetch the application data
+    setLoading(true);
+    setError(null);
+  };
+
+  const handleInterviewScheduled = () => {
+    // Update the local application status
+    if (application) {
+      setApplication({
+        ...application,
+        status: ApplicationStatus.INTERVIEW_SCHEDULED,
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <SkeletonLoader />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <ErrorDisplay message={error} onRetry={handleRetry} />
+      </div>
+    );
+  }
+
+  if (!application) {
+    return (
+      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-100 text-center">
+          <p className="text-yellow-700">
+            No application found with the provided ID.
+          </p>
+          <Link
+            to="/applications"
+            className="mt-4 inline-block text-blue-600 hover:underline"
+          >
+            ← Back to Applications
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const { user, resumeUrl, status, appliedAt, job, rejectionReason } =
     application;
 
-  // Handler for scheduling interview (replace with your modal / form logic)
-  function handleScheduleInterview() {
-    alert("Open scheduling UI here");
-  }
-
   return (
-    <div className="p-6 max-w-2xl mx-auto space-y-6">
-      {/* User Info */}
-      <div className="flex items-center gap-4">
-        <img
-          src={
-            user.profilePicture ??
-            `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`
-          }
-          alt={user.name}
-          className="w-16 h-16 rounded-full object-cover"
-        />
-        <div>
-          <h2 className="text-xl font-semibold">{user.name}</h2>
-          <Link to={`/in/${user.username}`}>
-            <p className="text-gray-500">@{user.username}</p>
-          </Link>
-        </div>
-      </div>
-
-      {/* Job Info */}
-      <div>
-        <h3 className="text-lg font-medium">Job Title</h3>
-        <p>{job.title}</p>
-      </div>
-
-      {/* Resume Link */}
-      <div>
-        <h3 className="text-lg font-medium">Resume</h3>
-        <a
-          href={resumeUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 underline"
+    <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
+      {/* Back Link */}
+      <Link
+        to="/applications"
+        className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4 mr-1"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
         >
-          View Resume
-        </a>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          />
+        </svg>
+        Back to Applications
+      </Link>
+
+      {/* Applicant Header with Name and Status */}
+      <ApplicantHeader user={user} status={status} />
+
+      {/* Application Details */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Job Details */}
+        <DetailCard title="Job Details">
+          <div className="space-y-2">
+            <div>
+              <h4 className="text-sm font-medium text-gray-500">Position</h4>
+              <p className="text-gray-900">{job.title}</p>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium text-gray-500">Applied On</h4>
+              <p className="text-gray-900">{formatDate(appliedAt)}</p>
+            </div>
+          </div>
+        </DetailCard>
+
+        {/* Resume */}
+        <ResumeCard resumeUrl={resumeUrl} />
       </div>
 
-      <ScheduleInterviewModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        applicationId={application._id}
-        userId={user._id}
-        onInterviewScheduled={() => {
-          // Optional: Refresh interview list or show success toast
-          console.log("Interview Scheduled!");
-        }}
-      />
-
-      {/* Status Based UI */}
-      <div>
-        {(() => {
-          switch (status) {
-            case ApplicationStatus.SHORTLISTED:
-              return (
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="mt-4 bg-green-600 text-white px-4 py-2 rounded"
-                >
-                  Schedule Interview
-                </button>
-              );
-
-            case ApplicationStatus.REJECTED:
-            case ApplicationStatus.WITHDRAWN:
-              return (
-                <div className="mt-4 text-red-600">
-                  {rejectionReason
-                    ? `Reason: ${rejectionReason}`
-                    : "Application was rejected."}
-                </div>
-              );
-
-            case ApplicationStatus.INTERVIEW_SCHEDULED:
-              return (
-                <div className="mt-4 text-green-600">
-                  Interview has been scheduled. Please check your email for
-                  details.
-                </div>
-              );
-
-            case ApplicationStatus.INTERVIEW_CANCELLED:
-              return (
-                <div className="mt-4 text-yellow-600">
-                  Interview has been cancelled by the company.
-                </div>
-              );
-
-            case ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER:
-              return (
-                <div className="mt-4 text-green-700">
-                  Applicant has accepted the interview.
-                </div>
-              );
-
-            case ApplicationStatus.INTERVIEW_REJECTED_BY_USER:
-              return (
-                <div className="mt-4 text-red-600">
-                  Applicant rejected the interview invitation.
-                </div>
-              );
-
-            case ApplicationStatus.INTERVIEW_FAILED:
-              return (
-                <div className="mt-4 text-red-700">
-                  Interview was not successful.
-                </div>
-              );
-
-            case ApplicationStatus.INTERVIEW_PASSED:
-              return (
-                <div className="mt-4 text-green-700">
-                  Interview was successful.
-                </div>
-              );
-
-            case ApplicationStatus.OFFERED:
-              return (
-                <div className="mt-4 text-blue-700">
-                  Offer has been made to the applicant.
-                </div>
-              );
-
-            case ApplicationStatus.SELECTED:
-              return (
-                <div className="mt-4 text-green-800">
-                  Applicant has been selected for the job.
-                </div>
-              );
-
-            default:
-              return null;
-          }
-        })()}
+      {/* Status Actions */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-100">
+          Application Status
+        </h3>
+        <StatusActions
+          status={status}
+          rejectionReason={rejectionReason}
+          applicationId={application._id}
+          userId={user._id}
+          onInterviewScheduled={handleInterviewScheduled}
+        />
       </div>
     </div>
   );
-}
+};
+
+export default ApplicantDetailPage;
