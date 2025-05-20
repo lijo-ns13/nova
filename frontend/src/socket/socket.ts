@@ -7,6 +7,7 @@
 //   autoConnect: false,
 // });
 // src/socket/socket.ts
+
 import { io, Socket } from "socket.io-client";
 
 // Define types for better TypeScript support
@@ -39,6 +40,17 @@ interface VideoCallSocketEvents {
   "user-disconnected": (userId: string) => void;
   "video-room-participants": (participants: string[]) => void;
   unreadMessages: (messages: any[]) => void;
+  "audio-toggle": (data: {
+    roomId: string;
+    userId: string;
+    enabled: boolean;
+  }) => void;
+  "video-toggle": (data: {
+    roomId: string;
+    userId: string;
+    enabled: boolean;
+  }) => void;
+  "end-call": (data: { roomId: string; userId: string }) => void;
 }
 
 // Create socket instance

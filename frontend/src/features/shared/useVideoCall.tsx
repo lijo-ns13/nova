@@ -1,5 +1,5 @@
 // hooks/useVideoCall.ts
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Peer from "peerjs";
 import socket, {
   connectSocket,
@@ -12,8 +12,46 @@ export function useVideoCall(roomId: string, userId: string) {
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [peer, setPeer] = useState<Peer | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [isAudioMuted, setIsAudioMuted] = useState(false);
+  const [isVideoOff, setIsVideoOff] = useState(false);
   const peerRef = useRef<Peer | null>(null);
   const stringUserId = userId.toString();
+
+  const toggleAudio = useCallback(
+    (enabled: boolean) => {
+      if (localStream) {
+        localStream.getAudioTracks().forEach((track) => {
+          track.enabled = enabled;
+        });
+        setIsAudioMuted(!enabled);
+        socket.emit("audio-toggle", { roomId, userId, enabled });
+      }
+    },
+    [localStream, roomId, userId]
+  );
+
+  const toggleVideo = useCallback(
+    (enabled: boolean) => {
+      if (localStream) {
+        localStream.getVideoTracks().forEach((track) => {
+          track.enabled = enabled;
+        });
+        setIsVideoOff(!enabled);
+        socket.emit("video-toggle", { roomId, userId, enabled });
+      }
+    },
+    [localStream, roomId, userId]
+  );
+
+  const endCall = useCallback(() => {
+    if (peerRef.current) {
+      peerRef.current.destroy();
+    }
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+    }
+    leaveVideoRoom(roomId, stringUserId);
+  }, [localStream, roomId, stringUserId]);
 
   useEffect(() => {
     let peerInstance: Peer;
@@ -25,8 +63,20 @@ export function useVideoCall(roomId: string, userId: string) {
 
     // 2. Get user media
     navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
+      .getUserMedia({
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      })
       .then((mediaStream) => {
+        console.log("Audio tracks:", mediaStream.getAudioTracks());
+        console.log("Video tracks:", mediaStream.getVideoTracks());
         stream = mediaStream;
         setLocalStream(stream);
         if (localVideoRef.current) {
@@ -99,5 +149,13 @@ export function useVideoCall(roomId: string, userId: string) {
     };
   }, [roomId, stringUserId]);
 
-  return { localVideoRef, remoteVideoRef };
+  return {
+    localVideoRef,
+    remoteVideoRef,
+    toggleAudio,
+    toggleVideo,
+    endCall,
+    isAudioMuted,
+    isVideoOff,
+  };
 }

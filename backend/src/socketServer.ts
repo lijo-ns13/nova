@@ -159,5 +159,14 @@ export const initSocketServer = (server: Server) => {
 
       console.log("Socket disconnected:", socket.id);
     });
+    socket.on("video-toggle", ({ roomId, userId, enabled }) => {
+      socket.to(roomId).emit("video-toggle", { userId, enabled });
+    });
+    socket.on("audio-toggle", ({ roomId, userId, enabled }) => {
+      socket.to(roomId).emit("audio-toggle", { userId, enabled });
+    });
+    socket.on("end-call", ({ roomId, userId }) => {
+      socket.to(roomId).emit("end-call", { userId });
+    });
   });
 };
