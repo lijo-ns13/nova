@@ -91,6 +91,7 @@ export class CompanyInterviewController implements ICompanyInterviewController {
   async getApplicantDetails(req: Request, res: Response): Promise<void> {
     try {
       const { applicationId } = req.params;
+      const companyId = (req.user as Userr)?.id;
       if (!applicationId) {
         res
           .status(400)
@@ -98,7 +99,10 @@ export class CompanyInterviewController implements ICompanyInterviewController {
         return;
       }
       const application =
-        await this.companyInterviewService.getApplicantDetails(applicationId);
+        await this.companyInterviewService.getApplicantDetails(
+          applicationId,
+          companyId
+        );
       if (!application) {
         res
           .status(400)

@@ -3,7 +3,7 @@ import { inject } from "inversify";
 import { TYPES } from "../../di/types";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import { IInterview } from "../../core/entities/interview.interface";
-import { ApplicationStatus } from "../../models/job.modal";
+import { ApplicationStatus, IJob } from "../../models/job.modal";
 import { ICompanyInterviewService } from "../../interfaces/services/ICompanyInterviewService";
 import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRepository";
 import { IApplication } from "../../models/application.modal";
@@ -59,8 +59,25 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     return this._interviewRepo.findByCompanyId(companyId);
   }
   async getApplicantDetails(
-    appliationId: string
+    applicationId: string,
+    companyId: string
   ): Promise<IApplication | null> {
-    return this._applicationRepo.findByIdWithUserAndJob(appliationId);
+    const application = await this._applicationRepo.findByIdWithUserAndJob(
+      applicationId
+    );
+    console.log("applicaiotn", application);
+    if (!application) {
+      throw new Error("Application not found");
+    }
+
+    const job = application.job as IJob;
+
+    if (job.company.toString() !== companyId.toString()) {
+      throw new Error(
+        "You're not authorized to view another company's application"
+      );
+    }
+
+    return application;
   }
 }

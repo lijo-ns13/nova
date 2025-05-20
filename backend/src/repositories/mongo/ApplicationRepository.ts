@@ -38,8 +38,8 @@ export class ApplicationRepository
   ): Promise<IApplication | null> {
     return this.model
       .findById(applicationId)
-      .populate("userDetails", "name username profilePicture") // select specific fields
-      .populate("jobDetails", "title description") // optional
+      .populate("user", "name username profilePicture") // select specific fields
+      .populate("job") // optional
       .exec();
   }
 }

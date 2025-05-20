@@ -12,5 +12,8 @@ export interface ICompanyInterviewService {
   ): Promise<IInterview>;
 
   getComanyInterviews(companyId: string): Promise<IInterview[]>;
-  getApplicantDetails(appliationId: string): Promise<IApplication | null>;
+  getApplicantDetails(
+    applicationId: string,
+    companyId: string
+  ): Promise<IApplication | null>;
 }
