@@ -16,6 +16,7 @@ import JobDetailedPage from "../features/company/pages/JobDetailedPage";
 // import JobApplicantsPage from "../features/company/pages/JobApplicantsPage";
 import CompanyApplicantsPage from "../features/company/pages/CompanyApplicantsPage";
 import InterviewCompanyPage from "../features/company/pages/InterviewCompanyPage";
+import ApplicationDetailPage from "../features/company/pages/ApplicantDetails";
 const CompanyRoutes = () => {
   return (
     <Routes>
@@ -43,6 +44,10 @@ const CompanyRoutes = () => {
         />
         <Route path="/company-profile" element={<CompanyProfilePage />} />
         <Route path="/interview/:roomId" element={<InterviewCompanyPage />} />
+        <Route
+          path="/job/application/:applicationId"
+          element={<ApplicationDetailPage />}
+        />
       </Route>
     </Routes>
   );
