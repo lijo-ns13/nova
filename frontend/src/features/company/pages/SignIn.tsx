@@ -65,7 +65,7 @@ function SignInPage() {
       if (isVerified) {
         dispatch(
           login({
-            id: user.id,
+            id: user._id,
             name: user.name, // Ensure these fields are returned by SignInUser
             email: user.email,
             role: role,
