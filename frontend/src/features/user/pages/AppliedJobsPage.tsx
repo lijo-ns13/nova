@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   Briefcase as BriefcaseBusiness,
-  ChevronLeft,
   Filter,
   RefreshCw,
 } from "lucide-react";
@@ -10,7 +9,7 @@ import Spinner from "../componets/ui/Spinner";
 import EmptyState from "../componets/ui/EmptyState";
 import ConfirmationModal from "../componets/ui/ConfirmationModal";
 import { useToast } from "../componets/ui/ToastProvider";
-import { getAppliedJobs } from "../services/JobServices";
+import { getAppliedJobs, updateInterviewStatus } from "../services/JobServices";
 interface AppliedJob {
   _id: string;
   job: {
