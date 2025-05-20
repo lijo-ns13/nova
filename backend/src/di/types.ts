@@ -1,4 +1,6 @@
+import { UserInterviewController } from "../controllers/user/UserInterview.controller";
 import applicationModal from "../models/application.modal";
+import { UserInterviewService } from "../services/user/UserInterviewService";
 
 export const TYPES = {
   // Repositories
@@ -90,4 +92,8 @@ export const TYPES = {
   applicationModal: Symbol.for("applicationModal"),
   CompanyInterviewService: Symbol.for("CompanyInterviewService"),
   CompanyInterviewController: Symbol.for("CompanyInterviewController"),
+
+  // user interview
+  UserInterviewService: Symbol.for("UserInterviewService"),
+  UserInterviewController: Symbol.for("UserInterviewController"),
 };

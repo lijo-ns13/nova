@@ -1,49 +1,53 @@
+// src/controllers/UserInterviewController.ts
 import { Request, Response } from "express";
-import mongoose from "mongoose";
-import { Interview } from "../../models/interview.modal";
-import applicationModal from "../../models/application.modal";
-import { ApplicationStatus } from "../../models/job.modal";
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../di/types";
+import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
+import { IUserInterviewService } from "../../interfaces/services/IUserInterviewService";
 
-// User accepts/rejects
-export const updateInterviewStatus = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { status } = req.body;
+@injectable()
+export class UserInterviewController {
+  constructor(
+    @inject(TYPES.UserInterviewService)
+    private userInterviewService: IUserInterviewService
+  ) {}
 
-  if (!["accepted", "rejected"].includes(status)) {
-    return res.status(400).json({ message: "Invalid status" });
+  async updateInterviewStatus(req: Request, res: Response): Promise<void> {
+    try {
+      const { applicationId, status } = req.params;
+
+      if (!status || !applicationId) {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
+          success: false,
+          message: "Missing applicationId or status",
+        });
+        return;
+      }
+
+      const updated = await this.userInterviewService.updateStatus(
+        applicationId,
+        status
+      );
+
+      if (!updated) {
+        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
+          success: false,
+          message: "Application not found or update failed",
+        });
+        return;
+      }
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Interview status updated",
+        data: updated,
+      });
+    } catch (err) {
+      console.error("UserInterviewController Error:", err);
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (err as Error).message,
+      });
+    }
   }
-
-  const interview = await Interview.findByIdAndUpdate(
-    id,
-    { status },
-    { new: true }
-  );
-  if (!interview)
-    return res.status(404).json({ message: "Interview not found" });
-
-  const appStatus =
-    status === "accepted"
-      ? ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER
-      : ApplicationStatus.INTERVIEW_REJECTED_BY_USER;
-
-  await applicationModal.findByIdAndUpdate(interview.applicationId, {
-    status: appStatus,
-  });
-
-  const io = req.app.get("io");
-  io?.to(interview.companyId.toString()).emit(
-    "interview-status-updated",
-    interview
-  );
-
-  res.json(interview);
-};
-
-// User views interviews
-export const getUserInterviews = async (req: Request, res: Response) => {
-  const { userId } = req.params;
-  const interviews = await Interview.find({ userId }).populate(
-    "companyId applicationId"
-  );
-  res.json(interviews);
-};
+}

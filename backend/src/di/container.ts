@@ -122,6 +122,11 @@ import { ICompanyInterviewService } from "../interfaces/services/ICompanyIntervi
 import { IInterviewRepository } from "../interfaces/repositories/IInterviewRepository";
 import { IInterview, Interview } from "../models/interview.modal";
 import applicationModal, { IApplication } from "../models/application.modal";
+import { IUserInterviewService } from "../interfaces/services/IUserInterviewService";
+import { TYPE } from "inversify-express-utils";
+import { UserInterviewService } from "../services/user/UserInterviewService";
+import { IUserInterviewController } from "../interfaces/controllers/IUserInterviewController";
+import { UserInterviewController } from "../controllers/user/UserInterview.controller";
 
 const container = new Container();
 
@@ -297,4 +302,11 @@ container
   .bind<ICompanyInterviewController>(TYPES.CompanyInterviewController)
   .to(CompanyInterviewController);
 
+// user interview
+container
+  .bind<IUserInterviewService>(TYPES.UserInterviewService)
+  .to(UserInterviewService);
+container
+  .bind<IUserInterviewController>(TYPES.UserInterviewController)
+  .to(UserInterviewController);
 export default container;
