@@ -45,7 +45,10 @@ export class UserJobService implements IUserJobService {
   }
 
   async getAppliedJobs(userId: string, jobId: string): Promise<any> {
-    const appliedJobs = await this.__applicationRepo.findAll({ job: jobId });
+    const appliedJobs = await this.__applicationRepo.findByJobIdAndPop(
+      jobId,
+      userId
+    );
     return appliedJobs;
   }
 
