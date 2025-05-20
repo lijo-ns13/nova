@@ -4,13 +4,16 @@ import { IUserJobService } from "../../interfaces/services/IUserJobService";
 import { TYPES } from "../../di/types";
 import { IJob } from "../../models/job.modal";
 import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
+import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 
 export class UserJobService implements IUserJobService {
   constructor(
     @inject(TYPES.JobRepository)
     private _jobRepository: IJobRepository,
     @inject(TYPES.UserRepository)
-    private _userRepository: IUserRepository
+    private _userRepository: IUserRepository,
+    @inject(TYPES.ApplicationRepository)
+    private __applicationRepo: IApplicationRepository
   ) {}
 
   async getAllJobs(
@@ -41,10 +44,9 @@ export class UserJobService implements IUserJobService {
     return user?.savedJobs;
   }
 
-  async getAppliedJobs(userId: string): Promise<IJob[]> {
-    const user = await this._userRepository.getAppliedJobs(userId);
-    console.log("getApplidJobs in Service", user?.appliedJobs);
-    return user?.appliedJobs || [];
+  async getAppliedJobs(userId: string, jobId: string): Promise<any> {
+    const appliedJobs = await this.__applicationRepo.findAll({ job: jobId });
+    return appliedJobs;
   }
 
   async addToSavedJobs(userId: string, jobId: string): Promise<void> {

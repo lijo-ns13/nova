@@ -16,7 +16,7 @@ router.use(authMiddleware.check());
 // Get all jobs
 router.get("/jobs", jobController.getAllJobs);
 // Get all jobs the user has applied to
-router.get("/jobs/applied-jobs", jobController.getAppliedJobs);
+router.get("/jobs/applied-jobs/:jobId", jobController.getAppliedJobs);
 // Get all jobs saved by the user
 router.get("/jobs/saved-jobs", jobController.getSavedJobs);
 // Get a specific job by ID

@@ -18,8 +18,8 @@ export interface IUserJobService {
   getSavedJobs(userId: string): Promise<IJob[]>;
 
   // Get jobs the user has applied to
-  getAppliedJobs(userId: string): Promise<IJob[]>;
 
+  getAppliedJobs(userId: string, jobId: string): Promise<any>;
   // Save a job to user's saved jobs list
   addToSavedJobs(userId: string, jobId: string): Promise<void>;
 

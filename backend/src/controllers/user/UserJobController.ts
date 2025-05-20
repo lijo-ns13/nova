@@ -127,7 +127,8 @@ export class UserJobController implements IUserJobController {
   getAppliedJobs: RequestHandler = async (req: Request, res: Response) => {
     try {
       const user = req.user as Userr;
-      const appliedJobs = await this.jobService.getAppliedJobs(user.id);
+      const { jobId } = req.params;
+      const appliedJobs = await this.jobService.getAppliedJobs(user.id, jobId);
       res.status(HTTP_STATUS_CODES.OK).json(appliedJobs);
     } catch (error) {
       res
