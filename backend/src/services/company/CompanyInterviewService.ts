@@ -24,6 +24,13 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     roomId: string
   ): Promise<any> {
     // Check for existing interview at this time
+    const applicant = await this._applicationRepo.findById(applicationId);
+    if (!applicant) {
+      throw new Error("applicnat not found");
+    }
+    if (applicant.status != "shortlisted") {
+      throw new Error("only shedule interview for shortlisted application");
+    }
     const existingInterview = await this._interviewRepo.findByTimeSlot(
       companyId,
       new Date(scheduledAt)
