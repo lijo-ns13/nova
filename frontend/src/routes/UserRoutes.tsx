@@ -20,6 +20,7 @@ import ChatPage from "../features/user/pages/ChatPage";
 import ChatListPage from "../features/user/pages/ChatListPage";
 import ProtectedMultiRole from "./ProtectedMultiRole";
 import MainProfilePage from "../features/user/pages/MainProfilePage";
+import InterviewUserPage from "../features/user/pages/InterviewUserpage";
 const UserRoutes = () => {
   return (
     <Routes>
@@ -47,6 +48,7 @@ const UserRoutes = () => {
         <Route path="jobs/:jobId" element={<JobDetailedPage />} />
         <Route path="message/:otherUserId" element={<ChatPage />} />
         <Route path="message" element={<ChatListPage />} />
+        <Route path="interview/:roomId" element={<InterviewUserPage />} />
       </Route>
       {/* Protected + no user layout */}
       <Route

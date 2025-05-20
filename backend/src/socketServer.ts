@@ -12,6 +12,8 @@ export const initSocketServer = (server: Server) => {
     },
   });
 
+  const videoRooms = new Map<string, Set<string>>();
+
   io.on("connection", (socket) => {
     console.log("Socket connected:", socket.id);
 
@@ -71,6 +73,55 @@ export const initSocketServer = (server: Server) => {
         }
       }
     );
+    socket.on("join-video-room", (roomId: string, userId: string) => {
+      console.log(`User ${userId} joining room ${roomId}`);
+
+      socket.join(roomId);
+
+      if (!videoRooms.has(roomId)) {
+        videoRooms.set(roomId, new Set());
+      }
+
+      const room = videoRooms.get(roomId)!;
+      room.add(userId);
+
+      // Notify all users in the room about the new participant
+      io.to(roomId).emit("user-connected", userId);
+
+      // Send current participants to the new user
+      const participants = Array.from(room).filter((id) => id !== userId);
+      socket.emit("video-room-participants", participants);
+
+      console.log(`Room ${roomId} now has ${room.size} participants`);
+    });
+
+    socket.on("leave-video-room", (roomId: string, userId: string) => {
+      console.log(`User ${userId} leaving room ${roomId}`);
+
+      socket.leave(roomId);
+
+      if (videoRooms.has(roomId)) {
+        const room = videoRooms.get(roomId)!;
+        room.delete(userId);
+
+        if (room.size === 0) {
+          videoRooms.delete(roomId);
+        } else {
+          // Notify remaining users about the departure
+          io.to(roomId).emit("user-disconnected", userId);
+        }
+      }
+
+      console.log(
+        `Room ${roomId} now has ${
+          videoRooms.get(roomId)?.size || 0
+        } participants`
+      );
+    });
+    // WebRTC signaling
+    socket.on("webrtc-signal", ({ roomId, userId, signal }) => {
+      socket.to(roomId).emit("webrtc-signal", { userId, signal });
+    });
 
     // Typing indicator
     socket.on("typing", ({ sender, receiver }) => {

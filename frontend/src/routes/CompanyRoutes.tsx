@@ -13,8 +13,9 @@ import CompanyLayout from "../layouts/CompanyLayout";
 import Protected from "./Protected";
 import ManageJobsPage from "../features/company/pages/ManageJobsPage";
 import JobDetailedPage from "../features/company/pages/JobDetailedPage";
-import JobApplicantsPage from "../features/company/pages/JobApplicantsPage";
+// import JobApplicantsPage from "../features/company/pages/JobApplicantsPage";
 import CompanyApplicantsPage from "../features/company/pages/CompanyApplicantsPage";
+import InterviewCompanyPage from "../features/company/pages/InterviewCompanyPage";
 const CompanyRoutes = () => {
   return (
     <Routes>
@@ -41,6 +42,7 @@ const CompanyRoutes = () => {
           element={<CompanyApplicantsPage />}
         />
         <Route path="/company-profile" element={<CompanyProfilePage />} />
+        <Route path="/interview/:roomId" element={<InterviewCompanyPage />} />
       </Route>
     </Routes>
   );

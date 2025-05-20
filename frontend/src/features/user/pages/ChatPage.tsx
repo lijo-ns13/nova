@@ -84,10 +84,12 @@ const ChatPage = () => {
       (msg) => msg.sender === otherUserId && !msg.isRead
     );
     if (hasUnread) {
-      socket.emit("readMessages", {
-        sender: otherUserId,
-        receiver: userId,
-      });
+      if (otherUserId) {
+        socket.emit("readMessages", {
+          sender: otherUserId,
+          receiver: userId,
+        });
+      }
     }
   }, [messages, otherUserId, userId]);
 
@@ -106,23 +108,29 @@ const ChatPage = () => {
 
     setMessages((prev) => [...prev, msg]);
     setNewMessage("");
+    if (otherUserId) {
+      socket.emit("sendMessage", {
+        sender: userId,
+        receiver: otherUserId,
+        content: msg.content,
+        tempId,
+      });
+    }
 
-    socket.emit("sendMessage", {
-      sender: userId,
-      receiver: otherUserId,
-      content: msg.content,
-      tempId,
-    });
-
-    socket.once(`messageSent-${tempId}`, (confirmedMessage) => {
-      setMessages((prev) =>
-        prev.map((m) => (m._id === tempId ? confirmedMessage : m))
+    if (tempId) {
+      socket.once(
+        `messageSent-${tempId}` as any,
+        (confirmedMessage: string) => {
+          setMessages((prev) =>
+            prev.map((m) => (m._id === tempId ? confirmedMessage : m))
+          );
+        }
       );
-    });
 
-    socket.once(`messageFailed-${tempId}`, () => {
-      setMessages((prev) => prev.filter((m) => m._id !== tempId));
-    });
+      socket.once(`messageFailed-${tempId}` as any, () => {
+        setMessages((prev) => prev.filter((m) => m._id !== tempId));
+      });
+    }
   };
 
   const debouncedTyping = useRef(
