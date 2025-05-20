@@ -71,6 +71,19 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 <option value="applied">Applied</option>
                 <option value="shortlisted">Shortlisted</option>
                 <option value="rejected">Rejected</option>
+                <option value="interview_scheduled">Interview Scheduled</option>
+                <option value="interview_cancelled">Interview Cancelled</option>
+                <option value="interview_accepted_by_user">
+                  Interview Accepted
+                </option>
+                <option value="interview_rejected_by_user">
+                  Interview Rejected
+                </option>
+                <option value="interview_failed">Interview Failed</option>
+                <option value="interview_passed">Interview Passed</option>
+                <option value="offered">Offered</option>
+                <option value="selected">Selected</option>
+                <option value="withdrawn">Withdrawn</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <ChevronDown size={16} />
