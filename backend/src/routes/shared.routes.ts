@@ -29,5 +29,28 @@ router.get("/api/chat/users/:userId", async (req, res) => {
     res.status(500).json({ message: "Failed to get users" });
   }
 });
+router.get("/api/username/:otherUserId", async (req, res) => {
+  const { otherUserId } = req.params;
+  try {
+    if (!otherUserId) {
+      res.status(400).json({ success: false, message: "User ID not found" });
+      return;
+    }
 
+    const user = await userModal.findById(otherUserId);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      profilePicture: user.profilePicture,
+    });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Failed to get user" });
+  }
+});
 export default router;

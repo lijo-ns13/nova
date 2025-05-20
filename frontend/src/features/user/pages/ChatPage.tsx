@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { PaperPlaneRight, Spinner } from "@phosphor-icons/react";
 import userAxios from "../../../utils/userAxios";
 import debounce from "lodash.debounce";
+import Avatar from "../componets/ui/Avatar";
 
 const ChatPage = () => {
   const { otherUserId } = useParams();
@@ -15,7 +16,9 @@ const ChatPage = () => {
   const [isTyping, setIsTyping] = useState(false);
   const { id: userId } = useAppSelector((state) => state.auth);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
+  const [otherUserName, setOtherUserName] = useState<string>("");
+  const [otherUserProfilePicture, setOtherUserProfilePicture] =
+    useState<string>("");
   useEffect(() => {
     if (!socket.connected) {
       socket.connect();
@@ -38,6 +41,22 @@ const ChatPage = () => {
         setIsLoading(false);
       }
     };
+    const fetchOtherUser = async () => {
+      try {
+        const res = await userAxios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/username/${otherUserId}`,
+          { withCredentials: true }
+        );
+        console.log("data", res.data);
+        const { name, profilePicture } = res.data;
+        setOtherUserName(name);
+        setOtherUserProfilePicture(profilePicture);
+        // setOtherUserName(name);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+    fetchOtherUser();
 
     fetchMessages();
 
@@ -165,8 +184,9 @@ const ChatPage = () => {
     <div className="flex flex-col h-screen bg-gray-100">
       <div className="bg-white p-4 shadow-sm">
         <h1 className="text-xl font-semibold text-gray-800">
-          Chat with {otherUserId}
+          Chat with {otherUserName || "unknown"}
         </h1>
+        <Avatar src={otherUserProfilePicture} alt={otherUserName} />
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">

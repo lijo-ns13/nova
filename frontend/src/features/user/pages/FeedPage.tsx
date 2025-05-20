@@ -8,7 +8,7 @@ import Button from "../componets/ui/Button";
 // Throttle function
 function throttle<T extends (...args: any[]) => void>(func: T, limit: number) {
   let inThrottle: boolean;
-  return function (...args: any[]) {
+  return (...args: any[]) => {
     if (!inThrottle) {
       func.apply(this, args);
       inThrottle = true;

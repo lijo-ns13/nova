@@ -27,7 +27,7 @@ export class ProfileViewService implements IProfileViewService {
         { path: "educations" },
       ]);
       if (!userData) {
-        throw new Error("User data not found");
+        throw new Error("Users data not found");
       }
       return userData;
     } catch (error) {
