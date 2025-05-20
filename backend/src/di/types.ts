@@ -44,7 +44,7 @@ export const TYPES = {
   CompanyAuthService: Symbol.for("CompanyAuthService"),
   CompanyJobService: Symbol.for("CompanyJobService"),
   CompanyService: Symbol.for("CompanyService"),
-  CompanyProfileService:Symbol.for("CompanyProfileService"),
+  CompanyProfileService: Symbol.for("CompanyProfileService"),
   // admin
   AdminAuthService: Symbol.for("AdminAuthService"),
   AdminUserManagementService: Symbol.for("AdminUserManagementService"),
@@ -63,7 +63,7 @@ export const TYPES = {
   // company
   CompanyAuthController: Symbol.for("CompanyAuthController"),
   CompanyJobController: Symbol.for("CompanyJobController"),
-  CompanyProfileController:Symbol.for("CompanyProfileController"),
+  CompanyProfileController: Symbol.for("CompanyProfileController"),
   // admin
   AdminAuthController: Symbol.for("AdminAuthController"),
   AdminUserManagementController: Symbol.for("AdminUserManagementController"),
@@ -80,4 +80,10 @@ export const TYPES = {
   // ********************************// controller
   SkillController: Symbol.for("SkillController"),
   ProfileViewController: Symbol.for("ProfileViewController"),
+
+  //comapnyside interivew
+  InterviewRepository: Symbol.for("InterviewRepository"),
+  ApplicationRepository: Symbol.for("ApplicationRepository"),
+  CompanyInterviewService: Symbol.for("CompanyInterviewService"),
+  CompanyInterviewController: Symbol.for("CompanyInterviewController"),
 };

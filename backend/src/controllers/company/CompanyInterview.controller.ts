@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import applicationModal from "../../models/application.modal";
 import { Interview } from "../../models/interview.modal";
 import { ApplicationStatus } from "../../models/job.modal";
+import { v4 as uuidv4 } from "uuid";
 
 // Company schedules interview
 export const createInterview = async (req: Request, res: Response) => {
@@ -19,7 +20,7 @@ export const createInterview = async (req: Request, res: Response) => {
     });
   }
 
-  const roomId = new mongoose.Types.ObjectId().toString();
+  const roomId = uuidv4();
 
   const interview = await Interview.create({
     companyId,
@@ -41,38 +42,6 @@ export const createInterview = async (req: Request, res: Response) => {
   });
 
   res.status(201).json(interview);
-};
-
-// Company marks result
-export const markInterviewResult = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { result } = req.body;
-
-  if (!["pass", "fail"].includes(result)) {
-    return res.status(400).json({ message: "Invalid result" });
-  }
-
-  const interview = await Interview.findByIdAndUpdate(
-    id,
-    { result },
-    { new: true }
-  );
-  if (!interview)
-    return res.status(404).json({ message: "Interview not found" });
-
-  const appStatus =
-    result === "pass"
-      ? ApplicationStatus.INTERVIEW_PASSED
-      : ApplicationStatus.INTERVIEW_FAILED;
-
-  await applicationModal.findByIdAndUpdate(interview.applicationId, {
-    status: appStatus,
-  });
-
-  const io = req.app.get("io");
-  io?.to(interview.userId.toString()).emit("interview-result", interview);
-
-  res.json(interview);
 };
 
 // Company views interviews

@@ -111,6 +111,13 @@ import { ICompanyProfileService } from "../interfaces/services/ICompanyProfileSe
 import { CompanyProfileService } from "../services/company/CompanyProfileService";
 import { ICompanyProfileController } from "../interfaces/controllers/ICompanyProfileController";
 import { CompanyProfileController } from "../controllers/company/CompanyProfileController";
+import { IInterviewRepository } from "../core/entities/interview.interface";
+import { IApplicationRepository } from "../interfaces/repositories/IApplicationRepository";
+import { InterviewRepository } from "../repositories/mongo/InterviewRepository";
+import { ICompanyInterviewController } from "../interfaces/controllers/ICompanyInterviewController";
+import { CompanyInterviewController } from "../controllers/company/CompanyInterviewController";
+import { CompanyInterviewService } from "../services/company/CompanyInterviewService";
+import { ApplicationRepository } from "../repositories/mongo/ApplicationRepository";
 
 const container = new Container();
 
@@ -263,5 +270,24 @@ container
 container
   .bind<ICompanyProfileController>(TYPES.CompanyProfileController)
   .to(CompanyProfileController);
+
+// companyside interview
+// Repositories
+container
+  .bind<IInterviewRepository>(TYPES.InterviewRepository)
+  .to(InterviewRepository);
+container
+  .bind<IApplicationRepository>(TYPES.ApplicationRepository)
+  .to(ApplicationRepository);
+
+// Services
+container
+  .bind<ICompanyInterviewService>(TYPES.CompanyInterviewService)
+  .to(CompanyInterviewService);
+
+// Controllers
+container
+  .bind<ICompanyInterviewController>(TYPES.CompanyInterviewController)
+  .to(CompanyInterviewController);
 
 export default container;
