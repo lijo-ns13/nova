@@ -139,7 +139,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
 
                 {isMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                    {applicant.status !== "shortlisted" && (
+                    {applicant.status === "applied" && (
                       <button
                         onClick={() => {
                           onStatusChange(applicant._id, "shortlisted");
@@ -152,7 +152,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                       </button>
                     )}
 
-                    {applicant.status !== "rejected" && (
+                    {applicant.status === "applied" && (
                       <button
                         onClick={() => {
                           setIsRejectModalOpen(true);
@@ -165,7 +165,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                       </button>
                     )}
 
-                    {applicant.status !== "applied" && (
+                    {/* {applicant.status !== "applied" && (
                       <button
                         onClick={() => {
                           onStatusChange(applicant._id, "applied");
@@ -176,7 +176,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                         <Clock size={16} className="text-gray-600" />
                         Mark as Applied
                       </button>
-                    )}
+                    )} */}
                   </div>
                 )}
               </div>
