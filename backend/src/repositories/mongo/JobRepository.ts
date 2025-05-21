@@ -421,6 +421,9 @@ export class JobRepository implements IJobRepository {
   }
   // applicant detailed page
   async getApplicantDetails(applicantId: string): Promise<any> {
-    return await applicationModal.findById(applicantId).populate("user");
+    return await applicationModal
+      .findById(applicantId)
+      .populate("user", "name username email profilePicture headline")
+      .populate("resumeMediaId");
   }
 }

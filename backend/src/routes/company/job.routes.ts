@@ -12,7 +12,7 @@ const jobController = container.get<ICompanyJobController>(
 const router = Router();
 router.use(authMiddleware.authenticate("company"));
 router.use(authMiddleware.check());
-router.get("/job/:applicationId/details", (req, res, next) =>
+router.get("/job/application/:applicationId/details", (req, res, next) =>
   jobController.getApplicantDetails(req, res).catch(next)
 );
 router.get("/job/:jobId/applicants", (req, res, next) =>

@@ -12,9 +12,6 @@ import SkeletonLoader from "../components/interview/SkeletonLoader";
 import { formatDate } from "../util/dateUtils";
 import companyAxios from "../../../utils/companyAxios";
 
-// This is a mock implementation for demonstration purposes
-// In a real app, this would come from react-router-dom
-
 const ApplicantDetailPage: React.FC = () => {
   // In a real app with React Router, use useParams()
   // For this example we're using a mock to show functionality
@@ -29,12 +26,17 @@ const ApplicantDetailPage: React.FC = () => {
       setError(null);
 
       try {
-        const res = await companyAxios.get(`/application/${applicationId}`, {
-          withCredentials: true,
-        });
-
+        const res = await companyAxios.get(
+          `${
+            import.meta.env.VITE_API_BASE_URL
+          }/company/job/application/${applicationId}/details`,
+          {
+            withCredentials: true,
+          }
+        );
+        console.log("cl");
         if (res.data.success) {
-          setApplication(res.data.application);
+          setApplication(res.data.applicant);
         } else {
           setError("Failed to load application");
         }

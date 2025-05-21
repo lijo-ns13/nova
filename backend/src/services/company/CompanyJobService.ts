@@ -9,11 +9,13 @@ import {
 import { TYPES } from "../../di/types";
 import { IJob } from "../../models/job.modal";
 import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
+import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 
 export class CompanyJobService implements ICompanyJobService {
   constructor(
     @inject(TYPES.JobRepository)
-    private _jobRepository: IJobRepository
+    private _jobRepository: IJobRepository,
+    @inject(TYPES.MediaService) private _mediaService: IMediaService
   ) {}
   async createJob(
     createJobDto: CreateJobDto,
@@ -109,7 +111,29 @@ export class CompanyJobService implements ICompanyJobService {
   }
   async getApplicantDetails(applicationId: string): Promise<any> {
     try {
-      return await this._jobRepository.getApplicantDetails(applicationId);
+      const applicant = await this._jobRepository.getApplicantDetails(
+        applicationId
+      );
+
+      if (!applicant) {
+        return null;
+      }
+
+      // If there's a resume media document
+      if (applicant.resumeMediaId) {
+        // Get signed URL for the resume
+        const resumeUrl = await this._mediaService.getMediaUrl(
+          applicant.resumeMediaId.s3Key
+        );
+
+        // Create a new object with the signed URL
+        return {
+          ...applicant.toObject(),
+          resumeUrl,
+        };
+      }
+
+      return applicant;
     } catch (error) {
       console.error("Error get application:", error);
       throw new Error("Failed to get application");
