@@ -87,3 +87,30 @@ export const deleteComment = async (commentId: string) => {
   );
   return response.data;
 };
+
+// Get user posts with pagination
+export const getUserPosts = async (page: number = 1) => {
+  try {
+    const response = await userAxios.get(`${BASE_URL}/post/user`, {
+      params: { page },
+      withCredentials: true,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user posts:", error);
+    throw error;
+  }
+};
+
+// Delete a post
+export const deletePost = async (postId: string): Promise<void> => {
+  try {
+    await userAxios.delete(`${BASE_URL}/post/${postId}`, {
+      withCredentials: true,
+    });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    throw error;
+  }
+};

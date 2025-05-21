@@ -1,6 +1,5 @@
-"use client";
-
 import React, { Suspense, useState } from "react";
+
 import Navbar from "../componets/NavBar";
 
 // Lazy-loaded components
@@ -20,7 +19,12 @@ const CertificateSection = React.lazy(
 const EducationSection = React.lazy(
   () => import("../componets/Profile/EducationSection")
 );
+const UserPostsSection = React.lazy(
+  () => import("../componets/Profile/post/UserPostSection")
+);
+
 import ProfileSkillsSection from "../componets/skill/ProfileSkillSection";
+
 // Loading component for suspense fallback
 const SectionLoader = () => (
   <div className="w-full h-64 bg-gray-100/50 backdrop-blur-sm rounded-xl animate-pulse flex items-center justify-center">
@@ -31,6 +35,9 @@ const SectionLoader = () => (
   </div>
 );
 
+// Mock user ID for demonstration - should be replaced with actual user ID from auth
+const CURRENT_USER_ID = "6819e4b63420abc944d45209";
+
 function ProfilePage() {
   const [activeTab, setActiveTab] = useState("Experience");
 
@@ -39,6 +46,7 @@ function ProfilePage() {
     { id: "Education", label: "Education" },
     { id: "Projects", label: "Projects" },
     { id: "Certificates", label: "Certificates" },
+    { id: "Posts", label: "Posts" },
   ];
 
   return (
@@ -135,6 +143,12 @@ function ProfilePage() {
               {activeTab === "Projects" && (
                 <Suspense fallback={<SectionLoader />}>
                   <ProjectSection />
+                </Suspense>
+              )}
+
+              {activeTab === "Posts" && (
+                <Suspense fallback={<SectionLoader />}>
+                  <UserPostsSection userId={CURRENT_USER_ID} />
                 </Suspense>
               )}
             </div>
