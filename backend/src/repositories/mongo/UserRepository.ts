@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import userModal, { IUser } from "../../models/user.modal";
 import { BaseRepository } from "./BaseRepository";
@@ -16,6 +16,7 @@ import userEducationModel, {
   IUserEducation,
 } from "../../models/userEducation.model";
 import { IJob } from "../../models/job.modal";
+import { ISkill } from "../../models/skill.modal";
 @injectable()
 export class UserRepository
   extends BaseRepository<IUser>
@@ -416,5 +417,35 @@ export class UserRepository
       _id: { $ne: excludeUserId }, // exclude the current user
     });
     return !!existingUser;
+  }
+  async getUserSkillsById(userId: string): Promise<ISkill[] | undefined> {
+    const user = await userModal.findById(userId).populate("skills");
+    return user?.skills as ISkill[] | undefined;
+  }
+
+  async addSkillsToUser(
+    userId: string,
+    skillIds: Types.ObjectId[]
+  ): Promise<IUser | null> {
+    return await userModal
+      .findByIdAndUpdate(
+        userId,
+        { $addToSet: { skills: { $each: skillIds } } },
+        { new: true }
+      )
+      .populate("skills");
+  }
+
+  async deleteUserSkill(
+    userId: string,
+    skillId: string
+  ): Promise<IUser | null> {
+    return await userModal
+      .findByIdAndUpdate(
+        userId,
+        { $pull: { skills: new Types.ObjectId(skillId) } },
+        { new: true }
+      )
+      .populate("skills");
   }
 }

@@ -127,6 +127,10 @@ import { TYPE } from "inversify-express-utils";
 import { UserInterviewService } from "../services/user/UserInterviewService";
 import { IUserInterviewController } from "../interfaces/controllers/IUserInterviewController";
 import { UserInterviewController } from "../controllers/user/UserInterview.controller";
+import { IUserSkillService } from "../interfaces/services/IUserSkillService";
+import { UserSkillService } from "../services/user/UserSkillService";
+import { IUserSkillController } from "../interfaces/controllers/IUserSkillController";
+import { UserSkillController } from "../controllers/user/UserSkillController";
 
 const container = new Container();
 
@@ -309,4 +313,10 @@ container
 container
   .bind<IUserInterviewController>(TYPES.UserInterviewController)
   .to(UserInterviewController);
+
+// user skilll
+container.bind<IUserSkillService>(TYPES.UserSkillService).to(UserSkillService);
+container
+  .bind<IUserSkillController>(TYPES.UserSkillController)
+  .to(UserSkillController);
 export default container;

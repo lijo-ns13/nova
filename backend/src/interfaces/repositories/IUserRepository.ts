@@ -1,10 +1,11 @@
-import { PopulateOptions } from "mongoose";
+import { PopulateOptions, Types } from "mongoose";
 import { IJob } from "../../models/job.modal";
 import { IUser } from "../../models/user.modal";
 import { IUserCertificate } from "../../models/userCertificate.model";
 import { IUserEducation } from "../../models/userEducation.model";
 import { IUserExperience } from "../../models/userExperience.model";
 import { IUserProject } from "../../models/userProject.model";
+import { ISkill } from "../../models/skill.modal";
 
 export interface IUserRepository {
   // Core user operations
@@ -102,4 +103,11 @@ export interface IUserRepository {
     filter: Record<string, unknown>,
     populateOptions?: string | PopulateOptions | (string | PopulateOptions)[]
   ): Promise<IUser | null>;
+  // skill
+  getUserSkillsById(userId: string): Promise<ISkill[] | undefined>;
+  addSkillsToUser(
+    userId: string,
+    skillIds: Types.ObjectId[]
+  ): Promise<IUser | null>;
+  deleteUserSkill(userId: string, skillId: string): Promise<IUser | null>;
 }
