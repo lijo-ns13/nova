@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import skillRouter from "./common/skill.routes";
 import ProfileViewRouter from "./common/profile-view.routes";
 import messageRoutes from "./common/messages.routes";
-
+import messageModal from "../models/message.modal";
 import container from "../di/container";
 import { IAuthMiddleware } from "../interfaces/middlewares/IAuthMiddleware";
 import { TYPES } from "../di/types";
@@ -22,8 +22,32 @@ router.get("/api/chat/users/:userId", async (req, res) => {
       .find({ _id: { $ne: userId } })
       .select("_id name profilePicture online")
       .lean();
+    // For each user, find the latest message with the current user
+    const usersWithLastMessages = await Promise.all(
+      users.map(async (user) => {
+        const lastMessage = await messageModal
+          .findOne({
+            $or: [
+              { sender: userId, receiver: user._id },
+              { sender: user._id, receiver: userId },
+            ],
+          })
+          .sort({ createdAt: -1 })
+          .lean();
 
-    res.status(200).json(users);
+        return {
+          ...user,
+          lastMessage: lastMessage
+            ? {
+                content: lastMessage.content,
+                createdAt: lastMessage.createdAt,
+              }
+            : null,
+        };
+      })
+    );
+
+    res.status(200).json(usersWithLastMessages);
   } catch (error) {
     console.error("Error fetching users:", error);
     res.status(500).json({ message: "Failed to get users" });
