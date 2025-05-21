@@ -195,4 +195,40 @@ export class PostController implements IPostController {
         .json({ message: (error as Error).message });
     }
   }
+  // upodated getuserposts,delete post
+  async deletePost(req: Request, res: Response): Promise<void> {
+    try {
+      const { postId } = req.params;
+      const userId = (req.user as Userr)?.id;
+
+      // Delete the post
+      const deletedPost = await this._postService.deletePost(postId, userId);
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Post deleted successfully",
+        post: deletedPost,
+      });
+    } catch (err) {
+      res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .json({ error: (err as Error).message });
+    }
+  }
+
+  async getUsersPosts(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req.user as Userr)?.id;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const posts = await this._postService.getUsersPosts(userId, page, limit);
+
+      res.status(HTTP_STATUS_CODES.OK).json(posts);
+    } catch (error) {
+      res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .json({ error: (error as Error).message });
+    }
+  }
 }

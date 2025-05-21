@@ -94,25 +94,55 @@ export class MediaService implements IMediaService {
 
   async deleteMedia(mediaIds: string[]): Promise<void> {
     try {
-      const mediaRecords = await mediaModal.find({
-        _id: { $in: mediaIds.map((id) => new Types.ObjectId(id)) },
+      if (!mediaIds || mediaIds.length === 0) {
+        throw new Error("No media IDs provided for deletion");
+      }
+
+      // Convert string IDs to ObjectId and validate
+      const objectIds = mediaIds.map((id) => {
+        try {
+          return new Types.ObjectId(id);
+        } catch (error) {
+          throw new Error(`Invalid media ID format: ${id}`);
+        }
       });
 
-      await Promise.all([
-        // Delete from S3
-        ...mediaRecords.map((media) =>
-          s3.send(
+      // Find all media records
+      const mediaRecords = await mediaModal.find({
+        _id: { $in: objectIds },
+      });
+
+      if (mediaRecords.length === 0) {
+        console.warn("No media records found for the provided IDs");
+        return;
+      }
+
+      // Delete from S3
+      const s3Deletions = mediaRecords.map(async (media) => {
+        try {
+          await s3.send(
             new DeleteObjectCommand({
               Bucket: process.env.S3_BUCKET_NAME!,
               Key: media.s3Key,
             })
-          )
-        ),
-        // Delete from DB
-        mediaModal.deleteMany({ _id: { $in: mediaIds } }),
-      ]);
+          );
+          console.log(`Successfully deleted from S3: ${media.s3Key}`);
+        } catch (s3Error) {
+          console.error(`Failed to delete from S3: ${media.s3Key}`, s3Error);
+          throw new Error(`S3 deletion failed for key: ${media.s3Key}`);
+        }
+      });
+
+      // Delete from MongoDB
+      const dbDeletion = mediaModal.deleteMany({ _id: { $in: objectIds } });
+
+      // Wait for all operations to complete
+      await Promise.all([...s3Deletions, dbDeletion]);
+
+      console.log(`Successfully deleted ${mediaRecords.length} media items`);
     } catch (error) {
-      throw new Error(`Media deletion failed`);
+      console.error("Detailed media deletion error:", error);
+      throw new Error(`Media deletion failed: ${(error as Error).message}`);
     }
   }
 }

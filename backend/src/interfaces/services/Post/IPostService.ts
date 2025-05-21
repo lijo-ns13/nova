@@ -16,4 +16,10 @@ export interface IPostService {
     page: number,
     limit: number
   ): Promise<IPostServiceResponsePaginated>;
+  deletePost(postId: string, userId: string): Promise<IPost | null>;
+  getUsersPosts(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<IPostServiceResponsePaginated>;
 }

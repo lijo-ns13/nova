@@ -22,9 +22,16 @@ router.use(authMiddleware.check());
 router.post("/post", uploadMedia, (req, res, next) => {
   postController.create(req, res).catch(next); // This ensures the error is passed to Express's error handler
 });
+router.get("/post/user/", (req, res, next) =>
+  postController.getUsersPosts(req, res).catch(next)
+);
 router.get("/post/:postId", (req, res, next) => {
   postController.getPost(req, res).catch(next); // This ensures the error is passed to Express's error handler
 });
+router.delete("/post/:postId", (req, res, next) =>
+  postController.deletePost(req, res).catch(next)
+);
+
 router.get("/post", (req, res, next) => {
   postController.getAllPost(req, res).catch(next); // This ensures the error is passed to Express's error handler
 });

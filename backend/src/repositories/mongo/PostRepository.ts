@@ -52,4 +52,26 @@ export class PostRepository
       .populate("creatorId", "name username profilePicture")
       .populate({ path: "Likes" });
   }
+  async softDelete(postId: string): Promise<IPost | null> {
+    return this.model.findByIdAndUpdate(
+      postId,
+      { isDeleted: true },
+      { new: true }
+    );
+  }
+
+  async hardDelete(postId: string): Promise<IPost | null> {
+    return this.model.findByIdAndDelete(postId);
+  }
+
+  async countUserPosts(userId: string): Promise<number> {
+    return this.model.countDocuments({
+      creatorId: new Types.ObjectId(userId),
+      isDeleted: false,
+    });
+  }
+
+  async findById(postId: string): Promise<IPost | null> {
+    return this.model.findById(postId);
+  }
 }

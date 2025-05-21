@@ -12,4 +12,8 @@ export interface IPostRepository extends IBaseRepository<IPost> {
   findAllWithMediaAndCreator(skip: number, limit: number): Promise<IPost[]>;
   totalPosts(): Promise<number>;
   getPost(postId: string): Promise<IPost | null>;
+  softDelete(postId: string): Promise<IPost | null>;
+  hardDelete(postId: string): Promise<IPost | null>;
+  countUserPosts(userId: string): Promise<number>;
+  findById(postId: string): Promise<IPost | null>;
 }
