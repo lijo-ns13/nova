@@ -19,7 +19,7 @@ export default function ApplyModal({
   onApplySuccess,
 }: ApplyModalProps) {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [coverLetter, setCoverLetter] = useState("");
+  // const [coverLetter, setCoverLetter] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -65,7 +65,7 @@ export default function ApplyModal({
       await applyJob({
         jobId,
         resumeFile,
-        coverLetter,
+        // coverLetter,
       });
       onApplySuccess();
     } catch (err: any) {
@@ -144,7 +144,7 @@ export default function ApplyModal({
               </p>
             </div>
 
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <label
                 htmlFor="coverLetter"
                 className="block text-sm font-medium text-gray-700 mb-2"
@@ -160,7 +160,7 @@ export default function ApplyModal({
                 placeholder="Explain why you're a good fit for this position..."
                 disabled={isSubmitting}
               />
-            </div>
+            </div> */}
 
             <div className="flex justify-end gap-3 pt-4">
               <button

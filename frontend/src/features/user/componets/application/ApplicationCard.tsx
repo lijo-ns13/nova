@@ -167,7 +167,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
 
         {/* Action Buttons */}
         <div className="mt-4 flex flex-wrap gap-3 justify-between items-center border-t pt-4">
-          <a
+          {/* <a
             href={application.resumeUrl}
             target="_blank"
             rel="noopener noreferrer"
@@ -176,7 +176,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
           >
             <FileText size={16} className="mr-1" />
             View Resume
-          </a>
+          </a> */}
           <button
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
             onClick={(e) => {

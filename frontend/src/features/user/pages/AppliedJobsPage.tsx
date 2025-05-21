@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Briefcase as BriefcaseBusiness,
   Filter,
@@ -38,6 +39,7 @@ interface AppliedJob {
 }
 
 const AppliedJobsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [applications, setApplications] = useState<AppliedJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -161,6 +163,7 @@ const AppliedJobsPage: React.FC = () => {
 
   const navigateToJobDetail = (jobId: string) => {
     showToast("info", `Viewing details for job ${jobId}`);
+    navigate(`/jobs/${jobId}`);
   };
 
   if (loading) {
