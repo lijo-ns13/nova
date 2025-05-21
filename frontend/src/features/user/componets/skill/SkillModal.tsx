@@ -5,9 +5,9 @@ import BaseModal from "../modals/BaseModal";
 interface SkillAddModalProps {
   isOpen: boolean;
   onClose: () => void;
-  skills: string[];
+  skills: string[]; // Just titles here
   onSave: (updatedSkills: string[]) => void;
-  error?: boolean;
+  error?: string;
 }
 
 const SkillAddModal: React.FC<SkillAddModalProps> = ({
@@ -26,7 +26,7 @@ const SkillAddModal: React.FC<SkillAddModalProps> = ({
 
   React.useEffect(() => {
     if (isOpen) {
-      setLocalSkills(skills); // Reset skills on modal open
+      setLocalSkills(skills); // Reset when modal opens
     }
   }, [isOpen, skills]);
 
@@ -35,7 +35,7 @@ const SkillAddModal: React.FC<SkillAddModalProps> = ({
       <SkillsInput
         value={localSkills}
         onChange={setLocalSkills}
-        error={error}
+        error={!!error} // Convert string | undefined to boolean
       />
 
       <div className="mt-4 flex justify-end gap-2">
