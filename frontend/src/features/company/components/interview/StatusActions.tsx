@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ApplicationStatus } from "../../types/applicationTypes";
 import { getStatusMessage } from "../../util/StatusUtils";
 import ScheduleInterviewModal from "./ScheduleInterviewModal";
+import { formatDate } from "date-fns";
 
 interface StatusActionsProps {
   status: ApplicationStatus;
@@ -9,6 +10,7 @@ interface StatusActionsProps {
   applicationId: string;
   userId: string;
   onInterviewScheduled?: () => void;
+  scheduledAt?: Date;
 }
 
 const StatusActions: React.FC<StatusActionsProps> = ({
@@ -17,6 +19,7 @@ const StatusActions: React.FC<StatusActionsProps> = ({
   applicationId,
   userId,
   onInterviewScheduled,
+  scheduledAt,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const statusMessage = getStatusMessage(status, rejectionReason);
@@ -46,6 +49,19 @@ const StatusActions: React.FC<StatusActionsProps> = ({
             <span>Schedule Interview</span>
           </button>
         );
+      case ApplicationStatus.INTERVIEW_SCHEDULED:
+        return (
+          <div className="text-center sm:text-left">
+            {scheduledAt && (
+              <p className="text-sm sm:text-base text-gray-700 mb-2">
+                <strong>Interview Scheduled:</strong> {scheduledAt.toString()}
+              </p>
+            )}
+            <p className="text-sm sm:text-base text-blue-600">
+              Waiting for applicant to respond to the interview invitation.
+            </p>
+          </div>
+        );
       case ApplicationStatus.INTERVIEW_PASSED:
         return (
           <div className="flex flex-col sm:flex-row gap-3">
@@ -68,6 +84,7 @@ const StatusActions: React.FC<StatusActionsProps> = ({
             </button>
           </div>
         );
+
       default:
         return null;
     }

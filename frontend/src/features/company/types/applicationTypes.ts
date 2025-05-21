@@ -26,6 +26,7 @@ export interface JobDetails {
 }
 
 export interface Application {
+  scheduledAt: Date;
   _id: string;
   resumeUrl: string;
   status: ApplicationStatus;

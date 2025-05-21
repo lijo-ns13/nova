@@ -163,6 +163,7 @@ const ApplicantDetailPage: React.FC = () => {
           applicationId={application._id}
           userId={user._id}
           onInterviewScheduled={handleInterviewScheduled}
+          scheduledAt={application.scheduledAt}
         />
       </div>
     </div>
