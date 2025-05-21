@@ -1,12 +1,42 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SkillAddModal from "./SkillModal"; // adjust path
-
+import userAxios from "../../../../utils/userAxios";
+interface Skill {
+  _id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
 const ProfileSkillsSection: React.FC = () => {
-  const [skills, setSkills] = useState<string[]>(["React", "TypeScript"]);
+  const [skills, setSkills] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleSaveSkills = (updatedSkills: string[]) => {
+  const fetchSkills = async () => {
+    const res = await userAxios.get(
+      `${import.meta.env.VITE_API_BASE_URL}/userskills`,
+      {
+        withCredentials: true,
+      }
+    );
+    if (res.data.success && Array.isArray(res.data.data)) {
+      const fetchedSkills = res.data.data.map((skill: Skill) => {
+        // Normalize skill title: capitalize first letter
+        const title = skill.title?.trim();
+        return title.charAt(0).toUpperCase() + title.slice(1);
+      });
+      setSkills(fetchedSkills);
+    } else {
+      console.error("Unexpected response format:", res.data);
+    }
+    console.log(res, "skuii");
+  };
+  useEffect(() => {
+    fetchSkills();
+  }, []);
+  const handleSaveSkills = async (updatedSkills: string[]) => {
     setSkills(updatedSkills);
+    const res = await userAxios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/userskills`
+    );
     console.log("updated skills,", updatedSkills);
     // You can also make an API call to save updated skills here
   };
