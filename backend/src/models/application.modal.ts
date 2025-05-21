@@ -3,9 +3,6 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 import { ApplicationStatus } from "./job.modal";
 import { IUser } from "./user.modal";
 import { IJob } from "./job.modal";
-import container from "../di/container";
-import { IMediaService } from "../interfaces/services/Post/IMediaService";
-import { TYPES } from "../di/types";
 
 export interface IApplication extends Document {
   job: Types.ObjectId | IJob | string;

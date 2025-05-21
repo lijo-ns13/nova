@@ -1,5 +1,11 @@
 import mongoose, { Types } from "mongoose";
-
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import {
   CreateJobDto,
   IJobRepository,
@@ -290,11 +296,21 @@ export class JobRepository implements IJobRepository {
         },
       },
       { $unwind: "$jobDetails" },
+      // Add lookup for media to get the resume file details
+      {
+        $lookup: {
+          from: "media",
+          localField: "resumeMediaId",
+          foreignField: "_id",
+          as: "resumeMedia",
+        },
+      },
+      { $unwind: "$resumeMedia" },
       {
         $project: {
           _id: 1,
           appliedAt: 1,
-          resumeUrl: 1,
+          resumeMediaId: 1,
           coverLetter: 1,
           status: 1,
           statusHistory: 1,
@@ -308,6 +324,10 @@ export class JobRepository implements IJobRepository {
             _id: "$jobDetails._id",
             title: "$jobDetails.title",
             company: "$jobDetails.company",
+          },
+          resumeMedia: {
+            s3Key: "$resumeMedia.s3Key",
+            mimeType: "$resumeMedia.mimeType",
           },
         },
       },
@@ -342,7 +362,41 @@ export class JobRepository implements IJobRepository {
     );
 
     const result = await applicationModal.aggregate(aggregationPipeline);
-    return result[0] || { applications: [], total: 0 };
+    const applicationsData = result[0] || { applications: [], total: 0 };
+
+    // Generate signed URLs for each resume
+    if (applicationsData.applications.length > 0) {
+      const s3 = new S3Client({
+        region: process.env.AWS_REGION!,
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+        },
+      });
+
+      await Promise.all(
+        applicationsData.applications.map(async (app: any) => {
+          try {
+            const command = new GetObjectCommand({
+              Bucket: process.env.S3_BUCKET_NAME!,
+              Key: app.resumeMedia.s3Key,
+            });
+            app.resumeUrl = await getSignedUrl(s3, command, {
+              expiresIn: 3600,
+            });
+          } catch (error) {
+            console.error(
+              `Failed to generate signed URL for application ${app._id}:`,
+              error
+            );
+            app.resumeUrl = null;
+          }
+          return app;
+        })
+      );
+    }
+
+    return applicationsData;
   }
   // new changest for shorlist,reject
   async shortlistApplication(applicationId: string): Promise<boolean> {
