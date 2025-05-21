@@ -20,7 +20,7 @@ const CertificateSection = React.lazy(
 const EducationSection = React.lazy(
   () => import("../componets/Profile/EducationSection")
 );
-
+import ProfileSkillsSection from "../componets/skill/ProfileSkillSection";
 // Loading component for suspense fallback
 const SectionLoader = () => (
   <div className="w-full h-64 bg-gray-100/50 backdrop-blur-sm rounded-xl animate-pulse flex items-center justify-center">
@@ -198,6 +198,7 @@ function ProfilePage() {
             </div>
           </div>
         </div>
+        <ProfileSkillsSection />
       </footer>
     </div>
   );
