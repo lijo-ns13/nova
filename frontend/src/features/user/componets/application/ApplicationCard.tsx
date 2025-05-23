@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, MapPin, FileText, Eye, Clock } from "lucide-react";
+import { Calendar, MapPin, Eye, Clock } from "lucide-react";
 import StatusBadge from "../ui/StatusBadge";
 
 interface Application {

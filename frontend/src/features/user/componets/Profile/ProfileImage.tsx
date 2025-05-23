@@ -64,6 +64,10 @@ function ProfileImage() {
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only image files are allowed.");
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = () => {
