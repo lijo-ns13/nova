@@ -1,8 +1,10 @@
 import { Router } from "express";
+// routes
 import JobRouter from "./user/job.routes";
 import profileRouter from "./user/profile.routes";
 import postRouter from "./user/post.routes";
 import interviewRouter from "./user/interview.routes";
+import followRouter from "./user/follow.routes";
 import container from "../di/container";
 import userSkillRouter from "./user/skill.routes";
 import { IAuthMiddleware } from "../interfaces/middlewares/IAuthMiddleware";
@@ -17,4 +19,5 @@ router.use("/user-profile", profileRouter);
 router.use("/", postRouter);
 router.use("/", interviewRouter);
 router.use("/userskills", userSkillRouter);
+router.use("/users", followRouter);
 export default router;

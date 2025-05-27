@@ -110,4 +110,20 @@ export interface IUserRepository {
     skillIds: Types.ObjectId[]
   ): Promise<IUser | null>;
   deleteUserSkill(userId: string, skillId: string): Promise<IUser | null>;
+  // follow realted
+   followUser(
+    followerId: string,
+    followingId: string
+  ): Promise<{ follower: IUser | null; following: IUser | null }>;
+
+  unfollowUser(
+    followerId: string,
+    followingId: string
+  ): Promise<{ follower: IUser | null; following: IUser | null }>;
+
+  getFollowers(userId: string): Promise<IUser[]>;
+
+  getFollowing(userId: string): Promise<IUser[]>;
+
+  isFollowing(followerId: string, followingId: string): Promise<boolean>;
 }

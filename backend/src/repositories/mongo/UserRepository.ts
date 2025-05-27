@@ -448,4 +448,70 @@ export class UserRepository
       )
       .populate("skills");
   }
+  // follow realted- userrepo>
+
+  async followUser(
+    followerId: string,
+    followingId: string
+  ): Promise<{ follower: IUser | null; following: IUser | null }> {
+    // Add followingId to the follower's following list
+    const follower = await this.model.findByIdAndUpdate(
+      followerId,
+      { $addToSet: { following: new Types.ObjectId(followingId) } },
+      { new: true }
+    );
+
+    // Add followerId to the following user's followers list
+    const following = await this.model.findByIdAndUpdate(
+      followingId,
+      { $addToSet: { followers: new Types.ObjectId(followerId) } },
+      { new: true }
+    );
+
+    return { follower, following };
+  }
+
+  async unfollowUser(
+    followerId: string,
+    followingId: string
+  ): Promise<{ follower: IUser | null; following: IUser | null }> {
+    // Remove followingId from the follower's following list
+    const follower = await this.model.findByIdAndUpdate(
+      followerId,
+      { $pull: { following: new Types.ObjectId(followingId) } },
+      { new: true }
+    );
+
+    // Remove followerId from the following user's followers list
+    const following = await this.model.findByIdAndUpdate(
+      followingId,
+      { $pull: { followers: new Types.ObjectId(followerId) } },
+      { new: true }
+    );
+    return { follower, following };
+  }
+
+  async getFollowers(userId: string): Promise<IUser[]> {
+    const user = await this.model.findById(userId).populate({
+      path: "followers",
+      select: "name username profilePicture headline",
+    });
+    return (user?.followers as IUser[]) || [];
+  }
+
+  async getFollowing(userId: string): Promise<IUser[]> {
+    const user = await this.model.findById(userId).populate({
+      path: "following",
+      select: "name username profilePicture headline",
+    });
+    return (user?.following as IUser[]) || [];
+  }
+
+  async isFollowing(followerId: string, followingId: string): Promise<boolean> {
+    const user = await this.model.findOne({
+      _id: followerId,
+      following: new Types.ObjectId(followingId),
+    });
+    return !!user;
+  }
 }

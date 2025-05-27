@@ -131,6 +131,10 @@ import { IUserSkillService } from "../interfaces/services/IUserSkillService";
 import { UserSkillService } from "../services/user/UserSkillService";
 import { IUserSkillController } from "../interfaces/controllers/IUserSkillController";
 import { UserSkillController } from "../controllers/user/UserSkillController";
+import { IUserFollowService } from "../interfaces/services/IUserFollowService";
+import { UserFollowService } from "../services/user/UserFollowService";
+import { IUserFollowController } from "../interfaces/controllers/IUserFollowController";
+import { UserFollowController } from "../controllers/user/IUserFollowController";
 
 const container = new Container();
 
@@ -319,4 +323,12 @@ container.bind<IUserSkillService>(TYPES.UserSkillService).to(UserSkillService);
 container
   .bind<IUserSkillController>(TYPES.UserSkillController)
   .to(UserSkillController);
+
+// user follow related
+container
+  .bind<IUserFollowService>(TYPES.UserFollowService)
+  .to(UserFollowService);
+container
+  .bind<IUserFollowController>(TYPES.UserFollowController)
+  .to(UserFollowController);
 export default container;

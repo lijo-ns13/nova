@@ -1,8 +1,3 @@
-import { UserInterviewController } from "../controllers/user/UserInterview.controller";
-import applicationModal from "../models/application.modal";
-import { UserInterviewService } from "../services/user/UserInterviewService";
-import { UserSkillService } from "../services/user/UserSkillService";
-
 export const TYPES = {
   // Repositories
   UserModal: Symbol.for("UserModal"),
@@ -101,4 +96,8 @@ export const TYPES = {
   // user skilll
   UserSkillService: Symbol.for("UserSkillService"),
   UserSkillController: Symbol.for("UserSkillController"),
+
+  // follow related user
+  UserFollowService: Symbol.for("UserFollowService"),
+  UserFollowController: Symbol.for("UserFollowController"),
 };
