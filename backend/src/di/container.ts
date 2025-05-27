@@ -134,7 +134,7 @@ import { UserSkillController } from "../controllers/user/UserSkillController";
 import { IUserFollowService } from "../interfaces/services/IUserFollowService";
 import { UserFollowService } from "../services/user/UserFollowService";
 import { IUserFollowController } from "../interfaces/controllers/IUserFollowController";
-import { UserFollowController } from "../controllers/user/IUserFollowController";
+import { UserFollowController } from "../controllers/user/UserFollowController";
 
 const container = new Container();
 
