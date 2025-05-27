@@ -17,6 +17,9 @@ const router = Router();
 router.use(authMiddleware.authenticate("user"));
 router.use(authMiddleware.check());
 
+router.get("/network-users", (req, res) =>
+  userFollowController.getNetworkUsers(req, res)
+);
 // Follow a user
 router.post("/:userId/follow", (req, res) =>
   userFollowController.followUser(req, res)

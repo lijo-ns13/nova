@@ -16,4 +16,11 @@ export interface IUserFollowService {
   getFollowing(userId: string): Promise<IUser[]>;
 
   isFollowing(followerId: string, followingId: string): Promise<boolean>;
+  // Add to your IUserFollowService interface
+  getNetworkUsers(currentUserId: string): Promise<
+    {
+      user: IUser;
+      isFollowing: boolean;
+    }[]
+  >;
 }

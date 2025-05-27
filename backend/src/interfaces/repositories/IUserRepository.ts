@@ -111,7 +111,7 @@ export interface IUserRepository {
   ): Promise<IUser | null>;
   deleteUserSkill(userId: string, skillId: string): Promise<IUser | null>;
   // follow realted
-   followUser(
+  followUser(
     followerId: string,
     followingId: string
   ): Promise<{ follower: IUser | null; following: IUser | null }>;
@@ -126,4 +126,5 @@ export interface IUserRepository {
   getFollowing(userId: string): Promise<IUser[]>;
 
   isFollowing(followerId: string, followingId: string): Promise<boolean>;
+  getAllUsersExcept(userId: string): Promise<IUser[]>;
 }

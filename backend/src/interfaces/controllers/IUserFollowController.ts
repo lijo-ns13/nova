@@ -6,4 +6,6 @@ export interface IUserFollowController {
   getFollowers(req: Request, res: Response): Promise<void>;
   getFollowing(req: Request, res: Response): Promise<void>;
   checkFollowStatus(req: Request, res: Response): Promise<void>;
+  // Add to your IUserFollowController interface
+  getNetworkUsers(req: Request, res: Response): Promise<void>;
 }

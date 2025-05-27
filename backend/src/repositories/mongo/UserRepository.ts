@@ -514,4 +514,12 @@ export class UserRepository
     });
     return !!user;
   }
+  async getAllUsersExcept(userId: string): Promise<IUser[]> {
+    return this.model
+      .find(
+        { _id: { $ne: new Types.ObjectId(userId) } },
+        { name: 1, username: 1, profilePicture: 1, headline: 1 }
+      )
+      .lean();
+  }
 }

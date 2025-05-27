@@ -110,4 +110,20 @@ export class UserFollowController implements IUserFollowController {
         .json({ success: false, message: "Failed to check follow status" });
     }
   }
+  // Add to your UserFollowController class
+  async getNetworkUsers(req: Request, res: Response): Promise<void> {
+    try {
+      const currentUserId = (req.user as AuthenticatedUser)?.id;
+      const networkUsers = await this.userFollowService.getNetworkUsers(
+        currentUserId
+      );
+      res.status(200).json({ success: true, data: networkUsers });
+    } catch (error) {
+      console.error("Error in getNetworkUsers:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to get network users",
+      });
+    }
+  }
 }
