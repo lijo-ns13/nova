@@ -14,7 +14,9 @@ export interface IUser extends Document {
   experiences: mongoose.Types.ObjectId[] | [];
   educations: mongoose.Types.ObjectId[] | [];
   projects: mongoose.Types.ObjectId[] | [];
-  connections: mongoose.Types.ObjectId[] | [];
+  followers: mongoose.Types.ObjectId[] | [];
+  following: mongoose.Types.ObjectId[] | [];
+  // connections: mongoose.Types.ObjectId[] | [];
   headline?: string;
   about?: string;
   isBlocked: boolean;
@@ -88,7 +90,19 @@ const userSchema = new Schema<IUser>(
         ref: "Project",
       },
     ],
-    connections: [
+    // connections: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "User",
+    //   },
+    // ],
+    followers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    following: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
