@@ -41,6 +41,9 @@ export interface Project {
 }
 
 export interface UserData {
+  followingCount: number;
+  followersCount: number;
+  isFollowing(isFollowing: any): [any, any];
   _id: string;
   name: string;
   username: string;

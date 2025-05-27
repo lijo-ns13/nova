@@ -1,7 +1,16 @@
 import userAxios from "../../../utils/userAxios";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const BASE_URL = `${API_BASE_URL}/auth`;
+const BASE_URL = `${API_BASE_URL}`;
+export const getNetworkUsers = async () => {
+  try {
+    const response = await userAxios.get(`${BASE_URL}/users/network-users`);
+    return response.data;
+  } catch (error: any) {
+    console.error("API Error:", error);
+    throw error?.response?.data?.error || "Something went wrong";
+  }
+};
 export const followUser = async (followerId: string) => {
   try {
     const response = await userAxios.post(
