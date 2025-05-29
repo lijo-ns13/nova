@@ -89,7 +89,7 @@ import { MediaRepository } from "../repositories/mongo/MediaRepository";
 import { IPostService } from "../interfaces/services/Post/IPostService";
 import { PostService } from "../services/user/PostService";
 import { IMediaService } from "../interfaces/services/Post/IMediaService";
-import { Types } from "aws-sdk/clients/acm";
+
 import { MediaService } from "../services/user/MediaService";
 import { PostController } from "../controllers/user/PostController";
 import { IPostController } from "../interfaces/controllers/post/IPostController";
@@ -135,6 +135,12 @@ import { IUserFollowService } from "../interfaces/services/IUserFollowService";
 import { UserFollowService } from "../services/user/UserFollowService";
 import { IUserFollowController } from "../interfaces/controllers/IUserFollowController";
 import { UserFollowController } from "../controllers/user/UserFollowController";
+import { INotificationController } from "../interfaces/controllers/INotificationController";
+import { INotificationService } from "../interfaces/services/INotificationService";
+import { INotificationRepository } from "../interfaces/repositories/INotificationRepository";
+import { NotificationRepository } from "../repositories/mongo/notificationRepository";
+import { NotificationService } from "../services/notificationService";
+import { NotificationController } from "../controllers/notificationController";
 
 const container = new Container();
 
@@ -331,4 +337,20 @@ container
 container
   .bind<IUserFollowController>(TYPES.UserFollowController)
   .to(UserFollowController);
+// Notification bindings
+container
+  .bind<INotificationRepository>(TYPES.NotificationRepository)
+  .to(NotificationRepository)
+  .inSingletonScope();
+container
+  .bind<INotificationService>(TYPES.NotificationService)
+  .to(NotificationService)
+  .inSingletonScope();
+container
+  .bind<INotificationController>(TYPES.NotificationController)
+  .to(NotificationController)
+  .inSingletonScope();
+
+// SocketIO binding (set this up when you create your socket server)
+// container.bind<Server>(TYPES.SocketIO).toConstantValue(io);
 export default container;

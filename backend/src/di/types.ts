@@ -100,4 +100,9 @@ export const TYPES = {
   // follow related user
   UserFollowService: Symbol.for("UserFollowService"),
   UserFollowController: Symbol.for("UserFollowController"),
+
+  NotificationRepository: Symbol.for("NotificationRepository"),
+  NotificationService: Symbol.for("NotificationService"),
+  NotificationController: Symbol.for("NotificationController"),
+  SocketIO: Symbol.for("SocketIO"),
 };

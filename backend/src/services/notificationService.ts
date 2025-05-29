@@ -1,0 +1,101 @@
+// src/services/notificationService.ts
+import { inject, injectable } from "inversify";
+import { Server } from "socket.io";
+import { TYPES } from "../di/types";
+import { INotificationService } from "../interfaces/services/INotificationService";
+import { INotificationRepository } from "../interfaces/repositories/INotificationRepository";
+import { INotification, NotificationType } from "../models/notification.modal";
+import userModal from "../models/user.modal";
+
+@injectable()
+export class NotificationService implements INotificationService {
+  constructor(
+    @inject(TYPES.NotificationRepository)
+    private notificationRepository: INotificationRepository,
+    @inject(TYPES.SocketIO) private io?: Server
+  ) {}
+
+  private async sendRealTimeNotification(
+    userId: string,
+    notification: INotification
+  ) {
+    const user = await userModal.findById(userId);
+    if (user?.socketId && this.io) {
+      this.io.to(user.socketId).emit("newNotification", notification);
+      this.io.to(user.socketId).emit("unreadCountUpdate", {
+        count: await this.notificationRepository.getUnreadCount(userId),
+      });
+    }
+  }
+
+  async createNotification(
+    userId: string,
+    content: string,
+    type: NotificationType,
+    relatedId?: string,
+    senderId?: string,
+    metadata?: any
+  ): Promise<INotification> {
+    const notification = await this.notificationRepository.createNotification(
+      userId,
+      content,
+      type,
+      relatedId,
+      senderId,
+      metadata
+    );
+
+    await this.sendRealTimeNotification(userId, notification);
+    return notification;
+  }
+
+  async sendNotification(
+    userId: string,
+    content: string,
+    senderId?: string,
+    metadata?: any
+  ): Promise<INotification> {
+    return this.createNotification(
+      userId,
+      content,
+      NotificationType.GENERAL,
+      undefined,
+      senderId,
+      metadata
+    );
+  }
+
+  async getUserNotifications(
+    userId: string,
+    limit?: number,
+    skip?: number
+  ): Promise<{ notifications: INotification[]; total: number }> {
+    return this.notificationRepository.getUserNotifications(
+      userId,
+      limit,
+      skip
+    );
+  }
+
+  async markAsRead(notificationId: string): Promise<INotification | null> {
+    return this.notificationRepository.markAsRead(notificationId);
+  }
+
+  async markAllAsRead(userId: string): Promise<number> {
+    return this.notificationRepository.markAllAsRead(userId);
+  }
+
+  async getUnreadCount(userId: string): Promise<number> {
+    return this.notificationRepository.getUnreadCount(userId);
+  }
+
+  async deleteNotification(
+    notificationId: string,
+    userId: string
+  ): Promise<boolean> {
+    return this.notificationRepository.deleteNotification(
+      notificationId,
+      userId
+    );
+  }
+}
