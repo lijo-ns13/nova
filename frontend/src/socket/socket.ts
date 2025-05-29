@@ -51,6 +51,9 @@ interface VideoCallSocketEvents {
     enabled: boolean;
   }) => void;
   "end-call": (data: { roomId: string; userId: string }) => void;
+  // notificationrealted
+  newNotification: (notification: any) => void;
+  unreadCountUpdate: (data: { count: number }) => void;
 }
 
 // Create socket instance

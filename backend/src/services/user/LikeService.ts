@@ -6,6 +6,7 @@ import { Types } from "mongoose";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { IPostRepository } from "../../interfaces/repositories/IPostRepository";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
+import { NotificationType } from "../../models/notification.modal";
 
 @injectable()
 export class LikeService implements ILikeService {
@@ -38,10 +39,15 @@ export class LikeService implements ILikeService {
       const userData = await this._userRepo.findById(userId);
       console.log("userData", userData);
       console.log("getPostssssssssssssss", getPost);
-      if (getPost?.creatorId?._id) {
+      if (
+        getPost?.creatorId?._id &&
+        getPost?.creatorId._id.toString() != userId.toString()
+      ) {
         await this.notificationService.sendNotification(
           getPost.creatorId._id.toString(),
-          `${userData?.name} liked your post`
+          `${userData?.name} liked your post`,
+          NotificationType.LIKE,
+          userId
         );
       }
 

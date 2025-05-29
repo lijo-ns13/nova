@@ -11,12 +11,16 @@ const notificationController = container.get<INotificationController>(
 );
 
 const router = Router();
-router.use(authMiddleware.authenticateMultiple(["user", "company"]));
+// router.use(authMiddleware.authenticateMultiple(["user", "company"]));
+router.use(authMiddleware.authenticate("user"));
 
 router.use(authMiddleware.check());
 
-router.get("/", (req, res) =>
-  notificationController.getNotifications(req, res)
+// router.get("/", (req, res) =>
+//   notificationController.getNotifications(req, res)
+// );
+router.get("/", (req, res, next) =>
+  notificationController.getNotifications(req, res).catch(next)
 );
 router.patch("/:notificationId/read", (req, res) =>
   notificationController.markNotificationAsRead(req, res)

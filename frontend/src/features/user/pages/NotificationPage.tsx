@@ -1,115 +1,101 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import userAxios from "../../../utils/userAxios";
+import { useAppDispatch } from "../../../hooks/useAppDispatch";
+import { setUnreadCount } from "../../../store/slice/notificationSlice";
+dayjs.extend(relativeTime);
 
-import { NotificationType } from "../types/notification";
-import { socket } from "../lib/socket";
-import { useAuth } from "../hooks/useAuth";
-import {
-  markNotificationAsRead,
-  markAllNotificationsAsRead,
-  getNotifications,
-} from "../api/notifications";
-import { NotificationItem } from "../componets/notification/NotificationItem";
+interface Sender {
+  _id: string;
+  name: string;
+  username: string;
+  profilePicture: string;
+}
 
-export const NotificationsPage = () => {
-  const { user } = useAuth();
+interface Notification {
+  _id: string;
+  userId: string;
+  senderId?: Sender | null;
+  content: string;
+  type: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+const NotificationPage: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [unreadCount, setUnreadCount] = useState(0);
-
+  const dispatch = useAppDispatch();
+  const readAllFn = async () => {
+    const res = await userAxios.patch(
+      "http://localhost:3000/notification/read-all"
+    );
+    return res;
+  };
   useEffect(() => {
-    if (!user) return;
-
-    const fetchNotifications = async () => {
-      try {
-        setLoading(true);
-        const data = await getNotifications(user.id);
-        setNotifications(data.notifications);
-        setUnreadCount(data.unreadCount);
-      } catch (error) {
-        console.error("Failed to fetch notifications:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchNotifications();
+    readAllFn();
+    dispatch(setUnreadCount(0));
+  }, []);
 
-    // Set up socket listeners
-    socket.on("receiveNotification", (notification) => {
-      setNotifications((prev) => [notification, ...prev]);
-      setUnreadCount((prev) => prev + 1);
-    });
-
-    socket.on("unreadCountUpdate", ({ count }) => {
-      setUnreadCount(count);
-    });
-
-    return () => {
-      socket.off("receiveNotification");
-      socket.off("unreadCountUpdate");
-    };
-  }, [user]);
-
-  const handleMarkAsRead = async (notificationId: string) => {
+  const fetchNotifications = async () => {
     try {
-      await markNotificationAsRead(notificationId);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n))
-      );
-      setUnreadCount((prev) => (prev > 0 ? prev - 1 : 0));
-    } catch (error) {
-      console.error("Failed to mark notification as read:", error);
+      const res = await userAxios.get("http://localhost:3000/notification");
+      setNotifications(res.data.data.notifications);
+    } catch (err) {
+      console.error("Failed to load notifications", err);
+    } finally {
+      setLoading(false);
     }
   };
-
-  const handleMarkAllAsRead = async () => {
-    try {
-      await markAllNotificationsAsRead(user.id);
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-      setUnreadCount(0);
-    } catch (error) {
-      console.error("Failed to mark all notifications as read:", error);
-    }
-  };
-
-  if (loading) {
-    return <div className="p-4 text-center">Loading notifications...</div>;
-  }
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow overflow-hidden">
-      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-900">Notifications</h1>
-        {unreadCount > 0 && (
-          <button
-            onClick={handleMarkAllAsRead}
-            className="text-sm text-blue-600 hover:text-blue-800"
-          >
-            Mark all as read
-          </button>
-        )}
-      </div>
-
-      {notifications.length === 0 ? (
-        <div className="p-8 text-center text-gray-500">
-          You don't have any notifications yet.
-        </div>
+    <div className="max-w-2xl mx-auto p-4">
+      <h2 className="text-2xl font-semibold mb-4">Notifications</h2>
+      {loading ? (
+        <p>Loading...</p>
+      ) : notifications.length === 0 ? (
+        <p>No notifications found.</p>
       ) : (
-        <div className="divide-y divide-gray-200">
-          {notifications.map((notification) => (
-            <NotificationItem
-              id={""}
-              content={""}
-              type={undefined}
-              isRead={false}
-              createdAt={undefined}
-              key={notification.id}
-              {...notification}
-              onMarkAsRead={handleMarkAsRead}
-            />
+        <ul className="space-y-4">
+          {notifications.map((notif) => (
+            <li
+              key={notif._id}
+              className={`flex items-start gap-3 p-4 rounded-xl shadow-sm border ${
+                notif.isRead ? "bg-white" : "bg-blue-50"
+              }`}
+            >
+              {notif.senderId?.profilePicture ? (
+                <img
+                  src={notif.senderId.profilePicture}
+                  alt={notif.senderId.name}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white">
+                  ?
+                </div>
+              )}
+
+              <div>
+                <p className="text-sm text-gray-800">
+                  <span className="font-medium">
+                    {notif.senderId?.name ?? "System"}
+                  </span>{" "}
+                  {notif.content}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {dayjs(notif.createdAt).fromNow()}
+                </p>
+              </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );
 };
+
+export default NotificationPage;

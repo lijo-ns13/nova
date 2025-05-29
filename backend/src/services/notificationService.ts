@@ -34,16 +34,16 @@ export class NotificationService implements INotificationService {
     userId: string,
     content: string,
     type: NotificationType,
-    relatedId?: string,
     senderId?: string,
+    relatedId?: string,
     metadata?: any
   ): Promise<INotification> {
     const notification = await this.notificationRepository.createNotification(
       userId,
       content,
       type,
-      relatedId,
       senderId,
+      relatedId,
       metadata
     );
 
@@ -54,15 +54,16 @@ export class NotificationService implements INotificationService {
   async sendNotification(
     userId: string,
     content: string,
+    type: NotificationType,
     senderId?: string,
     metadata?: any
   ): Promise<INotification> {
     return this.createNotification(
       userId,
       content,
-      NotificationType.GENERAL,
-      undefined,
+      type,
       senderId,
+      undefined,
       metadata
     );
   }

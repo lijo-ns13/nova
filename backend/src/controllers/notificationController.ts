@@ -6,7 +6,7 @@ import { INotificationController } from "../interfaces/controllers/INotification
 import { INotificationService } from "../interfaces/services/INotificationService";
 import { HTTP_STATUS_CODES } from "../core/enums/httpStatusCode";
 interface Userr {
-  _id: string;
+  id: string;
   email: string;
   role: string;
 }
@@ -19,7 +19,7 @@ export class NotificationController implements INotificationController {
 
   async getNotifications(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as Userr)?._id;
+      const userId = (req.user as Userr)?.id;
       if (!userId) {
         res
           .status(HTTP_STATUS_CODES.UNAUTHORIZED)
@@ -61,7 +61,7 @@ export class NotificationController implements INotificationController {
   async markNotificationAsRead(req: Request, res: Response): Promise<void> {
     try {
       const { notificationId } = req.params;
-      const userId = (req.user as Userr)?._id;
+      const userId = (req.user as Userr)?.id;
       if (!userId) {
         res
           .status(HTTP_STATUS_CODES.UNAUTHORIZED)
@@ -98,7 +98,7 @@ export class NotificationController implements INotificationController {
 
   async markAllNotificationsAsRead(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as Userr)?._id;
+      const userId = (req.user as Userr)?.id;
       if (!userId) {
         res
           .status(HTTP_STATUS_CODES.UNAUTHORIZED)
@@ -125,7 +125,7 @@ export class NotificationController implements INotificationController {
 
   async getUnreadCount(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as Userr)?._id;
+      const userId = (req.user as Userr)?.id;
       if (!userId) {
         res
           .status(HTTP_STATUS_CODES.UNAUTHORIZED)
@@ -147,7 +147,7 @@ export class NotificationController implements INotificationController {
   async deleteNotification(req: Request, res: Response): Promise<void> {
     try {
       const { notificationId } = req.params;
-      const userId = (req.user as Userr)?._id;
+      const userId = (req.user as Userr)?.id;
       if (!userId) {
         res
           .status(HTTP_STATUS_CODES.UNAUTHORIZED)

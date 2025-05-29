@@ -6,12 +6,17 @@ import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 
 import { IUser } from "../../models/user.modal";
 import { IUserFollowService } from "../../interfaces/services/IUserFollowService";
+import { INotificationService } from "../../interfaces/services/INotificationService";
+import { NotificationType } from "../../models/notification.modal";
 
 @injectable()
 export class UserFollowService implements IUserFollowService {
   constructor(
     @inject(TYPES.UserRepository)
-    private userRepository: IUserRepository
+    private userRepository: IUserRepository,
+    @inject(TYPES.NotificationService)
+    private notificationService: INotificationService,
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository
   ) {}
 
   async followUser(
@@ -38,7 +43,13 @@ export class UserFollowService implements IUserFollowService {
     if (!follower || !following) {
       return { success: false, message: "Failed to follow user" };
     }
-
+    const userData = await this._userRepo.findById(followerId);
+    await this.notificationService.sendNotification(
+      followingId,
+      `${userData?.name} followed you`,
+      NotificationType.FOLLOW,
+      followerId.toString()
+    );
     return { success: true, message: "Successfully followed user" };
   }
 

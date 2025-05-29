@@ -22,6 +22,7 @@ import ChatListPage from "../features/user/pages/ChatListPage";
 import ProtectedMultiRole from "./ProtectedMultiRole";
 import MainProfilePage from "../features/user/pages/MainProfilePage";
 import InterviewUserPage from "../features/user/pages/InterviewUserpage";
+import NotificationPage from "../features/user/pages/NotificationPage";
 const UserRoutes = () => {
   return (
     <Routes>
@@ -51,6 +52,7 @@ const UserRoutes = () => {
         <Route path="message" element={<ChatListPage />} />
         <Route path="interview/:roomId" element={<InterviewUserPage />} />
         <Route path="network" element={<NetworkPage />} />
+        <Route path="notification" element={<NotificationPage />} />
       </Route>
       {/* Protected + no user layout */}
       <Route

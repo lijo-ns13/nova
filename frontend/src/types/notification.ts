@@ -1,28 +1,16 @@
-// types/notification.ts
-export type NotificationType =
-  | "job"
-  | "post"
-  | "comment"
-  | "like"
-  | "message"
-  | "friend_request";
+export interface Sender {
+  _id: string;
+  name: string;
+  username: string;
+  profilePicture: string;
+}
 
 export interface Notification {
   _id: string;
-  userId: {
-    _id: string;
-    name: string;
-    avatar?: string;
-  };
+  userId: string;
+  senderId?: Sender | null;
   content: string;
-  type: NotificationType;
-  relatedId?: string;
+  type: string;
   isRead: boolean;
   createdAt: string;
-  updatedAt: string;
-}
-
-export interface NotificationsResponse {
-  notifications: Notification[];
-  unreadCount: number;
 }

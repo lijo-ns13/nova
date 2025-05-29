@@ -3,10 +3,12 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import authReducer from "../features/auth/auth.slice";
 import chatReducer from "./slice/chatSlice";
+import notificationReducer from "./slice/notificationSlice";
 // Combine reducers if you have more in the future
 const rootReducer = combineReducers({
   auth: authReducer,
   chat: chatReducer,
+  notification: notificationReducer,
 });
 
 // Redux Persist config

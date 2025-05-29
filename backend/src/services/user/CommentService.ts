@@ -10,6 +10,7 @@ import {
 import { ICommentRepository } from "../../interfaces/repositories/ICommentRepository";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { IPost } from "../../models/post.modal";
+import { NotificationType } from "../../models/notification.modal";
 
 @injectable()
 export class CommentService implements ICommentService {
@@ -58,7 +59,9 @@ export class CommentService implements ICommentService {
       // this for send notfiication
       await this.notificationService.sendNotification(
         (comment.postId as IPost)?.creatorId.toString(),
-        `${authorName} commented your post`
+        `${authorName} commented your post`,
+        NotificationType.COMMENT,
+        authorId.toString()
       );
       return this.mapCommentToResponse(comment);
     } catch (error) {

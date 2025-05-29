@@ -7,12 +7,13 @@ export enum NotificationType {
   COMMENT = "comment",
   LIKE = "like",
   MESSAGE = "message",
-  FRIEND_REQUEST = "friend_request",
+  FOLLOW = "FOLLOW",
   GENERAL = "GENERAL",
 }
 
 export interface INotification extends Document {
   userId: mongoose.Types.ObjectId;
+  senderId: mongoose.Types.ObjectId;
   content: string;
   type: NotificationType;
   relatedId?: mongoose.Types.ObjectId;
@@ -24,6 +25,7 @@ export interface INotification extends Document {
 const notificationSchema = new Schema<INotification>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    senderId: { type: Schema.Types.ObjectId, ref: "User" }, // ✅ Add this line
     content: { type: String, required: true },
     type: {
       type: String,

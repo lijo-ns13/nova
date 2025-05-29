@@ -15,13 +15,13 @@ export class NotificationRepository implements INotificationRepository {
     userId: string,
     content: string,
     type: NotificationType,
-    relatedId?: string,
     senderId?: string,
+    relatedId?: string,
     metadata?: any
   ): Promise<INotification> {
     const notification = await Notification.create({
       userId: new mongoose.Types.ObjectId(userId),
-      senderId: senderId ? new mongoose.Types.ObjectId(senderId) : undefined,
+      senderId: new mongoose.Types.ObjectId(senderId),
       content,
       type,
       relatedId: relatedId ? new mongoose.Types.ObjectId(relatedId) : undefined,
@@ -43,7 +43,7 @@ export class NotificationRepository implements INotificationRepository {
         .limit(limit)
         .populate({
           path: "senderId",
-          select: "name avatar",
+          select: "name profilePicture username",
         }),
       Notification.countDocuments({ userId }),
     ]);

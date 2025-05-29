@@ -19,3 +19,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </Provider>
   </React.StrictMode>
 );
+// if (!socket.connected) {
+//       socket.connect();
+//       socket.emit("login", userId);
+//     }

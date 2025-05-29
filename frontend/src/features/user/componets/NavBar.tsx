@@ -20,13 +20,15 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import socket from "../../../socket/socket";
+import path from "path";
+import userAxios from "../../../utils/userAxios";
+import { setUnreadCount } from "../../../store/slice/notificationSlice";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [scrolled, setScrolled] = useState<boolean>(false);
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
-  const [showNotifications, setShowNotifications] = useState<boolean>(false);
-  const [showMessages, setShowMessages] = useState<boolean>(false);
+  const { unreadCount } = useAppSelector((state) => state.notification);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const location = useLocation();
   const dispatch = useAppDispatch();
@@ -38,15 +40,66 @@ const Navbar: React.FC = () => {
   const notificationsRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
 
-  // Handle dark mode
+  const fetchUnreadCountFn = async () => {
+    const res = await userAxios.get(
+      "http://localhost:3000/notification/unread-count",
+      {
+        withCredentials: true,
+      }
+    );
+    dispatch(setUnreadCount(res.data.count));
+    console.log("ressy", res);
+    return res;
+  };
   useEffect(() => {
-    const isDark = localStorage.getItem("darkMode") === "true";
-    setIsDarkMode(isDark);
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    // Initial fetch
+    fetchUnreadCountFn();
+
+    // Listen to real-time updates
+    socket.on("unreadCountUpdate", (data: { count: number }) => {
+      dispatch(setUnreadCount(data.count));
+    });
+
+    socket.on("newNotification", (notification) => {
+      const { type, content } = notification;
+
+      let message = "";
+
+      switch (type) {
+        case "FOLLOW":
+          message = `👤 ${content}`; // e.g., "siyad followed you"
+          break;
+        case "JOB":
+          message = `💼 ${content}`; // e.g., "New job posted"
+          break;
+        case "POST":
+          message = `📝 ${content}`; // e.g., "New post from XYZ"
+          break;
+        case "COMMENT":
+          message = `💬 ${content}`; // e.g., "XYZ commented on your post"
+          break;
+        case "LIKE":
+          message = `❤️ ${content}`; // e.g., "XYZ liked your post"
+          break;
+        case "MESSAGE":
+          message = `📩 ${content}`; // e.g., "New message from XYZ"
+          break;
+        case "GENERAL":
+          message = `🔔 ${content}`; // General purpose
+          break;
+        default:
+          message = `🔔 ${content}`;
+      }
+
+      toast(message);
+      console.log("New notification received:", notification);
+    });
+
+    return () => {
+      // Clean up listeners on unmount
+      socket.off("unreadCountUpdate");
+      socket.off("newNotification");
+    };
   }, []);
 
   const toggleDarkMode = () => {
@@ -71,18 +124,6 @@ const Navbar: React.FC = () => {
         !userMenuRef.current.contains(event.target as Node)
       ) {
         setShowUserMenu(false);
-      }
-      if (
-        notificationsRef.current &&
-        !notificationsRef.current.contains(event.target as Node)
-      ) {
-        setShowNotifications(false);
-      }
-      if (
-        messagesRef.current &&
-        !messagesRef.current.contains(event.target as Node)
-      ) {
-        setShowMessages(false);
       }
     };
 
@@ -142,6 +183,7 @@ const Navbar: React.FC = () => {
     { path: "/feed", label: "Home", icon: <Home size={20} /> },
     { path: "/jobs", label: "Jobs", icon: <Briefcase size={20} /> },
     { path: "/message", label: "Messages", icon: <Users size={20} /> },
+    { path: "/notification", label: "Notification" },
   ];
 
   return (
@@ -183,6 +225,7 @@ const Navbar: React.FC = () => {
 
           {/* Center section: Main Navigation (desktop) */}
           <nav className="hidden md:flex items-center justify-center space-x-2">
+            <h1>{unreadCount}</h1>
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -212,124 +255,6 @@ const Navbar: React.FC = () => {
 
           {/* Right section: Action buttons */}
           <div className="flex items-center space-x-1">
-            {/* Notifications */}
-            <div className="relative" ref={notificationsRef}>
-              <button
-                onClick={() => {
-                  setShowNotifications(!showNotifications);
-                  setShowMessages(false);
-                  setShowUserMenu(false);
-                }}
-                className="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none relative"
-                aria-label="Notifications"
-              >
-                <Bell size={20} />
-                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-
-              {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50 border border-gray-200 dark:border-gray-700">
-                  <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                      Notifications
-                    </h3>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto">
-                    {[1, 2, 3].map((item) => (
-                      <div
-                        key={item}
-                        className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
-                      >
-                        <div className="flex items-start">
-                          <div className="flex-shrink-0 mr-3">
-                            <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-800 dark:text-gray-200">
-                              <span className="font-medium">John Doe</span>{" "}
-                              viewed your profile
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              2 hours ago
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
-                    <Link
-                      to="/notifications"
-                      className="text-sm text-black dark:text-white font-medium hover:underline"
-                    >
-                      View all notifications
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Messages */}
-            <div className="relative" ref={messagesRef}>
-              <button
-                onClick={() => {
-                  setShowMessages(!showMessages);
-                  setShowNotifications(false);
-                  setShowUserMenu(false);
-                }}
-                className="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none relative"
-                aria-label="Messages"
-              >
-                <MessageSquare size={20} />
-                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-
-              {showMessages && (
-                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50 border border-gray-200 dark:border-gray-700">
-                  <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                      Messages
-                    </h3>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto">
-                    {[1, 2, 3].map((item) => (
-                      <div
-                        key={item}
-                        className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
-                      >
-                        <div className="flex items-start">
-                          <div className="flex-shrink-0 mr-3">
-                            <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                              Jane Smith
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                              Hey, I saw your profile and wanted to connect...
-                            </p>
-                          </div>
-                          <div className="ml-2 flex-shrink-0">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              5m
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
-                    <Link
-                      to="/messages"
-                      className="text-sm text-black dark:text-white font-medium hover:underline"
-                    >
-                      View all messages
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Dark mode toggle */}
             <button
               onClick={toggleDarkMode}
@@ -348,8 +273,6 @@ const Navbar: React.FC = () => {
                   if (e.ctrlKey || e.metaKey) return; // Allow opening in new tab
                   e.preventDefault();
                   setShowUserMenu(!showUserMenu);
-                  setShowNotifications(false);
-                  setShowMessages(false);
                 }}
               >
                 <div className="flex items-center">
