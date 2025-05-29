@@ -9,6 +9,7 @@ import {
 } from "../../interfaces/services/ICommentService";
 import { ICommentRepository } from "../../interfaces/repositories/ICommentRepository";
 import { INotificationService } from "../../interfaces/services/INotificationService";
+import { IPost } from "../../models/post.modal";
 
 @injectable()
 export class CommentService implements ICommentService {
@@ -53,9 +54,10 @@ export class CommentService implements ICommentService {
         content,
         path,
       });
+      console.log("commentssssssssssssssssss", comment);
       // this for send notfiication
       await this.notificationService.sendNotification(
-        authorId,
+        (comment.postId as IPost)?.creatorId.toString(),
         `${authorName} commented your post`
       );
       return this.mapCommentToResponse(comment);

@@ -9,10 +9,9 @@ export class CommentRepository implements ICommentRepository {
   async create(comment: Partial<IComment>): Promise<IComment> {
     const newComment = await commentModal.create(comment);
     // return newComment;
-    const populatedComment = await newComment.populate(
-      "authorId",
-      "name profilePicture"
-    );
+    const populatedComment = await (
+      await newComment.populate("authorId", "name profilePicture")
+    ).populate("postId");
     return populatedComment;
   }
 
