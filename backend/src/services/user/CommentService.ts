@@ -53,6 +53,7 @@ export class CommentService implements ICommentService {
         content,
         path,
       });
+      // this for send notfiication
       await this.notificationService.sendNotification(
         authorId,
         `${authorName} commented your post`
