@@ -3,6 +3,7 @@ import skillRouter from "./common/skill.routes";
 import ProfileViewRouter from "./common/profile-view.routes";
 import messageRoutes from "./common/messages.routes";
 import messageModal from "../models/message.modal";
+import notificationRouter from "./notification.routes";
 import container from "../di/container";
 import { IAuthMiddleware } from "../interfaces/middlewares/IAuthMiddleware";
 import { TYPES } from "../di/types";
@@ -13,7 +14,7 @@ const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 router.use("/skill", skillRouter);
 router.use("/api", ProfileViewRouter);
 router.use("/api/messages", messageRoutes);
-
+router.use("/notification", notificationRouter);
 router.get("/api/chat/users/:userId", async (req, res) => {
   const { userId } = req.params;
 

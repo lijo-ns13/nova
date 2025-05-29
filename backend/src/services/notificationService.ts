@@ -9,12 +9,14 @@ import userModal from "../models/user.modal";
 
 @injectable()
 export class NotificationService implements INotificationService {
+  private io?: Server;
   constructor(
     @inject(TYPES.NotificationRepository)
-    private notificationRepository: INotificationRepository,
-    @inject(TYPES.SocketIO) private io?: Server
+    private notificationRepository: INotificationRepository
   ) {}
-
+  public setSocketIO(io: Server) {
+    this.io = io;
+  }
   private async sendRealTimeNotification(
     userId: string,
     notification: INotification

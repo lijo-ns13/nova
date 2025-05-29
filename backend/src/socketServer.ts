@@ -1,41 +1,47 @@
 // socket/socketServer.ts
 import { Server as SocketIOServer } from "socket.io";
 import { Server } from "http";
-import User from "./models/user.modal";
-import Message from "./models/message.modal";
+import userModal from "./models/user.modal";
+import messageModal from "./models/message.modal";
+
+// Store the io instance globally after initialization
+let ioInstance: SocketIOServer;
 
 export const initSocketServer = (server: Server) => {
   const io = new SocketIOServer(server, {
     cors: {
-      origin: process.env.FRONTEND_URL || `http://localhost:5173`,
+      origin: process.env.FRONTEND_URL || "http://localhost:5173",
       credentials: true,
     },
   });
+
+  ioInstance = io; // Store the instance
 
   const videoRooms = new Map<string, Set<string>>();
 
   io.on("connection", (socket) => {
     console.log("Socket connected:", socket.id);
 
-    // User login: set online + socketId + send unread messages
+    // Login handler
     socket.on("login", async (userId: string) => {
-      await User.findByIdAndUpdate(userId, {
+      await userModal.findByIdAndUpdate(userId, {
         online: true,
         socketId: socket.id,
       });
 
       io.emit("userOnline", userId);
 
-      // Fetch unread messages for this user
-      const unreadMessages = await Message.find({
-        receiver: userId,
-        isRead: false,
-      }).sort({ timestamp: 1 });
+      const unreadMessages = await messageModal
+        .find({
+          receiver: userId,
+          isRead: false,
+        })
+        .sort({ timestamp: 1 });
 
-      // Send unread messages to user
       socket.emit("unreadMessages", unreadMessages);
     });
 
+    // Send message handler
     socket.on(
       "sendMessage",
       async ({
@@ -50,16 +56,17 @@ export const initSocketServer = (server: Server) => {
         tempId?: string;
       }) => {
         try {
-          console.log("sender,recieiver,content", sender, receiver, content);
-          const message = await Message.create({ sender, receiver, content });
-          await message.save();
-          if (!message) console.log("failed to create message in db");
-          const receiverUser = await User.findById(receiver);
+          const message = await messageModal.create({
+            sender,
+            receiver,
+            content,
+          });
+          const receiverUser = await userModal.findById(receiver);
+
           if (receiverUser?.socketId) {
             io.to(receiverUser.socketId).emit("receiveMessage", message);
           }
-          console.log("message send socket");
-          // Confirm to sender message is sent with the same tempId
+
           if (tempId) {
             socket.emit(`messageSent-${tempId}`, message);
           } else {
@@ -67,15 +74,13 @@ export const initSocketServer = (server: Server) => {
           }
         } catch (error) {
           console.error("Error sending message:", error);
-          if (tempId) {
-            socket.emit(`messageFailed-${tempId}`);
-          }
+          if (tempId) socket.emit(`messageFailed-${tempId}`);
         }
       }
     );
-    socket.on("join-video-room", (roomId: string, userId: string) => {
-      console.log(`User ${userId} joining room ${roomId}`);
 
+    // Video call logic
+    socket.on("join-video-room", (roomId: string, userId: string) => {
       socket.join(roomId);
 
       if (!videoRooms.has(roomId)) {
@@ -85,19 +90,12 @@ export const initSocketServer = (server: Server) => {
       const room = videoRooms.get(roomId)!;
       room.add(userId);
 
-      // Notify all users in the room about the new participant
       io.to(roomId).emit("user-connected", userId);
-
-      // Send current participants to the new user
       const participants = Array.from(room).filter((id) => id !== userId);
       socket.emit("video-room-participants", participants);
-
-      console.log(`Room ${roomId} now has ${room.size} participants`);
     });
 
     socket.on("leave-video-room", (roomId: string, userId: string) => {
-      console.log(`User ${userId} leaving room ${roomId}`);
-
       socket.leave(roomId);
 
       if (videoRooms.has(roomId)) {
@@ -107,25 +105,18 @@ export const initSocketServer = (server: Server) => {
         if (room.size === 0) {
           videoRooms.delete(roomId);
         } else {
-          // Notify remaining users about the departure
           io.to(roomId).emit("user-disconnected", userId);
         }
       }
-
-      console.log(
-        `Room ${roomId} now has ${
-          videoRooms.get(roomId)?.size || 0
-        } participants`
-      );
     });
-    // WebRTC signaling
+
     socket.on("webrtc-signal", ({ roomId, userId, signal }) => {
       socket.to(roomId).emit("webrtc-signal", { userId, signal });
     });
 
     // Typing indicator
     socket.on("typing", ({ sender, receiver }) => {
-      User.findById(receiver).then((receiverUser) => {
+      userModal.findById(receiver).then((receiverUser) => {
         if (receiverUser?.socketId) {
           io.to(receiverUser.socketId).emit("typing", { sender });
         }
@@ -134,21 +125,33 @@ export const initSocketServer = (server: Server) => {
 
     // Mark messages as read
     socket.on("readMessages", async ({ sender, receiver }) => {
-      await Message.updateMany(
+      await messageModal.updateMany(
         { sender, receiver, isRead: false },
         { isRead: true }
       );
 
-      // Notify sender that receiver read messages
-      const senderUser = await User.findById(sender);
+      const senderUser = await userModal.findById(sender);
       if (senderUser?.socketId) {
         io.to(senderUser.socketId).emit("messagesRead", { receiver });
       }
     });
 
-    // User disconnect: mark offline and remove socketId
+    // Call toggles
+    socket.on("video-toggle", ({ roomId, userId, enabled }) => {
+      socket.to(roomId).emit("video-toggle", { userId, enabled });
+    });
+
+    socket.on("audio-toggle", ({ roomId, userId, enabled }) => {
+      socket.to(roomId).emit("audio-toggle", { userId, enabled });
+    });
+
+    socket.on("end-call", ({ roomId, userId }) => {
+      socket.to(roomId).emit("end-call", { userId });
+    });
+
+    // Disconnect logic
     socket.on("disconnect", async () => {
-      const user = await User.findOneAndUpdate(
+      const user = await userModal.findOneAndUpdate(
         { socketId: socket.id },
         { online: false, socketId: null }
       );
@@ -159,14 +162,8 @@ export const initSocketServer = (server: Server) => {
 
       console.log("Socket disconnected:", socket.id);
     });
-    socket.on("video-toggle", ({ roomId, userId, enabled }) => {
-      socket.to(roomId).emit("video-toggle", { userId, enabled });
-    });
-    socket.on("audio-toggle", ({ roomId, userId, enabled }) => {
-      socket.to(roomId).emit("audio-toggle", { userId, enabled });
-    });
-    socket.on("end-call", ({ roomId, userId }) => {
-      socket.to(roomId).emit("end-call", { userId });
-    });
   });
 };
+
+// Export getter for external use (e.g., in notification service or DI)
+export const getSocketIO = () => ioInstance;

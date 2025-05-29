@@ -3,11 +3,14 @@ import { ILikeService } from "../../interfaces/services/Post/ILikeService";
 import { ILikeRepository } from "../../interfaces/repositories/ILikeRepository";
 import { TYPES } from "../../di/types";
 import { Types } from "mongoose";
+import { INotificationService } from "../../interfaces/services/INotificationService";
 
 @injectable()
 export class LikeService implements ILikeService {
   constructor(
-    @inject(TYPES.LikeRepository) private _likeRepo: ILikeRepository
+    @inject(TYPES.LikeRepository) private _likeRepo: ILikeRepository,
+    @inject(TYPES.NotificationService)
+    private notificationService: INotificationService
   ) {}
 
   async likeOrUnlikePost(
@@ -27,6 +30,11 @@ export class LikeService implements ILikeService {
         postId: new Types.ObjectId(postId),
         userId: new Types.ObjectId(userId),
       });
+      await this.notificationService.sendNotification(
+        userId,
+        `${userId} liked your post`
+      );
+
       return { liked: true }; // liked
     }
   }

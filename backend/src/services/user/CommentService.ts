@@ -8,11 +8,14 @@ import {
   ICommentServiceResponsePaginated,
 } from "../../interfaces/services/ICommentService";
 import { ICommentRepository } from "../../interfaces/repositories/ICommentRepository";
+import { INotificationService } from "../../interfaces/services/INotificationService";
 
 @injectable()
 export class CommentService implements ICommentService {
   constructor(
-    @inject(TYPES.CommentRepository) private _commentRepo: ICommentRepository
+    @inject(TYPES.CommentRepository) private _commentRepo: ICommentRepository,
+    @inject(TYPES.NotificationService)
+    private notificationService: INotificationService
   ) {}
 
   private mapCommentToResponse(comment: any): ICommentServiceResponse {
@@ -50,7 +53,10 @@ export class CommentService implements ICommentService {
         content,
         path,
       });
-
+      await this.notificationService.sendNotification(
+        authorId,
+        `${authorName} commented your post`
+      );
       return this.mapCommentToResponse(comment);
     } catch (error) {
       throw new Error(`Failed to create comment: ${(error as Error).message}`);
