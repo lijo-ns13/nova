@@ -15,15 +15,30 @@ router.use("/skill", skillRouter);
 router.use("/api", ProfileViewRouter);
 router.use("/api/messages", messageRoutes);
 router.use("/notification", notificationRouter);
-router.get("/api/chat/users/:userId", async (req, res) => {
+router.get("/api/chat/users/:userId", async (req: Request, res: Response) => {
   const { userId } = req.params;
 
   try {
+    // Get the current user's following list
+    const currentUser = await userModal
+      .findById(userId)
+      .select("following")
+      .lean();
+
+    if (!currentUser) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const followingIds = currentUser.following;
+
+    // Get followed users' basic info
     const users = await userModal
-      .find({ _id: { $ne: userId } })
+      .find({ _id: { $in: followingIds } })
       .select("_id name profilePicture online")
       .lean();
-    // For each user, find the latest message with the current user
+
+    // For each followed user, get the latest message
     const usersWithLastMessages = await Promise.all(
       users.map(async (user) => {
         const lastMessage = await messageModal
@@ -48,7 +63,18 @@ router.get("/api/chat/users/:userId", async (req, res) => {
       })
     );
 
-    res.status(200).json(usersWithLastMessages);
+    // Sort users by last message createdAt desc
+    const sortedUsers = usersWithLastMessages.sort((a, b) => {
+      const aTime = a.lastMessage?.createdAt
+        ? new Date(a.lastMessage.createdAt).getTime()
+        : 0;
+      const bTime = b.lastMessage?.createdAt
+        ? new Date(b.lastMessage.createdAt).getTime()
+        : 0;
+      return bTime - aTime;
+    });
+
+    res.status(200).json(sortedUsers);
   } catch (error) {
     console.error("Error fetching users:", error);
     res.status(500).json({ message: "Failed to get users" });
