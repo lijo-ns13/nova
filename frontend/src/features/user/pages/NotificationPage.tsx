@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import userAxios from "../../../utils/userAxios";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { setUnreadCount } from "../../../store/slice/notificationSlice";
+import socket from "../../../socket/socket";
 dayjs.extend(relativeTime);
 
 interface Sender {
@@ -34,6 +35,18 @@ const NotificationPage: React.FC = () => {
     );
     return res;
   };
+  useEffect(() => {
+    socket.on("newNotification", (notification: Notification) => {
+      console.log("noti", notification);
+      setNotifications((prev) => [notification, ...prev]);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      socket.off("newNotification");
+    };
+  }, []);
+
   useEffect(() => {
     fetchNotifications();
     readAllFn();

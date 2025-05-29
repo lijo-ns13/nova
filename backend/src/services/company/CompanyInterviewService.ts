@@ -7,13 +7,17 @@ import { ApplicationStatus, IJob } from "../../models/job.modal";
 import { ICompanyInterviewService } from "../../interfaces/services/ICompanyInterviewService";
 import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRepository";
 import { IApplication } from "../../models/application.modal";
+import { INotificationService } from "../../interfaces/services/INotificationService";
+import { NotificationType } from "../../models/notification.modal";
 
 export class CompanyInterviewService implements ICompanyInterviewService {
   constructor(
     @inject(TYPES.InterviewRepository)
     private _interviewRepo: IInterviewRepository,
     @inject(TYPES.ApplicationRepository)
-    private _applicationRepo: IApplicationRepository
+    private _applicationRepo: IApplicationRepository,
+    @inject(TYPES.NotificationService)
+    private notificationService: INotificationService
   ) {}
 
   async createInterview(
@@ -25,6 +29,7 @@ export class CompanyInterviewService implements ICompanyInterviewService {
   ): Promise<any> {
     // Check for existing interview at this time
     const applicant = await this._applicationRepo.findById(applicationId);
+    console.log("applicantttttttttttttttttttt", applicant);
     if (!applicant) {
       throw new Error("applicnat not found");
     }
@@ -67,7 +72,12 @@ export class CompanyInterviewService implements ICompanyInterviewService {
       ApplicationStatus.INTERVIEW_SCHEDULED,
       new Date(scheduledAt)
     );
-
+    await this.notificationService.sendNotification(
+      userId,
+      `Interview Sheduled,Please check job status`,
+      NotificationType.JOB,
+      companyId
+    );
     return interview;
   }
 
