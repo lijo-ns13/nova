@@ -28,6 +28,9 @@ export interface IUser extends Document {
   savedJobs: mongoose.Types.ObjectId[] | [];
   socketId?: string;
   online?: boolean;
+  isSubscriptionTaken: boolean;
+  subscriptionPlan: string;
+  subscriptionExpiresAt: Date;
 }
 
 const userSchema = new Schema<IUser>(
@@ -146,6 +149,20 @@ const userSchema = new Schema<IUser>(
     online: {
       type: Boolean,
       default: false,
+    },
+    // subscription ralted
+    isSubscriptionTaken: {
+      type: Boolean,
+      default: false,
+    },
+    subscriptionPlan: {
+      type: String,
+      enum: ["BASIC", "PRO", "PREMIUM", null],
+      default: null,
+    },
+    subscriptionExpiresAt: {
+      type: Date,
+      default: null,
     },
   },
   {
