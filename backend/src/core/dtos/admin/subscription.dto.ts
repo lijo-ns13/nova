@@ -14,7 +14,8 @@ export const SubscriptionPlanCreateSchema = z.object({
       required_error: "Price is required",
       invalid_type_error: "Price must be a number",
     })
-    .positive("Price must be positive"),
+    .positive("Price must be positive")
+    .max(10000, "maximum is 10000"),
   validityDays: z
     .number({
       required_error: "Validity days is required",
