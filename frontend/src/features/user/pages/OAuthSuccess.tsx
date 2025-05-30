@@ -15,8 +15,7 @@ const OAuthSuccessPage = () => {
         const res = await axios.get("http://localhost:3000/api/auth/me", {
           withCredentials: true,
         });
-        const { name, email, role, profilePicture, _id, user, headline } =
-          res.data;
+        const { name, email, role, user } = res.data;
         console.log("me res data", res.data);
         dispatch(
           login({

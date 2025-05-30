@@ -11,7 +11,7 @@ export const useInfiniteScroll = ({
   onLoadMore: () => void;
   threshold?: number;
 }) => {
-  const observer = useRef<IntersectionObserver>();
+  const observer = useRef<IntersectionObserver>(null);
   const observerTarget = useRef(null);
 
   const handleObserver = useCallback(

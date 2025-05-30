@@ -9,8 +9,6 @@ import {
   Home,
   Briefcase,
   Users,
-  Bell,
-  MessageSquare,
   Search,
   Menu,
   X,
@@ -20,7 +18,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import socket from "../../../socket/socket";
-import path from "path";
+
 import userAxios from "../../../utils/userAxios";
 import { setUnreadCount } from "../../../store/slice/notificationSlice";
 
@@ -37,8 +35,6 @@ const Navbar: React.FC = () => {
   );
   const navRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const notificationsRef = useRef<HTMLDivElement>(null);
-  const messagesRef = useRef<HTMLDivElement>(null);
 
   const fetchUnreadCountFn = async () => {
     const res = await userAxios.get(

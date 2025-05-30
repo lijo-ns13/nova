@@ -14,7 +14,7 @@ import ConfirmSoftDeleteModal from "../../../user/componets/modals/ConfirmSoftDe
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const [limit] = useState(3);
   const [pagination, setPagination] = useState<PaginationType>({
     totalUsers: 0,
     totalPages: 1,
