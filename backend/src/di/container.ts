@@ -141,6 +141,12 @@ import { INotificationRepository } from "../interfaces/repositories/INotificatio
 import { NotificationRepository } from "../repositories/mongo/notificationRepository";
 import { NotificationService } from "../services/notificationService";
 import { NotificationController } from "../controllers/notificationController";
+import { ISubscriptionPlanRepository } from "../interfaces/repositories/ISubscriptonPlanRepository";
+import { ISubscriptionPlanService } from "../interfaces/services/ISubscriptionPlanService";
+import { ISubscriptionPlanController } from "../interfaces/controllers/ISubscriptionPlanController";
+import { SubscriptionPlanController } from "../controllers/admin/SubscriptionPlanController";
+import { SubscriptionPlanService } from "../services/admin/SubscriptionPlanService";
+import { SubscriptionPlanRepository } from "../repositories/mongo/SubscriptionPlanRepository";
 
 const container = new Container();
 
@@ -353,4 +359,17 @@ container
 
 // SocketIO binding (set this up when you create your socket server)
 // container.bind<Server>(TYPES.SocketIO).toConstantValue(io);
+
+// subscritption related
+container
+  .bind<ISubscriptionPlanRepository>(TYPES.SubscriptionPlanRepository)
+  .to(SubscriptionPlanRepository);
+
+container
+  .bind<ISubscriptionPlanService>(TYPES.SubscriptionPlanService)
+  .to(SubscriptionPlanService);
+
+container
+  .bind<ISubscriptionPlanController>(TYPES.SubscriptionPlanController)
+  .to(SubscriptionPlanController);
 export default container;

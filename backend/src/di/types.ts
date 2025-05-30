@@ -105,4 +105,8 @@ export const TYPES = {
   NotificationService: Symbol.for("NotificationService"),
   NotificationController: Symbol.for("NotificationController"),
   SocketIO: Symbol.for("SocketIO"),
+  // subscritption realted admin side
+  SubscriptionPlanRepository: Symbol.for("SubscriptionPlanRepository"),
+  SubscriptionPlanService: Symbol.for("SubscriptionPlanService"),
+  SubscriptionPlanController: Symbol.for("SubscriptionPlanController"),
 };
