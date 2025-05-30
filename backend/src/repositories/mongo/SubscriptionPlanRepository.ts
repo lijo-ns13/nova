@@ -1,20 +1,22 @@
 // src/repositories/subscriptionPlan.repository.ts
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { BaseRepository } from "./BaseRepository";
 import subscriptionModal, {
   ISubscriptionPlan,
 } from "../../models/subscription.modal";
 import { ISubscriptionPlanRepository } from "../../interfaces/repositories/ISubscriptonPlanRepository";
+import { TYPES } from "../../di/types";
+import { Model } from "mongoose";
 
 @injectable()
 export class SubscriptionPlanRepository
   extends BaseRepository<ISubscriptionPlan>
   implements ISubscriptionPlanRepository
 {
-  constructor() {
+
+constructor(@inject(TYPES.subscriptionModal) subscriptionModal: Model<ISubscriptionPlan>) {
     super(subscriptionModal);
   }
-
   async getByName(name: string): Promise<ISubscriptionPlan | null> {
     return await this.model.findOne({ name });
   }

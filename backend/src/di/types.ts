@@ -109,4 +109,5 @@ export const TYPES = {
   SubscriptionPlanRepository: Symbol.for("SubscriptionPlanRepository"),
   SubscriptionPlanService: Symbol.for("SubscriptionPlanService"),
   SubscriptionPlanController: Symbol.for("SubscriptionPlanController"),
+  subscriptionModal: Symbol.for("subscriptionModal"),
 };

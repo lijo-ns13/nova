@@ -147,6 +147,7 @@ import { ISubscriptionPlanController } from "../interfaces/controllers/ISubscrip
 import { SubscriptionPlanController } from "../controllers/admin/SubscriptionPlanController";
 import { SubscriptionPlanService } from "../services/admin/SubscriptionPlanService";
 import { SubscriptionPlanRepository } from "../repositories/mongo/SubscriptionPlanRepository";
+import subscriptionModal, { ISubscriptionPlan } from "../models/subscription.modal";
 
 const container = new Container();
 
@@ -347,15 +348,15 @@ container
 container
   .bind<INotificationRepository>(TYPES.NotificationRepository)
   .to(NotificationRepository)
-  .inSingletonScope();
+  // .inSingletonScope();
 container
   .bind<INotificationService>(TYPES.NotificationService)
   .to(NotificationService)
-  .inSingletonScope();
+  // .inSingletonScope();
 container
   .bind<INotificationController>(TYPES.NotificationController)
   .to(NotificationController)
-  .inSingletonScope();
+  // .inSingletonScope();
 
 // SocketIO binding (set this up when you create your socket server)
 // container.bind<Server>(TYPES.SocketIO).toConstantValue(io);
@@ -364,7 +365,7 @@ container
 container
   .bind<ISubscriptionPlanRepository>(TYPES.SubscriptionPlanRepository)
   .to(SubscriptionPlanRepository);
-
+container.bind<Model<ISubscriptionPlan>>(TYPES.subscriptionModal).toConstantValue(subscriptionModal);
 container
   .bind<ISubscriptionPlanService>(TYPES.SubscriptionPlanService)
   .to(SubscriptionPlanService);
