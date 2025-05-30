@@ -13,14 +13,36 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
     private subscriptionPlanService: ISubscriptionPlanService
   ) {}
 
+  private handleError(error: any, res: Response): void {
+    // Handle Zod validation errors
+    if (error.statusCode === 400 && error.success === false) {
+      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
+        success: false,
+        errors: error.errors,
+      });
+      return;
+    }
+
+    // Handle conflict errors
+    if (error.message && error.message.includes("already exists")) {
+      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
+        message: error.message,
+      });
+      return;
+    }
+
+    // Generic error handling
+    res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+      message: error.message || "Internal server error",
+    });
+  }
+
   async createPlan(req: Request, res: Response): Promise<void> {
     try {
       const plan = await this.subscriptionPlanService.createPlan(req.body);
       res.status(HTTP_STATUS_CODES.CREATED).json(plan);
     } catch (error: any) {
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
-        message: error.message || "Failed to create subscription plan",
-      });
+      this.handleError(error, res);
     }
   }
 
@@ -36,9 +58,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       }
       res.status(HTTP_STATUS_CODES.OK).json(plan);
     } catch (error: any) {
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
-        message: error.message || "Failed to update subscription plan",
-      });
+      this.handleError(error, res);
     }
   }
 
@@ -56,9 +76,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
         message: "Subscription plan deleted successfully",
       });
     } catch (error: any) {
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        message: error.message || "Failed to delete subscription plan",
-      });
+      this.handleError(error, res);
     }
   }
 
@@ -67,9 +85,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       const plans = await this.subscriptionPlanService.getAllPlans();
       res.status(HTTP_STATUS_CODES.OK).json(plans);
     } catch (error: any) {
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        message: error.message || "Failed to fetch subscription plans",
-      });
+      this.handleError(error, res);
     }
   }
 
@@ -85,9 +101,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       }
       res.status(HTTP_STATUS_CODES.OK).json(plan);
     } catch (error: any) {
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        message: error.message || "Failed to fetch subscription plan",
-      });
+      this.handleError(error, res);
     }
   }
 
@@ -107,9 +121,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       }
       res.status(HTTP_STATUS_CODES.OK).json(plan);
     } catch (error: any) {
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        message: error.message || "Failed to toggle subscription plan status",
-      });
+      this.handleError(error, res);
     }
   }
 }

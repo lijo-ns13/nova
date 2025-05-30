@@ -13,10 +13,13 @@ export class SubscriptionPlanRepository
   extends BaseRepository<ISubscriptionPlan>
   implements ISubscriptionPlanRepository
 {
-
-constructor(@inject(TYPES.subscriptionModal) subscriptionModal: Model<ISubscriptionPlan>) {
+  constructor(
+    @inject(TYPES.subscriptionModal)
+    private subscriptionModal: Model<ISubscriptionPlan>
+  ) {
     super(subscriptionModal);
   }
+
   async getByName(name: string): Promise<ISubscriptionPlan | null> {
     return await this.model.findOne({ name });
   }
@@ -41,6 +44,7 @@ constructor(@inject(TYPES.subscriptionModal) subscriptionModal: Model<ISubscript
   async getAll(): Promise<ISubscriptionPlan[]> {
     return await this.model.find().sort({ createdAt: -1 });
   }
+
   async getById(id: string): Promise<ISubscriptionPlan | null> {
     return super.findById(id);
   }
