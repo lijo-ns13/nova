@@ -21,7 +21,8 @@ export const SubscriptionPlanCreateSchema = z.object({
       invalid_type_error: "Validity days must be a number",
     })
     .int("Validity days must be an integer")
-    .positive("Validity days must be positive"),
+    .positive("Validity days must be positive")
+    .max(366, "Validity days cannot 366"),
   isActive: z.boolean().default(true).optional(),
 });
 
