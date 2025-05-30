@@ -18,7 +18,11 @@ const Sidebar = () => {
       icon: "👥",
     },
     { name: "Skill Management", path: "/admin/skill-management", icon: "📋" },
-    { name: "Notifications", path: "/notifications", icon: "🔔" },
+    {
+      name: "Subscription Management",
+      path: "/admin/subscription-management",
+      icon: "🔔",
+    },
     { name: "Company Profile", path: "/profile", icon: "🏢" },
   ];
 
