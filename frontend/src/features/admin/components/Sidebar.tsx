@@ -23,7 +23,7 @@ const Sidebar = () => {
       path: "/admin/subscription-management",
       icon: "🔔",
     },
-    { name: "Company Profile", path: "/profile", icon: "🏢" },
+    // { name: "Company Profile", path: "/profile", icon: "🏢" },
   ];
 
   return (
