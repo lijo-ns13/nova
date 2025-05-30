@@ -1,6 +1,6 @@
 export interface Subscription {
   _id: string;
-  name: 'BASIC' | 'PRO' | 'PREMIUM';
+  name: "BASIC" | "PRO" | "PREMIUM";
   price: number;
   validityDays: number;
   isActive: boolean;

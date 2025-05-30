@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Subscription, SubscriptionFormData } from "../../types/subscription";
-import Select from "../../../../components/ui/Select";
+
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
+import SelectSub from "../../../../components/ui/SelectSub";
 
 interface SubscriptionFormProps {
   onSubmit: (formData: SubscriptionFormData) => Promise<void>;
@@ -22,9 +23,9 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
   fieldErrors,
 }) => {
   const [formData, setFormData] = useState<SubscriptionFormData>({
-    name: initialData?.name || "",
-    price: initialData?.price || 0,
-    validityDays: initialData?.validityDays || 0,
+    name: initialData?.name || "BASIC",
+    price: initialData?.price || NaN,
+    validityDays: initialData?.validityDays || NaN,
   });
 
   useEffect(() => {
@@ -69,13 +70,13 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
       )}
 
       <div className="space-y-4">
-        <Select
+        <SelectSub
           label="Plan Name"
           name="name"
           options={[
-            { value: "BASIC", label: "Basic" },
-            { value: "PRO", label: "Pro" },
-            { value: "PREMIUM", label: "Premium" },
+            { value: "BASIC", label: "BASIC" },
+            { value: "PRO", label: "PRO" },
+            { value: "PREMIUM", label: "PREMIUM" },
           ]}
           value={formData.name}
           onChange={handleSelectChange("name")}
