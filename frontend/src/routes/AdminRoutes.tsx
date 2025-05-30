@@ -11,7 +11,7 @@ import UserManagement from "../features/admin/components/UserManagement/UserMana
 // import CompanyManagement from "../features/admin/pages/CompanyManagement";
 import CompanyMangement from "../features/admin/components/CompanyManagement/CompanyManagement";
 import CompanyVerificationPage from "../features/admin/pages/CompanyVerification";
-
+import SubscriptionManagementPage from "../features/admin/pages/SubscriptionManagementPage";
 import SkillList from "../features/admin/pages/SkillList";
 const AdminRoutes = () => {
   return (
@@ -29,6 +29,10 @@ const AdminRoutes = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/company-management" element={<CompanyMangement />} />
+        <Route
+          path="/subscription-management"
+          element={<SubscriptionManagementPage />}
+        />
         <Route
           path="/company-verification"
           element={<CompanyVerificationPage />}

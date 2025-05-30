@@ -39,6 +39,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
 
   async createPlan(req: Request, res: Response): Promise<void> {
     try {
+      console.log("req.body sub create", req.body);
       const plan = await this.subscriptionPlanService.createPlan(req.body);
       res.status(HTTP_STATUS_CODES.CREATED).json(plan);
     } catch (error: any) {
