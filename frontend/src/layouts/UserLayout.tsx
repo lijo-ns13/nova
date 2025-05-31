@@ -1,5 +1,3 @@
-"use client";
-
 import { Outlet } from "react-router-dom";
 
 import { useState, useEffect } from "react";
@@ -25,13 +23,19 @@ const UserLayout = () => {
 
       {/* Fixed height container to prevent layout shifts */}
       <div className="flex flex-col md:flex-row w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10 gap-5">
-        {/* Left column - Compact profile card (fixed width on desktop) */}
-        <div className="w-full md:w-64 lg:w-72 md:sticky md:top-20 md:self-start min-h-[300px]">
-          <ProfileCard />
-        </div>
+        {/* Left column - Profile card (only visible on desktop/tablet) */}
+        {!isMobile && (
+          <div className="w-64 lg:w-72 sticky top-20 self-start min-h-[300px]">
+            <ProfileCard />
+          </div>
+        )}
 
-        {/* Right column - Main content (flexible width) with min-height to prevent layout shifts */}
-        <main className="flex-1 w-full min-h-[70vh]">
+        {/* Main content - Takes full width on mobile, flexible width on desktop */}
+        <main
+          className={`flex-1 w-full min-h-[70vh] ${
+            !isMobile ? "" : "max-w-none"
+          }`}
+        >
           <Outlet />
         </main>
       </div>
