@@ -23,6 +23,8 @@ import ProtectedMultiRole from "./ProtectedMultiRole";
 import MainProfilePage from "../features/user/pages/MainProfilePage";
 import InterviewUserPage from "../features/user/pages/InterviewUserpage";
 import NotificationPage from "../features/user/pages/NotificationPage";
+import SubscriptionUserPage from "../features/user/pages/SubscriptionUserPage";
+import ProtectedWithoutChild from "./ProtectedWithoutChld";
 const UserRoutes = () => {
   return (
     <Routes>
@@ -54,7 +56,15 @@ const UserRoutes = () => {
         <Route path="network" element={<NetworkPage />} />
         <Route path="notification" element={<NotificationPage />} />
       </Route>
-      {/* Protected + no user layout */}
+      {/* Protected with no user layout *************************************/}
+      <Route
+        element={
+          <ProtectedWithoutChild SpecificRole="user" redirectPath="/login" />
+        }
+      >
+        <Route path="/subscription" element={<SubscriptionUserPage />} />
+      </Route>
+      {/* Protected + no user layout+multiple role access ********************************/}
       <Route
         path="/in/:username"
         element={
