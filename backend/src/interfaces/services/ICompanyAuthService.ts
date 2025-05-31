@@ -15,4 +15,10 @@ export interface ICompanyAuthService {
   ): Promise<{ message: string; company: object }>;
 
   resendOTP(email: string): Promise<{ message: string }>;
+  forgetPassword(email: string): Promise<{ rawToken: string }>;
+  resetPassword(
+    token: string,
+    password: string,
+    confirmPassword: string
+  ): Promise<void>;
 }

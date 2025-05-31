@@ -11,7 +11,7 @@ export interface ICompanyRepository extends IBaseRepository<ICompany> {
     updateData: Partial<ICompany>
   ): Promise<ICompany | null>;
   deleteCompany(companyId: string): Promise<ICompany | null>;
-
+  updatePassword(companyId: string, newPassword: string): Promise<void>;
   findCompanies(
     page: number,
     limit: number,

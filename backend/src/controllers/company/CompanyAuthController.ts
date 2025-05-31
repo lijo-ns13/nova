@@ -134,6 +134,40 @@ export class CompanyAuthController implements ICompanyAuthController {
       }
     }
   }
+  // forget
+  forgetPassword = async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body;
+      const result = await this.authService.forgetPassword(email);
+      console.log("resut", result);
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Password reset token sent",
+        token: result.rawToken,
+      });
+    } catch (error) {
+      console.log("errors forget", error);
+      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
+        success: false,
+        error: (error as Error).message,
+      });
+    }
+  };
+
+  resetPassword = async (req: Request, res: Response) => {
+    try {
+      const { token, password, confirmPassword } = req.body;
+      await this.authService.resetPassword(token, password, confirmPassword);
+      res
+        .status(HTTP_STATUS_CODES.OK)
+        .json({ success: true, message: "Password reset successful" });
+    } catch (error) {
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ success: false, error: (error as Error).message });
+    }
+  };
+
   async logout(req: Request, res: Response): Promise<void> {
     try {
       res.clearCookie("refreshToken");

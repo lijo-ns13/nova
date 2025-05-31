@@ -42,7 +42,12 @@ router.post("/company/resend", (req, res) =>
 router.get("/company/logout", (req, res) =>
   companyAuthController.logout(req, res)
 );
-
+router.post("/company/forget-password", (req, res) =>
+  companyAuthController.forgetPassword(req, res)
+);
+router.post("/company/reset-password", (req, res) =>
+  companyAuthController.resetPassword(req, res)
+);
 // admin
 router.post("/admin/signin", (req, res) =>
   adminAuthController.signIn(req, res)

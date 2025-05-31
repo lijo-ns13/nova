@@ -23,13 +23,10 @@ export class PasswordResetTokenRepository
     super(model);
   }
 
-  createToken(arg0: {
-    token: string;
-    accountId: Types.ObjectId;
-    accountType: string;
-    expiresAt: Date;
-  }): unknown {
-    throw new Error("Method not implemented.");
+  async createToken(
+    data: CreatePasswordResetTokenDto
+  ): Promise<IPasswordResetToken> {
+    return this.model.create(data);
   }
 
   async findByToken(token: string): Promise<IPasswordResetToken | null> {

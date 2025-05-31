@@ -26,7 +26,9 @@ export class CompanyRepository
   async findById(companyId: string) {
     return companyModal.findById(companyId);
   }
-
+  async updatePassword(companyId: string, newPassword: string): Promise<void> {
+    await companyModal.findByIdAndUpdate(companyId, { password: newPassword });
+  }
   async updateCompany(companyId: string, updateData: any) {
     return companyModal.findByIdAndUpdate(companyId, updateData, { new: true });
   }

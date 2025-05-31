@@ -16,6 +16,9 @@ import { JWTService } from "../../shared/util/jwt.service";
 import { IEmailService } from "../../interfaces/services/IEmailService";
 import { IJWTService } from "../../interfaces/services/IJwtService";
 import { generateUsername } from "../../shared/util/GenerateUserName";
+import { IPasswordResetTokenRepository } from "../../interfaces/repositories/IPasswordResetTokenRepository";
+import { generatePasswordResetToken } from "../../shared/util/generatePasswordResetToken ";
+import crypto from "crypto";
 
 @injectable()
 export class CompanyAuthService implements ICompanyAuthService {
@@ -27,7 +30,9 @@ export class CompanyAuthService implements ICompanyAuthService {
     @inject(TYPES.OTPRepository) private _otpRepository: IOTPRepository,
     @inject(TYPES.EmailService) private _emailService: IEmailService,
     @inject(TYPES.JWTService)
-    private _jwtService: IJWTService
+    private _jwtService: IJWTService,
+    @inject(TYPES.PasswordResetTokenRepository)
+    private _passwordResetTokenRepository: IPasswordResetTokenRepository
   ) {}
 
   async signUp(payload: SignUpCompanyRequestDTO): Promise<any> {
@@ -178,5 +183,58 @@ export class CompanyAuthService implements ICompanyAuthService {
     await sendOTPEmail(tempCompany.email, newOTP);
 
     return { message: "OTP resent successfully. Please check your email." };
+  }
+  // forget
+  async forgetPassword(email: string): Promise<{ rawToken: string }> {
+    const user = await this._companyRepository.findByEmail(email);
+    if (!user) throw new Error("User not found");
+
+    const userId = user._id;
+
+    await this._passwordResetTokenRepository.deleteByAccount(userId, "company");
+
+    const { rawToken, hashedToken, expiresAt } = generatePasswordResetToken();
+
+    await this._passwordResetTokenRepository.createToken({
+      token: hashedToken,
+      accountId: userId,
+      accountType: "company",
+      expiresAt,
+    });
+
+    await this._emailService.sendPasswordResetEmail(user.email, rawToken);
+
+    return { rawToken };
+  }
+
+  async resetPassword(
+    token: string,
+    password: string,
+    confirmPassword: string
+  ): Promise<void> {
+    if (password !== confirmPassword) throw new Error("Passwords do not match");
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const tokenDoc = await this._passwordResetTokenRepository.findByToken(
+      hashedToken
+    );
+    if (!tokenDoc || tokenDoc.expiresAt < new Date())
+      throw new Error("Token is invalid or has expired");
+
+    const { accountId, accountType } = tokenDoc;
+    if (accountType !== "user")
+      throw new Error("Invalid account type for this operation");
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await this._companyRepository.updatePassword(
+      accountId.toString(),
+      hashedPassword
+    );
+
+    await this._passwordResetTokenRepository.deleteByAccount(
+      accountId,
+      accountType
+    );
   }
 }

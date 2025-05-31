@@ -27,9 +27,17 @@ export class EmailService implements IEmailService {
       html: `<p>Your OTP code is: <strong>${otp}</strong></p>`,
     });
   }
-
+  // async sendPasswordResetCompanyEmail(email: string, token: string): Promise<void> {
+  //     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+  //     await this.transporter.sendMail({
+  //       from: `"Your App Name" <${process.env.EMAIL_USER}>`,
+  //       to: email,
+  //       subject: "Password Reset Request",
+  //       html: `<p>Click <a href="${resetLink}">here</a> to reset your password</p>`,
+  //     });
+  //   }
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
-    const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
     await this.transporter.sendMail({
       from: `"Your App Name" <${process.env.EMAIL_USER}>`,
       to: email,
