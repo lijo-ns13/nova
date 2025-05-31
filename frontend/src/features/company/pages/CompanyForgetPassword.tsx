@@ -7,7 +7,7 @@ const ForgetSchema = z.object({
   email: z.string().email("Invalid email format"),
 });
 
-function ForgetPasswordPage() {
+function CompanyForgetPassword() {
   const navigate = useNavigate();
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -205,4 +205,4 @@ function ForgetPasswordPage() {
   );
 }
 
-export default ForgetPasswordPage;
+export default CompanyForgetPassword;

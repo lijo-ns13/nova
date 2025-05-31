@@ -111,3 +111,37 @@ export const resendOTP = async (email: string | null) => {
     throw error;
   }
 };
+
+export const forgetPasswordByEmail = async (email: string | null) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/forget-password`,
+      { email },
+      {
+        withCredentials: true,
+      }
+    );
+    // respnse =>token message success
+    return response.data;
+  } catch (error: any) {
+    console.error("API Error:", error);
+    throw error?.response?.data?.error || "Something went wrong";
+  }
+};
+export const resetPassword = async (
+  token: string,
+  password: string,
+  confirmPassword: string
+) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/reset-password`,
+      { token, password, confirmPassword },
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("API Error:", error);
+    throw error?.response?.data?.error || "Something went wrong";
+  }
+};
