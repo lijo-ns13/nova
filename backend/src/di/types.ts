@@ -110,4 +110,9 @@ export const TYPES = {
   SubscriptionPlanService: Symbol.for("SubscriptionPlanService"),
   SubscriptionPlanController: Symbol.for("SubscriptionPlanController"),
   subscriptionModal: Symbol.for("subscriptionModal"),
+  // feature reatled admin side
+  featureModel: Symbol.for("FeatureModel"),
+  FeatureRepository: Symbol.for("FeatureRepository"),
+  FeatureService: Symbol.for("FeatureService"),
+  FeatureController: Symbol.for("FeatureController"),
 };

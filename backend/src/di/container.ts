@@ -147,7 +147,16 @@ import { ISubscriptionPlanController } from "../interfaces/controllers/ISubscrip
 import { SubscriptionPlanController } from "../controllers/admin/SubscriptionPlanController";
 import { SubscriptionPlanService } from "../services/admin/SubscriptionPlanService";
 import { SubscriptionPlanRepository } from "../repositories/mongo/SubscriptionPlanRepository";
-import subscriptionModal, { ISubscriptionPlan } from "../models/subscription.modal";
+import subscriptionModal, {
+  ISubscriptionPlan,
+} from "../models/subscription.modal";
+import { IFeatureRepository } from "../interfaces/repositories/IFeatureRepository";
+import { FeatureRepository } from "../repositories/mongo/FeatureRepository";
+import featureModal, { IFeature } from "../models/feature.modal";
+import { IFeatureService } from "../interfaces/services/IFeatureService";
+import { FeatureService } from "../services/admin/FeatureService";
+import { IFeatureController } from "../interfaces/controllers/IFeatureController";
+import { FeatureController } from "../controllers/admin/FeatureController";
 
 const container = new Container();
 
@@ -347,16 +356,16 @@ container
 // Notification bindings
 container
   .bind<INotificationRepository>(TYPES.NotificationRepository)
-  .to(NotificationRepository)
-  // .inSingletonScope();
+  .to(NotificationRepository);
+// .inSingletonScope();
 container
   .bind<INotificationService>(TYPES.NotificationService)
-  .to(NotificationService)
-  // .inSingletonScope();
+  .to(NotificationService);
+// .inSingletonScope();
 container
   .bind<INotificationController>(TYPES.NotificationController)
-  .to(NotificationController)
-  // .inSingletonScope();
+  .to(NotificationController);
+// .inSingletonScope();
 
 // SocketIO binding (set this up when you create your socket server)
 // container.bind<Server>(TYPES.SocketIO).toConstantValue(io);
@@ -365,7 +374,9 @@ container
 container
   .bind<ISubscriptionPlanRepository>(TYPES.SubscriptionPlanRepository)
   .to(SubscriptionPlanRepository);
-container.bind<Model<ISubscriptionPlan>>(TYPES.subscriptionModal).toConstantValue(subscriptionModal);
+container
+  .bind<Model<ISubscriptionPlan>>(TYPES.subscriptionModal)
+  .toConstantValue(subscriptionModal);
 container
   .bind<ISubscriptionPlanService>(TYPES.SubscriptionPlanService)
   .to(SubscriptionPlanService);
@@ -373,4 +384,15 @@ container
 container
   .bind<ISubscriptionPlanController>(TYPES.SubscriptionPlanController)
   .to(SubscriptionPlanController);
+
+container
+  .bind<IFeatureRepository>(TYPES.FeatureRepository)
+  .to(FeatureRepository);
+container
+  .bind<Model<IFeature>>(TYPES.featureModel)
+  .toConstantValue(featureModal);
+container.bind<IFeatureService>(TYPES.FeatureService).to(FeatureService);
+container
+  .bind<IFeatureController>(TYPES.FeatureController)
+  .to(FeatureController);
 export default container;

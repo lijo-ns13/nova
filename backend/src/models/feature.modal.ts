@@ -3,7 +3,6 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IFeature extends Document {
   name: string;
-  description?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,10 +13,6 @@ const FeatureSchema = new Schema<IFeature>(
       type: String,
       required: true,
       unique: true,
-      trim: true,
-    },
-    description: {
-      type: String,
       trim: true,
     },
   },
