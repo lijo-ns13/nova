@@ -2,6 +2,7 @@ import { useState } from "react";
 import { forgetPasswordByEmail } from "../services/AuthServices";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const ForgetSchema = z.object({
   email: z.string().email("Invalid email format"),
@@ -43,10 +44,12 @@ function CompanyForgetPassword() {
     try {
       await forgetPasswordByEmail(email);
       setShowSuccess(true);
+      toast.success("Password reset link successfully sent to email");
       setTimeout(() => {
-        navigate("/login");
-      }, 1000);
+        navigate("/company/signin");
+      }, 2000);
     } catch (err: any) {
+      toast.error(err || "An unexpected error occurred.");
       console.error("Error in forgetPassword:", err);
       setServerError(err || "An unexpected error occurred.");
     } finally {

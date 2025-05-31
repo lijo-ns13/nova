@@ -226,7 +226,7 @@ export class CompanyAuthService implements ICompanyAuthService {
       throw new Error("Token is invalid or has expired");
 
     const { accountId, accountType } = tokenDoc;
-    if (accountType !== "user")
+    if (accountType !== "company")
       throw new Error("Invalid account type for this operation");
 
     const hashedPassword = await bcrypt.hash(password, 10);

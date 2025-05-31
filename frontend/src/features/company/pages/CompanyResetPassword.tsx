@@ -37,7 +37,8 @@ function CompanyResetPassword() {
 
   useEffect(() => {
     if (!token) {
-      navigate("/login");
+      toast.error("please provide provide proper link");
+      navigate("/company/signin");
     }
   }, [token, navigate]);
 
@@ -69,7 +70,7 @@ function CompanyResetPassword() {
       if (result.success) {
         toast.success("Reset password successfull✅");
         setTimeout(() => {
-          navigate("/login");
+          navigate("/company/signin");
         }, 5000);
       } else {
         setErrors({ password: result.message || "Reset failed" });
