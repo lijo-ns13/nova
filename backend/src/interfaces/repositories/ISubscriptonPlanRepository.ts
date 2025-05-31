@@ -1,8 +1,10 @@
 // src/interfaces/repositories/ISubscriptionPlanRepository.ts
 
 import { ISubscriptionPlan } from "../../models/subscription.modal";
+import { IBaseRepository } from "./IBaseRepository";
 
-export interface ISubscriptionPlanRepository {
+export interface ISubscriptionPlanRepository
+  extends IBaseRepository<ISubscriptionPlan> {
   create(plan: Partial<ISubscriptionPlan>): Promise<ISubscriptionPlan>;
   update(
     id: string,

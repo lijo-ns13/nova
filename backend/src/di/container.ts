@@ -157,6 +157,12 @@ import { IFeatureService } from "../interfaces/services/IFeatureService";
 import { FeatureService } from "../services/admin/FeatureService";
 import { IFeatureController } from "../interfaces/controllers/IFeatureController";
 import { FeatureController } from "../controllers/admin/FeatureController";
+import { ISubscriptionWithFeaturesRepository } from "../interfaces/repositories/ISubscriptionWithFeatures";
+import { SubscriptionWithFeaturesRepository } from "../repositories/mongo/SubscriptionWithFeatures";
+import { SubscriptionWithFeaturesController } from "../controllers/user/SubscriptionWithFeatureController";
+import { SubscriptionWithFeaturesService } from "../services/user/SubscriptionWithFeaturesService";
+import { ISubscriptionWithFeaturesService } from "../interfaces/services/ISubscriptionWithFeatures";
+import { ISubscriptionWithFeaturesController } from "../interfaces/controllers/ISubscriptionWithFeatures";
 
 const container = new Container();
 
@@ -395,4 +401,18 @@ container.bind<IFeatureService>(TYPES.FeatureService).to(FeatureService);
 container
   .bind<IFeatureController>(TYPES.FeatureController)
   .to(FeatureController);
+// user side
+container
+  .bind<ISubscriptionWithFeaturesRepository>(
+    TYPES.SubscriptionWithFeaturesRepository
+  )
+  .to(SubscriptionWithFeaturesRepository);
+container
+  .bind<ISubscriptionWithFeaturesService>(TYPES.SubscriptionWithFeaturesService)
+  .to(SubscriptionWithFeaturesService);
+container
+  .bind<ISubscriptionWithFeaturesController>(
+    TYPES.SubscriptionWithFeaturesController
+  )
+  .to(SubscriptionWithFeaturesController);
 export default container;

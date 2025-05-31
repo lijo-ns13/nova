@@ -115,4 +115,14 @@ export const TYPES = {
   FeatureRepository: Symbol.for("FeatureRepository"),
   FeatureService: Symbol.for("FeatureService"),
   FeatureController: Symbol.for("FeatureController"),
+  // user side
+  SubscriptionWithFeaturesRepository: Symbol.for(
+    "SubscriptionWithFeaturesRepository"
+  ),
+  SubscriptionWithFeaturesService: Symbol.for(
+    "SubscriptionWithFeaturesService"
+  ),
+  SubscriptionWithFeaturesController: Symbol.for(
+    "SubscriptionWithFeaturesController"
+  ),
 };

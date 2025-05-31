@@ -7,6 +7,8 @@ import interviewRouter from "./user/interview.routes";
 import followRouter from "./user/follow.routes";
 import container from "../di/container";
 import userSkillRouter from "./user/skill.routes";
+import subWithFeatRouter from "./user/subWithFeat.routes";
+
 import { IAuthMiddleware } from "../interfaces/middlewares/IAuthMiddleware";
 import { TYPES } from "../di/types";
 
@@ -20,4 +22,5 @@ router.use("/", postRouter);
 router.use("/", interviewRouter);
 router.use("/userskills", userSkillRouter);
 router.use("/users", followRouter);
+router.use("/subfeat", subWithFeatRouter);
 export default router;
