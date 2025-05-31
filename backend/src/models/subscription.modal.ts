@@ -7,7 +7,6 @@ export interface ISubscriptionPlan extends Document {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
-  features: string[];
 }
 
 const SubscriptionPlanSchema = new Schema<ISubscriptionPlan>(
@@ -30,13 +29,7 @@ const SubscriptionPlanSchema = new Schema<ISubscriptionPlan>(
       type: Boolean,
       default: true,
     },
-    features: {
-      type: [String],
-      required: true,
-      default: [],
-    },
   },
-
   {
     timestamps: true,
   }
