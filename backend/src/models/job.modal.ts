@@ -11,25 +11,54 @@ export enum EmploymentType {
   INTERNSHIP = "internship",
   FREELANCE = "freelance",
 }
+// export enum ApplicationStatus {
+//   APPLIED = "applied",
+//   SHORTLISTED = "shortlisted",
+//   REJECTED = "rejected",
+
+//   INTERVIEW_SCHEDULED = "interview_scheduled",
+//   INTERVIEW_CANCELLED = "interview_cancelled",
+
+//   INTERVIEW_ACCEPTED_BY_USER = "interview_accepted_by_user",
+//   INTERVIEW_REJECTED_BY_USER = "interview_rejected_by_user",
+
+//   INTERVIEW_FAILED = "interview_failed",
+//   INTERVIEW_PASSED = "interview_passed",
+
+//   OFFERED = "offered",
+//   SELECTED = "selected",
+
+//   WITHDRAWN = "withdrawn",
+// }
 export enum ApplicationStatus {
+  // Initial stages
   APPLIED = "applied",
   SHORTLISTED = "shortlisted",
   REJECTED = "rejected",
 
+  // Interview process
   INTERVIEW_SCHEDULED = "interview_scheduled",
+  INTERVIEW_RESCHEDULED = "interview_rescheduled",
   INTERVIEW_CANCELLED = "interview_cancelled",
 
   INTERVIEW_ACCEPTED_BY_USER = "interview_accepted_by_user",
   INTERVIEW_REJECTED_BY_USER = "interview_rejected_by_user",
 
-  INTERVIEW_FAILED = "interview_failed",
+  INTERVIEW_COMPLETED = "interview_completed",
   INTERVIEW_PASSED = "interview_passed",
+  INTERVIEW_FAILED = "interview_failed",
 
+  // Offer process
   OFFERED = "offered",
-  SELECTED = "selected",
+  OFFER_ACCEPTED = "offer_accepted",
+  OFFER_REJECTED = "offer_rejected",
 
-  WITHDRAWN = "withdrawn",
+  // Final status
+  SELECTED = "selected", // Final hiring decision
+  HIRED = "hired", // Officially onboarded
+  WITHDRAWN = "withdrawn", // Candidate withdrew from the process
 }
+
 export enum JobType {
   REMOTE = "remote",
   HYBRID = "hybrid",

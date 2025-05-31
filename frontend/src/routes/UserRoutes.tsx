@@ -51,7 +51,7 @@ const UserRoutes = () => {
         <Route path="saved-jobs" element={<SavedJobsPage />} />
         <Route path="jobs/:jobId" element={<JobDetailedPage />} />
         <Route path="message/:otherUserId" element={<ChatPage />} />
-        <Route path="message" element={<ChatListPage />} />
+
         <Route path="interview/:roomId" element={<InterviewUserPage />} />
         <Route path="network" element={<NetworkPage />} />
         <Route path="notification" element={<NotificationPage />} />
@@ -63,6 +63,7 @@ const UserRoutes = () => {
         }
       >
         <Route path="/subscription" element={<SubscriptionUserPage />} />
+        <Route path="message" element={<ChatListPage />} />
       </Route>
       {/* Protected + no user layout+multiple role access ********************************/}
       <Route
