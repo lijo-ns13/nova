@@ -8,7 +8,7 @@ import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 export interface CustomError extends Error {
   statusCode?: number;
   success?: boolean;
-  errors?: any; // optionally make this more specific
+  errors?: Error; // optionally make this more specific
 }
 
 @injectable()

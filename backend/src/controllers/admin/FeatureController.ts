@@ -6,7 +6,11 @@ import { TYPES } from "../../di/types";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { IFeatureController } from "../../interfaces/controllers/IFeatureController";
 import { IFeatureService } from "../../interfaces/services/IFeatureService";
-
+export interface CustomError extends Error {
+  statusCode?: number;
+  success?: boolean;
+  errors?: Error; // optionally make this more specific
+}
 @injectable()
 export class FeatureController implements IFeatureController {
   constructor(
@@ -14,7 +18,7 @@ export class FeatureController implements IFeatureController {
     private _featureService: IFeatureService
   ) {}
 
-  private handleError(error: any, res: Response): void {
+  private handleError(error: CustomError, res: Response): void {
     if (error.statusCode === 400 && error.success === false) {
       res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
         success: false,
@@ -33,7 +37,7 @@ export class FeatureController implements IFeatureController {
       const feature = await this._featureService.create(req.body);
       res.status(HTTP_STATUS_CODES.CREATED).json(feature);
     } catch (error) {
-      this.handleError(error, res);
+      this.handleError(error as Error, res);
     }
   }
 
@@ -49,7 +53,7 @@ export class FeatureController implements IFeatureController {
       }
       res.status(HTTP_STATUS_CODES.OK).json(feature);
     } catch (error) {
-      this.handleError(error, res);
+      this.handleError(error as Error, res);
     }
   }
 
@@ -67,7 +71,7 @@ export class FeatureController implements IFeatureController {
         message: "Feature deleted successfully",
       });
     } catch (error) {
-      this.handleError(error, res);
+      this.handleError(error as Error, res);
     }
   }
 
@@ -76,7 +80,7 @@ export class FeatureController implements IFeatureController {
       const features = await this._featureService.getAll();
       res.status(HTTP_STATUS_CODES.OK).json(features);
     } catch (error) {
-      this.handleError(error, res);
+      this.handleError(error as Error, res);
     }
   }
 
@@ -92,7 +96,7 @@ export class FeatureController implements IFeatureController {
       }
       res.status(HTTP_STATUS_CODES.OK).json(feature);
     } catch (error) {
-      this.handleError(error, res);
+      this.handleError(error as Error, res);
     }
   }
 }
