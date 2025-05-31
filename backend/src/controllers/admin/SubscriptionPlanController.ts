@@ -5,6 +5,11 @@ import { TYPES } from "../../di/types";
 import { ISubscriptionPlanController } from "../../interfaces/controllers/ISubscriptionPlanController";
 import { ISubscriptionPlanService } from "../../interfaces/services/ISubscriptionPlanService";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
+export interface CustomError extends Error {
+  statusCode?: number;
+  success?: boolean;
+  errors?: any; // optionally make this more specific
+}
 
 @injectable()
 export class SubscriptionPlanController implements ISubscriptionPlanController {
@@ -13,7 +18,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
     private subscriptionPlanService: ISubscriptionPlanService
   ) {}
 
-  private handleError(error: any, res: Response): void {
+  private handleError(error: CustomError, res: Response): void {
     // Handle Zod validation errors
     if (error.statusCode === 400 && error.success === false) {
       res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
@@ -42,8 +47,8 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       console.log("req.body sub create", req.body);
       const plan = await this.subscriptionPlanService.createPlan(req.body);
       res.status(HTTP_STATUS_CODES.CREATED).json(plan);
-    } catch (error: any) {
-      this.handleError(error, res);
+    } catch (error) {
+      this.handleError(error as Error, res);
     }
   }
 
@@ -58,8 +63,8 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
         return;
       }
       res.status(HTTP_STATUS_CODES.OK).json(plan);
-    } catch (error: any) {
-      this.handleError(error, res);
+    } catch (error) {
+      this.handleError(error as Error, res);
     }
   }
 
@@ -76,8 +81,8 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       res.status(HTTP_STATUS_CODES.OK).json({
         message: "Subscription plan deleted successfully",
       });
-    } catch (error: any) {
-      this.handleError(error, res);
+    } catch (error) {
+      this.handleError(error as Error, res);
     }
   }
 
@@ -85,8 +90,8 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
     try {
       const plans = await this.subscriptionPlanService.getAllPlans();
       res.status(HTTP_STATUS_CODES.OK).json(plans);
-    } catch (error: any) {
-      this.handleError(error, res);
+    } catch (error) {
+      this.handleError(error as Error, res);
     }
   }
 
@@ -101,8 +106,8 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
         return;
       }
       res.status(HTTP_STATUS_CODES.OK).json(plan);
-    } catch (error: any) {
-      this.handleError(error, res);
+    } catch (error) {
+      this.handleError(error as Error, res);
     }
   }
 
@@ -121,8 +126,8 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
         return;
       }
       res.status(HTTP_STATUS_CODES.OK).json(plan);
-    } catch (error: any) {
-      this.handleError(error, res);
+    } catch (error) {
+      this.handleError(error as Error, res);
     }
   }
 }

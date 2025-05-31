@@ -25,10 +25,10 @@ export class SubscriptionWithFeaturesController
         success: true,
         data: result,
       });
-    } catch (error: any) {
+    } catch (error) {
       res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: error.message || "Failed to fetch subscriptions with features",
+        message: (error as Error).message || "Failed to fetch subscriptions with features",
       });
     }
   }

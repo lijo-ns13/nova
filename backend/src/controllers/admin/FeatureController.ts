@@ -32,7 +32,7 @@ export class FeatureController implements IFeatureController {
     try {
       const feature = await this._featureService.create(req.body);
       res.status(HTTP_STATUS_CODES.CREATED).json(feature);
-    } catch (error: any) {
+    } catch (error) {
       this.handleError(error, res);
     }
   }
@@ -48,7 +48,7 @@ export class FeatureController implements IFeatureController {
         return;
       }
       res.status(HTTP_STATUS_CODES.OK).json(feature);
-    } catch (error: any) {
+    } catch (error) {
       this.handleError(error, res);
     }
   }
@@ -66,7 +66,7 @@ export class FeatureController implements IFeatureController {
       res.status(HTTP_STATUS_CODES.OK).json({
         message: "Feature deleted successfully",
       });
-    } catch (error: any) {
+    } catch (error) {
       this.handleError(error, res);
     }
   }
@@ -75,7 +75,7 @@ export class FeatureController implements IFeatureController {
     try {
       const features = await this._featureService.getAll();
       res.status(HTTP_STATUS_CODES.OK).json(features);
-    } catch (error: any) {
+    } catch (error) {
       this.handleError(error, res);
     }
   }
@@ -91,7 +91,7 @@ export class FeatureController implements IFeatureController {
         return;
       }
       res.status(HTTP_STATUS_CODES.OK).json(feature);
-    } catch (error: any) {
+    } catch (error) {
       this.handleError(error, res);
     }
   }
