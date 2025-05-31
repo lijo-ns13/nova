@@ -202,7 +202,10 @@ export class CompanyAuthService implements ICompanyAuthService {
       expiresAt,
     });
 
-    await this._emailService.sendPasswordResetEmail(user.email, rawToken);
+    await this._emailService.sendPasswordResetCompanyEmail(
+      user.email,
+      rawToken
+    );
 
     return { rawToken };
   }
