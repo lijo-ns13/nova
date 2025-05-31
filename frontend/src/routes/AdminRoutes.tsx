@@ -12,7 +12,8 @@ import UserManagement from "../features/admin/components/UserManagement/UserMana
 import CompanyMangement from "../features/admin/components/CompanyManagement/CompanyManagement";
 import CompanyVerificationPage from "../features/admin/pages/CompanyVerification";
 // import SubscriptionManagementPage from "../features/admin/pages/SubscriptionManagementPage";
-import SubscriptionManagement from "../features/admin/components/Subscription/SubscriptionManagement";
+// import SubscriptionManagement from "../features/admin/components/Subscription/SubscriptionManagement";
+import SubFeatPage from "../features/admin/pages/SubFeatPage";
 import SkillList from "../features/admin/pages/SkillList";
 const AdminRoutes = () => {
   return (
@@ -30,10 +31,7 @@ const AdminRoutes = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/company-management" element={<CompanyMangement />} />
-        <Route
-          path="/subscription-management"
-          element={<SubscriptionManagement />}
-        />
+        <Route path="/subscription-management" element={<SubFeatPage />} />
         <Route
           path="/company-verification"
           element={<CompanyVerificationPage />}
