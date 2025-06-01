@@ -22,7 +22,10 @@ export interface ApplicantJob {
     isVisibleToApplicants: boolean;
   };
 }
-
+export interface UpdateApplicationStatusPayload {
+  status: string;
+  reason?: string;
+}
 export interface ApplicantData {
   success: boolean;
   data: {
@@ -62,6 +65,25 @@ export const getApplicantById = async (
     console.error("API Error:", error);
     throw {
       message: getErrorMessage(error) || "Failed to fetch applicant details",
+    } as HTTPErrorResponse;
+  }
+};
+
+export const updateApplicationStatus = async (
+  applicantId: string,
+  payload: UpdateApplicationStatusPayload
+): Promise<ApplicantData> => {
+  try {
+    const response = await companyAxios.patch<ApplicantData>(
+      `${BASE_URL}/${applicantId}/status`,
+      payload,
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Update Status Error:", error);
+    throw {
+      message: getErrorMessage(error) || "Failed to update application status",
     } as HTTPErrorResponse;
   }
 };
