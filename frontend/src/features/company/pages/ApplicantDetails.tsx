@@ -1,173 +1,133 @@
-import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getApplicantById } from "../services/newApplicantService";
 
-import { Application, ApplicationStatus } from "../types/applicationTypes";
-import ApplicantHeader from "../components/interview/ApplicantHeader";
-import DetailCard from "../components/interview/DetailCard";
-import ResumeCard from "../components/interview/ResumeCard";
-import StatusActions from "../components/interview/StatusActions";
-import LoadingSpinner from "../components/interview/LoadingSpinner";
-import ErrorDisplay from "../components/interview/ErrorDisplay";
-import SkeletonLoader from "../components/interview/SkeletonLoader";
-import { formatDate } from "../util/dateUtils";
-import companyAxios from "../../../utils/companyAxios";
+interface Job {
+  title: string;
+  location: string;
+  jobType: string;
+  experienceLevel: string;
+  salary: {
+    min: number;
+    max: number;
+    currency: string;
+    isVisibleToApplicants: boolean;
+  };
+}
 
-const ApplicantDetailPage: React.FC = () => {
-  // In a real app with React Router, use useParams()
-  // For this example we're using a mock to show functionality
+interface User {
+  name: string;
+  username: string;
+  profilePicture: string;
+}
+
+interface StatusHistoryItem {
+  status: string;
+  changedAt: string;
+  reason?: string;
+}
+
+interface Applicant {
+  job: Job;
+  user: User;
+  resumeUrl?: string;
+  resumeMediaId?: string;
+  status: string;
+  appliedAt: string;
+  statusHistory: StatusHistoryItem[];
+  updatedAt?: string;
+  createdAt?: string;
+}
+
+function ApplicantDetails() {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [applicant, setApplicant] = useState<Applicant | null>(null);
+  const [error, setError] = useState<string>("");
   const { applicationId } = useParams();
-  const [application, setApplication] = useState<Application | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  const fetchApplicantData = async () => {
+    setLoading(true);
+    try {
+      if (!applicationId) return;
+
+      const res = await getApplicantById(applicationId);
+      if (res.success) {
+        setApplicant(res.data);
+      } else {
+        setError("Failed to fetch applicant details.");
+      }
+    } catch (error) {
+      console.error(error);
+      setError("An error occurred while fetching data.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function fetchApplication() {
-      setLoading(true);
-      setError(null);
+    fetchApplicantData();
+  }, []);
 
-      try {
-        const res = await companyAxios.get(
-          `${
-            import.meta.env.VITE_API_BASE_URL
-          }/company/job/application/${applicationId}/details`,
-          {
-            withCredentials: true,
-          }
-        );
-        console.log("cl");
-        if (res.data.success) {
-          setApplication(res.data.applicant);
-        } else {
-          setError("Failed to load application");
-        }
-      } catch (err) {
-        setError("Failed to load application");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    // In a real application, uncomment this:
-    fetchApplication();
-  }, [applicationId]);
-
-  const handleRetry = () => {
-    // Refetch the application data
-    setLoading(true);
-    setError(null);
-  };
-
-  const handleInterviewScheduled = () => {
-    // Update the local application status
-    if (application) {
-      setApplication({
-        ...application,
-        status: ApplicationStatus.INTERVIEW_SCHEDULED,
-      });
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <SkeletonLoader />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <ErrorDisplay message={error} onRetry={handleRetry} />
-      </div>
-    );
-  }
-
-  if (!application) {
-    return (
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-100 text-center">
-          <p className="text-yellow-700">
-            No application found with the provided ID.
-          </p>
-          <Link
-            to="/applications"
-            className="mt-4 inline-block text-blue-600 hover:underline"
-          >
-            ← Back to Applications
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const { user, resumeUrl, status, appliedAt, job, rejectionReason } =
-    application;
+  if (loading) return <div className="p-4">Loading...</div>;
+  if (error) return <div className="p-4 text-red-500">{error}</div>;
+  if (!applicant) return <div className="p-4">No data available.</div>;
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
-      {/* Back Link */}
-      <Link
-        to="/applications"
-        className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 mb-4 transition-colors"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4 mr-1"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          />
-        </svg>
-        Back to Applications
-      </Link>
-
-      {/* Applicant Header with Name and Status */}
-      <ApplicantHeader user={user} status={status} />
-
-      {/* Application Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Job Details */}
-        <DetailCard title="Job Details">
-          <div className="space-y-2">
-            <div>
-              <h4 className="text-sm font-medium text-gray-500">Position</h4>
-              <p className="text-gray-900">{job.title}</p>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-gray-500">Applied On</h4>
-              <p className="text-gray-900">{formatDate(appliedAt)}</p>
-            </div>
-          </div>
-        </DetailCard>
-
-        {/* Resume */}
-        <ResumeCard resumeUrl={resumeUrl} />
+    <div className="p-6 max-w-3xl mx-auto bg-white shadow rounded">
+      <div className="flex items-center gap-4 mb-4">
+        <img
+          src={applicant.user.profilePicture}
+          alt={applicant.user.name}
+          className="w-16 h-16 rounded-full object-cover"
+        />
+        <div>
+          <h2 className="text-xl font-semibold">{applicant.user.name}</h2>
+          <p className="text-sm text-gray-600">@{applicant.user.username}</p>
+        </div>
       </div>
 
-      {/* Status Actions */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-100">
-          Application Status
-        </h3>
-        <StatusActions
-          status={status}
-          rejectionReason={rejectionReason}
-          applicationId={application._id}
-          userId={user._id}
-          onInterviewScheduled={handleInterviewScheduled}
-          scheduledAt={application.scheduledAt}
-        />
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold">Applied for:</h3>
+        <p className="text-gray-800">{applicant.job.title}</p>
+        <p className="text-gray-500 text-sm">
+          {applicant.job.location} | {applicant.job.jobType} |{" "}
+          {applicant.job.experienceLevel}
+        </p>
+        {applicant.job.salary.isVisibleToApplicants && (
+          <p className="text-sm mt-1">
+            Salary: {applicant.job.salary.min} - {applicant.job.salary.max}{" "}
+            {applicant.job.salary.currency}
+          </p>
+        )}
+      </div>
+
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold">Application Status:</h3>
+        <p className="capitalize font-medium text-green-600">
+          {applicant.status}
+        </p>
+        <ul className="mt-2 text-sm text-gray-600 list-disc list-inside">
+          {applicant.statusHistory.map((history, index) => (
+            <li key={index}>
+              {history.status} at {new Date(history.changedAt).toLocaleString()}
+              {history.reason && ` (Reason: ${history.reason})`}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <a
+          href={applicant.resumeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+        >
+          View Resume
+        </a>
       </div>
     </div>
   );
-};
+}
 
-export default ApplicantDetailPage;
+export default ApplicantDetails;
