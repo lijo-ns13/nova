@@ -145,4 +145,8 @@ export class MediaService implements IMediaService {
       throw new Error(`Media deletion failed: ${(error as Error).message}`);
     }
   }
+  // updated any issue remove this
+  async getMediaById(mediaId: string): Promise<IMedia | null> {
+    return mediaModal.findById(mediaId);
+  }
 }

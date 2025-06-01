@@ -1,3 +1,6 @@
+import { JobApplicantManagementController } from "../controllers/company/JobApplicantManagementController";
+import { JobApplicantManagementService } from "../services/company/JobApplicantManagement";
+
 export const TYPES = {
   // Repositories
   UserModal: Symbol.for("UserModal"),
@@ -124,5 +127,10 @@ export const TYPES = {
   ),
   SubscriptionWithFeaturesController: Symbol.for(
     "SubscriptionWithFeaturesController"
+  ),
+  // appicant
+  JobApplicantManagementService: Symbol.for("JobApplicantManagementService"),
+  JobApplicantManagementController: Symbol.for(
+    "JobApplicantManagementController"
   ),
 };

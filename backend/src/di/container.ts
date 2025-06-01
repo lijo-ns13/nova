@@ -163,6 +163,10 @@ import { SubscriptionWithFeaturesController } from "../controllers/user/Subscrip
 import { SubscriptionWithFeaturesService } from "../services/user/SubscriptionWithFeaturesService";
 import { ISubscriptionWithFeaturesService } from "../interfaces/services/ISubscriptionWithFeatures";
 import { ISubscriptionWithFeaturesController } from "../interfaces/controllers/ISubscriptionWithFeatures";
+import { IJobApplicantManagementService } from "../interfaces/services/IJobApplicantManagement";
+import { JobApplicantManagementService } from "../services/company/JobApplicantManagement";
+import { IJobApplicantManagementController } from "../interfaces/controllers/IJobApplicantManagementController";
+import { JobApplicantManagementController } from "../controllers/company/JobApplicantManagementController";
 
 const container = new Container();
 
@@ -415,4 +419,8 @@ container
     TYPES.SubscriptionWithFeaturesController
   )
   .to(SubscriptionWithFeaturesController);
+  // applicant
+  container.bind<IJobApplicantManagementService>(TYPES.JobApplicantManagementService).to(JobApplicantManagementService);
+  container.bind<IJobApplicantManagementController>(TYPES.JobApplicantManagementController).to(JobApplicantManagementController);
+  
 export default container;

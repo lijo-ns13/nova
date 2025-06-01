@@ -1,8 +1,43 @@
 // src/shared/models/application.model.ts
 import mongoose, { Schema, Document, Types } from "mongoose";
-import { ApplicationStatus } from "./job.modal";
 import { IUser } from "./user.modal";
 import { IJob } from "./job.modal";
+import { IMedia } from "./media.modal";
+
+export enum ApplicationStatus {
+  // Initial stages
+  APPLIED = "applied",
+  SHORTLISTED = "shortlisted",
+  REJECTED = "rejected",
+
+  // Interview process
+  INTERVIEW_SCHEDULED = "interview_scheduled",
+  INTERVIEW_RESCHEDULED = "interview_rescheduled",
+  INTERVIEW_CANCELLED = "interview_cancelled",
+
+  INTERVIEW_ACCEPTED_BY_USER = "interview_accepted_by_user",
+  INTERVIEW_REJECTED_BY_USER = "interview_rejected_by_user",
+
+  INTERVIEW_COMPLETED = "interview_completed",
+  INTERVIEW_PASSED = "interview_passed",
+  INTERVIEW_FAILED = "interview_failed",
+
+  // Offer process
+  OFFERED = "offered",
+  OFFER_ACCEPTED = "offer_accepted",
+  OFFER_REJECTED = "offer_rejected",
+
+  // Final status
+  SELECTED = "selected", // Final hiring decision
+  HIRED = "hired", // Officially onboarded
+  WITHDRAWN = "withdrawn", // Candidate withdrew
+}
+
+export interface IStatusHistory {
+  status: ApplicationStatus;
+  changedAt: Date;
+  reason?: string;
+}
 
 export interface IApplication extends Document {
   job: Types.ObjectId | IJob | string;
@@ -11,10 +46,29 @@ export interface IApplication extends Document {
   resumeMediaId: Types.ObjectId | string;
   coverLetter?: string;
   status: ApplicationStatus;
-  rejectionReason?: string;
   notes?: string;
   scheduledAt?: Date;
+  statusHistory: IStatusHistory[];
 }
+
+const StatusHistorySchema = new Schema<IStatusHistory>(
+  {
+    status: {
+      type: String,
+      enum: Object.values(ApplicationStatus),
+      required: true,
+    },
+    changedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    reason: {
+      type: String,
+      maxlength: 1000,
+    },
+  },
+  { _id: false }
+);
 
 const ApplicationSchema = new Schema<IApplication>(
   {
@@ -23,9 +77,6 @@ const ApplicationSchema = new Schema<IApplication>(
       ref: "Job",
       required: true,
       index: true,
-    },
-    scheduledAt: {
-      type: Date,
     },
     user: {
       type: Schema.Types.ObjectId,
@@ -39,7 +90,6 @@ const ApplicationSchema = new Schema<IApplication>(
       index: true,
     },
     resumeMediaId: {
-      // Changed field name and type
       type: Schema.Types.ObjectId,
       ref: "Media",
       required: true,
@@ -54,13 +104,16 @@ const ApplicationSchema = new Schema<IApplication>(
       default: ApplicationStatus.APPLIED,
       index: true,
     },
-    rejectionReason: {
-      type: String,
-      maxlength: 500,
-    },
     notes: {
       type: String,
       maxlength: 1000,
+    },
+    scheduledAt: {
+      type: Date,
+    },
+    statusHistory: {
+      type: [StatusHistorySchema],
+      default: [],
     },
   },
   {
@@ -70,15 +123,15 @@ const ApplicationSchema = new Schema<IApplication>(
   }
 );
 
-// Compound index to prevent duplicate applications
+// Prevent duplicate applications
 ApplicationSchema.index({ job: 1, user: 1 }, { unique: true });
 
-// Indexes for common query patterns
+// Common query optimizations
 ApplicationSchema.index({ status: 1, appliedAt: -1 });
 ApplicationSchema.index({ job: 1, status: 1 });
 ApplicationSchema.index({ user: 1, status: 1 });
 
-// Virtual population
+// Virtuals
 ApplicationSchema.virtual("jobDetails", {
   ref: "Job",
   localField: "job",

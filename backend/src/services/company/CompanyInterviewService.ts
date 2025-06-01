@@ -70,7 +70,7 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     await this._applicationRepo.updateStatus(
       applicationId,
       ApplicationStatus.INTERVIEW_SCHEDULED,
-      new Date(scheduledAt)
+      scheduledAt
     );
     await this.notificationService.sendNotification(
       userId,

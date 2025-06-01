@@ -1,40 +1,50 @@
 // src/modules/job/repositories/ApplicationRepository.ts
 import { inject, injectable } from "inversify";
-import applicationModal, { IApplication } from "../../models/application.modal";
+import applicationModel, {
+  IApplication,
+  ApplicationStatus,
+} from "../../models/application.modal";
 import { BaseRepository } from "./BaseRepository";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import { Model, Types } from "mongoose";
 import { TYPES } from "../../di/types";
 import { MongoServerError } from "mongodb";
+
 @injectable()
 export class ApplicationRepository
   extends BaseRepository<IApplication>
   implements IApplicationRepository
 {
   constructor(
-    @inject(TYPES.applicationModal) applicationModal: Model<IApplication>
+    @inject(TYPES.applicationModal) applicationModel: Model<IApplication>
   ) {
-    super(applicationModal);
+    super(applicationModel);
   }
+
   async create(data: {
     job: string;
     user: string;
     resumeMediaId: string;
   }): Promise<IApplication> {
     try {
-      const application = new applicationModal({
+      const application = new this.model({
         job: new Types.ObjectId(data.job),
         user: new Types.ObjectId(data.user),
         resumeMediaId: new Types.ObjectId(data.resumeMediaId),
-        // status: "applied",
         appliedAt: new Date(),
+        status: ApplicationStatus.APPLIED,
+        statusHistory: [
+          {
+            status: ApplicationStatus.APPLIED,
+            changedAt: new Date(),
+          },
+        ],
       });
 
       await application.save();
       return application;
     } catch (error) {
       if (error instanceof MongoServerError && error.code === 11000) {
-        // Optional: customize message by inspecting `error.keyPattern`
         throw new Error("You have already applied for this job.");
       }
       console.error("Error creating application:", error);
@@ -43,33 +53,50 @@ export class ApplicationRepository
       );
     }
   }
+
+  /**
+   * Reuses BaseRepository's findById and update
+   */
   async updateStatus(
     applicationId: string,
-    status: string,
-    scheduledAt?: Date
+    status: ApplicationStatus,
+    reason?: string
   ): Promise<IApplication | null> {
-    return this.model
-      .findByIdAndUpdate(applicationId, { status, scheduledAt }, { new: true })
-      .exec();
+    const application = await this.findById(applicationId);
+    if (!application) return null;
+
+    // Update fields
+    application.status = status;
+
+    // Push to status history
+    application.statusHistory.push({
+      status,
+      changedAt: new Date(),
+      ...(reason ? { reason } : {}),
+    });
+
+    return application.save();
   }
 
   async findByJobId(jobId: string): Promise<IApplication[]> {
-    return this.model.find({ job: jobId }).exec();
+    return this.findAll({ job: new Types.ObjectId(jobId) });
   }
 
   async findByUserId(userId: string): Promise<IApplication[]> {
-    return this.model.find({ user: userId }).exec();
+    return this.findAll({ user: new Types.ObjectId(userId) });
   }
+
   async findByIdWithUserAndJob(
     applicationId: string
   ): Promise<IApplication | null> {
     return this.model
       .findById(applicationId)
-      .populate("user", "name username profilePicture") // select specific fields
-      .populate("job") // optional
+      .populate("user", "name username profilePicture")
+      .populate("job")
       .exec();
   }
-  async findByJobIdAndPop(userId: string): Promise<any> {
+
+  async findByJobIdAndPop(userId: string): Promise<IApplication[]> {
     return this.model
       .find({ user: userId })
       .populate("job", "title description location jobType")
