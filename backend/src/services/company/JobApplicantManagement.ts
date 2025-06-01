@@ -9,6 +9,7 @@ import {
 } from "../../models/application.modal";
 import { IJobApplicantManagementService } from "../../interfaces/services/IJobApplicantManagement";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
+import { AppIntegrations } from "aws-sdk";
 const statusesRequiringReason: ApplicationStatus[] = [
   ApplicationStatus.REJECTED,
   ApplicationStatus.INTERVIEW_RESCHEDULED,
@@ -110,7 +111,18 @@ export class JobApplicantManagementService
     reason?: string
   ): Promise<IApplication | null> {
     if (!newStatus) throw new Error("Status is required");
-
+    if (
+      newStatus == ApplicationStatus.INTERVIEW_SCHEDULED ||
+      newStatus == ApplicationStatus.INTERVIEW_RESCHEDULED
+    ) {
+      throw new Error("interview shculed cant do like this");
+    }
+    if (
+      newStatus == ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER ||
+      newStatus == ApplicationStatus.INTERVIEW_REJECTED_BY_USER
+    ) {
+      throw new Error("this things in user side");
+    }
     const application = await this._applicationRepo.findById(applicationId);
     if (!application) throw new Error("Application not found");
 
