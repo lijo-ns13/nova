@@ -18,6 +18,7 @@ import JobDetailedPage from "../features/company/pages/JobDetailedPage";
 import CompanyApplicantsPage from "../features/company/pages/CompanyApplicantsPage";
 import InterviewCompanyPage from "../features/company/pages/InterviewCompanyPage";
 import ApplicationDetailPage from "../features/company/pages/ApplicantDetails";
+import NotFoundPage from "../components/PageNotFound";
 const CompanyRoutes = () => {
   return (
     <Routes>
@@ -51,6 +52,7 @@ const CompanyRoutes = () => {
           element={<ApplicationDetailPage />}
         />
       </Route>
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };

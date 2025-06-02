@@ -15,6 +15,7 @@ import CompanyVerificationPage from "../features/admin/pages/CompanyVerification
 // import SubscriptionManagement from "../features/admin/components/Subscription/SubscriptionManagement";
 import SubFeatPage from "../features/admin/pages/SubFeatPage";
 import SkillList from "../features/admin/pages/SkillList";
+import NotFoundPage from "../components/PageNotFound";
 const AdminRoutes = () => {
   return (
     <Routes>
@@ -38,6 +39,7 @@ const AdminRoutes = () => {
         />
         <Route path="/skill-management" element={<SkillList />}></Route>
       </Route>
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };

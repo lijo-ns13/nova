@@ -25,6 +25,7 @@ import InterviewUserPage from "../features/user/pages/InterviewUserpage";
 import NotificationPage from "../features/user/pages/NotificationPage";
 import SubscriptionUserPage from "../features/user/pages/SubscriptionUserPage";
 import ProtectedWithoutChild from "./ProtectedWithoutChld";
+import NotFoundPage from "../components/PageNotFound";
 const UserRoutes = () => {
   return (
     <Routes>
@@ -77,6 +78,7 @@ const UserRoutes = () => {
           </ProtectedMultiRole>
         }
       ></Route>
+      <Route path="*" element={<NotFoundPage />} />
       {/* if same user hten his profile page if others username then there profile page just viewable not editable and also admin,company,users can view that rightnow i protexted with one orle */}
     </Routes>
   );
