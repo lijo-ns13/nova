@@ -21,6 +21,7 @@
     "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
+    "body-parser": "^2.2.0",
     "cloudinary": "^2.6.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -43,6 +44,7 @@
     "peerjs-server": "^0.2.9",
     "reflect-metadata": "^0.2.2",
     "socket.io": "^4.8.1",
+    "stripe": "^18.2.1",
     "uuid": "^11.1.0",
     "zod": "^3.24.2",
     "zod-validation-error": "^3.4.0"
