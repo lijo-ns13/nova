@@ -27,7 +27,6 @@ const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState<boolean>(false);
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);
   const { unreadCount } = useAppSelector((state) => state.notification);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const location = useLocation();
   const dispatch = useAppDispatch();
   const { name, profilePicture, username } = useAppSelector(
@@ -97,17 +96,6 @@ const Navbar: React.FC = () => {
       socket.off("newNotification");
     };
   }, []);
-
-  const toggleDarkMode = () => {
-    const newMode = !isDarkMode;
-    setIsDarkMode(newMode);
-    localStorage.setItem("darkMode", String(newMode));
-    if (newMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
 
   // Handle click outside to close menus
   useEffect(() => {
@@ -251,15 +239,6 @@ const Navbar: React.FC = () => {
 
           {/* Right section: Action buttons */}
           <div className="flex items-center space-x-1">
-            {/* Dark mode toggle */}
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
-              aria-label="Toggle dark mode"
-            >
-              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-
             {/* User menu */}
             <div className="relative" ref={userMenuRef}>
               <Link
@@ -303,10 +282,10 @@ const Navbar: React.FC = () => {
                     Your Profile
                   </Link>
                   <Link
-                    to="/settings"
+                    to="/subscription"
                     className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
-                    Settings
+                    Subscription
                   </Link>
                   <Link
                     to="/help"
