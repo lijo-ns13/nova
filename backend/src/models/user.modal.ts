@@ -1,6 +1,7 @@
 // usermodel
 import mongoose, { Document, Schema, Types } from "mongoose";
 import bcrypt from "bcrypt";
+import { boolean } from "zod";
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -29,8 +30,10 @@ export interface IUser extends Document {
   socketId?: string;
   online?: boolean;
   isSubscriptionTaken: boolean;
-  subscriptionPlan: string;
   subscriptionExpiresAt: Date;
+  subscription?: mongoose.Types.ObjectId;
+  activePaymentSession?: string; // Store Stripe session ID
+  activePaymentSessionExpiresAt?: Date; // Session expiry time
 }
 
 const userSchema = new Schema<IUser>(
@@ -155,14 +158,20 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
-    subscriptionPlan: {
-      type: String,
-      enum: ["BASIC", "PRO", "PREMIUM", null],
-      default: null,
-    },
     subscriptionExpiresAt: {
       type: Date,
       default: null,
+    },
+    subscription: {
+      type: mongoose.Types.ObjectId,
+      ref: "Subscription",
+    },
+    activePaymentSession: {
+      type: String,
+    },
+    activePaymentSessionExpiresAt: {
+      type: Date,
+      required: false,
     },
   },
   {

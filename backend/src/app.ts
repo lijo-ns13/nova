@@ -13,6 +13,10 @@ import adminRouter from "./routes/admin.routes";
 import sharedRouter from "./routes/shared.routes";
 import googleRouter from "./routes/google.routes";
 import container from "./di/container";
+
+// stripe realted
+import webhookRoute from "../src/routes/webhook.routes";
+import stripeRoutes from "../src/routes/stripe";
 import { IAuthMiddleware } from "./interfaces/middlewares/IAuthMiddleware";
 import { TYPES } from "./di/types";
 import { HTTP_STATUS_CODES } from "./core/enums/httpStatusCode";
@@ -28,6 +32,7 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
+app.use("/api", webhookRoute); // raw parser used here
 app.use(cors(corsOptions));
 
 //middlewares
@@ -38,6 +43,7 @@ app.use(morgan("dev"));
 app.use(cookieParser());
 app.use("/auth", authRouter);
 
+app.use("/api/stripe", stripeRoutes);
 app.use("/api/auth", googleRouter);
 app.use("/", sharedRouter);
 

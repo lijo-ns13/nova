@@ -13,6 +13,7 @@ import JobPage from "../features/user/pages/JobPage";
 import Protected from "./Protected";
 import OAuthSuccessPage from "../features/user/pages/OAuthSuccess";
 
+import SubscriptionPlans from "../features/user/pages/SubscriptionPlan";
 import JobDetailedPage from "../features/user/pages/JobDetailedPage";
 import AppliedJobsPage from "../features/user/pages/AppliedJobsPage";
 import SavedJobsPage from "../features/user/pages/SavedJobsPage";
@@ -64,6 +65,7 @@ const UserRoutes = () => {
         }
       >
         <Route path="/subscription" element={<SubscriptionUserPage />} />
+        <Route path="/sub" element={<SubscriptionPlans />} />
         <Route path="message" element={<ChatListPage />} />
       </Route>
       {/* Protected + no user layout+multiple role access ********************************/}

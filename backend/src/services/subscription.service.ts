@@ -1,12 +1,20 @@
 // services/subscriptionService.ts
-
 import subscriptionModal from "../models/subscription.modal";
+import tranasctionModal from "../models/tranasction.modal";
 import userModal from "../models/user.modal";
 
 export const updateUserSubscription = async (
   userId: string,
-  subscriptionType: string
+  subscriptionType: string,
+  stripeSessionId: string,
+  amount: number
 ) => {
+  // Check if user already has an active subscription
+  const user = await userModal.findById(userId);
+  if (user?.isSubscriptionTaken && user.subscriptionExpiresAt > new Date()) {
+    throw new Error("User already has an active subscription");
+  }
+
   const subscription = await subscriptionModal.findOne({
     name: subscriptionType,
   });
@@ -17,10 +25,21 @@ export const updateUserSubscription = async (
     now.getTime() + subscription.validityDays * 24 * 60 * 60 * 1000
   );
 
+  // Update user subscription
   await userModal.findByIdAndUpdate(userId, {
     isSubscriptionTaken: true,
+    subscription: subscription._id,
     subscriptionExpiresAt: expiresAt,
   });
 
-  // Optional: store transaction record
+  // Create transaction record
+  await tranasctionModal.create({
+    userId,
+    amount,
+    currency: "inr",
+    status: "completed",
+    paymentMethod: "card",
+    stripeSessionId,
+    planName: subscription.name,
+  });
 };
