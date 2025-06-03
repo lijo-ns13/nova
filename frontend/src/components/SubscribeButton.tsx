@@ -7,11 +7,10 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
 interface Props {
   planName: string;
   price: number;
-  subscriptionType: string; // BASIC, PRO, PREMIUM
 }
 
 const SubscribeButton: React.FC<Props> = ({ planName, price }) => {
-  const { id } = useAppSelector((state) => state.auth); // ✅ Hook moved to top
+  const { id } = useAppSelector((state) => state.auth);
 
   const handleCheckout = async () => {
     console.log("Button clicked");

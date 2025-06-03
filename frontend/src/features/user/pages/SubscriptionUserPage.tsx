@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSubscriptionWithFeatures } from "../hooks/useSubscriptionWithFeatures";
+import SubscribeButton from "../../../components/SubscribeButton";
 interface SubscriptionWithFeat {
   subscription: {
     _id: string;
@@ -208,43 +209,13 @@ function SubscriptionUserPage() {
                         ))}
                       </ul>
                     </div>
+                    {/* i want to add this button */}
 
                     {/* CTA Button */}
-                    <button
-                      onClick={() =>
-                        handleSelectPlan(
-                          item.subscription._id,
-                          item.subscription.name
-                        )
-                      }
-                      className={`w-full py-4 px-6 rounded-2xl font-semibold text-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-opacity-50 ${
-                        selectedPlan === item.subscription._id
-                          ? `bg-gradient-to-r ${colors.bg} text-white shadow-lg`
-                          : isPopular
-                          ? `bg-gradient-to-r ${colors.bg} text-white shadow-lg hover:shadow-xl`
-                          : `bg-gradient-to-r ${colors.bg} text-white shadow-lg hover:shadow-xl`
-                      } focus:ring-${colors.ring}`}
-                      disabled={selectedPlan === item.subscription._id}
-                    >
-                      {selectedPlan === item.subscription._id ? (
-                        <span className="flex items-center justify-center space-x-2">
-                          <svg
-                            className="w-5 h-5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          <span>Selected</span>
-                        </span>
-                      ) : (
-                        `Choose ${item.subscription.name}`
-                      )}
-                    </button>
+                    <SubscribeButton
+                      planName={item.subscription.name}
+                      price={item.subscription.price}
+                    />
                   </div>
                 </div>
               </div>
