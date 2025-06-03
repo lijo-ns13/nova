@@ -73,6 +73,8 @@ function SignInPage() {
           headline: user.headline,
           isBlocked: isBlocked,
           isVerified: isVerified,
+          isSubscriptionTaken: user.isSubscriptionTaken,
+          subscriptionExpiresAt: user.subscriptionExpiresAt,
         })
       );
 

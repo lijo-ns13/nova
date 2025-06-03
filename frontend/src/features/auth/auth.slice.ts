@@ -12,6 +12,8 @@ interface AuthState {
   profilePicture: string;
   isVerified: boolean;
   isBlocked: boolean;
+  isSubscriptionTaken: boolean;
+  subscriptionExpiresAt?: Date;
 }
 
 const initialState: AuthState = {
@@ -25,6 +27,8 @@ const initialState: AuthState = {
   headline: "",
   isVerified: false,
   isBlocked: false,
+  isSubscriptionTaken: false,
+  subscriptionExpiresAt: undefined,
 };
 
 const authSlice = createSlice({
@@ -43,6 +47,8 @@ const authSlice = createSlice({
         headline?: string;
         isVerified: boolean;
         isBlocked: boolean;
+        isSubscriptionTaken?: boolean;
+        subscriptionExpiresAt?: string | Date;
       }>
     ) => {
       state.isAuthenticated = true;
@@ -55,6 +61,10 @@ const authSlice = createSlice({
       state.headline = action.payload.headline ?? ""; // fallback if undefined
       state.isVerified = action.payload.isVerified;
       state.isBlocked = action.payload.isBlocked;
+      state.isSubscriptionTaken = action.payload.isSubscriptionTaken ?? false;
+      state.subscriptionExpiresAt = action.payload.subscriptionExpiresAt
+        ? new Date(action.payload.subscriptionExpiresAt)
+        : undefined;
     },
     logout: (state) => {
       state.isAuthenticated = false;
@@ -67,6 +77,8 @@ const authSlice = createSlice({
       state.headline = "";
       state.isBlocked = false;
       state.isVerified = false;
+      state.isSubscriptionTaken = false;
+      state.subscriptionExpiresAt = undefined;
     },
     updateProfile: (
       state,
