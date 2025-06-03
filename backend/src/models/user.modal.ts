@@ -34,6 +34,9 @@ export interface IUser extends Document {
   subscription?: mongoose.Types.ObjectId;
   activePaymentSession?: string; // Store Stripe session ID
   activePaymentSessionExpiresAt?: Date; // Session expiry time
+  // job,post count
+  appliedJobCount: number;
+  createdPostCount: number;
 }
 
 const userSchema = new Schema<IUser>(
@@ -172,6 +175,14 @@ const userSchema = new Schema<IUser>(
     activePaymentSessionExpiresAt: {
       type: Date,
       required: false,
+    },
+    appliedJobCount: {
+      type: Number,
+      default: 0,
+    },
+    createdPostCount: {
+      type: Number,
+      default: 0,
     },
   },
   {
