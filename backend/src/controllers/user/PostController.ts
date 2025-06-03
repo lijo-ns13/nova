@@ -49,7 +49,7 @@ export class PostController implements IPostController {
     } catch (err) {
       return res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ error: (err as Error).message, how: "lksjfls" });
+        .json({ error: (err as Error).message });
     }
   }
   async getPost(req: Request, res: Response) {

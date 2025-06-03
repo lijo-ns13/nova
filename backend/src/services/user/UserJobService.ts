@@ -7,10 +7,7 @@ import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { IApplication } from "../../models/application.modal";
-const maxFreeJobApplyCount = parseInt(
-  process.env.FREE_JOB_APPLY_COUNT ?? "5",
-  10
-);
+
 export class UserJobService implements IUserJobService {
   constructor(
     @inject(TYPES.JobRepository)
@@ -44,6 +41,10 @@ export class UserJobService implements IUserJobService {
         throw new Error("Only PDF files are allowed for resumes");
       }
       const user = await this._userRepository.findById(userId);
+      const maxFreeJobApplyCount = parseInt(
+        process.env.FREE_JOB_APPLY_COUNT ?? "5",
+        10
+      );
       if (!user) {
         throw new Error("User not found");
       }

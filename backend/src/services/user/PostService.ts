@@ -9,12 +9,14 @@ import {
   IPostServiceResponse,
   IPostServiceResponsePaginated,
 } from "../../core/entities/post";
+import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 
 @injectable()
 export class PostService {
   constructor(
     @inject(TYPES.PostRepository) private _postRepo: IPostRepository,
-    @inject(TYPES.MediaService) private _mediaService: IMediaService
+    @inject(TYPES.MediaService) private _mediaService: IMediaService,
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository
   ) {}
 
   async createPost(
@@ -25,6 +27,28 @@ export class PostService {
     let mediaIds: string[] = [];
 
     try {
+      const user = await this._userRepo.findById(creatorId);
+      console.log("usercreator", user);
+      if (!user) {
+        throw new Error("User not found");
+      }
+      const maxFreePostCreateCount = parseInt(
+        process.env.FREE_POST_CREATION_COUNT ?? "5",
+        10
+      );
+      const hasValidSubscription =
+        user.isSubscriptionTaken &&
+        user.subscriptionExpiresAt &&
+        user.subscriptionExpiresAt > new Date();
+      console.log("hasValidSubscription", hasValidSubscription);
+      if (
+        !hasValidSubscription &&
+        user.createdPostCount >= maxFreePostCreateCount
+      ) {
+        throw new Error(
+          "Please take a subscription. Your free access has ended."
+        );
+      }
       mediaIds = await this._mediaService.uploadMedia(
         mediaFiles,
         creatorId,
@@ -38,7 +62,9 @@ export class PostService {
         description,
         mediaIds: mediaIds.map((id) => new Types.ObjectId(id)),
       });
-
+      await this._userRepo.updateUser(creatorId, {
+        createdPostCount: user.createdPostCount + 1,
+      });
       return post;
     } catch (error) {
       // Cleanup uploaded media if post creation fails
@@ -209,4 +235,7 @@ export class PostService {
       throw new Error(`Failed to get user posts: ${(error as Error).message}`);
     }
   }
+}
+function alert(arg0: string) {
+  throw new Error("Function not implemented.");
 }
