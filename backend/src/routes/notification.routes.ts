@@ -11,8 +11,8 @@ const notificationController = container.get<INotificationController>(
 );
 
 const router = Router();
-// router.use(authMiddleware.authenticateMultiple(["user", "company"]));
-router.use(authMiddleware.authenticate("user"));
+router.use(authMiddleware.authenticateMultiple(["user", "company", "admin"]));
+// router.use(authMiddleware.authenticate("user"));
 
 router.use(authMiddleware.check());
 

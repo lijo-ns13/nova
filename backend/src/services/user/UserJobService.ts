@@ -7,6 +7,9 @@ import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { IApplication } from "../../models/application.modal";
+import { INotificationService } from "../../interfaces/services/INotificationService";
+import { Types } from "mongoose";
+import { NotificationType } from "../../models/notification.modal";
 
 export class UserJobService implements IUserJobService {
   constructor(
@@ -17,7 +20,9 @@ export class UserJobService implements IUserJobService {
     @inject(TYPES.ApplicationRepository)
     private _applicationRepo: IApplicationRepository,
     @inject(TYPES.MediaService)
-    private _mediaService: IMediaService
+    private _mediaService: IMediaService,
+    @inject(TYPES.NotificationService)
+    private notificationService: INotificationService
   ) {}
 
   async getAllJobs(
@@ -84,6 +89,24 @@ export class UserJobService implements IUserJobService {
       await this._userRepository.updateUser(userId, {
         appliedJobCount: user.appliedJobCount + 1,
       });
+      // add notification
+      const job = await this._jobRepository.findById(jobId);
+      if (!job) {
+        throw new Error("job not found");
+      }
+      const companyId =
+        typeof job.company === "string"
+          ? job.company
+          : job.company instanceof Types.ObjectId
+          ? job.company.toString()
+          : job.company._id?.toString(); // when populated
+
+      await this.notificationService.sendNotification(
+        companyId.toString(),
+        `${user.name} applied job ${job.title} `,
+        NotificationType.JOB,
+        userId
+      );
       return application;
     } catch (error) {
       console.error("Error in applyToJob service:", error);
