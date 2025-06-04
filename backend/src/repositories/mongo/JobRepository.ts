@@ -1,4 +1,4 @@
-import mongoose, { Types } from "mongoose";
+import mongoose, { Model, Types } from "mongoose";
 import {
   S3Client,
   PutObjectCommand,
@@ -13,8 +13,17 @@ import {
 } from "../../interfaces/repositories/IJobRepository";
 import jobModal, { IJob, ApplicationStatus } from "../../models/job.modal";
 import applicationModal, { IApplication } from "../../models/application.modal";
+import { BaseRepository } from "./BaseRepository";
+import { inject } from "inversify";
+import { TYPES } from "../../di/types";
 
-export class JobRepository implements IJobRepository {
+export class JobRepository
+  extends BaseRepository<IJob>
+  implements IJobRepository
+{
+  constructor(@inject(TYPES.jobModal) jobModal: Model<IJob>) {
+    super(jobModal);
+  }
   async createJob(
     createJobDto: CreateJobDto,
     companyId: string

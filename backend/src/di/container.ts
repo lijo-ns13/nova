@@ -167,6 +167,7 @@ import { IJobApplicantManagementService } from "../interfaces/services/IJobAppli
 import { JobApplicantManagementService } from "../services/company/JobApplicantManagement";
 import { IJobApplicantManagementController } from "../interfaces/controllers/IJobApplicantManagementController";
 import { JobApplicantManagementController } from "../controllers/company/JobApplicantManagementController";
+import jobModal, { IJob } from "../models/job.modal";
 
 const container = new Container();
 
@@ -209,6 +210,7 @@ container.bind<ISkillRepository>(TYPES.SkillRepository).to(SkillRepository);
 
 // job
 container.bind<IJobRepository>(TYPES.JobRepository).to(JobRepository);
+container.bind<Model<IJob>>(TYPES.jobModal).toConstantValue(jobModal);
 container.bind<IUserJobService>(TYPES.UserJobService).to(UserJobService);
 container
   .bind<IUserJobController>(TYPES.UserJobController)

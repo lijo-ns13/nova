@@ -1,4 +1,5 @@
 import { IJob } from "../../models/job.modal";
+import { IBaseRepository } from "./IBaseRepository";
 export interface JobFilters {
   title?: string;
   location?: string;
@@ -50,7 +51,7 @@ export interface JobCandidate {
   notes?: string;
 }
 
-export interface IJobRepository {
+export interface IJobRepository extends IBaseRepository<IJob> {
   // 🟢 CREATE
   createJob(createJobDto: CreateJobDto, companyId: string): Promise<IJob>;
 

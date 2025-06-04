@@ -20,6 +20,7 @@ export const TYPES = {
   AdminRepository: Symbol.for("AdminRepository"),
 
   JobRepository: Symbol.for("JobRepository"),
+  jobModal: Symbol.for("jobModal"),
   SkillRepository: Symbol.for("SkillRepository"),
   //                   post related
   PostRepository: Symbol.for("PostRepository"),
