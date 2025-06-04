@@ -45,6 +45,7 @@ interface Applicant {
   statusHistory: StatusHistoryItem[];
   updatedAt?: string;
   createdAt?: string;
+  scheduledAt?: string;
 }
 
 function ApplicantDetails() {
@@ -152,6 +153,18 @@ function ApplicantDetails() {
           </button>
         </div>
       )}
+      <div>
+        {(applicant.status === ApplicationStatus.INTERVIEW_SCHEDULED ||
+          applicant.status === ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER) &&
+          applicant.scheduledAt && (
+            <div className="mt-2 text-sm text-blue-600">
+              📅 Scheduled Interview Time:{" "}
+              <span className="font-medium">
+                {new Date(applicant.scheduledAt).toLocaleString()}
+              </span>
+            </div>
+          )}
+      </div>
       <ScheduleInterviewModal
         isOpen={isInterviewModalOpen}
         onClose={() => setIsInterviewModalOpen(false)}
