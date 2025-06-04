@@ -10,7 +10,7 @@ import CompanyProfilePage from "../features/company/pages/CompanyProfilePage";
 // protected pages
 import Dashboard from "../features/company/pages/Dashboard";
 import CompanyLayout from "../layouts/CompanyLayout";
-
+import NotificationPage from "../features/user/pages/NotificationPage";
 import Protected from "./Protected";
 import ManageJobsPage from "../features/company/pages/ManageJobsPage";
 import JobDetailedPage from "../features/company/pages/JobDetailedPage";
@@ -41,6 +41,7 @@ const CompanyRoutes = () => {
         {/* <Route path="/profile" element={<CompanyProfilePage />} /> */}
         <Route path="/manage-jobs" element={<ManageJobsPage />} />
         <Route path="/jobs/:jobId" element={<JobDetailedPage />} />
+        <Route path="/notifications" element={<NotificationPage />} />
         <Route
           path="/job/applicants/:jobId"
           element={<CompanyApplicantsPage />}

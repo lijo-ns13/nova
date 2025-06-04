@@ -8,9 +8,9 @@ const Sidebar = () => {
     { name: "Dashboard", path: "/company/dashboard", icon: "📊" },
     // { name: "Post Job", path: "/company/jobs", icon: "📝" },
     { name: "Manage Jobs", path: "/company/manage-jobs", icon: "📋" },
-    { name: "Applications", path: "/applications", icon: "👥" },
-    { name: "Messages", path: "/messages", icon: "💬" },
-    { name: "Notifications", path: "/notifications", icon: "🔔" },
+    // { name: "Applications", path: "/applications", icon: "👥" },
+    // { name: "Messages", path: "/messages", icon: "💬" },
+    { name: "Notifications", path: "/company/notifications", icon: "🔔" },
     { name: "Company Profile", path: "/company/company-profile", icon: "🏢" },
   ];
 
