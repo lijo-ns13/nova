@@ -12,10 +12,8 @@ import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { AppIntegrations } from "aws-sdk";
 const statusesRequiringReason: ApplicationStatus[] = [
   ApplicationStatus.REJECTED,
-  ApplicationStatus.INTERVIEW_RESCHEDULED,
   ApplicationStatus.INTERVIEW_CANCELLED,
   ApplicationStatus.INTERVIEW_REJECTED_BY_USER,
-  ApplicationStatus.OFFER_REJECTED,
   ApplicationStatus.WITHDRAWN,
 ];
 const allowedTransitions: Record<ApplicationStatus, ApplicationStatus[]> = {
@@ -30,12 +28,7 @@ const allowedTransitions: Record<ApplicationStatus, ApplicationStatus[]> = {
     ApplicationStatus.WITHDRAWN,
   ],
   [ApplicationStatus.INTERVIEW_SCHEDULED]: [
-    ApplicationStatus.INTERVIEW_RESCHEDULED,
     ApplicationStatus.INTERVIEW_CANCELLED,
-    ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER,
-    ApplicationStatus.INTERVIEW_REJECTED_BY_USER,
-  ],
-  [ApplicationStatus.INTERVIEW_RESCHEDULED]: [
     ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER,
     ApplicationStatus.INTERVIEW_REJECTED_BY_USER,
   ],
@@ -48,11 +41,9 @@ const allowedTransitions: Record<ApplicationStatus, ApplicationStatus[]> = {
   ],
   [ApplicationStatus.INTERVIEW_PASSED]: [ApplicationStatus.OFFERED],
   [ApplicationStatus.OFFERED]: [
-    ApplicationStatus.OFFER_ACCEPTED,
-    ApplicationStatus.OFFER_REJECTED,
+    ApplicationStatus.HIRED,
+    ApplicationStatus.WITHDRAWN,
   ],
-  [ApplicationStatus.OFFER_ACCEPTED]: [ApplicationStatus.HIRED],
-  [ApplicationStatus.OFFER_REJECTED]: [],
   [ApplicationStatus.INTERVIEW_REJECTED_BY_USER]: [],
   [ApplicationStatus.INTERVIEW_CANCELLED]: [],
   [ApplicationStatus.INTERVIEW_FAILED]: [],
@@ -111,10 +102,7 @@ export class JobApplicantManagementService
     reason?: string
   ): Promise<IApplication | null> {
     if (!newStatus) throw new Error("Status is required");
-    if (
-      newStatus == ApplicationStatus.INTERVIEW_SCHEDULED ||
-      newStatus == ApplicationStatus.INTERVIEW_RESCHEDULED
-    ) {
+    if (newStatus == ApplicationStatus.INTERVIEW_SCHEDULED) {
       throw new Error("interview shculed cant do like this");
     }
     if (
@@ -139,10 +127,8 @@ export class JobApplicantManagementService
     // Enforce reason if needed
     const statusesRequiringReason: ApplicationStatus[] = [
       ApplicationStatus.REJECTED,
-      ApplicationStatus.INTERVIEW_RESCHEDULED,
       ApplicationStatus.INTERVIEW_CANCELLED,
       ApplicationStatus.INTERVIEW_REJECTED_BY_USER,
-      ApplicationStatus.OFFER_REJECTED,
       ApplicationStatus.WITHDRAWN,
     ];
 

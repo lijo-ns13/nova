@@ -68,7 +68,6 @@ export const getApplicantById = async (
     } as HTTPErrorResponse;
   }
 };
-
 export const updateApplicationStatus = async (
   applicantId: string,
   payload: UpdateApplicationStatusPayload

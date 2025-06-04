@@ -11,7 +11,6 @@ export enum ApplicationStatus {
 
   // Interview process
   INTERVIEW_SCHEDULED = "interview_scheduled",
-  INTERVIEW_RESCHEDULED = "interview_rescheduled",
   INTERVIEW_CANCELLED = "interview_cancelled",
 
   INTERVIEW_ACCEPTED_BY_USER = "interview_accepted_by_user",
@@ -23,8 +22,6 @@ export enum ApplicationStatus {
 
   // Offer process
   OFFERED = "offered",
-  OFFER_ACCEPTED = "offer_accepted",
-  OFFER_REJECTED = "offer_rejected",
 
   // Final status
   SELECTED = "selected", // Final hiring decision

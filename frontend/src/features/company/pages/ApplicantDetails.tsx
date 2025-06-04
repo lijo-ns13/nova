@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getApplicantById } from "../services/newApplicantService";
 
+import {
+  ApplicationStatus,
+  UpdateApplicationStatus,
+} from "../components/applicant/UpdateApplicationStatus";
+import toast from "react-hot-toast";
+import ScheduleInterviewModal from "../components/interview/ScheduleInterviewModal";
+
 interface Job {
   title: string;
   location: string;
@@ -16,6 +23,7 @@ interface Job {
 }
 
 interface User {
+  _id: string;
   name: string;
   username: string;
   profilePicture: string;
@@ -42,9 +50,16 @@ interface Applicant {
 function ApplicantDetails() {
   const [loading, setLoading] = useState<boolean>(false);
   const [applicant, setApplicant] = useState<Applicant | null>(null);
+  console.log("appli", applicant);
   const [error, setError] = useState<string>("");
-  const { applicationId } = useParams();
+  const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
 
+  const { applicationId } = useParams();
+  const allowedStatuses: ApplicationStatus[] = [
+    ApplicationStatus.SHORTLISTED,
+    ApplicationStatus.REJECTED,
+    ApplicationStatus.INTERVIEW_SCHEDULED,
+  ];
   const fetchApplicantData = async () => {
     setLoading(true);
     try {
@@ -63,7 +78,9 @@ function ApplicantDetails() {
       setLoading(false);
     }
   };
-
+  const handleStatusUpdateSuccess = () => {
+    toast.success("success");
+  };
   useEffect(() => {
     fetchApplicantData();
   }, []);
@@ -115,6 +132,37 @@ function ApplicantDetails() {
           ))}
         </ul>
       </div>
+      <div>
+        {applicationId && (
+          <UpdateApplicationStatus
+            applicationId={applicationId}
+            currentStatus={applicant.status as ApplicationStatus}
+            onSuccess={handleStatusUpdateSuccess}
+          />
+        )}
+      </div>
+      {applicant.status.toLowerCase() ===
+        ApplicationStatus.SHORTLISTED.toLowerCase() && (
+        <div className="mt-4">
+          <button
+            onClick={() => setIsInterviewModalOpen(true)}
+            className="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+          >
+            Schedule Interview
+          </button>
+        </div>
+      )}
+      <ScheduleInterviewModal
+        isOpen={isInterviewModalOpen}
+        onClose={() => setIsInterviewModalOpen(false)}
+        applicationId={applicationId!}
+        userId={applicant.user?._id} // or applicant.user.id if available
+        onInterviewScheduled={() => {
+          toast.success("Interview scheduled successfully!");
+          setIsInterviewModalOpen(false);
+          fetchApplicantData(); // Refresh applicant data after scheduling
+        }}
+      />
 
       <div>
         <a
