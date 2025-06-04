@@ -26,4 +26,6 @@ export interface IApplicationRepository extends IBaseRepository<IApplication> {
     user: string;
     resumeMediaId: string;
   }): Promise<IApplication>;
+  rejectApplication(applicationId: string, reason?: string): Promise<boolean>;
+  shortlistApplication(applicationId: string): Promise<boolean>;
 }

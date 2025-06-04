@@ -7,15 +7,19 @@ import {
   UpdateJobDto,
 } from "../../interfaces/repositories/IJobRepository";
 import { TYPES } from "../../di/types";
-import { IJob } from "../../models/job.modal";
+import { ApplicationStatus, IJob } from "../../models/job.modal";
 import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
+import applicationModal from "../../models/application.modal";
+import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 
 export class CompanyJobService implements ICompanyJobService {
   constructor(
     @inject(TYPES.JobRepository)
     private _jobRepository: IJobRepository,
-    @inject(TYPES.MediaService) private _mediaService: IMediaService
+    @inject(TYPES.MediaService) private _mediaService: IMediaService,
+    @inject(TYPES.ApplicationRepository)
+    private _applicationRepo: IApplicationRepository
   ) {}
   async createJob(
     createJobDto: CreateJobDto,
@@ -85,30 +89,17 @@ export class CompanyJobService implements ICompanyJobService {
       },
     };
   }
-  // updated
   async shortlistApplication(applicationId: string): Promise<boolean> {
-    try {
-      return await this._jobRepository.shortlistApplication(applicationId);
-    } catch (error) {
-      console.error("Error shortlisting application:", error);
-      throw new Error("Failed to shortlist application");
-    }
+    return await this._applicationRepo.shortlistApplication(applicationId);
   }
 
   async rejectApplication(
     applicationId: string,
-    rejectionReason?: string
+    reason?: string
   ): Promise<boolean> {
-    try {
-      return await this._jobRepository.rejectApplication(
-        applicationId,
-        rejectionReason
-      );
-    } catch (error) {
-      console.error("Error rejecting application:", error);
-      throw new Error("Failed to reject application");
-    }
+    return await this._applicationRepo.rejectApplication(applicationId, reason);
   }
+
   async getApplicantDetails(applicationId: string): Promise<any> {
     try {
       const applicant = await this._jobRepository.getApplicantDetails(

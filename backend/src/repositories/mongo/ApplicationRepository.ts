@@ -102,4 +102,35 @@ export class ApplicationRepository
       .populate("job", "title description location jobType")
       .exec();
   }
+  async shortlistApplication(applicationId: string): Promise<boolean> {
+    const application = await applicationModel.findById(applicationId);
+    if (!application) return false;
+
+    application.status = ApplicationStatus.SHORTLISTED;
+    application.statusHistory.push({
+      status: ApplicationStatus.SHORTLISTED,
+      changedAt: new Date(),
+    });
+
+    await application.save();
+    return true;
+  }
+
+  async rejectApplication(
+    applicationId: string,
+    reason?: string
+  ): Promise<boolean> {
+    const application = await applicationModel.findById(applicationId);
+    if (!application) return false;
+
+    application.status = ApplicationStatus.REJECTED;
+    application.statusHistory.push({
+      status: ApplicationStatus.REJECTED,
+      changedAt: new Date(),
+      reason: reason || "No reason provided",
+    });
+
+    await application.save();
+    return true;
+  }
 }
