@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { isDateValid, getMinValidDate } from "../../util/dateUtils";
-
-import LoadingSpinner from "./LoadingSpinner";
+import {
+  Calendar,
+  X,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import {
+  getMinValidDate,
+  isDateValid,
+  formatInterviewDate,
+} from "../../util/dateUtilApplicant";
 import companyAxios from "../../../../utils/companyAxios";
 
 interface ScheduleInterviewModalProps {
@@ -24,8 +35,16 @@ const ScheduleInterviewModal: React.FC<ScheduleInterviewModalProps> = ({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [touched, setTouched] = useState(false);
+  const [showTimeSuggestions, setShowTimeSuggestions] = useState(false);
 
-  // Reset the form when modal opens/closes
+  // Suggested time slots (can be customized)
+  const timeSuggestions = [
+    { label: "Morning (9:00 AM)", value: "09:00" },
+    { label: "Midday (12:00 PM)", value: "12:00" },
+    { label: "Afternoon (3:00 PM)", value: "15:00" },
+    { label: "Evening (5:00 PM)", value: "17:00" },
+  ];
+
   useEffect(() => {
     if (isOpen) {
       setScheduledAt("");
@@ -37,6 +56,18 @@ const ScheduleInterviewModal: React.FC<ScheduleInterviewModalProps> = ({
 
   const minDate = getMinValidDate();
   const isValid = isDateValid(scheduledAt);
+
+  const handleTimeSuggestion = (time: string) => {
+    if (!scheduledAt) {
+      const today = new Date();
+      const dateStr = today.toISOString().split("T")[0];
+      setScheduledAt(`${dateStr}T${time}`);
+    } else {
+      const dateStr = scheduledAt.split("T")[0];
+      setScheduledAt(`${dateStr}T${time}`);
+    }
+    setTouched(true);
+  };
 
   const handleSchedule = async () => {
     if (!scheduledAt) {
@@ -79,129 +110,210 @@ const ScheduleInterviewModal: React.FC<ScheduleInterviewModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        {/* Background overlay */}
-        <div
-          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-          onClick={onClose}
-        ></div>
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-sm transition-opacity animate-fadeIn">
+      <div className="flex min-h-screen items-center justify-center p-4 sm:p-0">
+        <div className="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white shadow-xl transition-all animate-scaleIn">
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="absolute top-4 right-4 rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+          >
+            <X size={20} />
+          </button>
 
-        {/* Modal panel */}
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div className="sm:flex sm:items-start">
-              <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-blue-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-
-              <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  Schedule Interview
+          <div className="p-6 sm:p-8">
+            {success ? (
+              <div className="text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 mb-4">
+                  <CheckCircle className="h-6 w-6 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                  Interview Scheduled!
                 </h3>
+                <p className="text-slate-600 mb-6">
+                  The interview has been successfully scheduled for{" "}
+                  <span className="font-medium">
+                    {formatInterviewDate(scheduledAt)}
+                  </span>
+                  .
+                </p>
+                <button
+                  onClick={onClose}
+                  className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="mb-6 text-center">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 mb-3">
+                    <Calendar className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-slate-900 mb-1">
+                    Schedule Interview
+                  </h3>
+                  <p className="text-slate-500">
+                    Select a date and time for the interview
+                  </p>
+                </div>
 
-                <div className="mt-4 space-y-4">
-                  {success ? (
-                    <div className="bg-green-50 p-4 rounded-md border border-green-100 text-green-700 flex items-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 mr-2"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Interview scheduled successfully!
-                    </div>
-                  ) : (
-                    <>
-                      <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">
-                          Interview Date & Time{" "}
-                          <span className="text-red-500">*</span>
-                        </label>
-                        <p className="text-xs text-gray-500 mb-1">
-                          Note: Interviews must be scheduled at least 5 days
-                          from today.
+                <div className="space-y-6">
+                  <div className="rounded-lg bg-blue-50 p-4 mb-4">
+                    <div className="flex items-start">
+                      <Clock className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div className="ml-3">
+                        <p className="text-sm text-blue-700">
+                          Please schedule the interview at least 5 days in
+                          advance to give the candidate time to prepare.
                         </p>
-                        <input
-                          type="datetime-local"
-                          value={scheduledAt}
-                          onChange={(e) => {
-                            setScheduledAt(e.target.value);
-                            setTouched(true);
-                          }}
-                          min={minDate}
-                          className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                            touched && !isValid && scheduledAt
-                              ? "border-red-300 text-red-900 placeholder-red-300"
-                              : "border-gray-300"
-                          }`}
-                        />
+                      </div>
+                    </div>
+                  </div>
 
-                        {touched && !isValid && scheduledAt && (
-                          <p className="mt-1 text-sm text-red-600">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Interview Date
+                    </label>
+                    <input
+                      type="date"
+                      value={scheduledAt.split("T")[0] || ""}
+                      onChange={(e) => {
+                        const time = scheduledAt.split("T")[1] || "09:00";
+                        setScheduledAt(`${e.target.value}T${time}`);
+                        setTouched(true);
+                      }}
+                      min={minDate.split("T")[0]}
+                      className={`w-full rounded-lg border ${
+                        touched && !isValid && scheduledAt
+                          ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                          : "border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                      } px-4 py-2.5 focus:outline-none focus:ring-2 transition-colors`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Interview Time
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="time"
+                        value={scheduledAt.split("T")[1] || ""}
+                        onChange={(e) => {
+                          const date =
+                            scheduledAt.split("T")[0] || minDate.split("T")[0];
+                          setScheduledAt(`${date}T${e.target.value}`);
+                          setTouched(true);
+                        }}
+                        className={`w-full rounded-lg border ${
+                          touched && !isValid && scheduledAt
+                            ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                            : "border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                        } px-4 py-2.5 focus:outline-none focus:ring-2 transition-colors`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowTimeSuggestions(!showTimeSuggestions)
+                        }
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      >
+                        {showTimeSuggestions ? (
+                          <ChevronUp size={18} />
+                        ) : (
+                          <ChevronDown size={18} />
+                        )}
+                      </button>
+                    </div>
+
+                    {showTimeSuggestions && (
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        {timeSuggestions.map((time) => (
+                          <button
+                            key={time.value}
+                            type="button"
+                            onClick={() => handleTimeSuggestion(time.value)}
+                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm hover:bg-slate-50 transition-colors"
+                          >
+                            {time.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {touched && !isValid && scheduledAt && (
+                    <div className="rounded-lg bg-red-50 p-4 border border-red-100">
+                      <div className="flex items-start">
+                        <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+                        <div className="ml-3">
+                          <p className="text-sm text-red-700">
                             Interview must be scheduled at least 5 days from
                             today.
                           </p>
-                        )}
-
-                        {error && (
-                          <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-md border border-red-100">
-                            {error}
-                          </div>
-                        )}
+                        </div>
                       </div>
-                    </>
+                    </div>
                   )}
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            {!success && (
-              <>
-                <button
-                  type="button"
-                  onClick={handleSchedule}
-                  disabled={loading || !scheduledAt}
-                  className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 ${
-                    !scheduledAt
-                      ? "bg-blue-300 text-white cursor-not-allowed"
-                      : "bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  } sm:ml-3 sm:w-auto sm:text-sm`}
-                >
-                  {loading ? (
-                    <LoadingSpinner size="small" className="mr-2" />
-                  ) : null}
-                  {loading ? "Scheduling..." : "Schedule Interview"}
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  disabled={loading}
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                >
-                  Cancel
-                </button>
+                  {error && (
+                    <div className="rounded-lg bg-red-50 p-4 border border-red-100">
+                      <div className="flex items-start">
+                        <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+                        <div className="ml-3">
+                          <h3 className="text-sm font-medium text-red-800">
+                            Error
+                          </h3>
+                          <p className="text-sm text-red-700 mt-1">{error}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="pt-2">
+                    <button
+                      onClick={handleSchedule}
+                      disabled={loading || !scheduledAt || !isValid}
+                      className={`w-full rounded-lg px-4 py-3 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${
+                        loading || !scheduledAt || !isValid
+                          ? "bg-blue-300 cursor-not-allowed"
+                          : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
+                      }`}
+                    >
+                      {loading ? (
+                        <span className="inline-flex items-center justify-center">
+                          <svg
+                            className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Scheduling...
+                        </span>
+                      ) : (
+                        `Schedule for ${
+                          scheduledAt ? formatInterviewDate(scheduledAt) : "..."
+                        }`
+                      )}
+                    </button>
+                  </div>
+                </div>
               </>
             )}
           </div>

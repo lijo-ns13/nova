@@ -1,71 +1,30 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getApplicantById } from "../services/newApplicantService";
+import React, { useEffect, useState } from "react";
+import { FileText, MapPin, Briefcase, Award } from "lucide-react";
 
-import {
-  ApplicationStatus,
-  UpdateApplicationStatus,
-} from "../components/applicant/UpdateApplicationStatus";
-import toast from "react-hot-toast";
+import { useParams } from "react-router-dom";
+import { Applicant } from "../types/applicant";
+import { getApplicantById } from "../services/newApplicantService";
+import { toast } from "../components/ui/Toast";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
+import ApplicantHeader from "../components/applicant/ApplicantHeader";
+import StatusManager from "../components/applicant/StatusManager";
+import ApplicationTimeline from "../components/applicant/ApplicationTimeline";
 import ScheduleInterviewModal from "../components/interview/ScheduleInterviewModal";
 
-interface Job {
-  title: string;
-  location: string;
-  jobType: string;
-  experienceLevel: string;
-  salary: {
-    min: number;
-    max: number;
-    currency: string;
-    isVisibleToApplicants: boolean;
-  };
-}
-
-interface User {
-  _id: string;
-  name: string;
-  username: string;
-  profilePicture: string;
-}
-
-interface StatusHistoryItem {
-  status: string;
-  changedAt: string;
-  reason?: string;
-}
-
-interface Applicant {
-  job: Job;
-  user: User;
-  resumeUrl?: string;
-  resumeMediaId?: string;
-  status: string;
-  appliedAt: string;
-  statusHistory: StatusHistoryItem[];
-  updatedAt?: string;
-  createdAt?: string;
-  scheduledAt?: string;
-}
-
 function ApplicantDetails() {
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [applicant, setApplicant] = useState<Applicant | null>(null);
-  console.log("appli", applicant);
   const [error, setError] = useState<string>("");
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
 
   const { applicationId } = useParams();
-  const allowedStatuses: ApplicationStatus[] = [
-    ApplicationStatus.SHORTLISTED,
-    ApplicationStatus.REJECTED,
-    ApplicationStatus.INTERVIEW_SCHEDULED,
-  ];
+
   const fetchApplicantData = async () => {
+    if (!applicationId) return;
+
     setLoading(true);
     try {
-      if (!applicationId) return;
-
       const res = await getApplicantById(applicationId);
       if (res.success) {
         setApplicant(res.data);
@@ -79,114 +38,173 @@ function ApplicantDetails() {
       setLoading(false);
     }
   };
+
   const handleStatusUpdateSuccess = () => {
-    toast.success("success");
+    toast({
+      title: "Status Updated",
+      description: "Application status has been successfully updated",
+      variant: "success",
+    });
+    fetchApplicantData();
   };
+
+  const handleInterviewScheduled = () => {
+    toast({
+      title: "Interview Scheduled",
+      description: "Interview has been scheduled successfully",
+      variant: "success",
+    });
+    fetchApplicantData();
+  };
+
   useEffect(() => {
     fetchApplicantData();
-  }, []);
+  }, [applicationId]);
 
-  if (loading) return <div className="p-4">Loading...</div>;
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
-  if (!applicant) return <div className="p-4">No data available.</div>;
+  if (loading) return <LoadingState />;
+  if (error) return <ErrorState message={error} onRetry={fetchApplicantData} />;
+  if (!applicant)
+    return (
+      <ErrorState
+        message="No applicant data available"
+        onRetry={fetchApplicantData}
+      />
+    );
 
   return (
-    <div className="p-6 max-w-3xl mx-auto bg-white shadow rounded">
-      <div className="flex items-center gap-4 mb-4">
-        <img
-          src={applicant.user.profilePicture}
-          alt={applicant.user.name}
-          className="w-16 h-16 rounded-full object-cover"
-        />
-        <div>
-          <h2 className="text-xl font-semibold">{applicant.user.name}</h2>
-          <p className="text-sm text-gray-600">@{applicant.user.username}</p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="space-y-6">
+          {/* Header Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <ApplicantHeader applicant={applicant} />
+          </div>
 
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">Applied for:</h3>
-        <p className="text-gray-800">{applicant.job.title}</p>
-        <p className="text-gray-500 text-sm">
-          {applicant.job.location} | {applicant.job.jobType} |{" "}
-          {applicant.job.experienceLevel}
-        </p>
-        {applicant.job.salary.isVisibleToApplicants && (
-          <p className="text-sm mt-1">
-            Salary: {applicant.job.salary.min} - {applicant.job.salary.max}{" "}
-            {applicant.job.salary.currency}
-          </p>
-        )}
-      </div>
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Left Sidebar */}
+            <div className="lg:col-span-4">
+              <div className="sticky top-6 space-y-6">
+                {/* Job Details Card */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                  <div className="px-4 py-5 sm:px-6 border-b border-slate-200 bg-slate-50">
+                    <h2 className="text-lg font-semibold text-slate-800">
+                      Job Details
+                    </h2>
+                  </div>
+                  <div className="p-4 sm:p-6 space-y-4">
+                    <h3 className="text-lg font-medium text-slate-900">
+                      {applicant.job.title}
+                    </h3>
 
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">Application Status:</h3>
-        <p className="capitalize font-medium text-green-600">
-          {applicant.status}
-        </p>
-        <ul className="mt-2 text-sm text-gray-600 list-disc list-inside">
-          {applicant.statusHistory.map((history, index) => (
-            <li key={index}>
-              {history.status} at {new Date(history.changedAt).toLocaleString()}
-              {history.reason && ` (Reason: ${history.reason})`}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div>
-        {applicationId && (
-          <UpdateApplicationStatus
-            applicationId={applicationId}
-            currentStatus={applicant.status as ApplicationStatus}
-            onSuccess={handleStatusUpdateSuccess}
-          />
-        )}
-      </div>
-      {applicant.status.toLowerCase() ===
-        ApplicationStatus.SHORTLISTED.toLowerCase() && (
-        <div className="mt-4">
-          <button
-            onClick={() => setIsInterviewModalOpen(true)}
-            className="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-          >
-            Schedule Interview
-          </button>
-        </div>
-      )}
-      <div>
-        {(applicant.status === ApplicationStatus.INTERVIEW_SCHEDULED ||
-          applicant.status === ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER) &&
-          applicant.scheduledAt && (
-            <div className="mt-2 text-sm text-blue-600">
-              📅 Scheduled Interview Time:{" "}
-              <span className="font-medium">
-                {new Date(applicant.scheduledAt).toLocaleString()}
-              </span>
+                    <div className="space-y-3">
+                      <div className="flex items-center text-slate-600">
+                        <MapPin
+                          size={18}
+                          className="mr-2 text-slate-400 flex-shrink-0"
+                        />
+                        <span className="text-sm">
+                          {applicant.job.location}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center text-slate-600">
+                        <Briefcase
+                          size={18}
+                          className="mr-2 text-slate-400 flex-shrink-0"
+                        />
+                        <span className="text-sm">{applicant.job.jobType}</span>
+                      </div>
+
+                      <div className="flex items-center text-slate-600">
+                        <Award
+                          size={18}
+                          className="mr-2 text-slate-400 flex-shrink-0"
+                        />
+                        <span className="text-sm">
+                          {applicant.job.experienceLevel}
+                        </span>
+                      </div>
+                    </div>
+
+                    {applicant.job.salary.isVisibleToApplicants && (
+                      <div className="mt-4 p-3 bg-slate-50 rounded-lg">
+                        <div className="text-sm font-medium text-slate-700">
+                          Salary Range
+                        </div>
+                        <div className="text-lg font-semibold text-slate-900 mt-1">
+                          {applicant.job.salary.currency}{" "}
+                          {applicant.job.salary.min.toLocaleString()} -{" "}
+                          {applicant.job.salary.max.toLocaleString()}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="pt-4">
+                      <a
+                        href={applicant.resumeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition duration-150 ease-in-out text-sm"
+                      >
+                        <FileText size={16} className="mr-2" />
+                        View Resume
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
-      </div>
-      <ScheduleInterviewModal
-        isOpen={isInterviewModalOpen}
-        onClose={() => setIsInterviewModalOpen(false)}
-        applicationId={applicationId!}
-        userId={applicant.user?._id} // or applicant.user.id if available
-        onInterviewScheduled={() => {
-          toast.success("Interview scheduled successfully!");
-          setIsInterviewModalOpen(false);
-          fetchApplicantData(); // Refresh applicant data after scheduling
-        }}
-      />
 
-      <div>
-        <a
-          href={applicant.resumeUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-        >
-          View Resume
-        </a>
+            {/* Main Content Area */}
+            <div className="lg:col-span-8 space-y-6">
+              {/* Status Section */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="px-4 py-5 sm:px-6 border-b border-slate-200 bg-slate-50">
+                  <h2 className="text-lg font-semibold text-slate-800">
+                    Application Status
+                  </h2>
+                </div>
+                <div className="p-4 sm:p-6">
+                  {applicationId && (
+                    <StatusManager
+                      applicant={applicant}
+                      applicationId={applicationId}
+                      onStatusUpdate={handleStatusUpdateSuccess}
+                      onScheduleInterview={() => setIsInterviewModalOpen(true)}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Timeline Section */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="px-4 py-5 sm:px-6 border-b border-slate-200 bg-slate-50">
+                  <h2 className="text-lg font-semibold text-slate-800">
+                    Application History
+                  </h2>
+                </div>
+                <div className="p-4 sm:p-6">
+                  <ApplicationTimeline
+                    statusHistory={applicant.statusHistory}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Interview Modal */}
+      {applicationId && (
+        <ScheduleInterviewModal
+          isOpen={isInterviewModalOpen}
+          onClose={() => setIsInterviewModalOpen(false)}
+          applicationId={applicationId}
+          userId={applicant.user._id}
+          onInterviewScheduled={handleInterviewScheduled}
+        />
+      )}
     </div>
   );
 }
