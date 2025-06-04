@@ -3,6 +3,10 @@ import { Server as SocketIOServer } from "socket.io";
 import { Server } from "http";
 import userModal from "./models/user.modal";
 import messageModal from "./models/message.modal";
+import {
+  updateSocketInfo,
+  updateSocketInfoBySocketId,
+} from "./utils/getUserSocketData";
 
 // Store the io instance globally after initialization
 let ioInstance: SocketIOServer;
@@ -24,10 +28,7 @@ export const initSocketServer = (server: Server) => {
 
     // Login handler
     socket.on("login", async (userId: string) => {
-      await userModal.findByIdAndUpdate(userId, {
-        online: true,
-        socketId: socket.id,
-      });
+      await updateSocketInfo(userId, socket.id);
 
       io.emit("userOnline", userId);
 
@@ -151,10 +152,7 @@ export const initSocketServer = (server: Server) => {
 
     // Disconnect logic
     socket.on("disconnect", async () => {
-      const user = await userModal.findOneAndUpdate(
-        { socketId: socket.id },
-        { online: false, socketId: null }
-      );
+      const user = await updateSocketInfoBySocketId(socket.id);
 
       if (user) {
         io.emit("userOffline", user._id);

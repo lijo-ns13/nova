@@ -6,7 +6,7 @@ import { INotificationService } from "../interfaces/services/INotificationServic
 import { INotificationRepository } from "../interfaces/repositories/INotificationRepository";
 import { INotification, NotificationType } from "../models/notification.modal";
 import userModal from "../models/user.modal";
-
+import { getUserByIdAcrossCollections } from "../utils/getUserSocketData";
 @injectable()
 export class NotificationService implements INotificationService {
   private io?: Server;
@@ -27,7 +27,7 @@ export class NotificationService implements INotificationService {
       );
       return;
     }
-    const user = await userModal.findById(userId);
+    const user = await getUserByIdAcrossCollections(userId);
     console.log("slfjslkfjslfjslf,", user?.socketId, this.io);
     if (user?.socketId && this.io) {
       console.log("live....................😊");

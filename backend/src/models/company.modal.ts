@@ -59,6 +59,8 @@ export interface ICompany extends Document {
   verificationStatus: "pending" | "accepted" | "rejected";
   isBlocked: boolean;
   profilePicture: string;
+  socketId?: string;
+  online?: boolean;
 }
 
 const companySchema = new Schema<ICompany>(
@@ -129,6 +131,14 @@ const companySchema = new Schema<ICompany>(
     profilePicture: {
       type: String,
       default: "",
+    },
+    socketId: {
+      type: String,
+      default: null,
+    },
+    online: {
+      type: Boolean,
+      default: false,
     },
   },
   {
