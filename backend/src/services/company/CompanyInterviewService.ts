@@ -3,12 +3,16 @@ import { inject } from "inversify";
 import { TYPES } from "../../di/types";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import { IInterview } from "../../core/entities/interview.interface";
-import { ApplicationStatus, IJob } from "../../models/job.modal";
+
 import { ICompanyInterviewService } from "../../interfaces/services/ICompanyInterviewService";
 import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRepository";
-import { IApplication } from "../../models/application.modal";
+import {
+  ApplicationStatus,
+  IApplication,
+} from "../../models/application.modal";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { NotificationType } from "../../models/notification.modal";
+import { IJob } from "../../models/job.modal";
 
 export class CompanyInterviewService implements ICompanyInterviewService {
   constructor(
@@ -69,9 +73,11 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     // Update application status
     await this._applicationRepo.updateStatus(
       applicationId,
-      ApplicationStatus.INTERVIEW_SCHEDULED,
-      scheduledAt
+      ApplicationStatus.INTERVIEW_SCHEDULED
     );
+    await this._applicationRepo.update(applicationId, {
+      scheduledAt: interview.scheduledAt,
+    });
     await this.notificationService.sendNotification(
       userId,
       `Interview Sheduled,Please check job status`,
