@@ -2,12 +2,14 @@ import { Link } from "react-router-dom";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { logout } from "../../auth/auth.slice";
 import { logOut } from "../../user/services/AuthServices";
+import socket from "../../../socket/socket";
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
 
   async function handleLogout() {
     await logOut();
+    socket.disconnect();
     dispatch(logout());
   }
 
