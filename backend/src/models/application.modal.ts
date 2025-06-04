@@ -2,7 +2,6 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 import { IUser } from "./user.modal";
 import { IJob } from "./job.modal";
-import { IMedia } from "./media.modal";
 
 export enum ApplicationStatus {
   // Initial stages
