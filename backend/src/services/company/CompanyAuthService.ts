@@ -19,6 +19,9 @@ import { generateUsername } from "../../shared/util/GenerateUserName";
 import { IPasswordResetTokenRepository } from "../../interfaces/repositories/IPasswordResetTokenRepository";
 import { generatePasswordResetToken } from "../../shared/util/generatePasswordResetToken ";
 import crypto from "crypto";
+import { INotificationService } from "../../interfaces/services/INotificationService";
+import { NotificationType } from "../../models/notification.modal";
+import { IAdminRepository } from "../../interfaces/repositories/IAdminRepository";
 
 @injectable()
 export class CompanyAuthService implements ICompanyAuthService {
@@ -32,7 +35,10 @@ export class CompanyAuthService implements ICompanyAuthService {
     @inject(TYPES.JWTService)
     private _jwtService: IJWTService,
     @inject(TYPES.PasswordResetTokenRepository)
-    private _passwordResetTokenRepository: IPasswordResetTokenRepository
+    private _passwordResetTokenRepository: IPasswordResetTokenRepository,
+    @inject(TYPES.NotificationService)
+    private notificationService: INotificationService,
+    @inject(TYPES.AdminRepository) private _adminRepo: IAdminRepository
   ) {}
 
   async signUp(payload: SignUpCompanyRequestDTO): Promise<any> {
@@ -136,6 +142,16 @@ export class CompanyAuthService implements ICompanyAuthService {
 
     const companyData = await this._companyRepository.create(tempCompanyData);
     await this._tempCompanyRepository.delete(tempCompany._id.toString());
+    const admins = await this._adminRepo.findAll();
+    for (const admin of admins) {
+      await this.notificationService.sendNotification(
+        admin._id.toString(),
+        `New company registered: ${companyData.companyName}`,
+        NotificationType.GENERAL,
+        companyData._id // senderId
+      );
+    }
+
     return { message: "verfied successfull", company: companyData };
   }
   async resendOTP(email: string): Promise<{ message: string }> {
