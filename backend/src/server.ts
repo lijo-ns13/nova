@@ -17,6 +17,7 @@ const PORT = process.env.PORT || 3000;
   initSocketServer(server); // <-- Initialize socket server here
   const io = getSocketIO(); // retrieve stored io instance
   container.bind(TYPES.SocketIO).toConstantValue(io); // ✅ Only now bind it
+
   const notificationService = container.get<INotificationService>(
     TYPES.NotificationService
   );

@@ -21,8 +21,16 @@ export class NotificationService implements INotificationService {
     userId: string,
     notification: INotification
   ) {
+    if (!this.io) {
+      console.log(
+        "⚠️ Socket.IO not yet initialized, skipping notification emit"
+      );
+      return;
+    }
     const user = await userModal.findById(userId);
+    console.log("slfjslkfjslfjslf,", user?.socketId, this.io);
     if (user?.socketId && this.io) {
+      console.log("live....................😊");
       this.io.to(user.socketId).emit("newNotification", notification);
       this.io.to(user.socketId).emit("unreadCountUpdate", {
         count: await this.notificationRepository.getUnreadCount(userId),

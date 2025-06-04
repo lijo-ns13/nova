@@ -224,6 +224,7 @@ container.bind<ILikeRepository>(TYPES.LikeRepository).to(LikeRepository);
 container.bind<IMediaRepository>(TYPES.MediaRepository).to(MediaRepository);
 
 // admin
+
 container.bind<IAdminRepository>(TYPES.AdminRepository).to(AdminRepository);
 container.bind(TYPES.AdminModal).toConstantValue(Admin);
 
@@ -370,12 +371,12 @@ container
 // .inSingletonScope();
 container
   .bind<INotificationService>(TYPES.NotificationService)
-  .to(NotificationService);
-// .inSingletonScope();
+  .to(NotificationService)
+  .inSingletonScope();
 container
   .bind<INotificationController>(TYPES.NotificationController)
-  .to(NotificationController);
-// .inSingletonScope();
+  .to(NotificationController)
+  .inSingletonScope();
 
 // SocketIO binding (set this up when you create your socket server)
 // container.bind<Server>(TYPES.SocketIO).toConstantValue(io);
@@ -419,8 +420,14 @@ container
     TYPES.SubscriptionWithFeaturesController
   )
   .to(SubscriptionWithFeaturesController);
-  // applicant
-  container.bind<IJobApplicantManagementService>(TYPES.JobApplicantManagementService).to(JobApplicantManagementService);
-  container.bind<IJobApplicantManagementController>(TYPES.JobApplicantManagementController).to(JobApplicantManagementController);
-  
+// applicant
+container
+  .bind<IJobApplicantManagementService>(TYPES.JobApplicantManagementService)
+  .to(JobApplicantManagementService);
+container
+  .bind<IJobApplicantManagementController>(
+    TYPES.JobApplicantManagementController
+  )
+  .to(JobApplicantManagementController);
+
 export default container;

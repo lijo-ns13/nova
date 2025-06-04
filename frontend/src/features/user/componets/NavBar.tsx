@@ -56,6 +56,7 @@ const Navbar: React.FC = () => {
     });
 
     socket.on("newNotification", (notification) => {
+      alert("working");
       const { type, content } = notification;
 
       let message = "";
