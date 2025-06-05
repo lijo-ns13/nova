@@ -141,6 +141,7 @@ const Navbar: React.FC = () => {
 
   const handleLogout = async () => {
     try {
+      sessionStorage.removeItem("subscriptionModalShown");
       await logOut();
       socket.disconnect();
       dispatch(logout());

@@ -4,11 +4,13 @@ import storage from "redux-persist/lib/storage"; // defaults to localStorage for
 import authReducer from "../features/auth/auth.slice";
 import chatReducer from "./slice/chatSlice";
 import notificationReducer from "./slice/notificationSlice";
+import uiReducer from "./slice/uiSlice";
 // Combine reducers if you have more in the future
 const rootReducer = combineReducers({
   auth: authReducer,
   chat: chatReducer,
   notification: notificationReducer,
+  ui: uiReducer,
 });
 
 // Redux Persist config

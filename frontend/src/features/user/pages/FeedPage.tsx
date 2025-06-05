@@ -4,6 +4,9 @@ import FinalPost from "../componets/post/FinalPost";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import { RefreshCw, AlertCircle } from "lucide-react";
 import Button from "../componets/ui/Button";
+import { SubscriptionModal } from "../componets/subscription/SubscriptionModal";
+import { useAppDispatch } from "../../../hooks/useAppDispatch";
+import { setHasShownSubscriptionModal } from "../../../store/slice/uiSlice";
 
 // Throttle function
 function throttle<T extends (...args: any[]) => void>(func: T, limit: number) {
@@ -56,8 +59,20 @@ function FeedPage() {
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState<number>(0);
+  const [showModal, setShowModal] = useState(false);
+  const { isSubscriptionTaken } = useAppSelector((state) => state.auth);
+  // const { hasShownSubscriptionModal } = useAppSelector((state) => state.ui);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    const alreadyShown = sessionStorage.getItem("subscriptionModalShown");
 
-  // Fetch posts
+    if (!isSubscriptionTaken && !alreadyShown) {
+      setShowModal(true);
+      sessionStorage.setItem("subscriptionModalShown", "true"); // persist for this session
+      dispatch(setHasShownSubscriptionModal(true));
+    }
+  }, [isSubscriptionTaken, dispatch]);
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -281,6 +296,7 @@ function FeedPage() {
           )}
         </>
       )}
+      {showModal && <SubscriptionModal onClose={() => setShowModal(false)} />}
     </div>
   );
 }
