@@ -18,4 +18,5 @@ export interface ISubscriptionPlanRepository
     id: string,
     isActive: boolean
   ): Promise<ISubscriptionPlan | null>;
+  getAll(): Promise<ISubscriptionPlan[]>;
 }

@@ -137,4 +137,9 @@ export const TYPES = {
   // company stat
   CompanyDashboardController: Symbol.for("CompanyDashboardController"),
   CompanyDashboardService: Symbol.for("CompanyDashboardService"),
+  // admin dashb
+  AdminDashboardController: Symbol.for("AdminDashboardController"),
+  AdminDashboardService: Symbol.for("AdminDashboardService"),
+  TransactionRepository: Symbol.for("TransactionRepository"),
+  // SubscriptionPlanRepository: Symbol.for("SubscriptionPlanRepository"),
 };

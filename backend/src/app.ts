@@ -20,6 +20,7 @@ import stripeRoutes from "../src/routes/stripe";
 import { IAuthMiddleware } from "./interfaces/middlewares/IAuthMiddleware";
 import { TYPES } from "./di/types";
 import { HTTP_STATUS_CODES } from "./core/enums/httpStatusCode";
+import adminAnalyticsRoutes from "./routes/admindash.routes";
 
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
@@ -41,6 +42,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(cookieParser());
+app.use("/api/admin/analytics", adminAnalyticsRoutes);
 app.use("/auth", authRouter);
 app.use("", dashRouter);
 app.use("/api/stripe", stripeRoutes);
