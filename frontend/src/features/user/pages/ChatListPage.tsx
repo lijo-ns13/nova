@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import userAxios from "../../../utils/userAxios";
 import { formatDistanceToNow } from "date-fns";
+import Navbar from "../componets/NavBar";
+import ProfileCard from "../componets/ProfileCard";
 
 const ChatListPage = () => {
   const { id: userId } = useAppSelector((state) => state.auth);
@@ -34,6 +36,8 @@ const ChatListPage = () => {
 
   return (
     <div className="p-4 max-w-xl mx-auto">
+      <Navbar />
+
       <h1 className="text-2xl font-semibold mb-4">Chats</h1>
       <div className="space-y-4">
         {users.map((user) => (
