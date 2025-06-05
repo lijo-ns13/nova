@@ -57,12 +57,18 @@ export class CommentService implements ICommentService {
       });
       console.log("commentssssssssssssssssss", comment);
       // this for send notfiication
-      await this.notificationService.sendNotification(
-        (comment.postId as IPost)?.creatorId.toString(),
-        `${authorName} commented your post`,
-        NotificationType.COMMENT,
-        authorId.toString()
-      );
+
+      if (
+        (comment.postId as IPost)?.creatorId.toString() &&
+        (comment.postId as IPost)?.creatorId.toString() != authorId.toString()
+      ) {
+        await this.notificationService.sendNotification(
+          (comment.postId as IPost)?.creatorId.toString(),
+          `${authorName} commented your post`,
+          NotificationType.COMMENT,
+          authorId.toString()
+        );
+      }
       return this.mapCommentToResponse(comment);
     } catch (error) {
       throw new Error(`Failed to create comment: ${(error as Error).message}`);
