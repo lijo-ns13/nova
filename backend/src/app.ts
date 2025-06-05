@@ -13,7 +13,7 @@ import adminRouter from "./routes/admin.routes";
 import sharedRouter from "./routes/shared.routes";
 import googleRouter from "./routes/google.routes";
 import container from "./di/container";
-
+import dashRouter from "./routes/companydash.routes";
 // stripe realted
 import webhookRoute from "../src/routes/webhook.routes";
 import stripeRoutes from "../src/routes/stripe";
@@ -42,7 +42,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(cookieParser());
 app.use("/auth", authRouter);
-
+app.use("", dashRouter);
 app.use("/api/stripe", stripeRoutes);
 app.use("/api/auth", googleRouter);
 app.use("/", sharedRouter);

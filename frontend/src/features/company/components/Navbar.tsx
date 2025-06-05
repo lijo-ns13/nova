@@ -8,10 +8,10 @@ import { useEffect, useState } from "react";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import companyAxios from "../../../utils/companyAxios";
 import toast from "react-hot-toast";
+import userAxios from "../../../utils/userAxios";
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
-  const [unread, setUnread] = useState<number>(0);
   const { unreadCount } = useAppSelector((state) => state.notification);
 
   const fetchUnreadCountFn = async () => {
@@ -35,7 +35,6 @@ const Navbar = () => {
     });
 
     socket.on("newNotification", (notification) => {
-      alert("working");
       const { type, content } = notification;
 
       let message = "";
@@ -93,7 +92,9 @@ const Navbar = () => {
               <span className="font-bold text-xl text-gray-800">
                 CompanyName
               </span>
-              <span className="font-bold text-xl text-gray-800">{unread}</span>
+              <span className="font-bold text-xl text-gray-800">
+                {unreadCount}
+              </span>
             </Link>
           </div>
 
