@@ -21,7 +21,9 @@ const Navbar = () => {
           {/* Admin Logo */}
           <div>
             <Link to="/admin/dashboard" className="flex items-center">
-              <span className="font-bold text-xl text-white">Admin Portal</span>
+              <span className="font-bold text-xl text-white">
+                Admin Portal(NOVA)
+              </span>
             </Link>
           </div>
 

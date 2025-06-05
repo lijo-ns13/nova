@@ -93,6 +93,15 @@ export class CompanyAuthService implements ICompanyAuthService {
         role: "company",
       }
     );
+    const admins = await this._adminRepo.findAll();
+    for (const admin of admins) {
+      await this.notificationService.sendNotification(
+        admin._id.toString(),
+        `company ${company.companyName} signin succussflly`,
+        NotificationType.GENERAL,
+        company._id // senderId
+      );
+    }
     return {
       accessToken: companyAccessToken,
       refreshToken: companyRefreshToken,

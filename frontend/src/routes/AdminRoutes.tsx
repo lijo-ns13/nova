@@ -16,6 +16,7 @@ import CompanyVerificationPage from "../features/admin/pages/CompanyVerification
 import SubFeatPage from "../features/admin/pages/SubFeatPage";
 import SkillList from "../features/admin/pages/SkillList";
 import NotFoundPage from "../components/PageNotFound";
+import NotificationPage from "../features/user/pages/NotificationPage";
 const AdminRoutes = () => {
   return (
     <Routes>
@@ -37,6 +38,7 @@ const AdminRoutes = () => {
           path="/company-verification"
           element={<CompanyVerificationPage />}
         />
+        <Route path="/notification" element={<NotificationPage />} />
         <Route path="/skill-management" element={<SkillList />}></Route>
       </Route>
       <Route path="*" element={<NotFoundPage />} />
