@@ -3,7 +3,6 @@ import { Routes, Route } from "react-router-dom";
 import SignIn from "../features/admin/pages/SignIn";
 
 // protectedpages
-import Dashboard from "../features/admin/pages/Dashboard";
 import AdminLayout from "../layouts/AdminLayout";
 import Protected from "./Protected";
 // import UserManagement from "../features/admin/pages/UserManagement";
@@ -17,6 +16,7 @@ import SubFeatPage from "../features/admin/pages/SubFeatPage";
 import SkillList from "../features/admin/pages/SkillList";
 import NotFoundPage from "../components/PageNotFound";
 import NotificationPage from "../features/user/pages/NotificationPage";
+import AdminDashboard from "../features/admin/pages/AdminDashboard";
 const AdminRoutes = () => {
   return (
     <Routes>
@@ -30,7 +30,7 @@ const AdminRoutes = () => {
           </Protected>
         }
       >
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<AdminDashboard />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/company-management" element={<CompanyMangement />} />
         <Route path="/subscription-management" element={<SubFeatPage />} />
