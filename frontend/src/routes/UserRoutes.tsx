@@ -54,7 +54,7 @@ const UserRoutes = () => {
         <Route path="message/:otherUserId" element={<ChatPage />} />
 
         <Route path="interview/:roomId" element={<InterviewUserPage />} />
-        <Route path="network" element={<NetworkPage />} />
+
         <Route path="notification" element={<NotificationPage />} />
       </Route>
       {/* Protected with no user layout *************************************/}
@@ -64,7 +64,7 @@ const UserRoutes = () => {
         }
       >
         <Route path="/subscription" element={<SubscriptionUserPage />} />
-
+        <Route path="network" element={<NetworkPage />} />
         <Route path="message" element={<ChatListPage />} />
       </Route>
       {/* Protected + no user layout+multiple role access ********************************/}

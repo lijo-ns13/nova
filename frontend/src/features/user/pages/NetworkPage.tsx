@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Users, AlertCircle } from "lucide-react";
+import { Users, AlertCircle, Search } from "lucide-react";
 import {
   getNetworkUsers,
   followUser,
@@ -7,14 +7,16 @@ import {
 } from "../services/FollowService";
 import { NetworkUser } from "../types/networkUser";
 import NetworkCard from "../componets/network/NetworkCard";
-
 import LoadingSpinner from "../componets/viewableProfile/LoadingSpinner";
 import EmptyState from "../componets/EmptyState";
+import Navbar from "../componets/NavBar";
 
 const NetworkPage: React.FC = () => {
   const [networkUsers, setNetworkUsers] = useState<NetworkUser[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<NetworkUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchNetworkUsers = async () => {
@@ -23,6 +25,7 @@ const NetworkPage: React.FC = () => {
         setError(null);
         const response = await getNetworkUsers();
         setNetworkUsers(response.data);
+        setFilteredUsers(response.data);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to fetch network users"
@@ -35,10 +38,30 @@ const NetworkPage: React.FC = () => {
     fetchNetworkUsers();
   }, []);
 
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredUsers(networkUsers);
+    } else {
+      const filtered = networkUsers.filter(
+        (user) =>
+          user.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (user.user.headline &&
+            user.user.headline.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      setFilteredUsers(filtered);
+    }
+  }, [searchTerm, networkUsers]);
+
   const handleFollow = async (userId: string) => {
     try {
       await followUser(userId);
       setNetworkUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.user._id === userId ? { ...user, isFollowing: true } : user
+        )
+      );
+      setFilteredUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.user._id === userId ? { ...user, isFollowing: true } : user
         )
@@ -52,6 +75,11 @@ const NetworkPage: React.FC = () => {
     try {
       await unFollowUser(userId);
       setNetworkUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.user._id === userId ? { ...user, isFollowing: false } : user
+        )
+      );
+      setFilteredUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.user._id === userId ? { ...user, isFollowing: false } : user
         )
@@ -72,7 +100,8 @@ const NetworkPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <header className="mb-8">
+      <Navbar />
+      <header className="mt-16">
         <div className="flex items-center">
           <Users className="mr-3 h-8 w-8 text-blue-600" />
           <h1 className="text-3xl font-bold text-gray-900">My Network</h1>
@@ -81,6 +110,20 @@ const NetworkPage: React.FC = () => {
           Connect with professionals in your industry
         </p>
       </header>
+
+      {/* Search Bar */}
+      <div className="mb-8 relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
+        </div>
+        <input
+          type="text"
+          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          placeholder="Search by name, username, or headline..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
 
       {error && (
         <div className="mb-8 p-4 bg-red-50 rounded-md border border-red-100">
@@ -91,9 +134,9 @@ const NetworkPage: React.FC = () => {
         </div>
       )}
 
-      {networkUsers.length > 0 ? (
+      {filteredUsers.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {networkUsers.map((networkUser) => (
+          {filteredUsers.map((networkUser) => (
             <NetworkCard
               key={networkUser.user._id}
               networkUser={networkUser}
@@ -103,7 +146,14 @@ const NetworkPage: React.FC = () => {
           ))}
         </div>
       ) : (
-        <EmptyState title={""} description={""} />
+        <EmptyState
+          title="No connections found"
+          description={
+            searchTerm
+              ? "Try adjusting your search or explore more people"
+              : "Start building your network by connecting with others"
+          }
+        />
       )}
     </div>
   );

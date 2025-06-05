@@ -16,16 +16,35 @@ const NetworkCard: React.FC<NetworkCardProps> = ({
 }) => {
   const { user, isFollowing } = networkUser;
 
-  return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-      {/* Card Header with optional banner background */}
-      <div className="h-12 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+  const handleFollowClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onFollow(user._id);
+  };
 
-      <div className="p-6">
-        {/* Profile Section */}
-        <Link to={`/in/${user.username}`}>
-          <div className="flex items-start space-x-4">
-            <div className="relative -mt-10">
+  const handleUnfollowClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onUnfollow(user._id);
+  };
+
+  return (
+    <div className="h-full flex">
+      {" "}
+      {/* Flex container for consistent height */}
+      <Link
+        to={`/in/${user.username}`}
+        className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500 flex flex-col w-full"
+        aria-label={`View ${user.name}'s profile`}
+      >
+        {/* Card Header with banner */}
+        <div className="h-12 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+
+        {/* Card Content - flex column with fixed button position */}
+        <div className="p-6 flex flex-col flex-1">
+          {/* Profile Info Section */}
+          <div className="flex items-start space-x-4 mb-4">
+            <div className="relative -mt-10 flex-shrink-0">
               {user.profilePicture ? (
                 <img
                   className="h-16 w-16 rounded-full object-cover border-4 border-white shadow-md"
@@ -39,27 +58,27 @@ const NetworkCard: React.FC<NetworkCardProps> = ({
               )}
             </div>
 
-            <div className="flex-1 pt-2">
-              <h2 className="text-lg font-semibold text-gray-800">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-gray-800 truncate">
                 {user.name}
               </h2>
-              <p className="text-sm text-gray-600">@{user.username}</p>
+              <p className="text-sm text-gray-600 truncate">@{user.username}</p>
             </div>
           </div>
 
-          {/* Headline */}
-          {user.headline && (
-            <p className="text-sm text-gray-600 mt-3 line-clamp-2">
-              {user.headline}
-            </p>
-          )}
+          {/* Headline with constrained height */}
+          <div className="flex-1 mb-4 min-h-[40px] max-h-[60px] overflow-y-auto">
+            {user.headline && (
+              <p className="text-sm text-gray-600">{user.headline}</p>
+            )}
+          </div>
 
-          {/* Action Button */}
-          <div className="mt-4 flex justify-end">
+          {/* Action Button - fixed height and position */}
+          <div className="mt-auto h-10 flex justify-end items-center">
             {isFollowing ? (
               <button
-                onClick={() => onUnfollow(user._id)}
-                className="flex items-center space-x-1 px-4 py-2 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors duration-300"
+                onClick={handleUnfollowClick}
+                className="flex items-center justify-center space-x-1 px-4 py-2 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 w-[110px]"
                 aria-label={`Unfollow ${user.name}`}
               >
                 <UserMinus size={16} />
@@ -67,8 +86,8 @@ const NetworkCard: React.FC<NetworkCardProps> = ({
               </button>
             ) : (
               <button
-                onClick={() => onFollow(user._id)}
-                className="flex items-center space-x-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors duration-300"
+                onClick={handleFollowClick}
+                className="flex items-center justify-center space-x-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 w-[110px]"
                 aria-label={`Follow ${user.name}`}
               >
                 <UserPlus size={16} />
@@ -76,8 +95,8 @@ const NetworkCard: React.FC<NetworkCardProps> = ({
               </button>
             )}
           </div>
-        </Link>
-      </div>
+        </div>
+      </Link>
     </div>
   );
 };

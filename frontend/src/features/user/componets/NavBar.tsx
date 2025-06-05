@@ -148,6 +148,7 @@ const Navbar = () => {
     { path: "/jobs", label: "Jobs", icon: <Briefcase size={20} /> },
     { path: "/message", label: "Messages", icon: <MessageSquare size={20} /> },
     { path: "/notification", label: "Notifications", icon: <Bell size={20} /> },
+    { path: "/network", label: "Network", icon: <Users size={20} /> },
   ];
 
   return (
