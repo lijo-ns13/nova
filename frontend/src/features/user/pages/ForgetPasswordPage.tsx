@@ -2,6 +2,7 @@ import { useState } from "react";
 import { forgetPasswordByEmail } from "../services/AuthServices";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
+import SiteInfoNav from "../../../components/SiteInfoNav";
 
 const ForgetSchema = z.object({
   email: z.string().email("Invalid email format"),
@@ -44,7 +45,7 @@ function ForgetPasswordPage() {
       await forgetPasswordByEmail(email);
       setShowSuccess(true);
       setTimeout(() => {
-        navigate("/login");
+        navigate("/company/signin");
       }, 1000);
     } catch (err: any) {
       console.error("Error in forgetPassword:", err);
@@ -56,6 +57,7 @@ function ForgetPasswordPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <SiteInfoNav />
       <div className="w-full max-w-md px-8 py-10 bg-white rounded-xl shadow-lg">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-800">Forgot Password?</h2>
@@ -137,7 +139,7 @@ function ForgetPasswordPage() {
                 </div>
                 <input
                   id="email"
-                  type="email"
+                  type="text"
                   placeholder="you@example.com"
                   value={email}
                   onChange={handleEmailChange}

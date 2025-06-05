@@ -7,6 +7,7 @@ import { login } from "../../auth/auth.slice";
 import { useNavigate } from "react-router-dom";
 import Googlebutton from "../componets/GoogleButton";
 import socket from "../../../socket/socket";
+import SiteInfoNav from "../../../components/SiteInfoNav";
 function SignInPage() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   useEffect(() => {
@@ -94,6 +95,7 @@ function SignInPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+      <SiteInfoNav />
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
@@ -147,9 +149,9 @@ function SignInPage() {
                 <input
                   id="email-address"
                   name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
+                  type="text"
+                  // autoComplete="email"
+                  // required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={`appearance-none block w-full px-3 py-2 border ${
@@ -176,7 +178,7 @@ function SignInPage() {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
-                  required
+                  // required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={`appearance-none block w-full px-3 py-2 border ${

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { resendOTP, verifyCompanyByOTP } from "../services/AuthServices";
 import toast from "react-hot-toast";
+import SiteInfoNav from "../../../components/SiteInfoNav";
 function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -90,6 +91,7 @@ function VerifyEmail() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 to-purple-50 p-4">
+      <SiteInfoNav />
       <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full transform transition-all duration-300 hover:scale-105">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">

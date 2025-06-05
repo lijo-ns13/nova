@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 // auth pages
 import SignIn from "../features/company/pages/SignIn";
 import SignUp from "../features/company/pages/SignUp";
-import CompanyForgetPassword from "../features/company/pages/CompanyForgetPassword";
+
 import CompanyResetPassword from "../features/company/pages/CompanyResetPassword";
 import VerifyEmail from "../features/company/pages/VerifyEmail";
 import CompanyProfilePage from "../features/company/pages/CompanyProfilePage";
@@ -19,6 +19,8 @@ import CompanyApplicantsPage from "../features/company/pages/CompanyApplicantsPa
 import InterviewCompanyPage from "../features/company/pages/InterviewCompanyPage";
 import ApplicationDetailPage from "../features/company/pages/ApplicantDetails";
 import NotFoundPage from "../components/PageNotFound";
+import ForgetPasswordPage from "../features/company/pages/ForgetPassword";
+import ResetPasswordPage from "../features/company/pages/ResetPasswordPage";
 const CompanyRoutes = () => {
   return (
     <Routes>
@@ -26,8 +28,8 @@ const CompanyRoutes = () => {
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/verify" element={<VerifyEmail />} />
-      <Route path="/forget-password" element={<CompanyForgetPassword />} />
-      <Route path="/reset-password" element={<CompanyResetPassword />} />
+      <Route path="/forget-password" element={<ForgetPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
       <Route
         element={

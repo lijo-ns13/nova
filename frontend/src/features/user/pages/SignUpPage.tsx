@@ -2,6 +2,7 @@ import { useState, useReducer } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { SignUpUser } from "../services/AuthServices";
+import SiteInfoNav from "../../../components/SiteInfoNav";
 
 export const signUpSchema = z
   .object({
@@ -128,6 +129,7 @@ function SignUpPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+      <SiteInfoNav />
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">

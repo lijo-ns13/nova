@@ -70,7 +70,7 @@ function ResetPasswordPage() {
       if (result.success) {
         toast.success("Reset password successfull✅");
         setTimeout(() => {
-          navigate("/login");
+          navigate("/company/signin");
         }, 5000);
       } else {
         setErrors({ password: result.message || "Reset failed" });
@@ -113,7 +113,7 @@ function ResetPasswordPage() {
                   name="password"
                   type="password"
                   autoComplete="new-password"
-                  required
+                  //   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -138,7 +138,7 @@ function ResetPasswordPage() {
                   name="confirmPassword"
                   type="password"
                   autoComplete="new-password"
-                  required
+                  //   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"

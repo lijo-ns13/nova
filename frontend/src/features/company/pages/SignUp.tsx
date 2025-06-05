@@ -4,6 +4,7 @@ import { signUpCompanyRequestSchema } from "../util/validators";
 import { uploadToCloudinary } from "../services/cloudinaryService";
 import { signUpCompany } from "../services/AuthServices";
 import { useNavigate } from "react-router-dom";
+import SiteInfoNav from "../../../components/SiteInfoNav";
 type SignUpErrors = {
   companyName?: string;
   email?: string;
@@ -115,6 +116,7 @@ function SignUp() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <SiteInfoNav />
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold mb-6 text-center">
           Company Signup{serverError && <p>{serverError}</p>}
