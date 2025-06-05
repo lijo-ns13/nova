@@ -168,6 +168,10 @@ import { JobApplicantManagementService } from "../services/company/JobApplicantM
 import { IJobApplicantManagementController } from "../interfaces/controllers/IJobApplicantManagementController";
 import { JobApplicantManagementController } from "../controllers/company/JobApplicantManagementController";
 import jobModal, { IJob } from "../models/job.modal";
+// import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
+// import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
+// import { ICompanyDashboardService } from "../interfaces/services/ICompanyDashboardService";
+// import { CompanyDashboardService } from "../services/company/CompanyDashboardService";
 
 const container = new Container();
 
@@ -431,5 +435,11 @@ container
     TYPES.JobApplicantManagementController
   )
   .to(JobApplicantManagementController);
-
+// company stats
+container;
+//   .bind<ICompanyDashboardController>(TYPES.CompanyDashboardController)
+//   .to(CompanyDashboardController);
+// container
+//   .bind<ICompanyDashboardService>(TYPES.CompanyDashboardService)
+//   .to(CompanyDashboardService);
 export default container;

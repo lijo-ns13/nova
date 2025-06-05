@@ -4,10 +4,14 @@ import { Types } from "mongoose";
 import jobModal from "../../models/job.modal";
 import applicationModal from "../../models/application.modal";
 import { ApplicationStatus } from "../../models/application.modal";
-
+interface Userr {
+  _id: string;
+  email: string;
+  role: string;
+}
 export const getCompanyDashboardStats = async (req: Request, res: Response) => {
   try {
-    // const companyId = req.user?.id;
+    // const companyId = (req.user as Userr)?._id;
     const companyId = "682570832310cdb03566e160";
     if (!companyId)
       return res.status(400).json({ message: "Company ID missing" });

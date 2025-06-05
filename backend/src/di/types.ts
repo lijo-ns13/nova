@@ -134,4 +134,7 @@ export const TYPES = {
   JobApplicantManagementController: Symbol.for(
     "JobApplicantManagementController"
   ),
+  // company stat
+  CompanyDashboardController: Symbol.for("CompanyDashboardController"),
+  CompanyDashboardService: Symbol.for("CompanyDashboardService"),
 };
