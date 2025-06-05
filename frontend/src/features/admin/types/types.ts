@@ -8,6 +8,11 @@ export interface Company {
   location?: string;
   documents?: string[];
   profilePicture?: string;
+  foundedYear?: number;
+  verificationStatus?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  about?: string;
 }
 
 export interface Pagination {
