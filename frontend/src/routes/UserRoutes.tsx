@@ -26,6 +26,8 @@ import NotificationPage from "../features/user/pages/NotificationPage";
 import SubscriptionUserPage from "../features/user/pages/SubscriptionUserPage";
 import ProtectedWithoutChild from "./ProtectedWithoutChld";
 import NotFoundPage from "../components/PageNotFound";
+import PaymentSuccess from "../components/PaymentSuccess";
+import PaymentFailure from "../components/PaymentFailure";
 const UserRoutes = () => {
   return (
     <Routes>
@@ -46,6 +48,7 @@ const UserRoutes = () => {
         }
       >
         {/* we can write other user routes like dahsboard,profeliall proetected */}
+
         <Route path="feed" element={<FeedPage />} />
         <Route path="jobs" element={<JobPage />} />
         <Route path="applied-jobs" element={<AppliedJobsPage />} />
@@ -66,6 +69,8 @@ const UserRoutes = () => {
         <Route path="/subscription" element={<SubscriptionUserPage />} />
         <Route path="network" element={<NetworkPage />} />
         <Route path="message" element={<ChatListPage />} />
+        <Route path="payment-success" element={<PaymentSuccess />} />
+        <Route path="payment-failure" element={<PaymentFailure />} />
       </Route>
       {/* Protected + no user layout+multiple role access ********************************/}
       <Route
