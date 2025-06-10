@@ -1,8 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { CheckCircle, ArrowRight, Home } from "lucide-react";
 import { Link } from "react-router-dom";
-
+import { useAppDispatch } from "../hooks/useAppDispatch";
+import { updateSubscriptionStatus } from "../features/auth/auth.slice";
 const PaymentSuccess = () => {
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(
+      updateSubscriptionStatus({
+        isSubscriptionTaken: true,
+      })
+    );
+  }, []);
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -51,13 +60,7 @@ const PaymentSuccess = () => {
 
             <div className="mt-8 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
               <Link
-                to="/orders"
-                className="w-full flex items-center justify-center px-4 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                View Order Details <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-              <Link
-                to="/"
+                to="/feed"
                 className="w-full flex items-center justify-center px-4 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 <Home className="mr-2 h-4 w-4" /> Back to Home

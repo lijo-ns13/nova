@@ -11,7 +11,7 @@ export class PostRepository
   extends BaseRepository<IPost>
   implements IPostRepository
 {
-  constructor(@inject(TYPES.postModal) userModal: Model<IPost>) {
+  constructor(@inject(TYPES.postModal) postModal: Model<IPost>) {
     super(postModal);
   }
 

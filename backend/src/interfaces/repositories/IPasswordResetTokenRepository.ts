@@ -2,6 +2,7 @@
 import { IBaseRepository } from "./IBaseRepository";
 import { IPasswordResetToken } from "../../models/PasswordResetToken";
 import { Types } from "mongoose";
+
 export interface CreatePasswordResetTokenDto {
   token: string;
   accountId: Types.ObjectId;
@@ -11,12 +12,7 @@ export interface CreatePasswordResetTokenDto {
 
 export interface IPasswordResetTokenRepository
   extends IBaseRepository<IPasswordResetToken> {
-  createToken(arg0: {
-    token: string;
-    accountId: Types.ObjectId;
-    accountType: string;
-    expiresAt: Date;
-  }): unknown;
+  createToken(data: CreatePasswordResetTokenDto): Promise<IPasswordResetToken>;
   findByToken(token: string): Promise<IPasswordResetToken | null>;
   findByAccount(
     accountId: Types.ObjectId,

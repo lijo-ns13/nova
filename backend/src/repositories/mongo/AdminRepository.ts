@@ -12,7 +12,7 @@ export class AdminRepository
   implements IAdminRepository
 {
   constructor(
-    @inject(TYPES.AdminModal) adminModel: Model<IAdmin> // Make sure TYPES.AdminModel is mapped correctly in your DI container
+    @inject(TYPES.AdminModal) adminModel: Model<IAdmin> 
   ) {
     super(adminModel);
   }

@@ -1,15 +1,14 @@
 // src/infrastructure/database/repositories/mongo/PasswordResetTokenRepository.ts
 import { inject, injectable } from "inversify";
 import { Model, Types } from "mongoose";
+
+import { BaseRepository } from "./BaseRepository";
+import { TYPES } from "../../di/types";
+import { IPasswordResetToken } from "../../models/PasswordResetToken";
 import {
   CreatePasswordResetTokenDto,
   IPasswordResetTokenRepository,
 } from "../../interfaces/repositories/IPasswordResetTokenRepository";
-import PasswordResetToken, {
-  IPasswordResetToken,
-} from "../../models/PasswordResetToken";
-import { BaseRepository } from "./BaseRepository";
-import { TYPES } from "../../di/types";
 
 @injectable()
 export class PasswordResetTokenRepository
@@ -26,30 +25,32 @@ export class PasswordResetTokenRepository
   async createToken(
     data: CreatePasswordResetTokenDto
   ): Promise<IPasswordResetToken> {
-    return this.model.create(data);
+    return this.create(data);
   }
 
   async findByToken(token: string): Promise<IPasswordResetToken | null> {
-    return this.model.findOne({ token }).exec();
+    return this.findOne({ token });
   }
 
   async findByAccount(
     accountId: Types.ObjectId,
     accountType: "user" | "company"
   ): Promise<IPasswordResetToken | null> {
-    return this.model.findOne({ accountId, accountType }).exec();
+    return this.findOne({ accountId, accountType });
   }
 
   async deleteByToken(token: string): Promise<boolean> {
-    const result = await this.model.deleteOne({ token });
-    return result.deletedCount === 1;
+    const doc = await this.findOne({ token });
+    if (!doc) return false;
+    return this.delete(doc._id.toString());
   }
 
   async deleteByAccount(
     accountId: Types.ObjectId,
     accountType: "user" | "company"
   ): Promise<boolean> {
-    const result = await this.model.deleteMany({ accountId, accountType });
-    return result.deletedCount > 0;
+    const doc = await this.findOne({ accountId, accountType });
+    if (!doc) return false;
+    return this.delete(doc._id.toString());
   }
 }

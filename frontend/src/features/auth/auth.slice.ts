@@ -96,8 +96,21 @@ const authSlice = createSlice({
         state.profilePicture = action.payload.profilePicture;
       }
     },
+    updateSubscriptionStatus: (
+      state,
+      action: PayloadAction<{
+        isSubscriptionTaken: boolean;
+        subscriptionExpiresAt?: string | Date;
+      }>
+    ) => {
+      state.isSubscriptionTaken = action.payload.isSubscriptionTaken;
+      state.subscriptionExpiresAt = action.payload.subscriptionExpiresAt
+        ? new Date(action.payload.subscriptionExpiresAt)
+        : undefined;
+    },
   },
 });
 
-export const { login, logout, updateProfile } = authSlice.actions;
+export const { login, logout, updateProfile, updateSubscriptionStatus } =
+  authSlice.actions;
 export default authSlice.reducer;

@@ -168,6 +168,7 @@ import { JobApplicantManagementService } from "../services/company/JobApplicantM
 import { IJobApplicantManagementController } from "../interfaces/controllers/IJobApplicantManagementController";
 import { JobApplicantManagementController } from "../controllers/company/JobApplicantManagementController";
 import jobModal, { IJob } from "../models/job.modal";
+import commentModal, { IComment } from "../models/comment.modal";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
 // import { ICompanyDashboardService } from "../interfaces/services/ICompanyDashboardService";
@@ -225,6 +226,9 @@ container.bind<IPostRepository>(TYPES.PostRepository).to(PostRepository);
 container
   .bind<ICommentRepository>(TYPES.CommentRepository)
   .to(CommentRepository);
+container
+  .bind<Model<IComment>>(TYPES.commentModal)
+  .toConstantValue(commentModal);
 container.bind<Model<ILike>>(TYPES.likeModal).toConstantValue(likeModal);
 container.bind<ILikeRepository>(TYPES.LikeRepository).to(LikeRepository);
 container.bind<IMediaRepository>(TYPES.MediaRepository).to(MediaRepository);

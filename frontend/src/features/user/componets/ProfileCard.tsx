@@ -17,16 +17,16 @@ const ProfileCard: React.FC = () => {
     name,
     profilePicture,
     headline,
-    location,
-    company,
-    connections,
-    profileViews,
+    // location,
+    // company,
+    // connections,
+    // profileViews,
   } = useAppSelector((state) => ({
     ...state.auth,
-    connections: state.auth.connections || 100,
-    profileViews: state.auth.profileViews || 200,
-    location: state.auth.location || "New York, USA",
-    company: state.auth.company || "Company Name",
+    // connections: state.auth.connections || 100,
+    // profileViews: state.auth.profileViews || 200,
+    // location: state.auth.location || "New York, USA",
+    // company: state.auth.company || "Company Name",
   }));
 
   const getInitials = (name: string) => {
@@ -80,7 +80,7 @@ const ProfileCard: React.FC = () => {
 
         {/* Location and Company */}
         <div className="flex flex-col space-y-1 mt-3 text-sm text-gray-600 dark:text-gray-400 items-center">
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <MapPin
               size={14}
               className="mr-1.5 text-gray-500 dark:text-gray-400"
@@ -93,7 +93,7 @@ const ProfileCard: React.FC = () => {
               className="mr-1.5 text-gray-500 dark:text-gray-400"
             />
             <span>{company}</span>
-          </div>
+          </div> */}
         </div>
 
         {/* Stats */}
@@ -103,10 +103,10 @@ const ProfileCard: React.FC = () => {
             className="flex flex-col items-center space-y-1 group"
           >
             <div className="flex items-center">
-              <UserPlus size={16} className="text-blue-500 mr-2" />
+              {/* <UserPlus size={16} className="text-blue-500 mr-2" />
               <p className="text-sm text-gray-900 dark:text-white font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 {connections} connections
-              </p>
+              </p> */}
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Grow your network
@@ -116,22 +116,22 @@ const ProfileCard: React.FC = () => {
             to="/profile-views"
             className="flex flex-col items-center space-y-1 group"
           >
-            <div className="flex items-center">
-              <Eye size={16} className="text-blue-500 mr-2" />
+            {/* <div className="flex items-center"> */}
+            {/* <Eye size={16} className="text-blue-500 mr-2" />
               <p className="text-sm text-gray-900 dark:text-white font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 {profileViews} profile views
-              </p>
-            </div>
+              </p> */}
+            {/* </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Last 30 days
-            </p>
+            </p> */}
           </Link>
         </div>
       </div>
 
       {/* Quick actions */}
       <div className="bg-gray-50 dark:bg-gray-700/50 px-4 md:px-6 py-3 grid grid-cols-3 gap-2">
-        <Link
+        {/* <Link
           to="/saved-jobs"
           className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
@@ -142,7 +142,7 @@ const ProfileCard: React.FC = () => {
           <span className="text-xs font-medium text-gray-700 dark:text-gray-300 text-center">
             Saved Jobs
           </span>
-        </Link>
+        </Link> */}
         <Link
           to="/applied-jobs"
           className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"

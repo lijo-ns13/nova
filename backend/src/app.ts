@@ -21,7 +21,7 @@ import { IAuthMiddleware } from "./interfaces/middlewares/IAuthMiddleware";
 import { TYPES } from "./di/types";
 import { HTTP_STATUS_CODES } from "./core/enums/httpStatusCode";
 import adminAnalyticsRoutes from "./routes/admindash.routes";
-
+import "./cron/userCronJob";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const app: Application = express();
@@ -42,6 +42,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(cookieParser());
+
 app.use("/api/admin/analytics", adminAnalyticsRoutes);
 app.use("/auth", authRouter);
 app.use("", dashRouter);

@@ -78,7 +78,7 @@ const Sidebar = () => {
   const navItems = [
     { name: "Dashboard", path: "/company/dashboard", icon: "📊" },
 
-    { name: "Company Profile", path: "/company/company-profile", icon: "📋" },
+    // { name: "Company Profile", path: "/company/company-profile", icon: "📋" },
     {
       name: "Manage jobs",
       path: "/company/manage-jobs",

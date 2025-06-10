@@ -1,5 +1,4 @@
 import { Model, Document, PopulateOptions } from "mongoose";
-
 import { injectable } from "inversify";
 import { IBaseRepository } from "../../interfaces/repositories/IBaseRepository";
 
@@ -17,8 +16,15 @@ export abstract class BaseRepository<T extends Document>
     return this.model.create(entity);
   }
 
-  async findById(id: string): Promise<T | null> {
-    return this.model.findById(id);
+  async findById(
+    id: string,
+    populate?: PopulateOptions | (string | PopulateOptions)[]
+  ): Promise<T | null> {
+    const query = this.model.findById(id);
+    if (populate) {
+      query.populate(populate);
+    }
+    return query.exec();
   }
 
   async update(id: string, updateData: Partial<T>): Promise<T | null> {
@@ -30,13 +36,83 @@ export abstract class BaseRepository<T extends Document>
     return result.deletedCount === 1;
   }
 
-  async findAll(filter: Record<string, unknown> = {}): Promise<T[]> {
-    return this.model.find(filter);
+  async findAll(
+    filter: Record<string, unknown> = {},
+    populate?: PopulateOptions | (string | PopulateOptions)[],
+    sort?: Record<string, 1 | -1>,
+    limit?: number
+  ): Promise<T[]> {
+    const query = this.model.find(filter);
+
+    if (populate) {
+      query.populate(populate);
+    }
+
+    if (sort) {
+      query.sort(sort);
+    }
+
+    if (limit) {
+      query.limit(limit);
+    }
+
+    return query.exec();
   }
+
   async findOne(
     filter: Record<string, unknown>,
-    populate: Array<{ path: string; select?: string }> = [] // Optional populate array
+    populate?: PopulateOptions | (string | PopulateOptions)[]
   ): Promise<T | null> {
-    return this.model.findOne(filter).populate(populate); // Populate related fields
+    const query = this.model.findOne(filter);
+    if (populate) {
+      query.populate(populate);
+    }
+    return query.exec();
+  }
+
+  async findOneAndUpdate(
+    filter: Record<string, any>,
+    update: Partial<T>
+  ): Promise<T | null> {
+    return this.model.findOneAndUpdate(filter, update, { new: true });
+  }
+
+  async countDocuments(filter: Record<string, unknown> = {}): Promise<number> {
+    return this.model.countDocuments(filter);
+  }
+
+  async paginate(
+    filter: Record<string, unknown> = {},
+    page: number = 1,
+    limit: number = 10,
+    populate?: PopulateOptions | (string | PopulateOptions)[],
+    sort?: Record<string, 1 | -1>
+  ): Promise<{
+    data: T[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.model
+        .find(filter)
+        .skip(skip)
+        .limit(limit)
+        .populate(populate || [])
+        .sort(sort || { createdAt: -1 })
+        .exec(),
+      this.model.countDocuments(filter),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }

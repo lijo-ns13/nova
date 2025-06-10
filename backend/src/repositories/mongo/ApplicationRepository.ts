@@ -103,7 +103,7 @@ export class ApplicationRepository
       .exec();
   }
   async shortlistApplication(applicationId: string): Promise<boolean> {
-    const application = await applicationModel.findById(applicationId);
+    const application = await this.findById(applicationId);
     if (!application) return false;
 
     application.status = ApplicationStatus.SHORTLISTED;
@@ -120,7 +120,7 @@ export class ApplicationRepository
     applicationId: string,
     reason?: string
   ): Promise<boolean> {
-    const application = await applicationModel.findById(applicationId);
+    const application = await this.findById(applicationId);
     if (!application) return false;
 
     application.status = ApplicationStatus.REJECTED;

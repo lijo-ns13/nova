@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSubscriptionWithFeatures } from "../hooks/useSubscriptionWithFeatures";
 import SubscribeButton from "../../../components/SubscribeButton";
+import { useAppSelector } from "../../../hooks/useAppSelector";
+import { Button } from "antd";
+
 interface SubscriptionWithFeat {
   subscription: {
     _id: string;
@@ -18,7 +21,7 @@ function SubscriptionUserPage() {
   const { data, loading, error } = useSubscriptionWithFeatures();
   const [sub, setSub] = useState<SubscriptionWithFeat[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-
+  const { isSubscriptionTaken } = useAppSelector((state) => state.auth);
   useEffect(() => {
     if (data) {
       setSub(data.data);
@@ -212,10 +215,14 @@ function SubscriptionUserPage() {
                     {/* i want to add this button */}
 
                     {/* CTA Button */}
-                    <SubscribeButton
-                      planName={item.subscription.name}
-                      price={item.subscription.price}
-                    />
+                    {isSubscriptionTaken ? (
+                      <Button>Already have an Subscription</Button>
+                    ) : (
+                      <SubscribeButton
+                        planName={item.subscription.name}
+                        price={item.subscription.price}
+                      />
+                    )}
                   </div>
                 </div>
               </div>

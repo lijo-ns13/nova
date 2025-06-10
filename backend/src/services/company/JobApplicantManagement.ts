@@ -10,6 +10,8 @@ import {
 import { IJobApplicantManagementService } from "../../interfaces/services/IJobApplicantManagement";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { AppIntegrations } from "aws-sdk";
+import { INotificationService } from "../../interfaces/services/INotificationService";
+import { NotificationType } from "../../models/notification.modal";
 const statusesRequiringReason: ApplicationStatus[] = [
   ApplicationStatus.REJECTED,
   ApplicationStatus.INTERVIEW_CANCELLED,
@@ -135,7 +137,6 @@ export class JobApplicantManagementService
     if (statusesRequiringReason.includes(newStatus) && !reason) {
       throw new Error(`Reason is required for status: ${newStatus}`);
     }
-
     // Proceed with update
     return this._applicationRepo.updateStatus(applicationId, newStatus, reason);
   }

@@ -1,12 +1,12 @@
 // src/infrastructure/database/repositories/mongo/OTPRepository.ts
 import { inject, injectable } from "inversify";
 import { Model, Types } from "mongoose";
+import { BaseRepository } from "./BaseRepository";
+import { IOTP } from "../../models/otp.modal";
 import {
   createOtpDTO,
   IOTPRepository,
 } from "../../interfaces/repositories/IOTPRepository";
-import otpModal, { IOTP } from "../../models/otp.modal";
-import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";
 
 @injectable()
@@ -14,26 +14,25 @@ export class OTPRepository
   extends BaseRepository<IOTP>
   implements IOTPRepository
 {
-  constructor(@inject(TYPES.OTPModal) otpModal: Model<IOTP>) {
-    super(otpModal);
+  constructor(@inject(TYPES.OTPModal) otpModel: Model<IOTP>) {
+    super(otpModel);
   }
 
   async createOTP(data: createOtpDTO): Promise<IOTP> {
-    const otpDoc = new otpModal(data);
-    return await otpDoc.save();
+    return this.create(data);
   }
 
   async findOTPByAccount(
     accountId: Types.ObjectId,
     accountType: "user" | "company"
   ): Promise<IOTP | null> {
-    return await otpModal.findOne({ accountId, accountType });
+    return this.findOne({ accountId, accountType });
   }
 
   async updateOTP(
     otpId: Types.ObjectId,
     updateData: Partial<createOtpDTO>
   ): Promise<IOTP | null> {
-    return await otpModal.findByIdAndUpdate(otpId, updateData, { new: true });
+    return this.update(otpId.toString(), updateData);
   }
 }

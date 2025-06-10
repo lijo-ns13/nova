@@ -1,13 +1,15 @@
-// src/core/interfaces/repositories/IOTPRepository.ts
-import { IBaseRepository } from "./IBaseRepository";
-import { IOTP } from "../../models/otp.modal";
+// src/interfaces/repositories/IOTPRepository.ts
 import { Types } from "mongoose";
+import { IOTP } from "../../models/otp.modal";
+import { IBaseRepository } from "./IBaseRepository";
+
 export interface createOtpDTO {
-  accountId: Types.ObjectId; // The ID of the user or company
-  accountType: "user" | "company"; // The type of account
-  otp: string; // The OTP code
-  expiresAt: Date; // The expiration date of the OTP
+  accountId: Types.ObjectId;
+  accountType: "user" | "company";
+  otp: string;
+  expiresAt: Date;
 }
+
 export interface IOTPRepository extends IBaseRepository<IOTP> {
   createOTP(data: createOtpDTO): Promise<IOTP>;
   findOTPByAccount(
