@@ -3,15 +3,20 @@ import { CheckCircle, ArrowRight, Home } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAppDispatch } from "../hooks/useAppDispatch";
 import { updateSubscriptionStatus } from "../features/auth/auth.slice";
+import { useAppSelector } from "../hooks/useAppSelector";
 const PaymentSuccess = () => {
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(
-      updateSubscriptionStatus({
-        isSubscriptionTaken: true,
-      })
-    );
-  }, []);
+    if (isAuthenticated) {
+      dispatch(
+        updateSubscriptionStatus({
+          isSubscriptionTaken: true,
+        })
+      );
+    }
+  }, [isAuthenticated]);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">

@@ -28,6 +28,7 @@ import ProtectedWithoutChild from "./ProtectedWithoutChld";
 import NotFoundPage from "../components/PageNotFound";
 import PaymentSuccess from "../components/PaymentSuccess";
 import PaymentFailure from "../components/PaymentFailure";
+import RefundPage from "../features/user/pages/RefundPage";
 const UserRoutes = () => {
   return (
     <Routes>
@@ -71,6 +72,7 @@ const UserRoutes = () => {
         <Route path="message" element={<ChatListPage />} />
         <Route path="payment-success" element={<PaymentSuccess />} />
         <Route path="payment-failure" element={<PaymentFailure />} />
+        <Route path="refund" element={<RefundPage />} />
       </Route>
       {/* Protected + no user layout+multiple role access ********************************/}
       <Route
