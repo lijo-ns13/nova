@@ -1,5 +1,6 @@
 import { JobApplicantManagementController } from "../controllers/company/JobApplicantManagementController";
 import { JobApplicantManagementService } from "../services/company/JobApplicantManagement";
+import { StripeService } from "../services/StripeService";
 
 export const TYPES = {
   // Repositories
@@ -143,4 +144,6 @@ export const TYPES = {
   AdminDashboardService: Symbol.for("AdminDashboardService"),
   TransactionRepository: Symbol.for("TransactionRepository"),
   // SubscriptionPlanRepository: Symbol.for("SubscriptionPlanRepository"),
+  StripeService: Symbol.for("StripeService"),
+  StripeController: Symbol.for("StripeController"),
 };

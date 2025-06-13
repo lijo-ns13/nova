@@ -169,6 +169,10 @@ import { IJobApplicantManagementController } from "../interfaces/controllers/IJo
 import { JobApplicantManagementController } from "../controllers/company/JobApplicantManagementController";
 import jobModal, { IJob } from "../models/job.modal";
 import commentModal, { IComment } from "../models/comment.modal";
+import { IStripeController } from "../interfaces/controllers/IStripeController";
+import { IStripeService } from "../interfaces/services/IStripeService";
+import { StripeService } from "../services/StripeService";
+import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
 // import { ICompanyDashboardService } from "../interfaces/services/ICompanyDashboardService";
@@ -446,4 +450,15 @@ container;
 // container
 //   .bind<ICompanyDashboardService>(TYPES.CompanyDashboardService)
 //   .to(CompanyDashboardService);
+
+// stripe
+container
+  .bind<IStripeService>(TYPES.StripeService)
+  .to(StripeService)
+  .inSingletonScope();
+
+container
+  .bind<IStripeController>(TYPES.StripeController)
+  .to(StripeController)
+  .inSingletonScope();
 export default container;

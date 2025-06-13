@@ -23,4 +23,15 @@ export class TransactionRepository implements ITransactionRepository {
     ]);
     return result.length > 0 ? result[0].total : 0;
   }
+  async updateTransactionStatus(
+    transactionId: string,
+    status: string,
+    refundData?: any
+  ): Promise<ITransaction | null> {
+    return await tranasctionModal.findByIdAndUpdate(
+      transactionId,
+      { status, ...refundData },
+      { new: true }
+    );
+  }
 }
