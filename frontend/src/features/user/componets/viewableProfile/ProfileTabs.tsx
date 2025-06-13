@@ -11,6 +11,7 @@ const tabItems = [
   "education",
   "certifications",
   "projects",
+  "posts",
 ];
 
 const ProfileTabs = ({ activeTab, setActiveTab }: ProfileTabsProps) => {

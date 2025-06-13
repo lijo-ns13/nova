@@ -1,6 +1,7 @@
 import { UserData } from "../../../../types/profile";
 import { Camera } from "lucide-react";
 import { useScrollPosition } from "../../hooks/useScrollPosition";
+import { Link } from "react-router-dom";
 
 interface ProfileHeaderProps {
   userData: UserData;
@@ -52,15 +53,6 @@ const ProfileHeader = ({ userData }: ProfileHeaderProps) => {
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                     <Camera className="w-6 h-6 text-white" />
                   </div>
-                </div>
-
-                <div className="flex sm:hidden gap-2">
-                  <button className="px-3 py-1.5 bg-black hover:bg-black/90 active:bg-black/80 text-white font-medium transition-colors text-sm tracking-wide">
-                    CONNECT
-                  </button>
-                  <button className="px-3 py-1.5 bg-transparent border border-black text-black font-medium hover:bg-black/5 active:bg-black/10 transition-colors text-sm tracking-wide">
-                    MESSAGE
-                  </button>
                 </div>
               </div>
 
@@ -157,10 +149,18 @@ const ProfileHeader = ({ userData }: ProfileHeaderProps) => {
                   )}
                 </div>
 
-                <div className="text-sm pt-1">
-                  <span className="text-black hover:underline cursor-pointer font-medium">
-                    {userData?.connections || "500+"} connections
+                <div className="flex flex-wrap gap-3 mt-4 items-center">
+                  <span className="text-black font-medium">
+                    {userData.following?.length || 0} Following
                   </span>
+                  <span className="text-black font-medium">
+                    {userData.followers?.length || 0} Followers
+                  </span>
+                  <Link to={`/message/${userData._id}`}>
+                    <button className="px-4 py-1.5 border border-gray-700 text-gray-800 rounded-md text-sm font-medium hover:bg-gray-100 transition">
+                      Message
+                    </button>
+                  </Link>
                 </div>
               </div>
             </div>

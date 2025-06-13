@@ -58,4 +58,6 @@ export interface UserData {
   educations?: Education[];
   certifications?: Certification[];
   projects?: Project[];
+  followers?: string[];
+  following?: string[];
 }

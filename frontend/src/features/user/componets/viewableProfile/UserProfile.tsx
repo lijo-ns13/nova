@@ -112,6 +112,10 @@ const UserProfile = ({ username }: UserProfileProps) => {
           {activeTab === "projects" && (
             <ProjectSectionViewable userData={userData} />
           )}
+          {/* Post section */}
+          {activeTab === "posts" && (
+            <ProjectSectionViewable userData={userData} />
+          )}
         </div>
       </main>
 
