@@ -1,22 +1,64 @@
+import { useState } from "react";
 import { UserData } from "../../../../types/profile";
 import { Camera } from "lucide-react";
 import { useScrollPosition } from "../../hooks/useScrollPosition";
 import { Link } from "react-router-dom";
+import {
+  getFollowers,
+  getFollowing,
+  NetworkUser,
+} from "../../services/FollowService";
+import UserListModal from "../modals/UserListModal";
 
 interface ProfileHeaderProps {
   userData: UserData;
+  currentUserId: string;
 }
 
-const ProfileHeader = ({ userData }: ProfileHeaderProps) => {
+const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
   const { scrolled } = useScrollPosition();
+  const [modalType, setModalType] = useState<"followers" | "following" | null>(
+    null
+  );
+  const [users, setUsers] = useState<NetworkUser[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchUsers = async (type: "followers" | "following") => {
+    setIsLoading(true);
+    try {
+      const response =
+        type === "followers"
+          ? await getFollowers(userData._id)
+          : await getFollowing(userData._id);
+      console.log(response, "bla");
+      // setUsers(type === "followers" ? response.followers : response.following);
+      setModalType(type);
+    } catch (error) {
+      console.error(`Error fetching ${type}:`, error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFollowersClick = () => fetchUsers("followers");
+  const handleFollowingClick = () => fetchUsers("following");
+
+  const closeModal = () => {
+    setModalType(null);
+    setUsers([]);
+  };
+
+  const refetchUsers = async () => {
+    if (modalType) {
+      await fetchUsers(modalType);
+    }
+  };
 
   return (
     <>
-      {/* Hero section with cover and profile photo */}
       <section className="relative pt-20 pb-4 overflow-hidden transition-all duration-300">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white w-full overflow-hidden">
-            {/* Cover photo with parallax effect */}
             <div
               className="h-36 sm:h-48 md:h-64 lg:h-80 bg-gradient-to-r from-gray-50 to-gray-100 relative w-full overflow-hidden"
               style={{
@@ -39,7 +81,6 @@ const ProfileHeader = ({ userData }: ProfileHeaderProps) => {
             </div>
 
             <div className="px-4 sm:px-6 md:px-8 lg:px-12 pt-2 pb-6 relative">
-              {/* Profile picture */}
               <div className="relative -mt-16 sm:-mt-20 md:-mt-24 mb-4 flex justify-between items-end">
                 <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full border-4 border-white overflow-hidden bg-white shadow-md group relative">
                   <img
@@ -150,12 +191,20 @@ const ProfileHeader = ({ userData }: ProfileHeaderProps) => {
                 </div>
 
                 <div className="flex flex-wrap gap-3 mt-4 items-center">
-                  <span className="text-black font-medium">
+                  <button
+                    onClick={handleFollowingClick}
+                    disabled={isLoading}
+                    className="text-black font-medium hover:underline cursor-pointer disabled:opacity-50"
+                  >
                     {userData.following?.length || 0} Following
-                  </span>
-                  <span className="text-black font-medium">
+                  </button>
+                  <button
+                    onClick={handleFollowersClick}
+                    disabled={isLoading}
+                    className="text-black font-medium hover:underline cursor-pointer disabled:opacity-50"
+                  >
                     {userData.followers?.length || 0} Followers
-                  </span>
+                  </button>
                   <Link to={`/message/${userData._id}`}>
                     <button className="px-4 py-1.5 border border-gray-700 text-gray-800 rounded-md text-sm font-medium hover:bg-gray-100 transition">
                       Message
@@ -167,6 +216,15 @@ const ProfileHeader = ({ userData }: ProfileHeaderProps) => {
           </div>
         </div>
       </section>
+
+      <UserListModal
+        isOpen={!!modalType}
+        onClose={closeModal}
+        title={modalType === "followers" ? "Followers" : "Following"}
+        users={users}
+        currentUserId={currentUserId}
+        refetch={refetchUsers}
+      />
     </>
   );
 };

@@ -11,12 +11,14 @@ import CertificationSectionViewable from "./tabs/CertificateSectionViewable";
 import ProjectSectionViewable from "./tabs/ProjectSectionViewable";
 import LoadingSpinner from "./LoadingSpinner";
 import MobileMenu from "./MobileMenu";
+import { useAppSelector } from "../../../../hooks/useAppSelector";
 
 interface UserProfileProps {
   username: string;
 }
 
 const UserProfile = ({ username }: UserProfileProps) => {
+  const { id: ownerId } = useAppSelector((state) => state.auth);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [activeTab, setActiveTab] = useState("about");
   const [isLoading, setIsLoading] = useState(true);
@@ -68,7 +70,7 @@ const UserProfile = ({ username }: UserProfileProps) => {
       />
 
       {/* Profile Header */}
-      <ProfileHeader userData={userData} />
+      <ProfileHeader userData={userData} currentUserId={ownerId} />
 
       {/* Mobile menu button (only visible on small screens) */}
       <div className="md:hidden fixed bottom-6 right-6 z-40">

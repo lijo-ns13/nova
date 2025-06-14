@@ -1,7 +1,8 @@
 import React from "react";
 import { User as UserIcon, UserPlus, UserMinus } from "lucide-react";
-import { NetworkUser } from "../../types/networkUser";
+
 import { Link } from "react-router-dom";
+import { NetworkUser } from "../../pages/NetworkPage";
 
 interface NetworkCardProps {
   networkUser: NetworkUser;

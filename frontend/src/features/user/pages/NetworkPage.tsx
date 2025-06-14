@@ -5,12 +5,23 @@ import {
   followUser,
   unFollowUser,
 } from "../services/FollowService";
-import { NetworkUser } from "../types/networkUser";
+
 import NetworkCard from "../componets/network/NetworkCard";
 import LoadingSpinner from "../componets/viewableProfile/LoadingSpinner";
 import EmptyState from "../componets/EmptyState";
 import Navbar from "../componets/NavBar";
+export interface User {
+  _id: string;
+  name: string;
+  username: string;
+  profilePicture: string | null;
+  headline: string;
+}
 
+export interface NetworkUser {
+  user: User;
+  isFollowing: boolean;
+}
 const NetworkPage: React.FC = () => {
   const [networkUsers, setNetworkUsers] = useState<NetworkUser[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<NetworkUser[]>([]);
@@ -24,8 +35,9 @@ const NetworkPage: React.FC = () => {
         setLoading(true);
         setError(null);
         const response = await getNetworkUsers();
-        setNetworkUsers(response.data);
-        setFilteredUsers(response.data);
+        console.log("responsenetworkusers", response);
+        setNetworkUsers(response);
+        setFilteredUsers(response);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to fetch network users"

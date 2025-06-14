@@ -9,36 +9,53 @@ export interface HTTPErrorResponse {
 }
 
 export interface NetworkUser {
-  // Define the actual interface for network users based on your API response
-  id: string;
+  _id: string;
   name: string;
-  // ... other fields
+  username: string;
+  profilePicture: string | null;
+  headline: string;
+  isFollowing?: boolean;
+}
+
+export interface ApiListResponse<T> {
+  success: boolean;
+  data: T[];
 }
 
 export interface FollowStatus {
-  // Define the actual interface for follow status based on your API response
   isFollowing: boolean;
-  // ... other fields
 }
 
 export interface FollowersResponse {
-  // Define the actual interface for followers response
+  success: boolean;
   followers: NetworkUser[];
   count: number;
 }
 
 export interface FollowingResponse {
-  // Define the actual interface for following response
+  success: boolean;
   following: NetworkUser[];
   count: number;
 }
+//updated
+export interface User {
+  _id: string;
+  name: string;
+  username: string;
+  profilePicture: string | null;
+  headline: string;
+}
 
-export const getNetworkUsers = async (): Promise<NetworkUser[]> => {
+export interface NetworkUserGetUsers {
+  user: User;
+  isFollowing: boolean;
+}
+export const getNetworkUsers = async (): Promise<NetworkUserGetUsers[]> => {
   try {
-    const response = await userAxios.get<NetworkUser[]>(
+    const response = await userAxios.get<ApiListResponse<NetworkUserGetUsers>>(
       `${BASE_URL}/users/network-users`
     );
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error("API Error:", error);
     throw {
@@ -48,11 +65,11 @@ export const getNetworkUsers = async (): Promise<NetworkUser[]> => {
 };
 
 export const followUser = async (
-  followerId: string
+  userId: string
 ): Promise<{ success: boolean }> => {
   try {
     const response = await userAxios.post<{ success: boolean }>(
-      `${BASE_URL}/users/${followerId}/follow`
+      `${BASE_URL}/users/${userId}/follow`
     );
     return response.data;
   } catch (error) {
@@ -64,11 +81,11 @@ export const followUser = async (
 };
 
 export const unFollowUser = async (
-  followerId: string
+  userId: string
 ): Promise<{ success: boolean }> => {
   try {
     const response = await userAxios.post<{ success: boolean }>(
-      `${BASE_URL}/users/${followerId}/unfollow`
+      `${BASE_URL}/users/${userId}/unfollow`
     );
     return response.data;
   } catch (error) {
@@ -127,7 +144,6 @@ export const checkIsFollowUser = async (
   }
 };
 
-// Helper to extract error message
 function getErrorMessage(error: unknown): string | undefined {
   if (typeof error === "object" && error !== null) {
     const err = error as any;
