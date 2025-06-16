@@ -22,10 +22,10 @@ function AddSection() {
   // Array of available actions
   const profileActions = [
     { id: "password", label: "Change Password", icon: "key" },
-    { id: "experience", label: "Add Experience", icon: "briefcase" },
-    { id: "education", label: "Add Education", icon: "academic-cap" },
-    { id: "certificate", label: "Add Certificate", icon: "badge-check" },
-    { id: "project", label: "Add Project", icon: "document-add" },
+    // { id: "experience", label: "Add Experience", icon: "briefcase" },
+    // { id: "education", label: "Add Education", icon: "academic-cap" },
+    // { id: "certificate", label: "Add Certificate", icon: "badge-check" },
+    // { id: "project", label: "Add Project", icon: "document-add" },
   ];
 
   // Get title and content based on active action
