@@ -9,6 +9,10 @@ import SiteInfoNav from "../../../components/SiteInfoNav";
 function SignInPage() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   useEffect(() => {
+    // Clear otpTimer on component mount (coming from login or elsewhere)
+    localStorage.removeItem("otpTimer");
+  }, []);
+  useEffect(() => {
     if (isAuthenticated) {
       navigate("/company/dashboard");
     }

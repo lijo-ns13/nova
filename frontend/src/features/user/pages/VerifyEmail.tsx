@@ -48,7 +48,7 @@ function VerifyEmail() {
     event.preventDefault();
 
     if (!otp) {
-      toast.error("Please enter OTP")
+      toast.error("Please enter OTP");
       return;
     }
 
@@ -56,11 +56,11 @@ function VerifyEmail() {
       setIsVerifying(true);
       const res = await verifyUserByOTP(email!, otp);
       console.log("Verification success:", res);
-      toast.success("Email verified successfully!")
+      toast.success("Email verified successfully!");
       navigate("/login");
     } catch (error: any) {
       console.error("Verification failed:", error);
-      toast.error(error?.response?.data?.message || "Failed to verify OTP")
+      toast.error(error?.response?.data?.message || "Failed to verify OTP");
     } finally {
       setIsVerifying(false);
     }
@@ -69,19 +69,19 @@ function VerifyEmail() {
   // Resend OTP Handler
   async function handleResend() {
     if (!email) {
-      toast.error("Missing email")
+      toast.error("Missing email");
       return;
     }
 
     try {
       setIsResending(true);
       await resendOTP(email);
-      toast.success("OTP resent successfully")
+      toast.success("OTP resent successfully");
       setTimer(60);
       setIsResendAllowed(false);
     } catch (error: any) {
       console.error("Failed to resend OTP:", error);
-      toast.error(error || "Failed to resend OTP")
+      toast.error(error || "Failed to resend OTP");
     } finally {
       setIsResending(false);
     }
