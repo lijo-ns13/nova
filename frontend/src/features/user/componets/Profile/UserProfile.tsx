@@ -9,7 +9,6 @@ import { useAppSelector } from "../../../../hooks/useAppSelector";
 const ProfileImage = React.lazy(() => import("./ProfileImage"));
 import { useAppDispatch } from "../../../../hooks/useAppDispatch";
 import toast from "react-hot-toast";
-import { AxiosError } from "axios";
 
 function UserProfile() {
   const dispatch = useAppDispatch();

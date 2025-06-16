@@ -29,12 +29,12 @@ export interface FollowStatus {
 
 export interface FollowersResponse {
   success: boolean;
-  data: NetworkUser[];
+  data: NetworkUserGetUsers[];
 }
 
 export interface FollowingResponse {
   success: boolean;
-  data: NetworkUser[];
+  data: NetworkUserGetUsers[];
 }
 //updated
 export interface User {

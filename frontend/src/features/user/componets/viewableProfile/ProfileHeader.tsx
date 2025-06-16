@@ -6,10 +6,10 @@ import { Link } from "react-router-dom";
 import {
   getFollowers,
   getFollowing,
-  NetworkUser,
   checkIsFollowUser,
   followUser,
   unFollowUser,
+  NetworkUserGetUsers,
 } from "../../services/FollowService";
 import UserListModal from "../modals/UserListModal";
 import toast from "react-hot-toast";
@@ -30,7 +30,7 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
     null
   );
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
-  const [users, setUsers] = useState<NetworkUser[]>([]);
+  const [users, setUsers] = useState<NetworkUserGetUsers[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [followersCount, setFollowersCount] = useState(
     userData.followers?.length || 0
