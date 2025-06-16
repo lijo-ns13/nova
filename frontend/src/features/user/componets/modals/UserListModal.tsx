@@ -23,6 +23,7 @@ const UserListModal: React.FC<UserListModalProps> = ({
   currentUserId,
   refetch,
 }) => {
+  console.log("checking working or not", users, currentUserId, title, refetch);
   const handleFollowToggle = async (userId: string, isFollowing?: boolean) => {
     try {
       if (isFollowing) {

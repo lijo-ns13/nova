@@ -23,19 +23,18 @@ export interface ApiListResponse<T> {
 }
 
 export interface FollowStatus {
+  success: boolean;
   isFollowing: boolean;
 }
 
 export interface FollowersResponse {
   success: boolean;
-  followers: NetworkUser[];
-  count: number;
+  data: NetworkUser[];
 }
 
 export interface FollowingResponse {
   success: boolean;
-  following: NetworkUser[];
-  count: number;
+  data: NetworkUser[];
 }
 //updated
 export interface User {
@@ -50,6 +49,10 @@ export interface NetworkUserGetUsers {
   user: User;
   isFollowing: boolean;
 }
+interface BasicResponse {
+  success: boolean;
+  message?: string;
+}
 export const getNetworkUsers = async (): Promise<NetworkUserGetUsers[]> => {
   try {
     const response = await userAxios.get<ApiListResponse<NetworkUserGetUsers>>(
@@ -63,12 +66,9 @@ export const getNetworkUsers = async (): Promise<NetworkUserGetUsers[]> => {
     } as HTTPErrorResponse;
   }
 };
-
-export const followUser = async (
-  userId: string
-): Promise<{ success: boolean }> => {
+export const followUser = async (userId: string): Promise<BasicResponse> => {
   try {
-    const response = await userAxios.post<{ success: boolean }>(
+    const response = await userAxios.post<BasicResponse>(
       `${BASE_URL}/users/${userId}/follow`
     );
     return response.data;
@@ -80,11 +80,9 @@ export const followUser = async (
   }
 };
 
-export const unFollowUser = async (
-  userId: string
-): Promise<{ success: boolean }> => {
+export const unFollowUser = async (userId: string): Promise<BasicResponse> => {
   try {
-    const response = await userAxios.post<{ success: boolean }>(
+    const response = await userAxios.post<BasicResponse>(
       `${BASE_URL}/users/${userId}/unfollow`
     );
     return response.data;
@@ -133,8 +131,9 @@ export const checkIsFollowUser = async (
 ): Promise<FollowStatus> => {
   try {
     const response = await userAxios.get<FollowStatus>(
-      `${BASE_URL}/users/${userId}/check-status`
+      `${BASE_URL}/users/${userId}/follow-status`
     );
+    console.log("responseiffollow", response.data);
     return response.data;
   } catch (error) {
     console.error("API Error:", error);

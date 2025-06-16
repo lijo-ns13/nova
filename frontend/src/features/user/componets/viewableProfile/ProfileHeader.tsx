@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserData } from "../../../../types/profile";
 import { Camera } from "lucide-react";
 import { useScrollPosition } from "../../hooks/useScrollPosition";
@@ -7,12 +7,21 @@ import {
   getFollowers,
   getFollowing,
   NetworkUser,
+  checkIsFollowUser,
+  followUser,
+  unFollowUser,
 } from "../../services/FollowService";
 import UserListModal from "../modals/UserListModal";
+import toast from "react-hot-toast";
 
 interface ProfileHeaderProps {
   userData: UserData;
   currentUserId: string;
+}
+export interface FollowResponse {
+  success: boolean;
+  isFollowing?: boolean; // optional, if included
+  message?: string; // <-- This must exist
 }
 
 const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
@@ -20,9 +29,27 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
   const [modalType, setModalType] = useState<"followers" | "following" | null>(
     null
   );
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const [users, setUsers] = useState<NetworkUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [followersCount, setFollowersCount] = useState(
+    userData.followers?.length || 0
+  );
+  const [followingCount, setFollowingCount] = useState(
+    userData.following?.length || 0
+  );
 
+  const checkStatus = async () => {
+    const res = await checkIsFollowUser(userData._id);
+    setIsFollowing(res.isFollowing || false);
+  };
+
+  useEffect(() => {
+    checkStatus();
+    // Initialize counts from userData
+    setFollowersCount(userData.followers?.length || 0);
+    setFollowingCount(userData.following?.length || 0);
+  }, [userData]);
   const fetchUsers = async (type: "followers" | "following") => {
     setIsLoading(true);
     try {
@@ -30,8 +57,8 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
         type === "followers"
           ? await getFollowers(userData._id)
           : await getFollowing(userData._id);
-      console.log(response, "bla");
-      // setUsers(type === "followers" ? response.followers : response.following);
+      console.log(response.data, "bla");
+      setUsers(response.data);
       setModalType(type);
     } catch (error) {
       console.error(`Error fetching ${type}:`, error);
@@ -54,6 +81,39 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
     }
   };
 
+  const handleFollow = async () => {
+    try {
+      const res: FollowResponse = await followUser(userData._id);
+      if (res.success) {
+        setIsFollowing(true);
+        // Increment followers count when following
+        setFollowersCount((prev) => prev + 1);
+        toast.success(`successfully followed ${userData.name}`);
+      } else {
+        toast.error(res.message || "Something went wrong while following");
+      }
+    } catch (error) {
+      console.error("Follow Error:", error);
+      toast.error("Failed to follow the user");
+    }
+  };
+
+  const handleUnfollow = async () => {
+    try {
+      const res: FollowResponse = await unFollowUser(userData._id);
+      if (res.success) {
+        setIsFollowing(false);
+        // Decrement followers count when unfollowing
+        setFollowersCount((prev) => prev - 1);
+        toast.success(`successfully unfollowed ${userData.name}`);
+      } else {
+        toast.error(res.message || "Something went wrong while unfollowing");
+      }
+    } catch (error) {
+      console.error("Unfollow Error:", error);
+      toast.error("Failed to unfollow the user");
+    }
+  };
   return (
     <>
       <section className="relative pt-20 pb-4 overflow-hidden transition-all duration-300">
@@ -196,20 +256,36 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
                     disabled={isLoading}
                     className="text-black font-medium hover:underline cursor-pointer disabled:opacity-50"
                   >
-                    {userData.following?.length || 0} Following
+                    {followingCount} Following
                   </button>
                   <button
                     onClick={handleFollowersClick}
                     disabled={isLoading}
                     className="text-black font-medium hover:underline cursor-pointer disabled:opacity-50"
                   >
-                    {userData.followers?.length || 0} Followers
+                    {followersCount} Followers
                   </button>
                   <Link to={`/message/${userData._id}`}>
                     <button className="px-4 py-1.5 border border-gray-700 text-gray-800 rounded-md text-sm font-medium hover:bg-gray-100 transition">
                       Message
                     </button>
                   </Link>
+                  {currentUserId !== userData._id &&
+                    (isFollowing ? (
+                      <button
+                        onClick={handleUnfollow}
+                        className="px-4 py-1.5 bg-gray-200 text-gray-800 rounded-md text-sm font-medium hover:bg-gray-300 transition"
+                      >
+                        Unfollow
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleFollow}
+                        className="px-4 py-1.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition"
+                      >
+                        Follow
+                      </button>
+                    ))}
                 </div>
               </div>
             </div>
