@@ -7,6 +7,13 @@ import {
   updateSocketInfo,
   updateSocketInfoBySocketId,
 } from "./utils/getUserSocketData";
+import container from "./di/container";
+import { NotificationService } from "./services/notificationService";
+import { TYPES } from "./di/types";
+import { NotificationType } from "./models/notification.modal";
+const notificationService = container.get<NotificationService>(
+  TYPES.NotificationService
+);
 
 // Store the io instance globally after initialization
 let ioInstance: SocketIOServer;
@@ -73,6 +80,12 @@ export const initSocketServer = (server: Server) => {
           } else {
             socket.emit("messageSent", message);
           }
+          await notificationService.sendNotification(
+            receiver,
+            `${receiverUser?.name} new message`,
+            NotificationType.COMMENT,
+            receiver
+          );
         } catch (error) {
           console.error("Error sending message:", error);
           if (tempId) socket.emit(`messageFailed-${tempId}`);
