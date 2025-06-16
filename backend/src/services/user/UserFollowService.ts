@@ -8,6 +8,7 @@ import { IUser } from "../../models/user.modal";
 import { IUserFollowService } from "../../interfaces/services/IUserFollowService";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { NotificationType } from "../../models/notification.modal";
+import { IUserWithStatus } from "../../repositories/mongo/UserRepository";
 
 @injectable()
 export class UserFollowService implements IUserFollowService {
@@ -81,12 +82,24 @@ export class UserFollowService implements IUserFollowService {
     return { success: true, message: "Successfully unfollowed user" };
   }
 
-  async getFollowers(userId: string): Promise<IUser[]> {
-    return this.userRepository.getFollowers(userId);
+  async getFollowers(
+    targetUserId: string,
+    currentUserId: string
+  ): Promise<IUserWithStatus[]> {
+    return this.userRepository.getFollowersWithFollowingStatus(
+      targetUserId,
+      currentUserId
+    );
   }
 
-  async getFollowing(userId: string): Promise<IUser[]> {
-    return this.userRepository.getFollowing(userId);
+  async getFollowing(
+    targetUserId: string,
+    currentUserId: string
+  ): Promise<IUserWithStatus[]> {
+    return this.userRepository.getFollowingWithFollowingStatus(
+      targetUserId,
+      currentUserId
+    );
   }
 
   async isFollowing(followerId: string, followingId: string): Promise<boolean> {

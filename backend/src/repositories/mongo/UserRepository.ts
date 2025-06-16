@@ -17,7 +17,16 @@ import userEducationModel, {
 } from "../../models/userEducation.model";
 import { IJob } from "../../models/job.modal";
 import { ISkill } from "../../models/skill.modal";
-
+export interface IUserWithStatus {
+  user: {
+    _id: Types.ObjectId;
+    name: string;
+    username: string;
+    profilePicture?: string;
+    headline?: string;
+  };
+  isFollowing: boolean;
+}
 @injectable()
 export class UserRepository
   extends BaseRepository<IUser>
@@ -421,7 +430,65 @@ export class UserRepository
     });
     return !!user;
   }
+  async getFollowersWithFollowingStatus(
+    targetUserId: string,
+    currentUserId: string
+  ): Promise<IUserWithStatus[]> {
+    const targetUser = await this.model.findById(targetUserId).populate<{
+      followers: IUser[];
+    }>({
+      path: "followers",
+      select: "_id name username profilePicture headline",
+    });
 
+    const currentUser = await this.model
+      .findById(currentUserId)
+      .select("following");
+    const currentUserFollowingIds =
+      currentUser?.following.map((id) => id.toString()) || [];
+
+    return (targetUser?.followers || []).map((follower) => ({
+      user: {
+        _id: follower._id,
+        name: follower.name,
+        username: follower.username,
+        profilePicture: follower.profilePicture,
+        headline: follower.headline,
+      },
+      isFollowing: currentUserFollowingIds.includes(follower._id.toString()),
+    }));
+  }
+
+  async getFollowingWithFollowingStatus(
+    targetUserId: string,
+    currentUserId: string
+  ): Promise<IUserWithStatus[]> {
+    const targetUser = await this.model.findById(targetUserId).populate<{
+      following: IUser[];
+    }>({
+      path: "following",
+      select: "_id name username profilePicture headline",
+    });
+
+    const currentUser = await this.model
+      .findById(currentUserId)
+      .select("following");
+    const currentUserFollowingIds =
+      currentUser?.following.map((id) => id.toString()) || [];
+
+    return (targetUser?.following || []).map((followedUser) => ({
+      user: {
+        _id: followedUser._id,
+        name: followedUser.name,
+        username: followedUser.username,
+        profilePicture: followedUser.profilePicture,
+        headline: followedUser.headline,
+      },
+      isFollowing: currentUserFollowingIds.includes(
+        followedUser._id.toString()
+      ),
+    }));
+  }
   async getAllUsersExcept(userId: string): Promise<IUser[]> {
     return this.model
       .find(

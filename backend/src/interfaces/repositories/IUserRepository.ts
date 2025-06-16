@@ -6,6 +6,7 @@ import { IUserEducation } from "../../models/userEducation.model";
 import { IUserExperience } from "../../models/userExperience.model";
 import { IUserProject } from "../../models/userProject.model";
 import { ISkill } from "../../models/skill.modal";
+import { IUserWithStatus } from "../../repositories/mongo/UserRepository";
 
 export interface IUserRepository {
   // Core user operations
@@ -127,4 +128,12 @@ export interface IUserRepository {
 
   isFollowing(followerId: string, followingId: string): Promise<boolean>;
   getAllUsersExcept(userId: string): Promise<IUser[]>;
+  getFollowersWithFollowingStatus(
+    targetUserId: string,
+    currentUserId: string
+  ): Promise<IUserWithStatus[]>;
+  getFollowingWithFollowingStatus(
+    targetUserId: string,
+    currentUserId: string
+  ): Promise<IUserWithStatus[]>;
 }

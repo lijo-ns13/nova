@@ -70,7 +70,11 @@ export class UserFollowController implements IUserFollowController {
   async getFollowers(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.params.userId;
-      const followers = await this.userFollowService.getFollowers(userId);
+      const currentUserId = (req.user as AuthenticatedUser)?.id;
+      const followers = await this.userFollowService.getFollowers(
+        currentUserId,
+        userId
+      );
       res.status(200).json({ success: true, data: followers });
     } catch (error) {
       console.error("Error in getFollowers:", error);
@@ -83,7 +87,11 @@ export class UserFollowController implements IUserFollowController {
   async getFollowing(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.params.userId;
-      const following = await this.userFollowService.getFollowing(userId);
+      const currentUserId = (req.user as AuthenticatedUser)?.id;
+      const following = await this.userFollowService.getFollowing(
+        currentUserId,
+        userId
+      );
       res.status(200).json({ success: true, data: following });
     } catch (error) {
       console.error("Error in getFollowing:", error);
