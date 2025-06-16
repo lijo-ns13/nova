@@ -48,6 +48,7 @@ export interface User {
 export interface NetworkUserGetUsers {
   user: User;
   isFollowing: boolean;
+  isCurrentUser?: boolean;
 }
 interface BasicResponse {
   success: boolean;

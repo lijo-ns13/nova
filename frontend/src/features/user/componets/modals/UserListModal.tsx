@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import BaseModal from "./BaseModal";
 import {
   followUser,
-  NetworkUser,
+  NetworkUserGetUsers,
   unFollowUser,
 } from "../../services/FollowService";
 
@@ -10,7 +10,7 @@ interface UserListModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  users: NetworkUser[];
+  users: NetworkUserGetUsers[];
   currentUserId: string;
   refetch: () => void;
 }
@@ -46,34 +46,44 @@ const UserListModal: React.FC<UserListModalProps> = ({
         ) : (
           <ul className="divide-y divide-gray-200">
             {users.map((user) => (
-              <li key={user._id} className="py-4">
+              <li key={user.user._id} className="py-4">
                 <div className="flex items-center justify-between">
                   {/* avatar + meta */}
                   <div className="flex items-center space-x-3">
                     <img
-                      src={user.profilePicture || "/default-avatar.png"}
-                      alt={user.name}
+                      src={
+                        user.user.profilePicture?.trim()
+                          ? user.user.profilePicture
+                          : "https://ui-avatars.com/api/?name=" +
+                            encodeURIComponent(user.user.name)
+                      }
+                      alt={user.user.name}
                       className="w-10 h-10 rounded-full object-cover"
                     />
+
                     <div>
-                      <p className="font-medium text-gray-900">{user.name}</p>
-                      {user.username && (
+                      <p className="font-medium text-gray-900">
+                        {user.user.name}
+                      </p>
+                      {user.user.username && (
                         <p className="text-sm text-gray-500">
-                          @{user.username}
+                          @{user.user.username}
                         </p>
                       )}
-                      {user.headline && (
-                        <p className="text-sm text-gray-500">{user.headline}</p>
+                      {user.user.headline && (
+                        <p className="text-sm text-gray-500">
+                          {user.user.headline}
+                        </p>
                       )}
                     </div>
                   </div>
 
                   {/* follow / unfollow */}
-                  {user._id !== currentUserId && (
+                  {user.user._id !== currentUserId && (
                     <button
-                      disabled={pending === user._id}
+                      disabled={pending === user.user._id}
                       onClick={() =>
-                        handleFollowToggle(user._id, user.isFollowing)
+                        handleFollowToggle(user.user._id, user.isFollowing)
                       }
                       className={`px-4 py-1 rounded-full text-sm font-medium transition-colors
                         ${
@@ -82,7 +92,7 @@ const UserListModal: React.FC<UserListModalProps> = ({
                             : "bg-blue-600 text-white hover:bg-blue-700"
                         }
                         ${
-                          pending === user._id &&
+                          pending === user.user._id &&
                           "opacity-60 cursor-not-allowed"
                         }
                       `}
