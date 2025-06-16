@@ -445,9 +445,9 @@ export class UserRepository
       .findById(currentUserId)
       .select("following");
     const currentUserFollowingIds =
-      currentUser?.following.map((id) => id.toString()) || [];
+      currentUser?.following.map((id) => id.toString()) ?? [];
 
-    return (targetUser?.followers || []).map((follower) => ({
+    return (targetUser?.followers ?? []).map((follower) => ({
       user: {
         _id: follower._id,
         name: follower.name,
@@ -456,6 +456,7 @@ export class UserRepository
         headline: follower.headline,
       },
       isFollowing: currentUserFollowingIds.includes(follower._id.toString()),
+      isCurrentUser: follower._id.toString() === currentUserId, // 👈 NEW
     }));
   }
 
@@ -474,9 +475,9 @@ export class UserRepository
       .findById(currentUserId)
       .select("following");
     const currentUserFollowingIds =
-      currentUser?.following.map((id) => id.toString()) || [];
+      currentUser?.following.map((id) => id.toString()) ?? [];
 
-    return (targetUser?.following || []).map((followedUser) => ({
+    return (targetUser?.following ?? []).map((followedUser) => ({
       user: {
         _id: followedUser._id,
         name: followedUser.name,
@@ -487,8 +488,10 @@ export class UserRepository
       isFollowing: currentUserFollowingIds.includes(
         followedUser._id.toString()
       ),
+      isCurrentUser: followedUser._id.toString() === currentUserId, // 👈 NEW
     }));
   }
+
   async getAllUsersExcept(userId: string): Promise<IUser[]> {
     return this.model
       .find(
