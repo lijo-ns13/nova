@@ -434,7 +434,7 @@ export class UserRepository
     targetUserId: string,
     currentUserId: string
   ): Promise<IUserWithStatus[]> {
-    const targetUser = await this.model.findById(targetUserId).populate<{
+    const targetUser = await this.model.findById(currentUserId).populate<{
       followers: IUser[];
     }>({
       path: "followers",
@@ -442,7 +442,7 @@ export class UserRepository
     });
 
     const currentUser = await this.model
-      .findById(currentUserId)
+      .findById(targetUserId)
       .select("following");
     const currentUserFollowingIds =
       currentUser?.following.map((id) => id.toString()) ?? [];
@@ -456,7 +456,7 @@ export class UserRepository
         headline: follower.headline,
       },
       isFollowing: currentUserFollowingIds.includes(follower._id.toString()),
-      isCurrentUser: follower._id.toString() === currentUserId, // 👈 NEW
+      isCurrentUser: follower._id.toString() === targetUserId, // 👈 NEW
     }));
   }
 
@@ -464,7 +464,7 @@ export class UserRepository
     targetUserId: string,
     currentUserId: string
   ): Promise<IUserWithStatus[]> {
-    const targetUser = await this.model.findById(targetUserId).populate<{
+    const targetUser = await this.model.findById(currentUserId).populate<{
       following: IUser[];
     }>({
       path: "following",
@@ -472,7 +472,7 @@ export class UserRepository
     });
 
     const currentUser = await this.model
-      .findById(currentUserId)
+      .findById(targetUserId)
       .select("following");
     const currentUserFollowingIds =
       currentUser?.following.map((id) => id.toString()) ?? [];
@@ -488,7 +488,7 @@ export class UserRepository
       isFollowing: currentUserFollowingIds.includes(
         followedUser._id.toString()
       ),
-      isCurrentUser: followedUser._id.toString() === currentUserId, // 👈 NEW
+      isCurrentUser: followedUser._id.toString() === targetUserId, // 👈 NEW
     }));
   }
 
