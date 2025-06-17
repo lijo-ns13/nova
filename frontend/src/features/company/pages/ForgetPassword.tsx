@@ -3,6 +3,7 @@ import { forgetPasswordByEmail } from "../services/AuthServices";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import SiteInfoNav from "../../../components/SiteInfoNav";
+import SiteInfoFooter from "../../../components/SiteInfoFooter";
 
 const ForgetSchema = z.object({
   email: z.string().email("Invalid email format"),
@@ -203,6 +204,7 @@ function ForgetPasswordPage() {
           </form>
         )}
       </div>
+      <SiteInfoFooter />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { resetPassword } from "../services/AuthServices";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import SiteInfoNav from "../../../components/SiteInfoNav";
+import SiteInfoFooter from "../../../components/SiteInfoFooter";
 export const resetSchema = z
   .object({
     password: z
@@ -212,6 +213,7 @@ function ResetPasswordPage() {
           </div>
         </div>
       </div>
+      <SiteInfoFooter />
     </div>
   );
 }

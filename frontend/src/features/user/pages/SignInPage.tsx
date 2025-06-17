@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import Googlebutton from "../componets/GoogleButton";
 import socket from "../../../socket/socket";
 import SiteInfoNav from "../../../components/SiteInfoNav";
+import SiteInfoFooter from "../../../components/SiteInfoFooter";
 function SignInPage() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   useEffect(() => {
@@ -316,6 +317,7 @@ function SignInPage() {
           </div>
         </div>
       </div>
+      <SiteInfoFooter />
     </div>
   );
 }

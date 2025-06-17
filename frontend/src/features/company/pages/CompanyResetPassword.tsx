@@ -3,6 +3,7 @@ import { z } from "zod";
 import { resetPassword } from "../services/AuthServices";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import SiteInfoFooter from "../../../components/SiteInfoFooter";
 export const resetSchema = z
   .object({
     password: z
@@ -211,6 +212,7 @@ function CompanyResetPassword() {
           </div>
         </div>
       </div>
+      <SiteInfoFooter />
     </div>
   );
 }

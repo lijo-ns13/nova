@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { SignUpUser } from "../services/AuthServices";
 import SiteInfoNav from "../../../components/SiteInfoNav";
+import SiteInfoFooter from "../../../components/SiteInfoFooter";
 
 export const signUpSchema = z
   .object({
@@ -400,6 +401,7 @@ function SignUpPage() {
           </div>
         </form>
       </div>
+      <SiteInfoFooter />
     </div>
   );
 }

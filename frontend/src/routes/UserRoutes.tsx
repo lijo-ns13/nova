@@ -29,15 +29,18 @@ import NotFoundPage from "../components/PageNotFound";
 import PaymentSuccess from "../components/PaymentSuccess";
 import PaymentFailure from "../components/PaymentFailure";
 import RefundPage from "../features/user/pages/RefundPage";
+
 const UserRoutes = () => {
   return (
     <Routes>
       {/* user auth pages */}
+
       <Route path="login" element={<SignInPage />} />
       <Route path="signup" element={<SignUpPage />} />
       <Route path="verify-otp" element={<VerifyEmail />} />
       <Route path="forget-password" element={<ForgetPasswordPage />} />
       <Route path="reset-password" element={<ResetPasswordPage />} />
+
       <Route path="/oauth-success" element={<OAuthSuccessPage />} />
 
       {/* Protected + user layout */}

@@ -6,6 +6,7 @@ import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import { login } from "../../auth/auth.slice";
 import SiteInfoNav from "../../../components/SiteInfoNav";
+import SiteInfoFooter from "../../../components/SiteInfoFooter";
 function SignInPage() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   useEffect(() => {
@@ -250,6 +251,7 @@ function SignInPage() {
           </div>
         </form>
       </div>
+      <SiteInfoFooter />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { verifyUserByOTP, resendOTP } from "../services/AuthServices";
 import toast from "react-hot-toast";
+import SiteInfoFooter from "../../../components/SiteInfoFooter";
 
 function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -162,6 +163,7 @@ function VerifyEmail() {
           )}
         </div>
       </div>
+      <SiteInfoFooter />
     </div>
   );
 }
