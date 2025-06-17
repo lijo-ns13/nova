@@ -1,12 +1,21 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Briefcase, MapPin, Clock, Building, DollarSign } from "lucide-react";
 import { Job } from "../../types/jobTypes";
+import { getJobAppliedStatus } from "../../services/JobServices";
 
 interface JobCardProps {
   job: Job;
 }
 
 const JobCard: React.FC<JobCardProps> = ({ job }) => {
+  const [isApplied, setIsApplied] = useState<boolean>(false);
+  const fetch = async () => {
+    const res = await getJobAppliedStatus(job._id);
+    setIsApplied(res.data.hasApplied);
+  };
+  useEffect(() => {
+    fetch();
+  }, [job]);
   // Format salary range
   const formatSalary = (salary: Job["salary"]) => {
     if (!salary.isVisibleToApplicants) return "Salary not disclosed";
@@ -146,7 +155,12 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
             </div>
           </div>
 
-          <div className="mt-4 sm:mt-0 hidden sm:block">
+          <div className="mt-4 sm:mt-0 hidden sm:flex gap-2 items-center">
+            {isApplied && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-300">
+                ✅ Applied
+              </span>
+            )}
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700 hover:bg-blue-100">
               View Details
             </span>

@@ -3,7 +3,7 @@ import { Search, Filter } from "lucide-react";
 import JobCard from "../componets/job/JobCard";
 import FilterPanel from "../componets/job/FilterPanel";
 import Pagination from "../componets/job/Pagination";
-import { getJobs } from "../services/JobServices";
+import { getJobs, getJobAppliedStatus } from "../services/JobServices";
 import { Job, FilterOptions, PaginationState } from "../types/jobTypes";
 
 function JobPage() {

@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getJob, saveJob, unsaveJob } from "../services/JobServices";
+import {
+  getJob,
+  saveJob,
+  unsaveJob,
+  getJobAppliedStatus,
+} from "../services/JobServices";
 import ApplyModal from "../componets/ApplyModal";
 import {
   Briefcase,
@@ -71,9 +76,6 @@ interface Job {
   company: Company;
   salary: Salary;
   status: string;
-  applications?: any[];
-  selectedCandidates?: any[];
-  rejectedCandidates?: any[];
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -88,11 +90,17 @@ function JobDetailedPage() {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [applicationSuccess, setApplicationSuccess] = useState(false);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
-
-  useEffect(() => {
+  const [isApplied, setIsApplied] = useState<boolean>(false);
+  const fetch = async () => {
     if (jobId) {
-      fetchJobDetails(jobId);
+      await fetchJobDetails(jobId);
+      const res = await getJobAppliedStatus(jobId);
+      console.log("status", res.data.hasApplied);
+      setIsApplied(res.data.hasApplied);
     }
+  };
+  useEffect(() => {
+    fetch();
   }, [jobId]);
 
   // Show success notification for 5 seconds
@@ -494,15 +502,25 @@ function JobDetailedPage() {
         <div className="lg:col-span-1">
           {/* Apply section */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 md:p-6 sticky top-6 transition-all hover:shadow-md">
-            <button
-              onClick={handleApply}
-              disabled={job.status !== "open"}
-              className={getApplyBtnClass()}
-            >
-              {job.status === "open" ? "Apply Now" : "Applications Closed"}
-            </button>
+            {isApplied ? (
+              <button
+                className="w-full bg-green-100 text-green-800 font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 cursor-default"
+                disabled
+              >
+                <Check className="h-5 w-5" />
+                Already Applied
+              </button>
+            ) : (
+              <button
+                onClick={handleApply}
+                disabled={job.status !== "open"}
+                className={getApplyBtnClass()}
+              >
+                {job.status === "open" ? "Apply Now" : "Applications Closed"}
+              </button>
+            )}
 
-            {job.status === "open" && (
+            {job.status === "open" && !isApplied && (
               <p className="text-center text-sm text-gray-500 mt-2">
                 Easy application process, takes only a few minutes
               </p>

@@ -63,6 +63,12 @@ export const getJob = async (jobId: string) => {
   const response = await userAxios.get(`${API_BASE_URL}/jobs/${jobId}`);
   return response.data;
 };
+export const getJobAppliedStatus = async (jobId: string) => {
+  const response = await userAxios.get(
+    `${API_BASE_URL}/jobs/${jobId}/check-application`
+  );
+  return response.data;
+};
 
 interface ApplyJobParams {
   jobId: string;
