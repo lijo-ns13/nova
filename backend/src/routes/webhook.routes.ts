@@ -50,7 +50,7 @@ router.post(
       console.log("🔍 Session metadata:", session.metadata);
 
       if (session.payment_status === "paid") {
-        const subscriptionType = session.metadata?.subscriptionType;
+        const subscriptionType = session.metadata?.planName;
         const planName = session.metadata?.planName;
         console.log("🧠 Updating user:", userId);
 
@@ -82,7 +82,6 @@ router.post(
             },
             $set: {
               isSubscriptionTaken: true,
-              subscription: subscription?._id,
               subscriptionExpiresAt: moment()
                 .add(subscription?.validityDays ?? 0, "days")
                 .toDate(),
