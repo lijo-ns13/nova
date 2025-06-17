@@ -15,10 +15,15 @@ export class InterviewRepository
     super(Interview);
   }
 
+  // async findByCompanyId(companyId: string): Promise<IInterview[]> {
+  //   return this.model.find({ companyId }).exec();
+  // }
   async findByCompanyId(companyId: string): Promise<IInterview[]> {
-    return this.model.find({ companyId }).exec();
+    return this.model
+      .find({ companyId })
+      .sort({ scheduledAt: -1 }) // Sort by most recent first
+      .exec();
   }
-
   async findByUserId(userId: string): Promise<IInterview[]> {
     return this.model.find({ userId }).exec();
   }
@@ -39,5 +44,18 @@ export class InterviewRepository
   ): Promise<boolean> {
     const result = await this.model.findOne({ companyId, applicationId });
     return !!result;
+  }
+  async findByCompanyIdforPop(companyId: string): Promise<IInterview[]> {
+    return this.model
+      .find({
+        companyId,
+        scheduledAt: { $gte: new Date() },
+      })
+      .populate({
+        path: "applicationId",
+        populate: [{ path: "job" }, { path: "user" }],
+      })
+      .sort({ scheduledAt: 1 })
+      .exec();
   }
 }

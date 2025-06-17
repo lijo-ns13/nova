@@ -7,18 +7,7 @@ export interface ICompanyInterviewController {
     res: Response,
     next?: NextFunction
   ): Promise<void>;
-  getCompanyInterviews(
-    req: Request,
-    res: Response,
-    next?: NextFunction
-  ): Promise<void>;
-  getApplicantDetails(
-    req: Request,
-    res: Response,
-    next?: NextFunction
-  ): Promise<void>;
-
-  getApplicationInterviews(
+  getUpcomingAcceptedInterviews(
     req: Request,
     res: Response,
     next?: NextFunction

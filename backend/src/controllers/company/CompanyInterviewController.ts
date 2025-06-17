@@ -75,64 +75,25 @@ export class CompanyInterviewController implements ICompanyInterviewController {
         .json({ success: false, message: (err as Error).message });
     }
   }
-  async getCompanyInterviews(req: Request, res: Response): Promise<void> {
+  // src/controllers/CompanyInterviewController.ts
+  async getUpcomingAcceptedInterviews(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
-      const companyId = (req.user as Userr)?.id; // Assumes auth middleware sets req.user
-      const interviews = await this.companyInterviewService.getComanyInterviews(
-        companyId
-      );
+      const companyId = (req.user as Userr)?.id;
+      if (!companyId) throw new Error("Company ID not found");
+
+      const interviews =
+        await this.companyInterviewService.getUpcomingAcceptedInterviews(
+          companyId
+        );
       res.status(200).json({ success: true, data: interviews });
     } catch (err) {
-      console.log("error", err);
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (err as Error).message });
-    }
-  }
-  async getApplicationInterviews(req: Request, res: Response): Promise<void> {
-    try {
-      const { applicationId } = req.params;
-      const companyId = (req.user as Userr)?.id;
-      const applicationInterview =
-        await this.companyInterviewService.getApplicationInterviews(
-          applicationId,
-          companyId
-        );
-      res.status(200).json({ success: true, data: applicationInterview });
-    } catch (err) {
-      console.log("error", err);
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (err as Error).message });
-    }
-  }
-  async getApplicantDetails(req: Request, res: Response): Promise<void> {
-    try {
-      const { applicationId } = req.params;
-      const companyId = (req.user as Userr)?.id;
-      if (!applicationId) {
-        res
-          .status(400)
-          .json({ success: false, message: "applicatinId not found" });
-        return;
-      }
-      const application =
-        await this.companyInterviewService.getApplicantDetails(
-          applicationId,
-          companyId
-        );
-      if (!application) {
-        res
-          .status(400)
-          .json({ success: false, message: "application not found" });
-        return;
-      }
-      res.status(200).json({ success: true, application });
-    } catch (error) {
-      console.log("error", error);
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      res.status(500).json({
+        success: false,
+        message: err instanceof Error ? err.message : "Unknown error",
+      });
     }
   }
 }

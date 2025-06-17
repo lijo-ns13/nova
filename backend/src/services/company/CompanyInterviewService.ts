@@ -2,7 +2,10 @@
 import { inject } from "inversify";
 import { TYPES } from "../../di/types";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
-import { IInterview } from "../../core/entities/interview.interface";
+import {
+  IInterview,
+  InterviewResponse,
+} from "../../core/entities/interview.interface";
 
 import { ICompanyInterviewService } from "../../interfaces/services/ICompanyInterviewService";
 import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRepository";
@@ -16,6 +19,7 @@ import { IJob } from "../../models/job.modal";
 import { ICompanyRepository } from "../../interfaces/repositories/ICompanyRepository";
 import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import { Types } from "mongoose";
+import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 
 export class CompanyInterviewService implements ICompanyInterviewService {
   constructor(
@@ -26,7 +30,8 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     @inject(TYPES.NotificationService)
     private notificationService: INotificationService,
     @inject(TYPES.CompanyRepository) private _companyRepo: ICompanyRepository,
-    @inject(TYPES.JobRepository) private _jobRepo: IJobRepository
+    @inject(TYPES.JobRepository) private _jobRepo: IJobRepository,
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository
   ) {}
 
   async createInterview(
@@ -106,42 +111,79 @@ export class CompanyInterviewService implements ICompanyInterviewService {
 
     return interview;
   }
-
-  async getComanyInterviews(companyId: string): Promise<any> {
-    return this._interviewRepo.findByCompanyId(companyId);
-  }
-  async getApplicationInterviews(
-    applicationId: string,
+  // src/modules/job/services/JobService.ts
+  async getUpcomingAcceptedInterviews(
     companyId: string
-  ): Promise<any> {
-    const interview = await this._interviewRepo.findOne({
-      applicationId: applicationId,
-    });
-    if (interview?.companyId != companyId) {
-      throw new Error("only get own ocmpany interviews");
-    }
-    return interview;
-  }
-  async getApplicantDetails(
-    applicationId: string,
-    companyId: string
-  ): Promise<IApplication | null> {
-    const application = await this._applicationRepo.findByIdWithUserAndJob(
-      applicationId
+  ): Promise<InterviewResponse[]> {
+    const interviews = await this._interviewRepo.findByCompanyIdforPop(
+      companyId
     );
-    console.log("applicaiotn", application);
-    if (!application) {
-      throw new Error("Application not found");
+
+    const response: InterviewResponse[] = [];
+
+    for (const interview of interviews) {
+      let applicationId: string;
+
+      if (
+        typeof interview.applicationId === "object" &&
+        interview.applicationId !== null &&
+        "_id" in interview.applicationId
+      ) {
+        applicationId = interview.applicationId._id.toString();
+      } else {
+        applicationId = interview.applicationId?.toString();
+      }
+      if (!applicationId) continue;
+
+      const application = await this._applicationRepo.findById(applicationId);
+      if (!application) continue;
+
+      // Fetch user and job from repositories
+      const userId =
+        typeof application.user === "string"
+          ? application.user
+          : application.user instanceof Types.ObjectId
+          ? application.user.toString()
+          : application.user._id?.toString();
+
+      const jobId =
+        typeof application.job === "string"
+          ? application.job
+          : application.job instanceof Types.ObjectId
+          ? application.job.toString()
+          : application.job._id?.toString();
+
+      const user = await this._userRepo.findById(userId);
+      if (!user) {
+        throw new Error("user not found");
+      }
+      if (!jobId) {
+        throw new Error("jobid not found");
+      }
+      const job = await this._jobRepo.findById(jobId);
+      if (!job) {
+        throw new Error("job not found");
+      }
+      response.push({
+        roomId: interview.roomId,
+        interviewTime: interview.scheduledAt,
+        user: {
+          _id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          profilePicture: user.profilePicture,
+        },
+        job: {
+          _id: job._id.toString(),
+          title: job.title,
+          description: job.description,
+          location: job.location,
+          jobType: job.jobType,
+        },
+        applicationId: applicationId,
+      });
     }
 
-    const job = application.job as IJob;
-
-    if (job.company.toString() !== companyId.toString()) {
-      throw new Error(
-        "You're not authorized to view another company's application"
-      );
-    }
-
-    return application;
+    return response;
   }
 }

@@ -80,6 +80,7 @@ export interface SalaryRange {
 }
 
 export interface IJob extends Document {
+  _id: Types.ObjectId;
   title: string;
   description: string;
   location: string;

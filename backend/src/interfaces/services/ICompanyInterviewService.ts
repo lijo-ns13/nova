@@ -1,5 +1,8 @@
 // src/interfaces/services/ICompanyInterviewService.ts
-import { IInterview } from "../../core/entities/interview.interface";
+import {
+  IInterview,
+  InterviewResponse,
+} from "../../core/entities/interview.interface";
 import { IApplication } from "../../models/application.modal";
 
 export interface ICompanyInterviewService {
@@ -10,14 +13,7 @@ export interface ICompanyInterviewService {
     scheduledAt: string,
     roomId: string
   ): Promise<IInterview>;
-
-  getComanyInterviews(companyId: string): Promise<IInterview[]>;
-  getApplicantDetails(
-    applicationId: string,
+  getUpcomingAcceptedInterviews(
     companyId: string
-  ): Promise<IApplication | null>;
-  getApplicationInterviews(
-    applicationId: string,
-    companyId: string
-  ): Promise<any>;
+  ): Promise<InterviewResponse[]>;
 }

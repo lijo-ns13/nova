@@ -1,4 +1,6 @@
 import { Document } from "mongoose";
+import { IJob } from "../../models/job.modal";
+import { IUser } from "../../models/user.modal";
 
 export interface IInterview {
   _id: any;
@@ -21,4 +23,28 @@ export interface IScheduleInterview {
   userId: string;
   applicationId: string;
   scheduledAt: Date;
+}
+
+// src/interfaces/interview.interface.ts
+export interface InterviewResponse {
+  roomId: string;
+  interviewTime: Date;
+  job: JobDetails;
+  user: UserDetails;
+  applicationId: string;
+}
+
+interface JobDetails {
+  _id: string;
+  title: string;
+  description: string;
+  location?: string;
+  jobType?: string;
+}
+
+interface UserDetails {
+  _id: string;
+  name: string;
+  email: string;
+  profilePicture?: string;
 }

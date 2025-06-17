@@ -16,4 +16,5 @@ export interface IInterviewRepository extends IBaseRepository<IInterview> {
     companyId: string,
     applicationId: string
   ): Promise<boolean>;
+  findByCompanyIdforPop(companyId: string): Promise<IInterview[]>;
 }
