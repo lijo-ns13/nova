@@ -11,7 +11,6 @@ const Navbar = () => {
     await logOut();
     dispatch(logout());
     socket.disconnect();
-    alert("Logged out successfully");
   }
 
   return (
