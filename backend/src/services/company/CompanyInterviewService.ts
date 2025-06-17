@@ -13,6 +13,9 @@ import {
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { NotificationType } from "../../models/notification.modal";
 import { IJob } from "../../models/job.modal";
+import { ICompanyRepository } from "../../interfaces/repositories/ICompanyRepository";
+import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
+import { Types } from "mongoose";
 
 export class CompanyInterviewService implements ICompanyInterviewService {
   constructor(
@@ -21,7 +24,9 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     @inject(TYPES.ApplicationRepository)
     private _applicationRepo: IApplicationRepository,
     @inject(TYPES.NotificationService)
-    private notificationService: INotificationService
+    private notificationService: INotificationService,
+    @inject(TYPES.CompanyRepository) private _companyRepo: ICompanyRepository,
+    @inject(TYPES.JobRepository) private _jobRepo: IJobRepository
   ) {}
 
   async createInterview(
@@ -33,6 +38,7 @@ export class CompanyInterviewService implements ICompanyInterviewService {
   ): Promise<any> {
     // Check for existing interview at this time
     const applicant = await this._applicationRepo.findById(applicationId);
+
     console.log("applicantttttttttttttttttttt", applicant);
     if (!applicant) {
       throw new Error("applicnat not found");
@@ -41,6 +47,16 @@ export class CompanyInterviewService implements ICompanyInterviewService {
       throw new Error("only shedule interview for shortlisted application");
     }
 
+    const jobId =
+      typeof applicant.job === "string"
+        ? applicant.job
+        : applicant.job instanceof Types.ObjectId
+        ? applicant.job.toString()
+        : applicant.job._id?.toString(); // when populated
+    if (!jobId) {
+      throw new Error("jobid not found");
+    }
+    const job = await this._jobRepo.findById(jobId);
     const existingInterview = await this._interviewRepo.findByTimeSlot(
       companyId,
       new Date(scheduledAt)
@@ -69,7 +85,10 @@ export class CompanyInterviewService implements ICompanyInterviewService {
       status: "pending",
       result: "pending",
     });
-
+    const company = await this._companyRepo.findById(companyId);
+    if (!company) {
+      throw new Error("company not found");
+    }
     // Update application status
     await this._applicationRepo.updateStatus(
       applicationId,
@@ -80,10 +99,11 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     });
     await this.notificationService.sendNotification(
       userId,
-      `Interview Sheduled,Please check job status`,
+      `An interview has been scheduled by ${company.companyName} for the position of "${job?.title}". Please respond to proceed.`,
       NotificationType.JOB,
       companyId
     );
+
     return interview;
   }
 
