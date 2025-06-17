@@ -133,4 +133,11 @@ export class ApplicationRepository
     await application.save();
     return true;
   }
+  async hasUserApplied(jobId: string, userId: string): Promise<boolean> {
+    const count = await this.model.countDocuments({
+      job: new Types.ObjectId(jobId),
+      user: new Types.ObjectId(userId),
+    });
+    return count > 0;
+  }
 }

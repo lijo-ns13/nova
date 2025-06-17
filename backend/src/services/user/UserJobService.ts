@@ -134,4 +134,7 @@ export class UserJobService implements IUserJobService {
   async removeFromSavedJobs(userId: string, jobId: string): Promise<void> {
     await this._userRepository.removeFromSavedJobs(userId, jobId);
   }
+  async hasApplied(jobId: string, userId: string): Promise<boolean> {
+    return this._applicationRepo.hasUserApplied(jobId, userId);
+  }
 }

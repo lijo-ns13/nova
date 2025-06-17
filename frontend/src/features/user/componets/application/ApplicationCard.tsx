@@ -3,7 +3,7 @@ import { Calendar, MapPin, Eye, Clock } from "lucide-react";
 import StatusBadge from "../ui/StatusBadge";
 import { ApplicationStatus } from "../../../company/types/applicant";
 
-interface Application {
+export interface Application {
   _id: string;
   job: {
     _id: string;

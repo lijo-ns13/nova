@@ -8,4 +8,5 @@ export interface IUserJobController {
   getAppliedJobs: RequestHandler;
   saveJob: RequestHandler;
   unsaveJob: RequestHandler;
+  checkApplicationStatus: RequestHandler;
 }

@@ -27,7 +27,10 @@ router.get("/jobs/applied-jobs", jobController.getAppliedJobs);
 router.get("/jobs/saved-jobs", jobController.getSavedJobs);
 // Get a specific job by ID
 router.get("/jobs/:jobId", jobController.getJob);
-
+router.get(
+  "/jobs/:jobId/check-application",
+  jobController.checkApplicationStatus
+);
 // Apply to a job
 router.post("/jobs/:jobId/apply", uploadMedia, jobController.applyToJob);
 

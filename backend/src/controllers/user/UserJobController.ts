@@ -181,4 +181,33 @@ export class UserJobController implements IUserJobController {
         .json({ message: (error as Error).message });
     }
   };
+  checkApplicationStatus: RequestHandler = async (
+    req: Request,
+    res: Response
+  ) => {
+    try {
+      const { jobId } = req.params;
+      const userId = (req.user as Userr)?.id;
+
+      if (!userId) {
+        res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
+          success: false,
+          message: "User not authenticated",
+        });
+        return;
+      }
+
+      const hasApplied = await this.jobService.hasApplied(jobId, userId);
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        data: { hasApplied },
+      });
+    } catch (error) {
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  };
 }

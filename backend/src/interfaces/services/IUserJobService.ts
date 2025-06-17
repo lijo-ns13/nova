@@ -31,4 +31,5 @@ export interface IUserJobService {
 
   // Remove a job from user's saved jobs list
   removeFromSavedJobs(userId: string, jobId: string): Promise<void>;
+  hasApplied(jobId: string, userId: string): Promise<boolean>;
 }

@@ -11,6 +11,7 @@ import EmptyState from "../componets/ui/EmptyState";
 import ConfirmationModal from "../componets/ui/ConfirmationModal";
 import { useToast } from "../componets/ui/ToastProvider";
 import { getAppliedJobs, updateInterviewStatus } from "../services/JobServices";
+import { ApplicationStatus } from "../../company/types/applicant";
 interface AppliedJob {
   _id: string;
   job: {
@@ -21,23 +22,16 @@ interface AppliedJob {
     jobType: string;
   };
   appliedAt: string;
-  status:
-    | "applied"
-    | "shortlisted"
-    | "interview_scheduled"
-    | "rejected"
-    | "interview_cancelled"
-    | "interview_accepted_by_user"
-    | "interview_rejected_by_user"
-    | "interview_failed"
-    | "interview_passed"
-    | "offered"
-    | "selected";
+  status: ApplicationStatus; // Use the enum here
   resumeUrl: string;
+  statusHistory: {
+    status: ApplicationStatus;
+    changedAt: string;
+    reason?: string;
+  }[];
   rejectionReason?: string;
   scheduledAt?: Date | string;
 }
-
 const AppliedJobsPage: React.FC = () => {
   const navigate = useNavigate();
   const [applications, setApplications] = useState<AppliedJob[]>([]);
@@ -92,8 +86,8 @@ const AppliedJobsPage: React.FC = () => {
       await updateInterviewStatus(applicationId, {
         status:
           action === "accept"
-            ? "interview_accepted_by_user"
-            : "interview_rejected_by_user",
+            ? ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER
+            : ApplicationStatus.INTERVIEW_REJECTED_BY_USER,
       });
 
       // Optimistically update UI
@@ -104,8 +98,8 @@ const AppliedJobsPage: React.FC = () => {
                 ...app,
                 status:
                   action === "accept"
-                    ? "interview_accepted_by_user"
-                    : "interview_rejected_by_user",
+                    ? ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER
+                    : ApplicationStatus.INTERVIEW_REJECTED_BY_USER,
               }
             : app
         )
