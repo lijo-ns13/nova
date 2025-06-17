@@ -1,21 +1,70 @@
-import React, { useEffect } from "react";
-import { CheckCircle, ArrowRight, Home } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { CheckCircle, Home } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAppDispatch } from "../hooks/useAppDispatch";
 import { updateSubscriptionStatus } from "../features/auth/auth.slice";
 import { useAppSelector } from "../hooks/useAppSelector";
+import axios from "axios";
+
 const PaymentSuccess = () => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
+  const location = useLocation();
+  const [orderDetails, setOrderDetails] = useState({
+    orderNumber: "",
+    amount: 0,
+    currency: "inr",
+    planName: "",
+  });
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
+    const fetchOrderDetails = async () => {
+      const queryParams = new URLSearchParams(location.search);
+      const sessionId = queryParams.get("session_id");
+      if (sessionId) {
+        try {
+          const response = await axios.get(
+            `http://localhost:3000/api/stripe/session-details/${sessionId}`
+          );
+          console.log("response stripe", response);
+          setOrderDetails({
+            orderNumber: response.data.transaction.stripeSessionId,
+            amount: response.data.transaction.amount,
+            currency: response.data.transaction.currency,
+            planName: response.data.transaction.planName,
+          });
+        } catch (error) {
+          console.error("Failed to fetch order details:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
     if (isAuthenticated) {
       dispatch(
         updateSubscriptionStatus({
           isSubscriptionTaken: true,
         })
       );
+      fetchOrderDetails();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, dispatch, location.search]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-600">
+            Loading your order details...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -28,7 +77,7 @@ const PaymentSuccess = () => {
             Payment Successful!
           </h2>
           <p className="mt-2 text-lg text-gray-600">
-            Thank you for your purchase. Your order has been confirmed.
+            Thank you for subscribing to {orderDetails.planName}.
           </p>
           <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             <div className="mb-6">
@@ -37,8 +86,10 @@ const PaymentSuccess = () => {
               </h3>
               <div className="mt-4 space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Order Number</span>
-                  <span className="font-medium">#123456789</span>
+                  {/* <span className="text-gray-600">Order Number</span> */}
+                  {/* <span className="font-medium">
+                    {orderDetails.orderNumber.substring(0, 8)}
+                  </span> */}
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Date</span>
@@ -47,8 +98,14 @@ const PaymentSuccess = () => {
                   </span>
                 </div>
                 <div className="flex justify-between">
+                  <span className="text-gray-600">Plan</span>
+                  <span className="font-medium">{orderDetails.planName}</span>
+                </div>
+                <div className="flex justify-between">
                   <span className="text-gray-600">Total Amount</span>
-                  <span className="font-medium">$99.00</span>
+                  <span className="font-medium">
+                    {orderDetails.currency.toUpperCase()} {orderDetails.amount}
+                  </span>
                 </div>
               </div>
             </div>
@@ -58,8 +115,8 @@ const PaymentSuccess = () => {
                 What's next?
               </h3>
               <p className="mt-2 text-gray-600">
-                You'll receive an email confirmation shortly. Your items will be
-                shipped within 2-3 business days.
+                Your subscription is now active. You'll receive an email
+                confirmation shortly.
               </p>
             </div>
 

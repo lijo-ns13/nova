@@ -38,4 +38,23 @@ router.get("/session/:userId", async (req, res) => {
     return;
   }
 });
+
+// Add this to your stripe routes file
+router.get("/session-details/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    // First try to get from our database
+    const transaction = await tranasctionModal.findOne({
+      stripeSessionId: sessionId,
+    });
+    if (!transaction) {
+      throw new Error("transaction not found");
+    }
+    res.status(200).json({ success: true, transaction });
+  } catch (err) {
+    console.error("Error fetching session details:", err);
+    res.status(500).json({ message: "Failed to fetch session details" });
+  }
+});
 export default router;
