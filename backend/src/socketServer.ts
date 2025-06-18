@@ -151,11 +151,14 @@ export const initSocketServer = (server: Server) => {
     });
 
     // Call toggles
+    // Ensure these handlers are properly forwarding the events
     socket.on("video-toggle", ({ roomId, userId, enabled }) => {
+      console.log(`Video ${enabled ? "enabled" : "disabled"} by ${userId}`);
       socket.to(roomId).emit("video-toggle", { userId, enabled });
     });
 
     socket.on("audio-toggle", ({ roomId, userId, enabled }) => {
+      console.log(`Audio ${enabled ? "unmuted" : "muted"} by ${userId}`);
       socket.to(roomId).emit("audio-toggle", { userId, enabled });
     });
 

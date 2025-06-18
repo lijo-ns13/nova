@@ -81,6 +81,8 @@ function SignInPage() {
           isVerified: isVerified,
           isSubscriptionTaken: user.isSubscriptionTaken,
           subscriptionExpiresAt: user.subscriptionExpiresAt,
+          appliedJobCount: user.appliedJobCount,
+          createdPostCount: user.createdPostCount,
         })
       );
 

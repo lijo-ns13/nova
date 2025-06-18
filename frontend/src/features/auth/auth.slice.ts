@@ -14,6 +14,8 @@ interface AuthState {
   isBlocked: boolean;
   isSubscriptionTaken: boolean;
   subscriptionExpiresAt?: Date;
+  appliedJobCount?: number;
+  createdPostCount?: number;
 }
 
 const initialState: AuthState = {
@@ -49,6 +51,8 @@ const authSlice = createSlice({
         isBlocked: boolean;
         isSubscriptionTaken?: boolean;
         subscriptionExpiresAt?: string | Date;
+        appliedJobCount?: number;
+        createdPostCount?: number;
       }>
     ) => {
       state.isAuthenticated = true;
@@ -65,6 +69,8 @@ const authSlice = createSlice({
       state.subscriptionExpiresAt = action.payload.subscriptionExpiresAt
         ? new Date(action.payload.subscriptionExpiresAt)
         : undefined;
+      state.appliedJobCount = action.payload.appliedJobCount;
+      state.createdPostCount = action.payload.createdPostCount;
     },
     logout: (state) => {
       state.isAuthenticated = false;
@@ -79,6 +85,8 @@ const authSlice = createSlice({
       state.isVerified = false;
       state.isSubscriptionTaken = false;
       state.subscriptionExpiresAt = undefined;
+      state.appliedJobCount = undefined;
+      state.createdPostCount = undefined;
     },
     updateProfile: (
       state,
@@ -108,9 +116,21 @@ const authSlice = createSlice({
         ? new Date(action.payload.subscriptionExpiresAt)
         : undefined;
     },
+    updateAppliedJobCount: (state, action: PayloadAction<number>) => {
+      state.appliedJobCount = action.payload;
+    },
+    updateCreatePostCount: (state, action: PayloadAction<number>) => {
+      state.createdPostCount = action.payload;
+    },
   },
 });
 
-export const { login, logout, updateProfile, updateSubscriptionStatus } =
-  authSlice.actions;
+export const {
+  login,
+  logout,
+  updateProfile,
+  updateSubscriptionStatus,
+  updateAppliedJobCount,
+  updateCreatePostCount,
+} = authSlice.actions;
 export default authSlice.reducer;
