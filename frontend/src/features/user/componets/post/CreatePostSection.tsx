@@ -4,7 +4,12 @@ import Avatar from "../ui/Avatar";
 import NewModal from "../modals/NewModal";
 import CreatePostForm from "./CreatePostForm";
 import { useAppSelector } from "../../../../hooks/useAppSelector";
-
+import { useAppDispatch } from "../../../../hooks/useAppDispatch";
+import { updateCreatePostCount } from "../../../auth/auth.slice";
+import BaseModal from "../modals/BaseModal";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const postLimit = import.meta.env.VITE_POST_CREATION_COUNT || 2;
+const BASE_URL = `${API_BASE_URL}`;
 interface CreatePostSectionProps {
   onPostSubmit?: () => void;
 }
@@ -22,11 +27,26 @@ interface PostData {
 const CreatePostSection: React.FC<CreatePostSectionProps> = ({
   onPostSubmit,
 }) => {
+  const dispath = useAppDispatch();
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const { profilePicture, name } = useAppSelector((state) => state.auth);
+  const { profilePicture, name, isSubscriptionTaken, createdPostCount } =
+    useAppSelector((state) => state.auth);
 
+  const [showSubscriptionModal, setShowSubscriptionModal] =
+    useState<boolean>(false);
+  const handleCloseSubscriptionModal = () => {
+    setShowSubscriptionModal(false);
+  };
   const handleOpenModal = () => {
-    setOpenModal(true);
+    if (
+      !isSubscriptionTaken &&
+      createdPostCount &&
+      createdPostCount >= postLimit
+    ) {
+      setShowSubscriptionModal(true); // Show subscription modal
+      return;
+    }
+    setOpenModal(true); // Otherwise, allow post creation
   };
 
   const handleCloseModal = () => {
@@ -35,6 +55,15 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
 
   const handlePostSubmit = async (data: PostData) => {
     try {
+      if (
+        !isSubscriptionTaken &&
+        createdPostCount &&
+        createdPostCount >= postLimit
+      ) {
+        setShowSubscriptionModal(true); // Show modal if limit reached
+        handleCloseModal(); // Close post modal if it's open
+        return; // Prevent post creation
+      }
       // Create form data for backend submission
       const formData = new FormData();
       formData.append("description", data.description);
@@ -44,7 +73,7 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
       });
 
       // Example API call - replace with your actual API endpoint
-      const response = await fetch("http://localhost:3000/post", {
+      const response = await fetch(`${BASE_URL}/post`, {
         method: "POST",
         credentials: "include",
         body: formData,
@@ -54,6 +83,10 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
 
       // Call the onPostSubmit callback if provided
       if (onPostSubmit) {
+        if (createdPostCount) {
+          dispath(updateCreatePostCount(createdPostCount + 1));
+        }
+
         onPostSubmit();
       }
 
@@ -101,14 +134,6 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
               <Video size={18} className="text-green-500" />
               <span>Video</span>
             </button>
-
-            <button
-              onClick={handleOpenModal}
-              className="flex items-center gap-2 py-1.5 px-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-sm"
-            >
-              <FileText size={18} className="text-amber-500" />
-              <span>Document</span>
-            </button>
           </div>
         </div>
       </div>
@@ -127,6 +152,35 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
           userName={name}
         />
       </NewModal>
+      <BaseModal
+        isOpen={showSubscriptionModal}
+        onClose={handleCloseSubscriptionModal}
+        title="Free Access Limit Reached"
+      >
+        <div className="space-y-4">
+          <p>
+            You've reached your free post creation limit ({postLimit} posts). To
+            continue creating posts, please subscribe.
+          </p>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={handleCloseSubscriptionModal}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+            >
+              Close
+            </button>
+            <button
+              onClick={() => {
+                handleCloseSubscriptionModal();
+                window.location.href = "/subscription"; // Optional redirect
+              }}
+              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+            >
+              Subscribe Now
+            </button>
+          </div>
+        </div>
+      </BaseModal>
     </>
   );
 };
