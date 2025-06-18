@@ -34,7 +34,7 @@ const CompensationSection: React.FC<CompensationSectionProps> = ({
                 name="currency"
                 value={formState.salary.currency}
                 onChange={(e) => handleSalaryChange("currency", e.target.value)}
-                placeholder="USD"
+                placeholder="INR only"
                 error={!!errors["salary.currency"]}
               />
             </div>
@@ -78,7 +78,7 @@ const CompensationSection: React.FC<CompensationSectionProps> = ({
             className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300 transition-colors"
           />
           <label htmlFor="salaryVisible" className="text-sm text-gray-600">
-            Show salary range to applicants
+            Enter salary in LPA (Lakhs Per Annum). Ex: 6 = ₹6,00,000
           </label>
         </div>
 

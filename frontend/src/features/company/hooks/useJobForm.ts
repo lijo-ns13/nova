@@ -32,7 +32,7 @@ export function useJobForm() {
     skillsRequired: [],
     benefits: [],
     salary: {
-      currency: "USD",
+      currency: "INR",
       min: "",
       max: "",
       isVisibleToApplicants: true,
@@ -149,13 +149,35 @@ export function useJobForm() {
       newErrors.experienceLevel = "Experience level is required";
 
     // Salary validation
-    if (formState.salary.min && formState.salary.max) {
-      const min = Number(formState.salary.min);
-      const max = Number(formState.salary.max);
-      if (min > max) {
-        newErrors["salary.min"] =
-          "Minimum salary cannot be greater than maximum";
-      }
+    const min = Number(formState.salary.min);
+    const max = Number(formState.salary.max);
+
+    // Currency check
+    if (formState.salary.currency !== "INR") {
+      newErrors["salary.currency"] = "Only INR currency is supported";
+    }
+
+    if (!formState.salary.min) {
+      newErrors["salary.min"] = "Minimum salary is required";
+    } else if (isNaN(min) || min < 1 || min > 75) {
+      newErrors["salary.min"] = "Minimum salary must be between 1 and 75 LPA";
+    }
+
+    if (!formState.salary.max) {
+      newErrors["salary.max"] = "Maximum salary is required";
+    } else if (isNaN(max) || max < 1 || max > 75) {
+      newErrors["salary.max"] = "Maximum salary must be between 1 and 75 LPA";
+    }
+
+    if (
+      formState.salary.min &&
+      formState.salary.max &&
+      !isNaN(min) &&
+      !isNaN(max) &&
+      min > max
+    ) {
+      newErrors["salary.min"] =
+        "Minimum salary cannot be greater than maximum salary";
     }
 
     setErrors(newErrors);
