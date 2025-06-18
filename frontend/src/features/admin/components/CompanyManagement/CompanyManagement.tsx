@@ -21,7 +21,7 @@ const CompanyManagement: React.FC = () => {
     totalCompanies: 0,
     totalPages: 1,
     currentPage: 1,
-    companiesPerPage: 10,
+    companiesPerPage: 5,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
