@@ -23,6 +23,7 @@ export class UserInterviewController {
     try {
       const { applicationId, status } = req.params;
       const userId = (req.user as Userr)?.id;
+      const email = (req.user as Userr)?.email;
       if (!status || !applicationId) {
         res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
           success: false,
@@ -33,7 +34,8 @@ export class UserInterviewController {
 
       const updated = await this.userInterviewService.updateStatus(
         applicationId,
-        status
+        status,
+        email
       );
 
       if (!updated) {

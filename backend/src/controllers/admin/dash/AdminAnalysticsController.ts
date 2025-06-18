@@ -386,6 +386,7 @@ export const getTransactions = async (req: Request, res: Response) => {
       })
       .sort({ createdAt: -1 })
       .limit(100) // Limit to 100 most recent
+      .populate("userId", "name")
       .lean();
 
     res.json(transactions);

@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { Bar, Pie, Line } from "react-chartjs-2";
+import 'jspdf-autotable';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -37,7 +38,9 @@ import {
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { saveAs } from "file-saver";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+const BASE_URL = `${API_BASE_URL}`;
 import novalogo from "../../../assets/novalogo.png";
 const { Title: AntTitle, Text } = Typography;
 const { Option } = Select;
@@ -73,10 +76,13 @@ interface UserGrowth {
   date: string;
   count: number;
 }
-
+interface UserT {
+  _id: string;
+  name: string;
+}
 interface Transaction {
   _id: string;
-  userId: string;
+  userId: UserT;
   amount: number;
   currency: string;
   status: string;
@@ -145,16 +151,16 @@ const AdminDashboard: React.FC = () => {
           : { range: timeRange };
 
       const [revRes, planRes, growthRes, txnRes] = await Promise.all([
-        axios.get("http://localhost:3000/api/admin/analytics/revenue-stats", {
+        axios.get(`${BASE_URL}/api/admin/analytics/revenue-stats`, {
           params: rangeParams,
         }),
-        axios.get("http://localhost:3000/api/admin/analytics/top-plans", {
+        axios.get(`${BASE_URL}/api/admin/analytics/top-plans`, {
           params: rangeParams,
         }),
-        axios.get("http://localhost:3000/api/admin/analytics/user-growth", {
+        axios.get(`${BASE_URL}/api/admin/analytics/user-growth`, {
           params: rangeParams,
         }),
-        axios.get("http://localhost:3000/api/admin/analytics/transactions", {
+        axios.get(`${BASE_URL}/api/admin/analytics/transactions`, {
           params: rangeParams,
         }),
       ]);
@@ -172,9 +178,7 @@ const AdminDashboard: React.FC = () => {
 
   const fetchUserStats = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:3000/api/admin/analytics/user-stats"
-      );
+      const res = await axios.get(`${BASE_URL}/api/admin/analytics/user-stats`);
       setTotalUsers(res.data.totalUsers);
       setActiveUsers(res.data.activeUsers);
     } catch (error) {
@@ -201,9 +205,9 @@ const AdminDashboard: React.FC = () => {
       render: (date: string) => new Date(date).toLocaleString(),
     },
     {
-      title: "User ID",
-      dataIndex: "userId",
-      key: "userId",
+      title: "User",
+      dataIndex: ["userId", "name"],
+      key: "userName",
     },
     {
       title: "Plan",
@@ -242,35 +246,29 @@ const AdminDashboard: React.FC = () => {
   ];
 
   const downloadPDF = async () => {
-    // Create a temporary loading message
     const hideMessage = message.loading("Generating PDF report...", 0);
 
     try {
-      // 1. Prepare the content
       const dashboardElement = dashboardRef.current;
       if (!dashboardElement) {
         message.error("Dashboard content not found");
         return;
       }
 
-      // 2. Force all charts to render completely
       window.dispatchEvent(new Event("resize"));
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // 3. Create a clone of the dashboard
       const clone = dashboardElement.cloneNode(true) as HTMLElement;
       clone.style.position = "absolute";
       clone.style.left = "-9999px";
       clone.style.width = `${dashboardElement.offsetWidth}px`;
       document.body.appendChild(clone);
 
-      // 4. Remove any loading elements from the clone
       const loadingElements = clone.querySelectorAll(
         ".ant-spin, .ant-spin-blur"
       );
       loadingElements.forEach((el) => el.remove());
 
-      // 5. Prepare canvas options
       const canvasOptions = {
         scale: 2,
         useCORS: true,
@@ -280,7 +278,6 @@ const AdminDashboard: React.FC = () => {
         windowWidth: clone.scrollWidth,
         windowHeight: clone.scrollHeight,
         onclone: (clonedDoc: Document) => {
-          // Ensure everything is visible
           const elements = clonedDoc.querySelectorAll("*");
           elements.forEach((el) => {
             const element = el as HTMLElement;
@@ -290,37 +287,39 @@ const AdminDashboard: React.FC = () => {
         },
       };
 
-      // 6. Generate the canvas
       const canvas = await html2canvas(clone, canvasOptions);
       document.body.removeChild(clone);
 
-      // 7. Create PDF
       const pdf = new jsPDF("landscape", "pt", [canvas.width, canvas.height]);
 
-      // Add logo (if you have it imported as novalogo)
+      // Add logo and site name
       if (novalogo) {
         const logoWidth = 50;
         const logoHeight = 50;
         pdf.addImage(novalogo, "PNG", 20, 20, logoWidth, logoHeight);
       }
 
-      // Add header information
+      // Enhanced header information
       pdf.setFontSize(16);
       pdf.setTextColor(40);
       pdf.setFont("helvetica", "bold");
-      pdf.text("Dashboard Analytics Report", novalogo ? 80 : 20, 40);
+      pdf.text("Sales Report - Nova", novalogo ? 80 : 20, 40);
 
       pdf.setFontSize(12);
       pdf.setFont("helvetica", "normal");
-      pdf.text(`Time Period: ${getTimeSpanText()}`, 20, 60);
+
+      // Time period details
+      pdf.text(`Report Period: ${getTimeSpanText()}`, 20, 60);
       pdf.text(`Total Revenue: ₹${revenue[timeRange] || 0}`, 20, 80);
+
+      // Transaction count for the period
+      pdf.text(`Transactions: ${transactions.length}`, 20, 100);
+
       pdf.text(
         `Generated: ${new Date().toLocaleString()}`,
         canvas.width - 20,
         40,
-        {
-          align: "right",
-        }
+        { align: "right" }
       );
 
       // Add the dashboard content
@@ -328,17 +327,21 @@ const AdminDashboard: React.FC = () => {
         canvas.toDataURL("image/png"),
         "PNG",
         0,
-        100, // Start below the header
+        120, // Start below the header
         canvas.width,
-        canvas.height - 100 // Adjust height for header
+        canvas.height - 120 // Adjust height for header
       );
 
-      // 8. Save the PDF
-      pdf.save(
-        `dashboard_report_${timeRange}_${new Date()
-          .toISOString()
-          .slice(0, 10)}.pdf`
-      );
+      // Generate filename with site name and period
+      let filename = `Nova_Sales_Report_${timeRange}`;
+      if (timeRange === "custom" && customRange.length === 2) {
+        filename += `_${customRange[0]}_to_${customRange[1]}`;
+      } else {
+        filename += `_${new Date().toISOString().slice(0, 10)}`;
+      }
+      filename += ".pdf";
+
+      pdf.save(filename);
     } catch (error) {
       console.error("PDF generation error:", error);
       message.error("Failed to generate PDF");
@@ -365,7 +368,7 @@ const AdminDashboard: React.FC = () => {
   const downloadCSV = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/api/admin/analytics/download-report",
+        `${BASE_URL}/api/admin/analytics/download-report`,
         {
           responseType: "blob",
           params: {
@@ -391,7 +394,7 @@ const AdminDashboard: React.FC = () => {
   const downloadJSON = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/api/admin/analytics/full-report",
+        `${BASE_URL}/api/admin/analytics/full-report`,
         {
           params: {
             range: timeRange,

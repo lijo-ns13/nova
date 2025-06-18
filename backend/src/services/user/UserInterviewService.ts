@@ -15,6 +15,7 @@ import { NotificationType } from "../../models/notification.modal";
 import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import { Types } from "mongoose";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
+import { IEmailService } from "../../interfaces/services/IEmailService";
 
 export class UserInterviewService implements IUserInterviewService {
   constructor(
@@ -25,14 +26,16 @@ export class UserInterviewService implements IUserInterviewService {
     @inject(TYPES.NotificationService)
     private notificationService: INotificationService,
     @inject(TYPES.JobRepository) private _jobRepo: IJobRepository,
-    @inject(TYPES.UserRepository) private _userRepo: IUserRepository
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
+    @inject(TYPES.EmailService) private _emailService: IEmailService
   ) {}
   async findInterview(applicationId: string, userId: string): Promise<any> {
     return this._interviewRepo.findOne({ applicationId, userId });
   }
   async updateStatus(
     applicationId: string,
-    status: ApplicationStatus
+    status: ApplicationStatus,
+    email?: string
   ): Promise<IApplication | null> {
     const application = await this._applicationRepo.findById(applicationId);
     if (!application) {
@@ -76,6 +79,22 @@ export class UserInterviewService implements IUserInterviewService {
       NotificationType.JOB,
       _id
     );
+    // 💡 Send interview link email when user accepts interview
+    if (status === ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER && email) {
+      const interview = await this._interviewRepo.findOne({
+        applicationId,
+        userId,
+      });
+      if (!interview) {
+        throw new Error("Interview not found for this application");
+      }
+
+      await this._emailService.sendInterviewLink(
+        email,
+        interview.roomId,
+        interview.scheduledAt
+      );
+    }
     return this._applicationRepo.updateStatus(applicationId, status);
   }
 }
