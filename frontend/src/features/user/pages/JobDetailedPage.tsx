@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import {
-  getJob,
-  saveJob,
-  unsaveJob,
-  getJobAppliedStatus,
-} from "../services/JobServices";
+import { getJob, getJobAppliedStatus } from "../services/JobServices";
 import ApplyModal from "../componets/ApplyModal";
 import {
   Briefcase,
@@ -18,14 +13,13 @@ import {
   Check,
   Building2,
   Share2,
-  Bookmark,
-  Users,
   Star,
   Sparkles,
   ArrowLeft,
   ExternalLink,
-  ChevronRight,
 } from "lucide-react";
+import BaseModal from "../componets/modals/BaseModal";
+import { useAppSelector } from "../../../hooks/useAppSelector";
 
 // Define TypeScript interfaces for better type safety
 interface Salary {
@@ -86,11 +80,23 @@ function JobDetailedPage() {
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [bookmarked, setBookmarked] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [applicationSuccess, setApplicationSuccess] = useState(false);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
   const [isApplied, setIsApplied] = useState<boolean>(false);
+
+  const applyLimit = import.meta.env.VITE_FREE_JOB_APPLY_COUNT || 2;
+
+  // updated
+  const { appliedJobCount, isSubscriptionTaken } = useAppSelector(
+    (state) => state.auth
+  );
+  const [showSubscriptionModal, setShowSubscriptionModal] =
+    useState<boolean>(false);
+  const handleCloseSubscriptionModal = () => {
+    setShowSubscriptionModal(false);
+  };
+
   const fetch = async () => {
     if (jobId) {
       await fetchJobDetails(jobId);
@@ -131,35 +137,15 @@ function JobDetailedPage() {
   }
 
   const handleApply = () => {
-    setShowApplyModal(true);
-    setApplicationSuccess(false);
-  };
-
-  const handleBookmark = async (jobId: string) => {
-    try {
-      const action = bookmarked ? unsaveJob : saveJob;
-      await action(jobId);
-
-      setBookmarked(!bookmarked);
-
-      // Notification
-      const message = bookmarked
-        ? "❌ Removed from saved jobs"
-        : "🔖 Saved to your bookmarks";
-
-      const notification = document.createElement("div");
-      notification.className =
-        "fixed bottom-4 right-4 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl z-50 animate-fade-in-up transition-all duration-500";
-      notification.textContent = message;
-      document.body.appendChild(notification);
-
-      setTimeout(() => {
-        notification.classList.add("opacity-0", "translate-y-4");
-        setTimeout(() => document.body.removeChild(notification), 500);
-      }, 2000);
-    } catch (error) {
-      console.error("Bookmarking failed", error);
-      alert("Failed to save job. Please try again.");
+    // Check if user has subscription or if they haven't reached the application limit
+    if (
+      isSubscriptionTaken ||
+      (appliedJobCount !== undefined && appliedJobCount < applyLimit)
+    ) {
+      setShowApplyModal(true);
+      setApplicationSuccess(false);
+    } else {
+      setShowSubscriptionModal(true);
     }
   };
 
@@ -183,14 +169,13 @@ function JobDetailedPage() {
     if (!job?.salary) return "Competitive Salary";
 
     if (job.salary.isVisibleToApplicants) {
-      return `${
-        job.salary.currency || "USD"
-      } ${job.salary.min.toLocaleString()}${
-        job.salary.min >= 100000 ? "" : "K"
-      } - ${job.salary.max.toLocaleString()}${
-        job.salary.max >= 100000 ? "" : "K"
-      } /year`;
+      const currency = job.salary.currency || "IND";
+      const min = job.salary.min;
+      const max = job.salary.max;
+
+      return `${currency} ₹${min} LPA - ₹${max} LPA `;
     }
+
     return "Competitive Salary";
   };
 
@@ -278,7 +263,6 @@ function JobDetailedPage() {
           <span>Back to Jobs</span>
         </button>
       </div>
-
       {/* Success notification */}
       {showSuccessNotification && (
         <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-md z-50 animate-fade-in">
@@ -288,7 +272,6 @@ function JobDetailedPage() {
           </div>
         </div>
       )}
-
       {/* Header with actions */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 md:p-6 mb-6 transition-all hover:shadow-md">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -326,20 +309,6 @@ function JobDetailedPage() {
             </div>
           </div>
           <div className="flex gap-2 md:justify-end">
-            <button
-              onClick={() => handleBookmark(job._id)}
-              className={`p-2 rounded-full ${
-                bookmarked
-                  ? "bg-blue-50 text-blue-600"
-                  : "bg-gray-100 text-gray-600"
-              } hover:bg-gray-200 transition-colors`}
-              aria-label="Bookmark job"
-            >
-              <Bookmark
-                className="h-5 w-5"
-                fill={bookmarked ? "currentColor" : "none"}
-              />
-            </button>
             <button
               onClick={handleShare}
               className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
@@ -426,7 +395,6 @@ function JobDetailedPage() {
           </div>
         )}
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6 md:space-y-8">
@@ -511,13 +479,30 @@ function JobDetailedPage() {
                 Already Applied
               </button>
             ) : (
-              <button
-                onClick={handleApply}
-                disabled={job.status !== "open"}
-                className={getApplyBtnClass()}
-              >
-                {job.status === "open" ? "Apply Now" : "Applications Closed"}
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={handleApply}
+                  disabled={job.status !== "open"}
+                  className={getApplyBtnClass()}
+                >
+                  {job.status === "open" ? "Apply Now" : "Applications Closed"}
+                </button>
+                {!isSubscriptionTaken && job.status === "open" && (
+                  <p className="text-center text-xs text-gray-500">
+                    {appliedJobCount !== undefined ? (
+                      <>
+                        {applyLimit - appliedJobCount} free{" "}
+                        {applyLimit - appliedJobCount === 1
+                          ? "application"
+                          : "applications"}{" "}
+                        remaining
+                      </>
+                    ) : (
+                      "Loading application limit..."
+                    )}
+                  </p>
+                )}
+              </div>
             )}
 
             {job.status === "open" && !isApplied && (
@@ -559,10 +544,7 @@ function JobDetailedPage() {
                     <MapPin className="h-4 w-4 mr-2 text-gray-500" />
                     <span>{job.company?.location || "Location N/A"}</span>
                   </div>
-                  <div className="flex items-center text-gray-600">
-                    <Users className="h-4 w-4 mr-2 text-gray-500" />
-                    <span>50-200 employees</span>
-                  </div>
+
                   <div className="flex items-center text-gray-600">
                     <ExternalLink className="h-4 w-4 mr-2 text-gray-500" />
                     <span className="text-blue-600 hover:underline cursor-pointer">
@@ -590,55 +572,6 @@ function JobDetailedPage() {
           </div>
         </div>
       </div>
-
-      {/* Similar Jobs */}
-      <div className="mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Similar Jobs</h2>
-          <a
-            href="#"
-            className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
-          >
-            View all <ChevronRight className="h-4 w-4 ml-1" />
-          </a>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Just placeholder cards for similar jobs */}
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 hover:shadow-md transition-all cursor-pointer"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-medium text-gray-900">
-                    Similar {job.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 mt-1">Another Company</p>
-                </div>
-                <div className="h-10 w-10 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
-                  <Building2 className="h-5 w-5" />
-                </div>
-              </div>
-              <div className="flex gap-2 mt-3">
-                <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
-                  Remote
-                </span>
-                <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
-                  Full-time
-                </span>
-              </div>
-              <div className="mt-3 flex justify-between items-center">
-                <span className="text-sm text-gray-500">Posted 2 days ago</span>
-                <span className="text-sm font-medium text-blue-600">
-                  $80K-$100K
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Apply Modal */}
       {showApplyModal && (
         <ApplyModal
@@ -658,6 +591,38 @@ function JobDetailedPage() {
           </div>
         </div>
       )}
+      // Update the subscription modal to show job application specific message
+      <BaseModal
+        isOpen={showSubscriptionModal}
+        onClose={handleCloseSubscriptionModal}
+        title="Free Application Limit Reached"
+      >
+        <div className="space-y-4">
+          <p>
+            You've reached your free job application limit ({applyLimit}{" "}
+            applications). To continue applying for jobs, please subscribe to
+            our premium plan.
+          </p>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={handleCloseSubscriptionModal}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+            >
+              Close
+            </button>
+            <button
+              onClick={() => {
+                // Here you would typically redirect to the subscription page
+                window.location.href = "/subscription";
+                handleCloseSubscriptionModal();
+              }}
+              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+            >
+              Subscribe Now
+            </button>
+          </div>
+        </div>
+      </BaseModal>
     </div>
   );
 }

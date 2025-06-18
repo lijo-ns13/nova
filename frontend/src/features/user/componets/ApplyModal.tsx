@@ -6,6 +6,9 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { applyJob } from "../services/JobServices";
+import { useAppDispatch } from "../../../hooks/useAppDispatch";
+import { updateAppliedJobCount } from "../../auth/auth.slice";
+import { useAppSelector } from "../../../hooks/useAppSelector";
 
 interface ApplyModalProps {
   jobId: string;
@@ -23,7 +26,8 @@ export default function ApplyModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const dispatch = useAppDispatch();
+  const { appliedJobCount } = useAppSelector((state) => state.auth);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -67,6 +71,10 @@ export default function ApplyModal({
         resumeFile,
         // coverLetter,
       });
+      if (appliedJobCount) {
+        dispatch(updateAppliedJobCount(appliedJobCount + 1));
+      }
+
       onApplySuccess();
     } catch (err: any) {
       setError(
@@ -84,7 +92,7 @@ export default function ApplyModal({
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Apply for this position</h2>
+            <h2 className="text-xl font-semibold">Apply for this position**</h2>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700"
