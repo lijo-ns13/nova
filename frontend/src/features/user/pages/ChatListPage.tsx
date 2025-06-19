@@ -81,7 +81,7 @@ const ChatListPage = () => {
       <Navbar />
 
       {/* Header */}
-      <div className="border-b border-gray-100 p-4 sticky top-20 z-10 bg-white">
+      <div className="border-b border-gray-100 p-4 sticky top-10 z-10 bg-white">
         <div className="max-w-md mx-auto flex items-center justify-between">
           {isSearching ? (
             <div className="flex items-center w-full">
@@ -129,7 +129,7 @@ const ChatListPage = () => {
       </div>
 
       {/* Chat List Content */}
-      <div className="relative top-20 flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto mt-10">
         <div className="max-w-md mx-auto">
           {filteredUsers.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center p-8">
