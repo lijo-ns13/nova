@@ -5,7 +5,7 @@ import { TYPES } from "../di/types";
 import { INotificationService } from "../interfaces/services/INotificationService";
 import { INotificationRepository } from "../interfaces/repositories/INotificationRepository";
 import { INotification, NotificationType } from "../models/notification.modal";
-import userModal from "../models/user.modal";
+
 import { getUserByIdAcrossCollections } from "../utils/getUserSocketData";
 @injectable()
 export class NotificationService implements INotificationService {

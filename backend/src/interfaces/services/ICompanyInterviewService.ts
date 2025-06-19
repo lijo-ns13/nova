@@ -1,9 +1,7 @@
 // src/interfaces/services/ICompanyInterviewService.ts
-import {
-  IInterview,
-  InterviewResponse,
-} from "../../core/entities/interview.interface";
+import { InterviewResponse } from "../../core/entities/interview.interface";
 import { IApplication } from "../../models/application.modal";
+import { IInterview } from "../../models/interview.modal";
 
 export interface ICompanyInterviewService {
   createInterview(

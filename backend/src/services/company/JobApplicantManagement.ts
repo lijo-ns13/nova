@@ -12,48 +12,7 @@ import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { AppIntegrations } from "aws-sdk";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { NotificationType } from "../../models/notification.modal";
-const statusesRequiringReason: ApplicationStatus[] = [
-  ApplicationStatus.REJECTED,
-  ApplicationStatus.INTERVIEW_CANCELLED,
-  ApplicationStatus.INTERVIEW_REJECTED_BY_USER,
-  ApplicationStatus.WITHDRAWN,
-];
-const allowedTransitions: Record<ApplicationStatus, ApplicationStatus[]> = {
-  [ApplicationStatus.APPLIED]: [
-    ApplicationStatus.SHORTLISTED,
-    ApplicationStatus.REJECTED,
-    ApplicationStatus.WITHDRAWN,
-  ],
-  [ApplicationStatus.SHORTLISTED]: [
-    ApplicationStatus.INTERVIEW_SCHEDULED,
-    ApplicationStatus.REJECTED,
-    ApplicationStatus.WITHDRAWN,
-  ],
-  [ApplicationStatus.INTERVIEW_SCHEDULED]: [
-    ApplicationStatus.INTERVIEW_CANCELLED,
-    ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER,
-    ApplicationStatus.INTERVIEW_REJECTED_BY_USER,
-  ],
-  [ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER]: [
-    ApplicationStatus.INTERVIEW_COMPLETED,
-  ],
-  [ApplicationStatus.INTERVIEW_COMPLETED]: [
-    ApplicationStatus.INTERVIEW_PASSED,
-    ApplicationStatus.INTERVIEW_FAILED,
-  ],
-  [ApplicationStatus.INTERVIEW_PASSED]: [ApplicationStatus.OFFERED],
-  [ApplicationStatus.OFFERED]: [
-    ApplicationStatus.HIRED,
-    ApplicationStatus.WITHDRAWN,
-  ],
-  [ApplicationStatus.INTERVIEW_REJECTED_BY_USER]: [],
-  [ApplicationStatus.INTERVIEW_CANCELLED]: [],
-  [ApplicationStatus.INTERVIEW_FAILED]: [],
-  [ApplicationStatus.REJECTED]: [],
-  [ApplicationStatus.WITHDRAWN]: [],
-  [ApplicationStatus.HIRED]: [],
-  [ApplicationStatus.SELECTED]: [],
-};
+import { allowedTransitions } from "../../utils/allowedTransitions";
 
 @injectable()
 export class JobApplicantManagementService
@@ -64,7 +23,9 @@ export class JobApplicantManagementService
     private _applicationRepo: IApplicationRepository,
 
     @inject(TYPES.MediaService)
-    private _mediaService: IMediaService
+    private _mediaService: IMediaService,
+    @inject(TYPES.NotificationService)
+    private _notificationService: INotificationService
   ) {}
 
   async getApplicationsByJob(jobId: string): Promise<IApplication[]> {

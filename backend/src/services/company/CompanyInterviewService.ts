@@ -2,10 +2,7 @@
 import { inject } from "inversify";
 import { TYPES } from "../../di/types";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
-import {
-  IInterview,
-  InterviewResponse,
-} from "../../core/entities/interview.interface";
+import { InterviewResponse } from "../../core/entities/interview.interface";
 
 import { ICompanyInterviewService } from "../../interfaces/services/ICompanyInterviewService";
 import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRepository";
@@ -20,6 +17,7 @@ import { ICompanyRepository } from "../../interfaces/repositories/ICompanyReposi
 import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import { Types } from "mongoose";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
+import { IInterview } from "../../models/interview.modal";
 
 export class CompanyInterviewService implements ICompanyInterviewService {
   constructor(
@@ -40,7 +38,7 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     applicationId: string,
     scheduledAt: string,
     roomId: string
-  ): Promise<any> {
+  ): Promise<IInterview> {
     // Check for existing interview at this time
     const applicant = await this._applicationRepo.findById(applicationId);
 
