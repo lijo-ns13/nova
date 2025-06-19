@@ -8,6 +8,7 @@ import container from "../di/container";
 import { IAuthMiddleware } from "../interfaces/middlewares/IAuthMiddleware";
 import { TYPES } from "../di/types";
 import userModal from "../models/user.modal";
+import mongoose from "mongoose";
 const router = Router();
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
@@ -15,55 +16,91 @@ router.use("/skill", skillRouter);
 router.use("/api", ProfileViewRouter);
 router.use("/api/messages", messageRoutes);
 router.use("/notification", notificationRouter);
+
 router.get("/api/chat/users/:userId", async (req: Request, res: Response) => {
   const { userId } = req.params;
+  const timeWindowInDays = 30; // Customize the range, e.g., last 30 days
+  const now = new Date();
+  const pastDate = new Date(
+    now.getTime() - timeWindowInDays * 24 * 60 * 60 * 1000
+  );
 
   try {
-    // Get the current user's following list
     const currentUser = await userModal
       .findById(userId)
       .select("following")
       .lean();
-
     if (!currentUser) {
       res.status(404).json({ message: "User not found" });
       return;
     }
 
-    const followingIds = currentUser.following;
+    const followingIds = currentUser.following.map((id) => id.toString());
 
-    // Get followed users' basic info
+    // Get unique userIds that had a conversation with current user in the time window
+    const messagedUserDocs = await messageModal.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: pastDate },
+          $or: [
+            { sender: new mongoose.Types.ObjectId(userId) },
+            { receiver: new mongoose.Types.ObjectId(userId) },
+          ],
+        },
+      },
+      {
+        $project: {
+          otherUser: {
+            $cond: [
+              { $eq: ["$sender", new mongoose.Types.ObjectId(userId)] },
+              "$receiver",
+              "$sender",
+            ],
+          },
+          createdAt: 1,
+          content: 1,
+        },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        $group: {
+          _id: "$otherUser",
+          lastMessage: { $first: "$$ROOT" },
+        },
+      },
+    ]);
+
+    const messagedUserIds = messagedUserDocs.map((doc) => doc._id.toString());
+
+    // Combine messaged users + followed users (remove duplicates)
+    const uniqueUserIds = Array.from(
+      new Set([...followingIds, ...messagedUserIds])
+    );
+
     const users = await userModal
-      .find({ _id: { $in: followingIds } })
+      .find({ _id: { $in: uniqueUserIds } })
       .select("_id name profilePicture online")
       .lean();
 
-    // For each followed user, get the latest message
-    const usersWithLastMessages = await Promise.all(
-      users.map(async (user) => {
-        const lastMessage = await messageModal
-          .findOne({
-            $or: [
-              { sender: userId, receiver: user._id },
-              { sender: user._id, receiver: userId },
-            ],
-          })
-          .sort({ createdAt: -1 })
-          .lean();
+    // Attach lastMessage info to each user
+    const usersWithLastMessages = users.map((user) => {
+      const messageDoc = messagedUserDocs.find(
+        (doc) => doc._id.toString() === user._id.toString()
+      );
+      return {
+        ...user,
+        lastMessage: messageDoc
+          ? {
+              content: messageDoc.lastMessage.content,
+              createdAt: messageDoc.lastMessage.createdAt,
+            }
+          : null,
+      };
+    });
 
-        return {
-          ...user,
-          lastMessage: lastMessage
-            ? {
-                content: lastMessage.content,
-                createdAt: lastMessage.createdAt,
-              }
-            : null,
-        };
-      })
-    );
-
-    // Sort users by last message createdAt desc
+    // Sort by message time, fallback to alphabetical name sort for users with no messages
     const sortedUsers = usersWithLastMessages.sort((a, b) => {
       const aTime = a.lastMessage?.createdAt
         ? new Date(a.lastMessage.createdAt).getTime()
