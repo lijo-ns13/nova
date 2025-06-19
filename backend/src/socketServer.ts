@@ -70,7 +70,7 @@ export const initSocketServer = (server: Server) => {
             content,
           });
           const receiverUser = await userModal.findById(receiver);
-
+          const senderUser = await userModal.findById(sender);
           if (receiverUser?.socketId) {
             io.to(receiverUser.socketId).emit("receiveMessage", message);
           }
@@ -82,9 +82,9 @@ export const initSocketServer = (server: Server) => {
           }
           await notificationService.sendNotification(
             receiver,
-            `${receiverUser?.name} new message`,
+            `${senderUser?.name} new message`,
             NotificationType.COMMENT,
-            receiver
+            sender
           );
         } catch (error) {
           console.error("Error sending message:", error);

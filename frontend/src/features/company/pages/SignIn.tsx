@@ -6,6 +6,7 @@ import { useAppSelector } from "../../../hooks/useAppSelector";
 import { login } from "../../auth/auth.slice";
 import { Link, useNavigate } from "react-router-dom";
 import SiteInfoNav from "../../../components/SiteInfoNav";
+import SiteInfoFooter from "../../../components/SiteInfoFooter";
 function SignInPage() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   useEffect(() => {
@@ -294,6 +295,7 @@ function SignInPage() {
           <div className="mt-6 grid grid-cols-2 gap-3"></div>
         </div>
       </div>
+      <SiteInfoFooter />
     </div>
   );
 }
