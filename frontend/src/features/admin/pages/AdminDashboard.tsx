@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { Bar, Pie, Line } from "react-chartjs-2";
-import 'jspdf-autotable';
+import "jspdf-autotable";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -27,7 +27,6 @@ import {
   Divider,
   Table,
   Typography,
-  message,
 } from "antd";
 import {
   DownloadOutlined,
@@ -35,9 +34,6 @@ import {
   DollarOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-import { saveAs } from "file-saver";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const BASE_URL = `${API_BASE_URL}`;
@@ -246,175 +242,98 @@ const AdminDashboard: React.FC = () => {
   ];
 
   const downloadPDF = async () => {
-    const hideMessage = message.loading("Generating PDF report...", 0);
-
     try {
-      const dashboardElement = dashboardRef.current;
-      if (!dashboardElement) {
-        message.error("Dashboard content not found");
-        return;
-      }
+      setLoading(true);
+      const { jsPDF } = await import("jspdf");
+      const autoTable = await import("jspdf-autotable");
 
-      window.dispatchEvent(new Event("resize"));
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const doc = new jsPDF();
+      const margin = 20;
+      const pageWidth = doc.internal.pageSize.getWidth();
 
-      const clone = dashboardElement.cloneNode(true) as HTMLElement;
-      clone.style.position = "absolute";
-      clone.style.left = "-9999px";
-      clone.style.width = `${dashboardElement.offsetWidth}px`;
-      document.body.appendChild(clone);
-
-      const loadingElements = clone.querySelectorAll(
-        ".ant-spin, .ant-spin-blur"
-      );
-      loadingElements.forEach((el) => el.remove());
-
-      const canvasOptions = {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: clone.scrollWidth,
-        windowHeight: clone.scrollHeight,
-        onclone: (clonedDoc: Document) => {
-          const elements = clonedDoc.querySelectorAll("*");
-          elements.forEach((el) => {
-            const element = el as HTMLElement;
-            element.style.visibility = "visible";
-            element.style.opacity = "1";
-          });
-        },
-      };
-
-      const canvas = await html2canvas(clone, canvasOptions);
-      document.body.removeChild(clone);
-
-      const pdf = new jsPDF("landscape", "pt", [canvas.width, canvas.height]);
-
-      // Add logo and site name
-      if (novalogo) {
-        const logoWidth = 50;
-        const logoHeight = 50;
-        pdf.addImage(novalogo, "PNG", 20, 20, logoWidth, logoHeight);
-      }
-
-      // Enhanced header information
-      pdf.setFontSize(16);
-      pdf.setTextColor(40);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("Sales Report - Nova", novalogo ? 80 : 20, 40);
-
-      pdf.setFontSize(12);
-      pdf.setFont("helvetica", "normal");
-
-      // Time period details
-      pdf.text(`Report Period: ${getTimeSpanText()}`, 20, 60);
-      pdf.text(`Total Revenue: ₹${revenue[timeRange] || 0}`, 20, 80);
-
-      // Transaction count for the period
-      pdf.text(`Transactions: ${transactions.length}`, 20, 100);
-
-      pdf.text(
-        `Generated: ${new Date().toLocaleString()}`,
-        canvas.width - 20,
-        40,
-        { align: "right" }
-      );
-
-      // Add the dashboard content
-      pdf.addImage(
-        canvas.toDataURL("image/png"),
+      // Add logo (top right)
+      const logoWidth = 30;
+      const logoHeight = 15;
+      doc.addImage(
+        novalogo,
         "PNG",
-        0,
-        120, // Start below the header
-        canvas.width,
-        canvas.height - 120 // Adjust height for header
+        pageWidth - margin - logoWidth,
+        margin,
+        logoWidth,
+        logoHeight
       );
 
-      // Generate filename with site name and period
-      let filename = `Nova_Sales_Report_${timeRange}`;
-      if (timeRange === "custom" && customRange.length === 2) {
-        filename += `_${customRange[0]}_to_${customRange[1]}`;
-      } else {
-        filename += `_${new Date().toISOString().slice(0, 10)}`;
-      }
-      filename += ".pdf";
+      // Add title (top left)
+      doc.setFontSize(18);
+      doc.setTextColor(40);
+      doc.text("Transaction Report", margin, margin + 15);
 
-      pdf.save(filename);
+      // Add time period (below title)
+      doc.setFontSize(12);
+      const timePeriodText = getTimeSpanText();
+      doc.text(timePeriodText, margin, margin + 25);
+
+      // Add financial summary (below time period)
+      doc.setFontSize(14);
+      doc.text(
+        `Total Revenue: ₹${revenue[timeRange]?.toFixed(2) || "0.00"}`,
+        margin,
+        margin + 40
+      );
+      doc.text(
+        `Total Transactions: ${transactions.length}`,
+        margin,
+        margin + 50
+      );
+
+      // Prepare transaction data
+      const transactionData = transactions.map((txn) => [
+        new Date(txn.createdAt).toLocaleString(),
+        txn.userId?.name || "N/A",
+        txn.planName,
+        `₹${txn.amount.toFixed(2)}`,
+        txn.paymentMethod,
+        txn.status.charAt(0).toUpperCase() + txn.status.slice(1), // Capitalize status
+      ]);
+
+      // Add transactions table (below summary)
+      autoTable.default(doc, {
+        startY: margin + 60,
+        head: [["Date", "User", "Plan", "Amount", "Method", "Status"]],
+        body: transactionData,
+        styles: {
+          cellPadding: 3,
+          fontSize: 9,
+          overflow: "linebreak",
+        },
+        headStyles: {
+          fillColor: [59, 130, 246], // Blue header
+          textColor: 255,
+          fontStyle: "bold",
+        },
+        columnStyles: {
+          0: { cellWidth: 25 }, // Date
+          1: { cellWidth: 25 }, // User
+          2: { cellWidth: 25 }, // Plan
+          3: { cellWidth: 20 }, // Amount
+          4: { cellWidth: 20 }, // Method
+          5: { cellWidth: 20 }, // Status
+        },
+        margin: { left: margin },
+      });
+
+      // Save PDF with timestamp
+      const timestamp = new Date()
+        .toISOString()
+        .slice(0, 19)
+        .replace(/[:T]/g, "-");
+      doc.save(`Transactions_${timeRange}_${timestamp}.pdf`);
     } catch (error) {
-      console.error("PDF generation error:", error);
-      message.error("Failed to generate PDF");
+      console.error("Error generating PDF:", error);
     } finally {
-      hideMessage();
+      setLoading(false);
     }
   };
-
-  const getBase64Image = (img: HTMLImageElement): Promise<string> => {
-    return new Promise((resolve) => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL("image/png"));
-      } else {
-        resolve("");
-      }
-    });
-  };
-
-  const downloadCSV = async () => {
-    try {
-      const response = await axios.get(
-        `${BASE_URL}/api/admin/analytics/download-report`,
-        {
-          responseType: "blob",
-          params: {
-            range: timeRange,
-            ...(timeRange === "custom" &&
-              customRange.length === 2 && {
-                startDate: customRange[0],
-                endDate: customRange[1],
-              }),
-          },
-        }
-      );
-
-      saveAs(
-        response.data,
-        `report_${new Date().toISOString().slice(0, 10)}.csv`
-      );
-    } catch (error) {
-      console.error("Error downloading CSV report:", error);
-    }
-  };
-
-  const downloadJSON = async () => {
-    try {
-      const response = await axios.get(
-        `${BASE_URL}/api/admin/analytics/full-report`,
-        {
-          params: {
-            range: timeRange,
-            ...(timeRange === "custom" &&
-              customRange.length === 2 && {
-                startDate: customRange[0],
-                endDate: customRange[1],
-              }),
-          },
-        }
-      );
-
-      const dataStr = JSON.stringify(response.data, null, 2);
-      const blob = new Blob([dataStr], { type: "application/json" });
-      saveAs(blob, `report_${new Date().toISOString().slice(0, 10)}.json`);
-    } catch (error) {
-      console.error("Error downloading JSON report:", error);
-    }
-  };
-
   const revenueChartData = {
     labels: ["Daily", "Weekly", "Monthly", "Yearly"],
     datasets: [
@@ -641,22 +560,6 @@ const AdminDashboard: React.FC = () => {
               loading={loading}
             >
               Export as PDF
-            </Button>
-            <Button
-              type="default"
-              icon={<DownloadOutlined />}
-              onClick={downloadCSV}
-              loading={loading}
-            >
-              Export as CSV
-            </Button>
-            <Button
-              type="dashed"
-              icon={<DownloadOutlined />}
-              onClick={downloadJSON}
-              loading={loading}
-            >
-              Export as JSON
             </Button>
           </div>
         </>
