@@ -30,6 +30,8 @@ const OAuthSuccessPage = () => {
             username: user.username,
             isSubscriptionTaken: user.isSubscriptionTaken,
             subscriptionExpiresAt: user.subscriptionExpiresAt,
+            appliedJobCount: user.appliedJobCount,
+            createdPostCount: user.createdPostCount,
           })
         );
         if (!socket.connected) {
