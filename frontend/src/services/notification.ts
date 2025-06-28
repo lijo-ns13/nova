@@ -1,10 +1,10 @@
 // services/notificationApi.ts
 import axios from "axios";
-import { Notification, NotificationsResponse } from "../types/notification";
+import { Notification } from "../types/notification";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-export const fetchNotifications = async (): Promise<NotificationsResponse> => {
+export const fetchNotifications = async () => {
   const response = await axios.get(`${API_BASE_URL}/api/notifications`, {
     withCredentials: true,
   });
