@@ -49,9 +49,9 @@ const CompanyManagement: React.FC = () => {
         } else {
           throw new Error(response.message || "Failed to fetch companies");
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error fetching companies:", err);
-        setError(err.message || "Failed to fetch companies");
+        setError("Failed to fetch companies");
       } finally {
         setLoading(false);
       }
@@ -86,9 +86,9 @@ const CompanyManagement: React.FC = () => {
       }
       setShowModal(false);
       fetchCompanies(pagination.currentPage);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error updating company status:", err);
-      setError(err.message || "Failed to update company status");
+      setError("Failed to update company status");
       setShowModal(false);
     }
   };

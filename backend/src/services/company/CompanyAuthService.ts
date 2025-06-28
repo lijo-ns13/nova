@@ -9,7 +9,7 @@ import {
   SignInCompanyRequestDTO,
   SignInCompanyResponseDTO,
 } from "../../core/dtos/company/company.signin.dto";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { generateOTP } from "../../shared/util/otp.util";
 import { sendOTPEmail } from "../../shared/util/email.util";
 import { JWTService } from "../../shared/util/jwt.service";
@@ -99,7 +99,7 @@ export class CompanyAuthService implements ICompanyAuthService {
         admin._id.toString(),
         `company ${company.companyName} signin succussflly`,
         NotificationType.GENERAL,
-        company._id // senderId
+        company._id.toString() // senderId
       );
     }
     return {
@@ -157,7 +157,7 @@ export class CompanyAuthService implements ICompanyAuthService {
         admin._id.toString(),
         `New company registered: ${companyData.companyName}`,
         NotificationType.GENERAL,
-        companyData._id // senderId
+        companyData._id.toString() // senderId
       );
     }
 
@@ -170,16 +170,6 @@ export class CompanyAuthService implements ICompanyAuthService {
       tempCompany._id,
       "company"
     );
-
-    // 3. Rate-limit: if OTP exists and was generated recently, deny resend
-    // if (otpRecord) {
-    //   const timeSinceLastOTP = Date.now() - otpRecord.updatedAt.getTime();
-    //   const resendCooldown = 60 * 1000; // 1 min cooldown
-    //   if (timeSinceLastOTP < resendCooldown) {
-    //     const waitTimeInSeconds = Math.ceil((resendCooldown - timeSinceLastOTP) / 1000);
-    //     throw new Error(`Please wait ${waitTimeInSeconds} seconds before resending OTP.`);
-    //   }
-    // }
 
     // 4. Generate new OTP
     const newOTP = generateOTP();

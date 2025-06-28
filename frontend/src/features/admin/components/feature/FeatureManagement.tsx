@@ -69,13 +69,22 @@ const FeatureManagement: React.FC = () => {
       }
       setFormModalOpen(false);
       await fetchFeatures();
-    } catch (error: any) {
-      if (error?.errors) {
-        setFieldErrors(error.errors);
-      } else if (error.message) {
-        setFormError(error.message);
+    } catch (error: unknown) {
+      if (typeof error === "object" && error !== null) {
+        const errObj = error as {
+          errors?: Record<string, string>;
+          message?: string;
+        };
+
+        if (errObj.errors) {
+          setFieldErrors(errObj.errors);
+        } else if (errObj.message) {
+          setFormError(errObj.message);
+        } else {
+          setFormError("An unexpected error occurred. Please try again.");
+        }
       } else {
-        setFormError("An unexpected error occurred. Please try again.");
+        setFormError("An unknown error occurred.");
       }
     } finally {
       setSubmitLoading(false);

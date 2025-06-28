@@ -309,7 +309,7 @@ export const downloadTransactionReport = async (
     res.attachment(
       `transaction_report_${range}_${new Date().toISOString().slice(0, 10)}.csv`
     );
-    return res.send(csv);
+    res.send(csv);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to generate report." });

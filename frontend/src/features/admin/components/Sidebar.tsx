@@ -7,6 +7,17 @@ import adminAxios from "../../../utils/adminAxios";
 import socket from "../../../socket/socket";
 import toast from "react-hot-toast";
 import { FiMenu, FiX } from "react-icons/fi";
+interface NotificationPayload {
+  _id: string;
+  userId: string;
+  senderId: string;
+  content: string;
+  type: "FOLLOW" | "JOB" | "POST" | "COMMENT" | "LIKE" | "MESSAGE" | "GENERAL";
+  isRead: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v?: number;
+}
 
 const Sidebar = () => {
   const dispatch = useAppDispatch();
@@ -56,7 +67,8 @@ const Sidebar = () => {
       dispatch(setUnreadCount(data.count));
     };
 
-    const handleNewNotification = (notification: any) => {
+    const handleNewNotification = (notification: NotificationPayload) => {
+      console.log("notificationnnn=><=", notification);
       const { type, content } = notification;
 
       const typeIconMap: Record<string, string> = {

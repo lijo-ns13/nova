@@ -129,7 +129,7 @@ export class CompanyJobService implements ICompanyJobService {
       userId,
       message,
       NotificationType.JOB,
-      companyId
+      companyId?.toString()
     );
     return await this._applicationRepo.shortlistApplication(applicationId);
   }
@@ -171,7 +171,7 @@ export class CompanyJobService implements ICompanyJobService {
         reason ? ` Reason: ${reason}.` : ""
       }`,
       NotificationType.JOB,
-      companyId
+      companyId?.toString()
     );
     return await this._applicationRepo.rejectApplication(applicationId, reason);
   }

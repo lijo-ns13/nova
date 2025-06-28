@@ -10,7 +10,14 @@ import UserTable from "./UserTable";
 import UserCard from "./UserCard";
 import LoadingIndicator from "./LoadingIndicator";
 import ConfirmSoftDeleteModal from "../../../user/componets/modals/ConfirmSoftDeleteModal";
-
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [page, setPage] = useState(1);
@@ -39,9 +46,9 @@ const UserManagement: React.FC = () => {
         setUsers(data.data.users);
         setPagination(data.data.pagination);
         setError(null);
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error fetching users:", err);
-        setError(err.response?.data?.message || "Failed to fetch users");
+        setError("Failed to fetch users");
       } finally {
         setLoading(false);
       }
@@ -89,9 +96,12 @@ const UserManagement: React.FC = () => {
       }
       fetchUsers(page); // Refresh current view
       setShowModal(false);
-    } catch (err: any) {
-      console.error(`Error ${modalAction}ing user:`, err);
-      setError(err.response?.data?.message || `Failed to ${modalAction} user`);
+    } catch (err) {
+      const apiError = err as ApiError;
+      console.error(`Error ${modalAction}ing user:`, apiError);
+      setError(
+        apiError.response?.data?.message || `Failed to ${modalAction} user`
+      );
       setShowModal(false);
     }
   };

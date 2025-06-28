@@ -32,7 +32,7 @@ export class UserSkillController implements IUserSkillController {
 
   async addSkills(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as any)?.id;
+      const userId = (req.user as Userr)?.id;
       const { skills } = req.body; // ["Java", "React"]
       const updatedUser = await this._userSkillService.addSkills(
         userId,

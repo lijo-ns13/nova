@@ -48,9 +48,9 @@ function ForgetPasswordPage() {
       setTimeout(() => {
         navigate("/company/signin");
       }, 1000);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error in forgetPassword:", err);
-      setServerError(err || "An unexpected error occurred.");
+      setServerError((err as string) || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }

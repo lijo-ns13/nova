@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 export interface IOTP extends Document {
   _id: Types.ObjectId;
   accountId: Types.ObjectId;

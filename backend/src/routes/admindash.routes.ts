@@ -22,6 +22,7 @@ router.get("/user-stats", getUserStats);
 
 // Report generation
 router.get("/download-report", downloadTransactionReport);
+
 router.get("/full-report", getFullReport);
 // Add to your routes
 router.get("/transactions", getTransactions);

@@ -184,7 +184,7 @@ const UserPostsSection = ({ userId }: UserPostsSectionProps) => {
         No posts yet
       </h3>
       <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
-        You haven't created any posts yet. Start sharing your thoughts, images,
+        You haven't created-aany posts yet. Start sharing your thoughts, images,
         and updates!
       </p>
     </div>

@@ -2,6 +2,14 @@ import React, { useEffect, useState } from "react";
 import { getUsers, blockUser, unblockUser } from "../services/userServices";
 import { debounce } from "lodash";
 import { Pagination, User } from "../types/userTypes";
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -26,9 +34,10 @@ const UserManagement: React.FC = () => {
         setUsers(data.data.users);
         setPagination(data.data.pagination);
         setError(null);
-      } catch (err: any) {
+      } catch (err) {
+        const apiError = err as ApiError;
         console.error("Error fetching users:", err);
-        setError(err.response?.data?.message || "Failed to fetch users");
+        setError(apiError.response?.data?.message || "Failed to fetch users");
       } finally {
         setLoading(false);
       }
@@ -55,9 +64,10 @@ const UserManagement: React.FC = () => {
       try {
         await blockUser(userId);
         fetchUsers(page); // Refresh current view
-      } catch (err: any) {
+      } catch (err) {
+        const apiError = err as ApiError;
         console.error("Error blocking user:", err);
-        setError(err.response?.data?.message || "Failed to block user");
+        setError(apiError.response?.data?.message || "Failed to block user");
       }
     }
   };
@@ -66,9 +76,10 @@ const UserManagement: React.FC = () => {
     try {
       await unblockUser(userId);
       fetchUsers(page); // Refresh current view
-    } catch (err: any) {
+    } catch (err) {
+      const apiError = err as ApiError;
       console.error("Error unblocking user:", err);
-      setError(err.response?.data?.message || "Failed to unblock user");
+      setError(apiError.response?.data?.message || "Failed to unblock user");
     }
   };
 

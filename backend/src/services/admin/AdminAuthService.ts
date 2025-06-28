@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { IJWTService } from "../../interfaces/services/IJwtService";

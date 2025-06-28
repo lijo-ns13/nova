@@ -85,9 +85,8 @@ function SignInPage() {
       } else {
         navigate("/locked-dashboard");
       }
-    } catch (err: any) {
-      console.error("API Error:", err);
-      setServerError(err || "An unexpected error occurred.");
+    } catch (err) {
+      setServerError((err as string) || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }

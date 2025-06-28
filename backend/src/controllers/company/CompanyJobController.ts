@@ -58,7 +58,7 @@ export class CompanyJobController implements ICompanyJobController {
         createdBy: companyId,
       };
       console.log("jobData", jobData);
-      // in req.body skillsRequired =["",""] if any one of skills not in skill modal add to them that adn store that skills id into job collection not entire req.body in that skills are in string user entered
+
       const validatedData = createJobSchema.parse(jobData);
       console.log("isValidateData", validatedData);
 

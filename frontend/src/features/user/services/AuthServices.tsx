@@ -1,7 +1,65 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const BASE_URL = `${API_BASE_URL}/auth`;
+// types/auth.types.ts
+
+export interface UserInfo {
+  id: string;
+  name: string;
+  email: string;
+  profilePicture?: string;
+  headline?: string;
+  username?: string;
+  isSubscriptionTaken?: boolean;
+  subscriptionExpiresAt?: Date | string | null;
+  appliedJobCount?: number;
+  createdPostCount?: number;
+}
+
+export interface SignInResponse {
+  success: true;
+  message: string;
+  accessToken: string;
+  refreshToken: string;
+  user: UserInfo;
+  role: "user";
+  isVerified: boolean;
+  isBlocked: boolean;
+}
+
+export interface SignUpResponse {
+  success: true;
+  message: string;
+  tempUser: {
+    id: string;
+    name: string;
+    email: string;
+    isVerified: boolean;
+    expiresAt: string;
+  };
+}
+
+export interface MessageResponse {
+  success: true;
+  message: string;
+}
+
+export interface ForgetPasswordResponse {
+  success: true;
+  message: string;
+  token: string;
+}
+
+export interface ErrorResponse {
+  success: false;
+  error: string;
+}
+
+function extractErrorMessage(error: AxiosError<ErrorResponse>): string {
+  return error.response?.data?.error || "Something went wrong";
+}
+
 export const SignInUser = async (email: string, password: string) => {
   try {
     const response = await axios.post(
@@ -18,9 +76,11 @@ export const SignInUser = async (email: string, password: string) => {
     console.log("isVeried:", isVerified);
     console.log("isBlcoked:", isBlocked);
     return response.data;
-  } catch (error: any) {
-    console.error("API Error:", error);
-    throw error?.response?.data?.error || "Something went wrong";
+  } catch (error) {
+    if (axios.isAxiosError<ErrorResponse>(error)) {
+      throw extractErrorMessage(error);
+    }
+    throw "Something went wrong";
   }
 };
 export const SignUpUser = async (
@@ -37,9 +97,11 @@ export const SignUpUser = async (
     );
 
     return response.data;
-  } catch (error: any) {
-    console.error("API Error:", error);
-    throw error?.response?.data?.error || "Something went wrong";
+  } catch (error) {
+    if (axios.isAxiosError<ErrorResponse>(error)) {
+      throw extractErrorMessage(error);
+    }
+    throw "Something went wrong";
   }
 };
 export const verifyUserByOTP = async (email: string | null, otp: string) => {
@@ -53,9 +115,11 @@ export const verifyUserByOTP = async (email: string | null, otp: string) => {
     );
 
     return response.data;
-  } catch (error: any) {
-    console.error("API Error:", error);
-    throw error?.response?.data?.error || "Something went wrong";
+  } catch (error) {
+    if (axios.isAxiosError<ErrorResponse>(error)) {
+      throw extractErrorMessage(error);
+    }
+    throw "Something went wrong";
   }
 };
 export const resendOTP = async (email: string | null) => {
@@ -68,9 +132,11 @@ export const resendOTP = async (email: string | null) => {
       }
     );
     return response.data;
-  } catch (error: any) {
-    console.error("API Error:", error);
-    throw error?.response?.data?.error || "Something went wrong";
+  } catch (error) {
+    if (axios.isAxiosError<ErrorResponse>(error)) {
+      throw extractErrorMessage(error);
+    }
+    throw "Something went wrong";
   }
 };
 export const forgetPasswordByEmail = async (email: string | null) => {
@@ -84,9 +150,11 @@ export const forgetPasswordByEmail = async (email: string | null) => {
     );
     // respnse =>token message success
     return response.data;
-  } catch (error: any) {
-    console.error("API Error:", error);
-    throw error?.response?.data?.error || "Something went wrong";
+  } catch (error) {
+    if (axios.isAxiosError<ErrorResponse>(error)) {
+      throw extractErrorMessage(error);
+    }
+    throw "Something went wrong";
   }
 };
 export const resetPassword = async (
@@ -101,9 +169,11 @@ export const resetPassword = async (
       { withCredentials: true }
     );
     return response.data;
-  } catch (error: any) {
-    console.error("API Error:", error);
-    throw error?.response?.data?.error || "Something went wrong";
+  } catch (error) {
+    if (axios.isAxiosError<ErrorResponse>(error)) {
+      throw extractErrorMessage(error);
+    }
+    throw "Something went wrong";
   }
 };
 export const logOut = async () => {
@@ -112,8 +182,10 @@ export const logOut = async () => {
       withCredentials: true,
     });
     return response.data;
-  } catch (error: any) {
-    console.log("API ERror", error);
-    throw error?.response?.data?.error || "Something went wrong";
+  } catch (error) {
+    if (axios.isAxiosError<ErrorResponse>(error)) {
+      throw extractErrorMessage(error);
+    }
+    throw "Something went wrong";
   }
 };

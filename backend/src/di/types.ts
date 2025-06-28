@@ -1,6 +1,4 @@
-import { JobApplicantManagementController } from "../controllers/company/JobApplicantManagementController";
-import { JobApplicantManagementService } from "../services/company/JobApplicantManagement";
-import { StripeService } from "../services/StripeService";
+
 
 export const TYPES = {
   // Repositories

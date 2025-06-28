@@ -10,7 +10,11 @@ import {
   IPostServiceResponsePaginated,
 } from "../../core/entities/post";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
-
+import { IUser } from "../../models/user.modal";
+export interface IPostPopulated extends Omit<IPost, "mediaIds" | "creatorId"> {
+  creatorId: IUser; // populated user
+  mediaIds: IMedia[]; // populated media list
+}
 @injectable()
 export class PostService {
   constructor(
@@ -102,8 +106,8 @@ export class PostService {
       // Include media URLs and user data in the post data
 
       return { ...postData };
-    } catch (error: any) {
-      throw new Error(`Failed to get post: ${error.message}`);
+    } catch (error) {
+      throw new Error(`Failed to get post: ${(error as Error).message}`);
     }
   }
   async getAllPost(

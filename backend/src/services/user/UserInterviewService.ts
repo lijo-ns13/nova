@@ -77,7 +77,7 @@ export class UserInterviewService implements IUserInterviewService {
         .replaceAll("_", " ")
         .toLowerCase()}`,
       NotificationType.JOB,
-      _id
+      _id.toString()
     );
     // 💡 Send interview link email when user accepts interview
     if (status === ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER && email) {

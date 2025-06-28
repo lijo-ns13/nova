@@ -62,7 +62,7 @@ function VerifyEmail() {
       toast.success("Email verified successfully!");
       navigate("/company/signin");
     } catch (error: any) {
-      console.error("Verification failed:", error);
+      console.log("Verification failed:", error);
       toast.error(error?.response?.data?.message || "Failed to verify OTP");
     } finally {
       setIsVerifying(false);
@@ -82,9 +82,9 @@ function VerifyEmail() {
       alert("OTP resent successfully!");
       setTimer(60);
       setIsResendAllowed(false);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to resend OTP:", error);
-      toast.error(error?.response?.data?.message || "Failed to resend OTP");
+      toast.error("Failed to resend OTP");
     } finally {
       setIsResending(false);
     }

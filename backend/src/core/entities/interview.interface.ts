@@ -3,7 +3,7 @@ import { IJob } from "../../models/job.modal";
 import { IUser } from "../../models/user.modal";
 
 export interface IInterview {
-  _id: any;
+  _id: string;
   companyId: string;
   userId: string;
   applicationId: string;

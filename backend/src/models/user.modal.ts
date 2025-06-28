@@ -1,6 +1,6 @@
 // usermodel
 import mongoose, { Document, Schema, Types } from "mongoose";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { boolean } from "zod";
 
 export interface IUser extends Document {

@@ -6,12 +6,11 @@ import {
   FiBookmark,
   FiGlobe,
   FiDownload,
-  FiMaximize,
   FiX,
   FiChevronLeft,
   FiChevronRight,
 } from "react-icons/fi";
-import CommentSection from "./CommentSection";
+import CommentSection from "./CommentSection/CommentSection";
 import userAxios from "../../../../utils/userAxios";
 
 interface Media {
@@ -60,9 +59,7 @@ const EnhancedPostCard: React.FC<PostCardProps> = ({ post, currentUserId }) => {
   const handleLike = async () => {
     try {
       // Replace with your actual API call
-      const res = await userAxios.post(
-        `http://localhost:3000/post/like/${post._id}`
-      );
+      await userAxios.post(`http://localhost:3000/post/like/${post._id}`);
 
       setLiked(!liked);
       setLikeCount(likeCount + (liked ? -1 : 1));

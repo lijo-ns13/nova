@@ -16,8 +16,7 @@ export class NotificationRepository implements INotificationRepository {
     content: string,
     type: NotificationType,
     senderId?: string,
-    relatedId?: string,
-    metadata?: any
+    relatedId?: string
   ): Promise<INotification> {
     const notification = await Notification.create({
       userId: new mongoose.Types.ObjectId(userId),
@@ -25,7 +24,6 @@ export class NotificationRepository implements INotificationRepository {
       content,
       type,
       relatedId: relatedId ? new mongoose.Types.ObjectId(relatedId) : undefined,
-      metadata,
     });
 
     return notification;

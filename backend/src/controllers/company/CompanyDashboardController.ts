@@ -13,8 +13,9 @@ export const getCompanyDashboardStats = async (req: Request, res: Response) => {
   try {
     // const companyId = (req.user as Userr)?._id;
     const companyId = "682570832310cdb03566e160";
-    if (!companyId)
+    if (!companyId){
       return res.status(400).json({ message: "Company ID missing" });
+    }
 
     // Get all jobs created by this company
     const jobs = await jobModal

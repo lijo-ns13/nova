@@ -76,9 +76,11 @@ function SignInPage() {
         })
       );
       navigate("/admin/dashboard");
-    } catch (err: any) {
+    } catch (err) {
+      const error = err as string;
       console.error("API Error:", err);
-      setServerError(err || "An unexpected error occurred.");
+      // in here not error.message error get erro rlike admin not found
+      setServerError(error || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -133,7 +135,6 @@ function SignInPage() {
                   name="email"
                   type="email"
                   autoComplete="email"
-                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={`appearance-none block w-full px-3 py-2 border ${
@@ -160,13 +161,12 @@ function SignInPage() {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
-                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.password ? "border-red-300" : "border-gray-300"
                   } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm`}
-                  placeholder="Enter your password"
+                  placeholder="Enter your password."
                 />
                 <button
                   type="button"

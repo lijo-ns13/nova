@@ -11,8 +11,7 @@ export interface INotificationRepository {
     content: string,
     type: NotificationType,
     relatedId?: string,
-    senderId?: string,
-    metadata?: any
+    senderId?: string
   ): Promise<INotification>;
   getUserNotifications(
     userId: string,

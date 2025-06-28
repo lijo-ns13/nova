@@ -16,7 +16,10 @@ import { Subscription, SubscriptionFormData } from "../../types/subscription";
 import Button from "../../../../components/ui/Button";
 import BaseModal from "../../../user/componets/modals/BaseModal";
 import ConfirmationModal from "../../../../components/ui/ConfirmationModal";
-
+interface ApiError {
+  errors?: Record<string, string>;
+  message?: string;
+}
 const SubscriptionManagement: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(false);
@@ -38,7 +41,7 @@ const SubscriptionManagement: React.FC = () => {
       setGlobalError(null);
       const data = await GetAllSubscription();
       const filteredSubscriptions = data.filter(
-        (sub: any): sub is Subscription =>
+        (sub): sub is Subscription =>
           sub.name === "BASIC" || sub.name === "PRO" || sub.name === "PREMIUM"
       );
       setSubscriptions(filteredSubscriptions);
@@ -82,11 +85,12 @@ const SubscriptionManagement: React.FC = () => {
       }
       setFormModalOpen(false);
       await fetchSubscriptions();
-    } catch (error: any) {
-      if (error?.errors) {
-        setFieldErrors(error.errors);
-      } else if (error.message) {
-        setFormError(error.message);
+    } catch (error) {
+      const apiError = error as ApiError;
+      if (apiError?.errors) {
+        setFieldErrors(apiError.errors);
+      } else if (apiError.message) {
+        setFormError(apiError.message);
       } else {
         setFormError("An unexpected error occurred. Please try again.");
       }

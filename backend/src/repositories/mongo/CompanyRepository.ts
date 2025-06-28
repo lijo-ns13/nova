@@ -5,7 +5,7 @@ import { ICompanyRepository } from "../../interfaces/repositories/ICompanyReposi
 import companyModal, { ICompany } from "../../models/company.modal";
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 @injectable()
 export class CompanyRepository
   extends BaseRepository<ICompany>

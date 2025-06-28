@@ -10,15 +10,14 @@ export interface INotificationService {
     userId: string,
     content: string,
     type: NotificationType,
-    relatedId?: string,
     senderId?: string,
-    metadata?: any
+    relatedId?: string
   ): Promise<INotification>;
   sendNotification(
     userId: string,
     content: string,
-    senderId?: string,
-    metadata?: any
+    type: NotificationType,
+    senderId?: string
   ): Promise<INotification>;
   getUserNotifications(
     userId: string,

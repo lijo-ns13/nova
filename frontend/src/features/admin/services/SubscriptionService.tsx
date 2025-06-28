@@ -1,3 +1,4 @@
+import axios, { AxiosError } from "axios";
 import adminAxios from "../../../utils/adminAxios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -52,7 +53,7 @@ export const CreateSubscriptionPlan = async (
   } catch (error) {
     console.error("API Error:", error);
     if (isValidationError(error)) {
-      throw error.response.data;
+      throw error.response!.data;
     }
     throw {
       message: getErrorMessage(error) || "Failed to create subscription plan",
@@ -148,7 +149,7 @@ export const UpdateSubscriptionPlan = async (
   } catch (error) {
     console.error("API Error:", error);
     if (isValidationError(error)) {
-      throw error.response.data;
+      throw error.response!.data;
     }
     throw {
       message: getErrorMessage(error) || "Failed to update subscription plan",
@@ -159,22 +160,28 @@ export const UpdateSubscriptionPlan = async (
 // Type guard for validation errors
 function isValidationError(
   error: unknown
-): error is { response: { data: ValidationErrorResponse } } {
+): error is AxiosError<ValidationErrorResponse> {
   return (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error &&
-    typeof (error as any).response?.data?.errors === "object"
+    axios.isAxiosError(error) &&
+    typeof error.response?.data?.errors === "object"
   );
 }
 
 // Helper to extract error message
 function getErrorMessage(error: unknown): string | undefined {
-  if (typeof error === "object" && error !== null) {
-    const err = error as any;
-    if (err.response?.data?.message) return err.response.data.message;
-    if (err.response?.data?.error) return err.response.data.error;
-    if (err.message) return err.message;
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data;
+    if (typeof data === "object") {
+      if ("message" in data && typeof data.message === "string") {
+        return data.message;
+      }
+      if ("error" in data && typeof data.error === "string") {
+        return data.error;
+      }
+    }
+    return error.message;
   }
+
+  if (error instanceof Error) return error.message;
   return undefined;
 }

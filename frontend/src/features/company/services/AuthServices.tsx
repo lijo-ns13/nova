@@ -1,7 +1,11 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
+export interface CompanyAuthApiError {
+  success?: false;
+  error?: string;
+  errors?: Record<string, string>; // for Zod field errors
+}
 const BASE_URL = `${API_BASE_URL}/auth/company`;
 export const signUpCompany = async (
   companyName: string,
@@ -43,10 +47,10 @@ export const signUpCompany = async (
     toast.success("signin successfull");
 
     return { success };
-  } catch (error: any) {
+  } catch (error) {
+    const err = error as AxiosError<CompanyAuthApiError>;
     const message =
-      error.response?.data?.error ||
-      "An error occurred during company signupy.";
+      err.response?.data?.error || "An error occurred during company signupy.";
     console.error("Signup error:", message);
     throw new Error(message);
   }
@@ -58,17 +62,11 @@ export const signInCompany = async (email: string, password: string) => {
       { email, password },
       { withCredentials: true }
     );
-
-    // const { success, role, company,isVerified,isBlcoked } = response.data;
-
-    // if (!success) {
-    //   alert("Signin failed");
-    //   return;
-    // }
     return response.data;
-  } catch (error: any) {
-    console.error("API Error:", error);
-    throw error?.response?.data?.error || "Something went wrong";
+  } catch (error) {
+    const apiError = error as AxiosError<{ error: string }>;
+    console.log("API Error:=>", apiError);
+    throw apiError?.response?.data?.error || "Something went wrong";
   }
 };
 export const verifyCompanyByOTP = async (email: string | null, otp: string) => {
@@ -123,9 +121,10 @@ export const forgetPasswordByEmail = async (email: string | null) => {
     );
     // respnse =>token message success
     return response.data;
-  } catch (error: any) {
-    console.error("API Error:", error);
-    throw error?.response?.data?.error || "Something went wrong";
+  } catch (error) {
+    const err = error as AxiosError<CompanyAuthApiError>;
+    console.error("API Error:", err);
+    throw err?.response?.data?.error || "Something went wrong";
   }
 };
 export const resetPassword = async (
@@ -140,8 +139,9 @@ export const resetPassword = async (
       { withCredentials: true }
     );
     return response.data;
-  } catch (error: any) {
-    console.error("API Error:", error);
-    throw error?.response?.data?.error || "Something went wrong";
+  } catch (error) {
+    const err = error as AxiosError<CompanyAuthApiError>;
+    console.log("API Error:", error);
+    throw err?.response?.data?.error || "Something went wrong";
   }
 };

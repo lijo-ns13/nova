@@ -6,7 +6,9 @@ import {
   unblockCompany,
 } from "../services/companyServices";
 import { ApiResponse, Company, Pagination } from "../types/types";
-
+interface ApiError {
+  message: string;
+}
 const CompanyManagement: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [pagination, setPagination] = useState<Pagination>({
@@ -39,8 +41,9 @@ const CompanyManagement: React.FC = () => {
         } else {
           throw new Error(response.message || "Failed to fetch companies");
         }
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        const apiError = err as ApiError;
+        setError(apiError.message);
         setCompanies([]);
         setPagination({
           totalCompanies: 0,
@@ -76,8 +79,9 @@ const CompanyManagement: React.FC = () => {
         await blockCompany(company._id);
       }
       fetchCompanies(searchQuery, pagination.currentPage);
-    } catch (err: any) {
-      setError(err.message || "Action failed");
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError.message || "Action failed");
     }
   };
 

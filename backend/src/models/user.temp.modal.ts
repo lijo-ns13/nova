@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface ITempUser extends Document {

@@ -4,7 +4,7 @@ import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { IUser } from "../../models/user.modal";
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import userCertificateModel, {
   IUserCertificate,
 } from "../../models/userCertificate.model";

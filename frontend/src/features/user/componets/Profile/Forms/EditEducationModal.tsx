@@ -3,11 +3,12 @@ import BaseModal from "../../modals/BaseModal";
 import { editEducation } from "../../../services/ProfileService";
 import { useAppSelector } from "../../../../../hooks/useAppSelector";
 import toast from "react-hot-toast";
+import { Education } from "../../../../../types/profile";
 
 interface EditEducationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  education: any;
+  education: Education;
   onEducationUpdated: () => void;
 }
 

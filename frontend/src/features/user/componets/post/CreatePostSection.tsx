@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Image, Video, FileText } from "lucide-react";
+import { Image, Video } from "lucide-react";
 import Avatar from "../ui/Avatar";
 import NewModal from "../modals/NewModal";
 import CreatePostForm from "./CreatePostForm";

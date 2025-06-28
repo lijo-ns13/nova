@@ -76,10 +76,11 @@ function ResetPasswordPage() {
       } else {
         setErrors({ password: result.message || "Reset failed" });
       }
-    } catch (error: any) {
-      console.error(error);
+    } catch (error) {
+      const err = error as string;
+
       setErrors({
-        password: error || "Something went wrong. Please try again.",
+        password: err || "Something went wrong. Please try again.",
       });
     } finally {
       setLoading(false);

@@ -76,10 +76,10 @@ function CompanyResetPassword() {
       } else {
         setErrors({ password: result.message || "Reset failed" });
       }
-    } catch (error: any) {
-      console.error(error);
+    } catch (error) {
       setErrors({
-        password: error || "Something went wrong. Please try again.",
+        password:
+          (error as string) || "Something went wrong. Please try again.",
       });
     } finally {
       setLoading(false);

@@ -171,8 +171,7 @@ import jobModal, { IJob } from "../models/job.modal";
 import commentModal, { IComment } from "../models/comment.modal";
 import { IStripeController } from "../interfaces/controllers/IStripeController";
 import { IStripeService } from "../interfaces/services/IStripeService";
-import { StripeService } from "../services/StripeService";
-import { StripeController } from "../controllers/StripeController";
+// import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
 // import { ICompanyDashboardService } from "../interfaces/services/ICompanyDashboardService";
@@ -452,13 +451,13 @@ container;
 //   .to(CompanyDashboardService);
 
 // stripe
-container
-  .bind<IStripeService>(TYPES.StripeService)
-  .to(StripeService)
-  .inSingletonScope();
+// container
+//   .bind<IStripeService>(TYPES.StripeService)
+//   .to(StripeService)
+//   .inSingletonScope();
 
-container
-  .bind<IStripeController>(TYPES.StripeController)
-  .to(StripeController)
-  .inSingletonScope();
+// container
+//   .bind<IStripeController>(TYPES.StripeController)
+//   .to(StripeController)
+//   .inSingletonScope();
 export default container;

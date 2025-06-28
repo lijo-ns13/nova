@@ -22,7 +22,14 @@ export default function SkillList() {
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-
+  interface ApiError {
+    response?: {
+      data?: {
+        error?: string;
+      };
+    };
+    message?: string;
+  }
   useEffect(() => {
     fetchSkills();
   }, [currentPage, itemsPerPage, searchQuery]);
@@ -78,8 +85,9 @@ export default function SkillList() {
       setTitle("");
       setCreateSkillModal(false);
       await fetchSkills();
-    } catch (error: any) {
-      setAddError(error.response?.data?.error || "Failed to create skill");
+    } catch (error) {
+      const apiError = error as ApiError;
+      setAddError(apiError.response?.data?.error || "Failed to create skill");
       toast.error("Failed to create skill");
     } finally {
       setIsLoading(false);
@@ -121,8 +129,9 @@ export default function SkillList() {
       toast.success("Successfully updated skill");
       setEditTitle("");
       await fetchSkills();
-    } catch (error: any) {
-      setEditError(error.response?.data?.error || "Failed to update skill");
+    } catch (error) {
+      const apiError = error as ApiError;
+      setEditError(apiError.response?.data?.error || "Failed to update skill");
       toast.error("Failed to update skill");
     } finally {
       setIsLoading(false);

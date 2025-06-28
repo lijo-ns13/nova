@@ -5,6 +5,10 @@ import { getCompanyDashboardStats } from "../controllers/company/CompanyDashboar
 
 const router = express.Router();
 
-router.get("/stats", getCompanyDashboardStats);
-
+router.get("/stats", (req, res) => {
+  getCompanyDashboardStats(req, res).catch((err) => {
+    console.error("Route handler error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  });
+});
 export default router;

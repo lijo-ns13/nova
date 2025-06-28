@@ -3,11 +3,12 @@ import BaseModal from "../../modals/BaseModal";
 import { editExperience } from "../../../services/ProfileService";
 import { useAppSelector } from "../../../../../hooks/useAppSelector";
 import toast from "react-hot-toast";
+import { Experience } from "../../../../../types/profile";
 
 interface EditExperienceModalProps {
   isOpen: boolean;
   onClose: () => void;
-  experience: any;
+  experience: Experience;
   onExperienceUpdated: () => void;
 }
 

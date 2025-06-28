@@ -48,10 +48,10 @@ function CompanyForgetPassword() {
       setTimeout(() => {
         navigate("/company/signin");
       }, 2000);
-    } catch (err: any) {
-      toast.error(err || "An unexpected error occurred.");
+    } catch (err) {
+      toast.error((err as string) || "An unexpected error occurred.");
       console.error("Error in forgetPassword:", err);
-      setServerError(err || "An unexpected error occurred.");
+      setServerError((err as string) || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }

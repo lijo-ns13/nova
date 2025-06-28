@@ -447,7 +447,7 @@ export default function Landing() {
                 24/7 Support
               </h3>
               <p className="text-gray-600 text-center">
-                Our dedicated team is always available to help with any
+                Our dedicated team is always available to help with-any
                 questions
               </p>
             </div>

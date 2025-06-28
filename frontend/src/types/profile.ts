@@ -3,10 +3,10 @@ export interface Experience {
   _id: string;
   title: string;
   company: string;
-  location?: string;
+  location: string;
   startDate: string;
   endDate: string | null;
-  description?: string;
+  description: string;
 }
 
 export interface Education {
@@ -16,8 +16,8 @@ export interface Education {
   fieldOfStudy: string;
   startDate: string;
   endDate: string | null;
-  grade?: string;
-  description?: string;
+  grade: string;
+  description: string;
 }
 
 export interface Certification {
@@ -25,25 +25,25 @@ export interface Certification {
   title: string;
   issuer: string;
   issueDate: string;
-  expirationDate?: string;
-  certificateUrl?: string;
-  certificateImageUrl?: string;
+  expirationDate: string;
+  certificateUrl: string;
+  certificateImageUrl: string;
 }
 
 export interface Project {
   _id: string;
   title: string;
-  description?: string;
+  description: string;
   startDate: string;
   endDate: string | null;
-  projectUrl?: string;
+  projectUrl: string;
   technologies: string[] | string; // Can be array or comma-separated string
 }
 
 export interface UserData {
   followingCount: number;
   followersCount: number;
-  isFollowing(isFollowing: any): [any, any];
+  isFollowing(isFollowing: boolean): [any, any];
   _id: string;
   name: string;
   username: string;

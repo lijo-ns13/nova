@@ -55,7 +55,7 @@ export class EmailService implements IEmailService {
               ${otp}
             </div>
             
-            <p>This code will expire in 10 minutes. For security reasons, please do not share this code with anyone.</p>
+            <p>This code will expire in 10 minutes. For security reasons, please do not share this code withanyone.</p>
             <p>If you didn't request this code, please secure your account by changing your password immediately.</p>
           </div>
           ${this.getEmailFooter()}
