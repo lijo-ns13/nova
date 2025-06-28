@@ -22,7 +22,7 @@ interface User {
   _id: string;
   name: string;
   profilePicture: string;
-  username: string;
+  username?: string;
 }
 
 interface ILike {

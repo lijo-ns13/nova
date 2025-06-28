@@ -7,7 +7,6 @@ import { PaperPlaneRight, Spinner } from "@phosphor-icons/react";
 import userAxios from "../../../utils/userAxios";
 import debounce from "lodash.debounce";
 import Avatar from "../componets/ui/Avatar";
-import { Helmet } from "react-helmet-async";
 
 const ChatPage = () => {
   const { otherUserId } = useParams();

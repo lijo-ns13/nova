@@ -22,7 +22,7 @@ interface AppliedJob {
     jobType: string;
   };
   appliedAt: string;
-  status: ApplicationStatus; // Use the enum here
+  status: ApplicationStatus;
   resumeUrl: string;
   statusHistory: {
     status: ApplicationStatus;
