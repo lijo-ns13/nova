@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  backend:
+    image: lijons/nova-backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongo:27017/brix
+      - PEERJS_URL=http://peerjs:5000
+    depends_on:
+      - mongo
+      - peerjs
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=yourdb
+    restart: unless-stopped
+
+  peerjs:
+    image: peerjs/peerjs-server
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    restart: unless-stopped
+nginx:
+  image: nginx:latest
+  ports:
+    - "80:80"
+  volumes:
+    - ./nginx:/etc/nginx/conf.d
+  depends_on:
+    - backend
+  restart: unless-stopped
+volumes:
+  mongo_data:
