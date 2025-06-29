@@ -77,6 +77,7 @@ export const SignInUser = async (email: string, password: string) => {
     console.log("isBlcoked:", isBlocked);
     return response.data;
   } catch (error) {
+    console.log("eroro", error);
     if (axios.isAxiosError<ErrorResponse>(error)) {
       throw extractErrorMessage(error);
     }
