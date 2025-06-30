@@ -35,7 +35,7 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
-app.use("/api", webhookRoute); // raw parser used here
+app.use("/webhook", express.raw({ type: "application/json" }), webhookRoute);
 app.use(cors(corsOptions));
 
 //middlewares
