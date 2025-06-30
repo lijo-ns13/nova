@@ -54,7 +54,7 @@ companyAxios.interceptors.response.use(
         // Retry the original failed request
         return companyAxios(originalRequest);
       } catch (refreshError) {
-        console.error("Admin refresh token failed:", refreshError);
+        console.error("company refresh token failed:", refreshError);
         // Optionally redirect or logout
         return Promise.reject(refreshError);
       }

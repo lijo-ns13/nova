@@ -54,7 +54,7 @@ userAxios.interceptors.response.use(
         // Retry the original failed request
         return userAxios(originalRequest);
       } catch (refreshError) {
-        console.error("Admin refresh token failed:", refreshError);
+        console.error("user refresh token failed:", refreshError);
         // Optionally redirect or logout
         return Promise.reject(refreshError);
       }
