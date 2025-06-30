@@ -7,7 +7,6 @@ import {
   SignInResponseDTO,
 } from "../../core/dtos/response/user.response.dto";
 import * as bcrypt from "bcryptjs";
-import { JWTService } from "../../shared/util/jwt.service";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { ITempUserRepository } from "../../interfaces/repositories/ITempUserRepository";
 import { IOTPRepository } from "../../interfaces/repositories/IOTPRepository";

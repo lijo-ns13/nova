@@ -48,14 +48,15 @@ export class AuthController implements IAuthController {
       const result = await this.authService.signIn(userDTO);
       res.cookie("refreshToken", result.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production", // true in production
+        sameSite: "none", // ← IMPORTANT for cross-origin cookies
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
+
       res.cookie("accessToken", result.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "none", // ← IMPORTANT
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
       res.status(HTTP_STATUS_CODES.OK).json({
