@@ -144,8 +144,14 @@ export class AuthController implements IAuthController {
 
   logout = async (_req: Request, res: Response) => {
     try {
-      res.clearCookie("refreshToken");
-      res.clearCookie("accessToken");
+      const cookieOptions = {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none" as const,
+      };
+
+      res.clearCookie("refreshToken", cookieOptions);
+      res.clearCookie("accessToken", cookieOptions);
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: "Logged out successfully" });
