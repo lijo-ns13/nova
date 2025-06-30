@@ -133,7 +133,9 @@ router.get("/google/callback", (async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    res.redirect(`http://localhost:5173/oauth-success?token=${accessToken}`);
+    res.redirect(
+      `${process.env.FRONTEND_URL}/oauth-success?token=${accessToken}`
+    );
   } catch (error: any) {
     console.error(
       "Error in Google OAuth callback:",
