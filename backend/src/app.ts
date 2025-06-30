@@ -45,11 +45,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(cookieParser());
 
+app.use("/api/auth", googleRouter);
 app.use("/api/admin/analytics", adminAnalyticsRoutes);
 app.use("/auth", authRouter);
 app.use("", dashRouter);
 app.use("/api/stripe", stripeRoutes);
-app.use("/api/auth", googleRouter);
+
 app.use("/", sharedRouter);
 
 app.use("/admin", adminRouter);
