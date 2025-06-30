@@ -121,15 +121,15 @@ router.get("/google/callback", (async (req: Request, res: Response) => {
     // Set cookies
     res.cookie("accessToken", accessTokenGen, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
     res.cookie("refreshToken", refreshTokenGen, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -186,7 +186,7 @@ router.post("/refresh-token", (async (
 
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "none",
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
@@ -276,7 +276,7 @@ router.get("/refresh-user", (async (req: Request, res: Response) => {
     // Set the new access token cookie
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "none",
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
@@ -335,7 +335,7 @@ router.get(
 
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
       sameSite: "none",
       maxAge: 15 * 60 * 1000, // 15 minutes
     });

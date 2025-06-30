@@ -17,14 +17,14 @@ export class AdminAuthController implements IAdminAuthController {
       const result = await this.authService.signIn(data);
       res.cookie("refreshToken", result.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        secure: true,
+        sameSite: "none",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
       res.cookie("accessToken", result.accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        secure: true,
+        sameSite: "none",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
       res.status(HTTP_STATUS_CODES.OK).json({

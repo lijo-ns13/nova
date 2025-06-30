@@ -58,14 +58,14 @@ export class CompanyAuthController implements ICompanyAuthController {
       }
       res.cookie("refreshToken", result.refreshToken, {
         httpOnly: true, // prevents JS access (important!)
-        secure: process.env.NODE_ENV === "production", // send over HTTPS in prod
-        sameSite: "lax", // prevents CSRF
+        secure: true, // send over HTTPS in prod
+        sameSite: "none", // prevents CSRF
         maxAge: 7 * 24 * 60 * 60 * 1000, // cookie lifetime in ms
       });
       res.cookie("accessToken", result.accessToken, {
         httpOnly: true, // prevents JS access (important!)
-        secure: process.env.NODE_ENV === "production", // send over HTTPS in prod
-        sameSite: "lax", // prevents CSRF
+        secure: true, // send over HTTPS in prod
+        sameSite: "none", // prevents CSRF
         maxAge: 7 * 24 * 60 * 60 * 1000, // cookie lifetime in ms
       });
       res.status(HTTP_STATUS_CODES.OK).json({
