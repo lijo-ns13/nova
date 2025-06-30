@@ -6,7 +6,7 @@ import axios, {
 } from "axios";
 
 // Backend base URL
-const BASE_URL = "http://localhost:3000/admin";
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/admin`;
 
 const adminAxios: AxiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -41,9 +41,12 @@ adminAxios.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        await axios.get("http://localhost:3000/api/auth/refresh", {
-          withCredentials: true, // Ensure refresh token cookie is sent
-        });
+        await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh`,
+          {
+            withCredentials: true, // Ensure refresh token cookie is sent
+          }
+        );
 
         // Retry the original failed request
         return adminAxios(originalRequest);

@@ -26,7 +26,9 @@ const PaymentSuccess = () => {
       if (sessionId) {
         try {
           const response = await axios.get(
-            `http://localhost:3000/api/stripe/session-details/${sessionId}`
+            `http://${
+              import.meta.env.VITE_API_BASE_URL
+            }/api/stripe/session-details/${sessionId}`
           );
           console.log("response stripe", response);
           setOrderDetails({

@@ -26,7 +26,7 @@ const SkillsInput: React.FC<SkillsInputProps> = ({
       return [];
     }
     const response = await userAxios.get(
-      `http://localhost:3000/skill/search?q=${query}`,
+      `${import.meta.env.VITE_API_BASE_URL}/skill/search?q=${query}`,
       { withCredentials: true }
     );
     console.log("response", response);

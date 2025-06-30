@@ -80,9 +80,12 @@ function FeedPage() {
         if (page === 1) setIsLoading(true);
         else setIsLoadingMore(true);
 
-        const res = await fetch(`http://localhost:3000/post?page=${page}`, {
-          credentials: "include",
-        });
+        const res = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/post?page=${page}`,
+          {
+            credentials: "include",
+          }
+        );
 
         if (!res.ok) throw new Error("Failed to fetch posts");
 
@@ -141,7 +144,7 @@ function FeedPage() {
   const handleLikePost = async (postId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/post/like/${postId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/post/like/${postId}`,
         {
           method: "POST",
           credentials: "include",

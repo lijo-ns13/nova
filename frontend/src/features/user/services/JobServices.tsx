@@ -122,7 +122,7 @@ export const unsaveJob = async (jobId: string) => {
 // Get all saved jobs
 export const getSavedJobs = async () => {
   const response = await userAxios.get(
-    `http://localhost:3000/jobs/saved-jobs`,
+    `${import.meta.env.VITE_API_BASE_URL}/jobs/saved-jobs`,
     {
       withCredentials: true,
     }

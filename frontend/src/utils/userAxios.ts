@@ -6,7 +6,7 @@ import axios, {
 } from "axios";
 
 // Backend base URL
-const BASE_URL = "http://localhost:3000/";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 import { logOut } from "../features/user/services/AuthServices";
 import { logout } from "../features/auth/auth.slice";
 import { store } from "../store/store";
@@ -44,9 +44,12 @@ userAxios.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        await axios.get("http://localhost:3000/api/auth/refresh", {
-          withCredentials: true, // Ensure refresh token cookie is sent
-        });
+        await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh`,
+          {
+            withCredentials: true, // Ensure refresh token cookie is sent
+          }
+        );
 
         // Retry the original failed request
         return userAxios(originalRequest);

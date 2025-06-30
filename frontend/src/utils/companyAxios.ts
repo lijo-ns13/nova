@@ -9,7 +9,7 @@ import { logout } from "../features/auth/auth.slice";
 import { store } from "../store/store";
 import toast from "react-hot-toast";
 // Backend base URL
-const BASE_URL = "http://localhost:3000/company";
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/company`;
 
 const companyAxios: AxiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -44,9 +44,12 @@ companyAxios.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        await axios.get("http://localhost:3000/api/auth/refresh", {
-          withCredentials: true, // Ensure refresh token cookie is sent
-        });
+        await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh`,
+          {
+            withCredentials: true, // Ensure refresh token cookie is sent
+          }
+        );
 
         // Retry the original failed request
         return companyAxios(originalRequest);

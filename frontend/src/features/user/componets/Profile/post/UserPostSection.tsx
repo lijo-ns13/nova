@@ -64,7 +64,7 @@ const UserPostsSection = ({ userId }: UserPostsSectionProps) => {
         setError(null);
 
         const response = await axios.get<PostsResponse>(
-          "http://localhost:3000/post/user",
+          `${import.meta.env.VITE_API_BASE_URL}/post/user`,
           {
             withCredentials: true,
             params: { page },
@@ -92,7 +92,7 @@ const UserPostsSection = ({ userId }: UserPostsSectionProps) => {
   const handleLikePost = async (postId: string) => {
     try {
       await axios.post(
-        `http://localhost:3000/post/like/${postId}`,
+        `${import.meta.env.VITE_API_BASE_URL}/post/like/${postId}`,
         {},
         {
           withCredentials: true,
@@ -118,9 +118,12 @@ const UserPostsSection = ({ userId }: UserPostsSectionProps) => {
     if (!postToDelete) return;
 
     try {
-      await axios.delete(`http://localhost:3000/post/${postToDelete}`, {
-        withCredentials: true,
-      });
+      await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}/post/${postToDelete}`,
+        {
+          withCredentials: true,
+        }
+      );
 
       // Remove deleted post from state
       setPosts((prev) => prev.filter((post) => post._id !== postToDelete));

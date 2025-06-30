@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { format, subDays, subMonths, subWeeks } from "date-fns";
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -78,7 +79,9 @@ const CompanyDashboard: React.FC = () => {
     const fetchDashboardStats = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:3000/stats");
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/stats`
+        );
         setStats(response.data);
       } catch (err) {
         setError("Failed to load dashboard data");

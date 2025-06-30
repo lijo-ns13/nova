@@ -22,7 +22,7 @@ const CompanyVerificationPage: React.FC = () => {
   const fetchUnverifiedCompanies = async () => {
     try {
       const res = await adminAxios.get(
-        "http://localhost:3000/admin/companies/unverified"
+        `${import.meta.env.VITE_API_BASE_URL}/admin/companies/unverified`
       );
       setCompanies(res.data?.data || []);
     } catch (err) {
@@ -51,7 +51,9 @@ const CompanyVerificationPage: React.FC = () => {
 
     try {
       await adminAxios.patch(
-        `http://localhost:3000/admin/companies/verify/${selectedCompany._id}`,
+        `${import.meta.env.VITE_API_BASE_URL}/admin/companies/verify/${
+          selectedCompany._id
+        }`,
         { status, rejectionReason: reason }
       );
 

@@ -54,7 +54,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
   const handleLike = async () => {
     const res = await userAxios.post(
-      `http://localhost:3000/post/like/${post._id}`,
+      `${import.meta.env.VITE_API_BASE_URL}/post/like/${post._id}`,
       {
         withCredentials: true,
       }

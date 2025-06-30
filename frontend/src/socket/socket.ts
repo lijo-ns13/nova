@@ -58,7 +58,7 @@ interface VideoCallSocketEvents {
 
 // Create socket instance
 const socket: Socket<VideoCallSocketEvents> = io(
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
+  import.meta.env.VITE_API_BASE_URL,
   {
     withCredentials: true,
     transports: ["websocket"],

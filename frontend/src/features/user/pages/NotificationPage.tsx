@@ -29,7 +29,9 @@ const NotificationPage: React.FC = () => {
         else if (pageNum === 1) setLoading(true);
 
         const res = await userAxios.get(
-          `http://localhost:3000/notification?page=${pageNum}&limit=${PAGE_SIZE}`
+          `${
+            import.meta.env.VITE_API_BASE_URL
+          }/notification?page=${pageNum}&limit=${PAGE_SIZE}`
         );
 
         if (refresh) {
@@ -56,7 +58,9 @@ const NotificationPage: React.FC = () => {
   // Mark all as read
   const readAllFn = async () => {
     try {
-      await userAxios.patch("http://localhost:3000/notification/read-all");
+      await userAxios.patch(
+        `${import.meta.env.VITE_API_BASE_URL}/notification/read-all`
+      );
       dispatch(setUnreadCount(0));
       // Update local state to mark all as read
       setNotifications((prev) =>
@@ -117,7 +121,9 @@ const NotificationPage: React.FC = () => {
   // Mark single notification as read
   const markAsRead = async (id: string) => {
     try {
-      await userAxios.patch(`http://localhost:3000/notification/read/${id}`);
+      await userAxios.patch(
+        `${import.meta.env.VITE_API_BASE_URL}/notification/read/${id}`
+      );
       setNotifications((prev) =>
         prev.map((notif) =>
           notif._id === id ? { ...notif, isRead: true } : notif

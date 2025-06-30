@@ -7,7 +7,7 @@ export const createCheckoutSession = async (
 ): Promise<{ url?: string; error?: string }> => {
   try {
     const response = await userAxios.post(
-      "http://localhost:3000/api/stripe/create-checkout-session",
+      `${import.meta.env.VITE_API_BASE_URL}/api/stripe/create-checkout-session`,
       {
         userId,
         price,

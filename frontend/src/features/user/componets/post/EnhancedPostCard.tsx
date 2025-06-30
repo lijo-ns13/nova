@@ -59,7 +59,9 @@ const EnhancedPostCard: React.FC<PostCardProps> = ({ post, currentUserId }) => {
   const handleLike = async () => {
     try {
       // Replace with your actual API call
-      await userAxios.post(`http://localhost:3000/post/like/${post._id}`);
+      await userAxios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/post/like/${post._id}`
+      );
 
       setLiked(!liked);
       setLikeCount(likeCount + (liked ? -1 : 1));
