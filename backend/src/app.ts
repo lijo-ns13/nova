@@ -35,7 +35,11 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
-app.use("/webhook", express.raw({ type: "application/json" }), webhookRoute);
+app.use(
+  "/api/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  webhookRoute
+);
 app.use(cors(corsOptions));
 
 //middlewares

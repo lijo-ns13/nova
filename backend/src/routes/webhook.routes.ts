@@ -24,7 +24,7 @@ const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 router.post("/", async (req, res) => {
   const sig = req.headers["stripe-signature"];
   if (!sig) {
-    console.error("❌ Missing Stripe signature");
+    console.log("❌ Missing Stripe signature");
     res.status(400).send("Missing Stripe signature");
     return;
   }
@@ -32,10 +32,18 @@ router.post("/", async (req, res) => {
   let event: Stripe.Event;
 
   try {
+    console.log(
+      "req.obdy",
+      req.body,
+      "sig",
+      sig,
+      "endpointSecret",
+      endpointSecret
+    );
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     console.log("✅ Webhook verified:", event.id);
   } catch (err) {
-    console.error("❌ Webhook error:", (err as Error).message);
+    console.log("❌ Webhook error:", (err as Error).message);
     res.status(400).send(`Webhook Error: ${(err as Error).message}`);
     return;
   }
