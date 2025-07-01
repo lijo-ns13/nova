@@ -21,7 +21,7 @@ let ioInstance: SocketIOServer;
 export const initSocketServer = (server: Server) => {
   const io = new SocketIOServer(server, {
     cors: {
-      origin: process.env.FRONTEND_URL || "http://localhost:5173",
+      origin: process.env.FRONTEND_URL,
       credentials: true,
     },
   });

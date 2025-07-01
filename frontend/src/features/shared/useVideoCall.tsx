@@ -85,9 +85,10 @@ export function useVideoCall(roomId: string, userId: string) {
 
         // 3. Initialize PeerJS after media is ready
         peerInstance = new Peer(stringUserId, {
-          host: window.location.hostname,
-          port: 5000,
-          path: "/peerjs",
+          host: "api.lijons.shop", // ✅ your backend domain
+          port: 443, // ✅ HTTPS default port
+          path: "/peerjs", // ✅ must match the reverse proxy path
+          secure: true, // ✅ enables wss://
           debug: 3,
         });
 
