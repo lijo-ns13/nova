@@ -115,7 +115,21 @@ export function useJobForm() {
       });
     }
   };
+  const handleLocationSelect = (location: string) => {
+    setFormState((prev) => ({
+      ...prev,
+      location,
+    }));
 
+    // Clear location error if any
+    if (errors.location) {
+      setErrors((prev) => {
+        const updated = { ...prev };
+        delete updated.location;
+        return updated;
+      });
+    }
+  };
   const handleBenefitsChange = (benefits: string[]) => {
     setFormState((prev) => ({
       ...prev,
@@ -221,6 +235,7 @@ export function useJobForm() {
 
   return {
     formState,
+    setFormState, // Add this to the returned object
     errors,
     isSubmitting,
     handleInputChange,
@@ -229,5 +244,6 @@ export function useJobForm() {
     handleSkillsChange,
     handleBenefitsChange,
     handleSubmit,
+    handleLocationSelect, // Add this new handler
   };
 }

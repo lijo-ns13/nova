@@ -15,12 +15,14 @@ const JobPostingForm: React.FC<JobPostingFormProps> = ({ onSuccess }) => {
     formState,
     errors,
     isSubmitting,
+    setFormState,
     handleInputChange,
     handleSelectChange,
     handleSalaryChange,
     handleSkillsChange,
     handleBenefitsChange,
     handleSubmit,
+    handleLocationSelect,
   } = useJobForm();
   console.log("formSTate", formState);
 
@@ -35,6 +37,7 @@ const JobPostingForm: React.FC<JobPostingFormProps> = ({ onSuccess }) => {
           errors={errors}
           handleInputChange={handleInputChange}
           handleSelectChange={handleSelectChange}
+          handleLocationSelect={handleLocationSelect} // Pass the location handler
         />
 
         <DetailsSection

@@ -4,14 +4,15 @@ import FormField from "../form/FormField";
 import InputField from "../form/InputField";
 import SelectField from "../form/SelectField";
 import { JobFormState } from "../../hooks/useJobForm";
+import { LocationSearchInput } from "../../../../components/input/LocationSearchInput";
 
 interface BasicInfoSectionProps {
   formState: JobFormState;
   errors: Record<string, string>;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSelectChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  handleLocationSelect: (location: string) => void; // Add this prop
 }
-
 const jobTypeOptions = [
   { value: "remote", label: "Remote" },
   { value: "hybrid", label: "Hybrid" },
@@ -38,6 +39,7 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
   errors,
   handleInputChange,
   handleSelectChange,
+  handleLocationSelect,
 }) => {
   const today = new Date().toISOString().split("T")[0];
 
@@ -61,13 +63,12 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
         </FormField>
 
         <FormField label="Location" htmlFor="location" error={errors.location}>
-          <InputField
-            id="location"
-            name="location"
-            value={formState.location}
-            onChange={handleInputChange}
-            placeholder="e.g. New York, NY or Remote"
-            error={!!errors.location}
+          <LocationSearchInput
+            onSelect={handleLocationSelect}
+            apiKey={import.meta.env.VITE_LOCATIONIQ_APIKEY || ""}
+            placeholder="Search for your city..."
+            className="w-full"
+            initialValue={formState.location} // Pass current location value
           />
         </FormField>
 
