@@ -40,6 +40,7 @@ app.use(
   express.raw({ type: "application/json" }),
   webhookRoute
 );
+app.use("/api/stripe", stripeRoutes);
 app.use(cors(corsOptions));
 
 //middlewares
@@ -53,7 +54,6 @@ app.use("/api/auth", googleRouter);
 app.use("/api/admin/analytics", adminAnalyticsRoutes);
 app.use("/auth", authRouter);
 app.use("", dashRouter);
-app.use("/api/stripe", stripeRoutes);
 
 app.use("/", sharedRouter);
 
