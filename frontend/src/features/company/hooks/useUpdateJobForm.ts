@@ -81,7 +81,21 @@ export function useUpdateJobForm({ jobId, onSuccess }: UseUpdateJobFormProps) {
       setIsLoading(false);
     }
   };
+const handleLocationSelect = (location: string) => {
+    setFormState((prev) => ({
+      ...prev,
+      location,
+    }));
 
+    // Clear location error if any
+    if (errors.location) {
+      setErrors((prev) => {
+        const updated = { ...prev };
+        delete updated.location;
+        return updated;
+      });
+    }
+  };
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -239,5 +253,6 @@ export function useUpdateJobForm({ jobId, onSuccess }: UseUpdateJobFormProps) {
     handleSkillsChange,
     handleBenefitsChange,
     handleSubmit,
+    handleLocationSelect
   };
 }

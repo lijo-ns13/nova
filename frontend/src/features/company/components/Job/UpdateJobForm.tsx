@@ -23,6 +23,7 @@ const UpdateJobForm: React.FC<UpdateJobFormProps> = ({ jobId, onSuccess }) => {
     handleSkillsChange,
     handleBenefitsChange,
     handleSubmit,
+    handleLocationSelect,
   } = useUpdateJobForm({
     jobId,
     onSuccess: () => {
@@ -51,6 +52,7 @@ const UpdateJobForm: React.FC<UpdateJobFormProps> = ({ jobId, onSuccess }) => {
           errors={errors}
           handleInputChange={handleInputChange}
           handleSelectChange={handleSelectChange}
+          handleLocationSelect={handleLocationSelect} // Pass the location handler
         />
 
         <DetailsSection
