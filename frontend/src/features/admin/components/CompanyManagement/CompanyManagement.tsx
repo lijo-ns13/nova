@@ -81,11 +81,25 @@ const CompanyManagement: React.FC = () => {
     try {
       if (selectedCompany.isBlocked) {
         await unblockCompany(selectedCompany._id);
+        setCompanies(
+          companies.map((company) =>
+            company._id == selectedCompany._id
+              ? { ...company, isBlocked: false }
+              : company
+          )
+        );
       } else {
         await blockCompany(selectedCompany._id);
+        setCompanies(
+          companies.map((company) =>
+            company._id == selectedCompany._id
+              ? { ...company, isBlocked: true }
+              : company
+          )
+        );
       }
       setShowModal(false);
-      fetchCompanies(pagination.currentPage);
+      // fetchCompanies(pagination.currentPage);
     } catch (err) {
       console.error("Error updating company status:", err);
       setError("Failed to update company status");

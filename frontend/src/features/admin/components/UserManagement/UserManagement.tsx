@@ -91,10 +91,21 @@ const UserManagement: React.FC = () => {
     try {
       if (modalAction === "block") {
         await blockUser(selectedUser._id);
+        setUsers(
+          users.map((user) =>
+            user._id == selectedUser._id ? { ...user, isBlocked: true } : user
+          )
+        );
       } else {
         await unblockUser(selectedUser._id);
+        setUsers(
+          users.map((user) =>
+            user._id == selectedUser._id ? { ...user, isBlocked: false } : user
+          )
+        );
       }
-      fetchUsers(page); // Refresh current view
+
+      // fetchUsers(page); // Refresh current view
       setShowModal(false);
     } catch (err) {
       const apiError = err as ApiError;

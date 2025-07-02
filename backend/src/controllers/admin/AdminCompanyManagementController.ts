@@ -150,7 +150,13 @@ export class AdminCompanyManagementController
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Company blocked successfully",
-        company,
+        company: {
+          _id: company._id,
+          companyName: company.companyName,
+          email: company.email,
+          isBlocked: company.isBlocked,
+          profilePicture: company.profilePicture,
+        },
       });
     } catch (error) {
       res
@@ -168,7 +174,13 @@ export class AdminCompanyManagementController
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Company unblocked successfully",
-        company,
+        company: {
+          _id: company._id,
+          companyName: company.companyName,
+          email: company.email,
+          isBlocked: company.isBlocked,
+          profilePicture: company.profilePicture,
+        },
       });
     } catch (error) {
       res

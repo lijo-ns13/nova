@@ -20,7 +20,13 @@ export class AdminUserManagementController
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "User blocked successfully",
-        data: user,
+        data: {
+          _id: user?._id,
+          name: user?.name,
+          profilePicture: user?.profilePicture,
+          isBlocked: user?.isBlocked,
+          email: user?.email,
+        },
       });
     } catch (error) {
       res
