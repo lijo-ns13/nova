@@ -171,6 +171,14 @@ import jobModal, { IJob } from "../models/job.modal";
 import commentModal, { IComment } from "../models/comment.modal";
 import { IStripeController } from "../interfaces/controllers/IStripeController";
 import { IStripeService } from "../interfaces/services/IStripeService";
+import {
+  CloudinaryService,
+  ICloudinaryService,
+} from "../services/ClaudinaryService";
+import {
+  CloudinaryController,
+  ICloudinaryController,
+} from "../controllers/CloudinaryController";
 // import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
@@ -442,22 +450,10 @@ container
     TYPES.JobApplicantManagementController
   )
   .to(JobApplicantManagementController);
-// company stats
-container;
-//   .bind<ICompanyDashboardController>(TYPES.CompanyDashboardController)
-//   .to(CompanyDashboardController);
-// container
-//   .bind<ICompanyDashboardService>(TYPES.CompanyDashboardService)
-//   .to(CompanyDashboardService);
-
-// stripe
-// container
-//   .bind<IStripeService>(TYPES.StripeService)
-//   .to(StripeService)
-//   .inSingletonScope();
-
-// container
-//   .bind<IStripeController>(TYPES.StripeController)
-//   .to(StripeController)
-//   .inSingletonScope();
+container
+  .bind<ICloudinaryService>(TYPES.CloudinaryService)
+  .to(CloudinaryService);
+container
+  .bind<ICloudinaryController>(TYPES.CloudinaryController)
+  .to(CloudinaryController);
 export default container;

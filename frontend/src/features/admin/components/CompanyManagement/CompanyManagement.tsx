@@ -30,12 +30,10 @@ const CompanyManagement: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalAction, setModalAction] = useState<"block" | "unblock">("block");
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  const [initialLoading, setInitialLoading] = useState(true); // for first load only
 
   const fetchCompanies = useCallback(
     async (query: string, pageNum: number, isInitial = false) => {
       try {
-        if (isInitial) setInitialLoading(true);
         const response: ApiResponse = await getCompanies(
           pageNum,
           pagination.companiesPerPage,
@@ -52,8 +50,6 @@ const CompanyManagement: React.FC = () => {
       } catch (err) {
         console.error("Error fetching companies:", err);
         setError("Failed to fetch companies");
-      } finally {
-        if (isInitial) setInitialLoading(false);
       }
     },
     [pagination.companiesPerPage]
@@ -142,9 +138,7 @@ const CompanyManagement: React.FC = () => {
             </div>
           )}
 
-          {loading ? (
-            <LoadingIndicator />
-          ) : (
+          {
             <>
               <div className="hidden md:block">
                 <CompanyTable companies={companies} onBlock={handleBlock} />
@@ -182,7 +176,7 @@ const CompanyManagement: React.FC = () => {
                 </div>
               )}
             </>
-          )}
+          }
         </div>
       </div>
 

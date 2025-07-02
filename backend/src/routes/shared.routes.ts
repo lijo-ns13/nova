@@ -4,6 +4,7 @@ import ProfileViewRouter from "./common/profile-view.routes";
 import messageRoutes from "./common/messages.routes";
 import messageModal from "../models/message.modal";
 import notificationRouter from "./notification.routes";
+import cloudinaryRouter from "./common/cloudinary.routes";
 import container from "../di/container";
 import { IAuthMiddleware } from "../interfaces/middlewares/IAuthMiddleware";
 import { TYPES } from "../di/types";
@@ -16,7 +17,7 @@ router.use("/skill", skillRouter);
 router.use("/api", ProfileViewRouter);
 router.use("/api/messages", messageRoutes);
 router.use("/notification", notificationRouter);
-
+router.use("/cloudinary", cloudinaryRouter);
 router.get("/api/chat/users/:userId", async (req: Request, res: Response) => {
   const { userId } = req.params;
   const timeWindowInDays = 30; // Customize the range, e.g., last 30 days

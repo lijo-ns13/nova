@@ -1,5 +1,3 @@
-
-
 export const TYPES = {
   // Repositories
   UserModal: Symbol.for("UserModal"),
@@ -144,4 +142,7 @@ export const TYPES = {
   // SubscriptionPlanRepository: Symbol.for("SubscriptionPlanRepository"),
   StripeService: Symbol.for("StripeService"),
   StripeController: Symbol.for("StripeController"),
+  // cluadinary
+  CloudinaryService: Symbol.for("CloudinaryService"),
+  CloudinaryController: Symbol.for("CloudinaryController"),
 };

@@ -11,6 +11,7 @@ import {
   FileText,
   Activity,
 } from "lucide-react";
+import { SecureCloudinaryImage } from "../../../components/SecureCloudinaryImage";
 
 const ProfileCard: React.FC = () => {
   const {
@@ -54,9 +55,14 @@ const ProfileCard: React.FC = () => {
       {/* Profile Photo - Centered above name */}
       <div className="flex justify-center mt-10">
         {profilePicture ? (
-          <img
-            src={profilePicture || "/placeholder.svg"}
-            alt={name}
+          // <img
+          //   src={profilePicture || "/placeholder.svg"}
+          //   alt={name}
+          //   className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-white dark:border-gray-800"
+          // />
+          <SecureCloudinaryImage
+            publicId={profilePicture}
+            alt={"profilecardimage"}
             className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-white dark:border-gray-800"
           />
         ) : (

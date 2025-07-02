@@ -13,6 +13,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import { Crop, X } from "lucide-react";
 import { useAppDispatch } from "../../../../hooks/useAppDispatch";
 import toast from "react-hot-toast";
+import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
 
 function ProfileImage() {
   const { id, profilePicture: userProfilePicture } = useAppSelector(
@@ -45,6 +46,11 @@ function ProfileImage() {
       fetchUserData(id);
     }
   }, [id]);
+  useEffect(() => {
+    if (isImageModalOpen && profilePicture) {
+      setProfilePicture(userProfilePicture); // reset so `SecureCloudinaryImage` fetches again
+    }
+  }, [isImageModalOpen]);
 
   useEffect(() => {
     if (completedCrop && imageRef.current && previewCanvasRef.current) {
@@ -173,11 +179,17 @@ function ProfileImage() {
       {/* Profile Image with click to open modal */}
       <div className="flex-shrink-0">
         <div className="relative">
-          <img
+          {/* <img
             src={profilePicture || "/api/placeholder/150/150"}
             alt="Profile"
             className="w-32 h-32 rounded-full object-cover border-4 border-gray-100 cursor-pointer hover:border-gray-200 transition"
             onClick={() => setIsImageModalOpen(true)}
+          /> */}
+          <SecureCloudinaryImage
+            publicId={profilePicture}
+            alt={"profile"}
+            onClick={() => setIsImageModalOpen(true)}
+            className="rounded-full object-cover"
           />
           <div
             className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-20 rounded-full transition-opacity cursor-pointer"
@@ -232,6 +244,11 @@ function ProfileImage() {
                   alt="Image to crop"
                   className="max-w-full max-h-64"
                 />
+                {/* <SecureCloudinaryImage
+                  publicId={profilePicture}
+                  alt={"profile"}
+                  className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
+                /> */}
               </ReactCrop>
 
               {/* Hidden canvas for generating the cropped image */}
@@ -267,9 +284,14 @@ function ProfileImage() {
           ) : (
             <>
               <div className="flex justify-center">
-                <img
+                {/* <img
                   src={profilePicture || "/api/placeholder/150/150"}
                   alt="Profile"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
+                /> */}
+                <SecureCloudinaryImage
+                  publicId={profilePicture}
+                  alt={"profile"}
                   className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
                 />
               </div>

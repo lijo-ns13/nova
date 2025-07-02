@@ -20,6 +20,7 @@ import toast from "react-hot-toast";
 import socket from "../../../socket/socket";
 import userAxios from "../../../utils/userAxios";
 import { setUnreadCount } from "../../../store/slice/notificationSlice";
+import { SecureCloudinaryImage } from "../../../components/SecureCloudinaryImage";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -221,9 +222,14 @@ const Navbar = () => {
               >
                 <div className="flex items-center">
                   {profilePicture ? (
-                    <img
-                      src={profilePicture}
-                      alt={name || "User"}
+                    // <img
+                    //   src={profilePicture}
+                    //   alt={name || "User"}
+                    //   className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+                    // />
+                    <SecureCloudinaryImage
+                      publicId={profilePicture}
+                      alt={"user"}
                       className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
                     />
                   ) : (
