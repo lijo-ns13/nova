@@ -56,7 +56,7 @@ const CompanyManagement: React.FC = () => {
         setLoading(false);
       }
     },
-    500
+    2000
   );
 
   // Fetch companies with current search and page
@@ -99,7 +99,6 @@ const CompanyManagement: React.FC = () => {
         );
       }
       setShowModal(false);
-      // fetchCompanies(pagination.currentPage);
     } catch (err) {
       console.error("Error updating company status:", err);
       setError("Failed to update company status");
@@ -122,33 +121,29 @@ const CompanyManagement: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
       <div className="bg-white dark:bg-gray-850 shadow-sm rounded-lg overflow-hidden">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">
               Company Management
             </h1>
-            <SearchBar
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onClear={handleClearSearch}
-              placeholder="Search companies by name or email..."
-            />
+            <div className="w-full sm:w-auto">
+              <SearchBar
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onClear={handleClearSearch}
+                placeholder="Search companies..."
+              />
+            </div>
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-              <div className="flex">
-                <div className="ml-3">
-                  <p className="text-sm text-red-700 dark:text-red-300">
-                    {error}
-                  </p>
-                </div>
-              </div>
+            <div className="mb-4 p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+              <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
             </div>
           )}
 
@@ -163,12 +158,12 @@ const CompanyManagement: React.FC = () => {
               </div>
 
               {/* Mobile view: Cards */}
-              <div className="md:hidden space-y-4">
+              <div className="md:hidden space-y-3">
                 {companies.length === 0 ? (
-                  <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 text-center">
+                  <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 text-center">
                     <p className="text-gray-500 dark:text-gray-400">
                       {searchQuery
-                        ? "No companies found matching your search"
+                        ? "No companies found"
                         : "No companies available"}
                     </p>
                   </div>
@@ -185,13 +180,15 @@ const CompanyManagement: React.FC = () => {
 
               {/* Pagination */}
               {pagination.totalPages > 1 && (
-                <PaginationComponent
-                  currentPage={pagination.currentPage}
-                  totalPages={pagination.totalPages}
-                  totalItems={pagination.totalCompanies}
-                  itemsPerPage={pagination.companiesPerPage}
-                  onPageChange={handlePageChange}
-                />
+                <div className="mt-6">
+                  <PaginationComponent
+                    currentPage={pagination.currentPage}
+                    totalPages={pagination.totalPages}
+                    totalItems={pagination.totalCompanies}
+                    itemsPerPage={pagination.companiesPerPage}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
               )}
             </>
           )}

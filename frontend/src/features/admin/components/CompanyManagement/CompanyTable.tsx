@@ -37,7 +37,7 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onBlock }) => {
 
   if (companies.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 text-center">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 text-center">
         <p className="text-gray-500 dark:text-gray-400">No companies found</p>
       </div>
     );
@@ -51,37 +51,37 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onBlock }) => {
           <tr>
             <th
               scope="col"
-              className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
             >
               Company
             </th>
             <th
               scope="col"
-              className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell"
             >
               Email
             </th>
             <th
               scope="col"
-              className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell"
             >
               Industry
             </th>
             <th
               scope="col"
-              className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
             >
               Status
             </th>
             <th
               scope="col"
-              className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell"
             >
               Verification
             </th>
             <th
               scope="col"
-              className="px-6 py-3.5 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
             >
               Actions
             </th>
@@ -95,7 +95,7 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onBlock }) => {
               key={company._id}
               className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
             >
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <UserAvatar
@@ -106,27 +106,30 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onBlock }) => {
                       size="sm"
                     />
                   </div>
-                  <div className="ml-4">
+                  <div className="ml-3">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {company.companyName}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 sm:hidden">
+                      {company.email}
                     </div>
                   </div>
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-4 whitespace-nowrap hidden sm:table-cell">
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                   {company.email}
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-4 whitespace-nowrap hidden lg:table-cell">
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                   {company.industryType || "-"}
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-4 whitespace-nowrap">
                 <StatusBadge isBlocked={company.isBlocked} />
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-4 py-4 whitespace-nowrap hidden md:table-cell">
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     company.isVerified
@@ -137,10 +140,10 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onBlock }) => {
                   {company.isVerified ? "Verified" : "Pending"}
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1">
                 <button
                   onClick={() => onBlock(company)}
-                  className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white ${
+                  className={`inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded-md text-white ${
                     company.isBlocked
                       ? "bg-green-600 hover:bg-green-700 focus:ring-green-500"
                       : "bg-red-600 hover:bg-red-700 focus:ring-red-500"
@@ -150,9 +153,9 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onBlock }) => {
                 </button>
                 <button
                   onClick={() => handleViewMore(company)}
-                  className="ml-2 inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-100 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600"
+                  className="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-100 dark:text-white dark:bg-gray-700 dark:hover:bg-gray-600"
                 >
-                  View More
+                  View
                 </button>
               </td>
             </tr>
@@ -165,11 +168,10 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onBlock }) => {
         isOpen={isDetailsModalOpen}
         onClose={handleCloseDetailsModal}
         title="Company Details"
-        // size="md"
       >
         {selectedCompany && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800 dark:text-gray-200">
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 gap-4 text-sm text-gray-800 dark:text-gray-200">
+            <div className="space-y-3">
               <p>
                 <strong>Company Name:</strong> {selectedCompany.companyName}
               </p>
@@ -198,30 +200,25 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onBlock }) => {
               </p>
             </div>
 
-            <div className="flex flex-col items-center justify-center space-y-4">
-              {selectedCompany.profilePicture && (
+            {selectedCompany.profilePicture && (
+              <div className="flex flex-col items-center justify-center space-y-4">
                 <div className="relative group">
                   <img
                     src={selectedCompany.profilePicture}
                     alt="Company Logo"
-                    className="w-40 h-40 object-cover rounded-lg shadow-md cursor-pointer hover:scale-105 transition-transform"
-                    // onClick={() => handleViewImage(selectedCompany.profilePicture)}
+                    className="w-32 h-32 object-cover rounded-lg shadow-md cursor-pointer hover:scale-105 transition-transform"
                   />
-                  <span className="absolute bottom-1 right-1 text-[10px] bg-black bg-opacity-60 text-white px-1 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                    Click to Zoom
-                  </span>
                 </div>
-              )}
-              <button
-                onClick={() =>
-                  selectedCompany.profilePicture &&
-                  handleViewImage(selectedCompany.profilePicture)
-                }
-                className="px-3 py-1 text-xs border border-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                View Full Image
-              </button>
-            </div>
+                <button
+                  onClick={() =>
+                    handleViewImage(selectedCompany.profilePicture)
+                  }
+                  className="px-2 py-1 text-xs border border-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  View Full Image
+                </button>
+              </div>
+            )}
           </div>
         )}
       </BaseModal>
@@ -231,22 +228,20 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onBlock }) => {
         isOpen={isImageModalOpen}
         onClose={handleCloseImageModal}
         title=""
-        // size="xl"
-        // noPadding
       >
-        <div className="relative w-full h-full flex items-center justify-center p-4">
+        <div className="relative w-full h-full flex items-center justify-center p-2">
           <img
             src={currentImage}
             alt="Zoomed Company Logo"
-            className="max-w-full max-h-[80vh] object-contain rounded-lg"
+            className="max-w-full max-h-[70vh] object-contain rounded-lg"
           />
           <button
             onClick={handleCloseImageModal}
-            className="absolute top-4 right-4 p-2 bg-gray-800 bg-opacity-50 rounded-full hover:bg-opacity-70 transition-colors"
+            className="absolute top-2 right-2 p-1 bg-gray-800 bg-opacity-50 rounded-full hover:bg-opacity-70 transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-white"
+              className="h-5 w-5 text-white"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
