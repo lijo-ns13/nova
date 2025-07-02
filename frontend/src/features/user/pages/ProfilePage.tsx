@@ -1,6 +1,7 @@
 import React, { Suspense, useState } from "react";
 
 import Navbar from "../componets/NavBar";
+import SkillsManager from "../componets/skill/SkillsManager";
 
 // Lazy-loaded components
 const UserProfile = React.lazy(
@@ -22,8 +23,6 @@ const EducationSection = React.lazy(
 const UserPostsSection = React.lazy(
   () => import("../componets/Profile/post/UserPostSection")
 );
-
-import ProfileSkillsSection from "../componets/skill/ProfileSkillSection";
 
 // Loading component for suspense fallback
 const SectionLoader = () => (
@@ -212,7 +211,7 @@ function ProfilePage() {
             </div>
           </div>
         </div>
-        <ProfileSkillsSection />
+        <SkillsManager />
       </footer>
     </div>
   );

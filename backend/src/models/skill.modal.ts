@@ -5,6 +5,8 @@ export interface ISkill extends Document {
   title: string;
   createdAt: Date;
   updatedAt: Date;
+  createdById?: Types.ObjectId;
+  createdBy?: "user" | "company" | "admin";
 }
 
 const SkillSchema = new Schema<ISkill>(
@@ -13,6 +15,15 @@ const SkillSchema = new Schema<ISkill>(
       type: String,
       required: true,
       trim: true,
+      lowercase: true,
+    },
+    createdById: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
+    createdBy: {
+      type: String,
+      enum: ["company", "admin", "user"],
     },
   },
   {

@@ -1,4 +1,4 @@
-import { Model, Document, PopulateOptions } from "mongoose";
+import { Model, Document, PopulateOptions, UpdateQuery } from "mongoose";
 import { injectable } from "inversify";
 import { IBaseRepository } from "../../interfaces/repositories/IBaseRepository";
 
@@ -27,7 +27,7 @@ export abstract class BaseRepository<T extends Document>
     return query.exec();
   }
 
-  async update(id: string, updateData: Partial<T>): Promise<T | null> {
+  async update(id: string, updateData: UpdateQuery<T>): Promise<T | null> {
     return this.model.findByIdAndUpdate(id, updateData, { new: true });
   }
 

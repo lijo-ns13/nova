@@ -26,7 +26,7 @@ export const TYPES = {
   LikeRepository: Symbol.for("LikeRepository"),
   likeModal: Symbol.for("likeModal"),
   MediaRepository: Symbol.for("MediaRepository"),
-
+  skillModal: Symbol.for("skillModal"),
   postModal: Symbol.for("postModal"),
   // services**************************************
   // user

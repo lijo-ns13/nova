@@ -1,4 +1,4 @@
-import { Document, PopulateOptions } from "mongoose";
+import { Document, PopulateOptions, UpdateQuery } from "mongoose";
 
 export interface IBaseRepository<T extends Document> {
   create(entity: Partial<T>): Promise<T>;
@@ -6,7 +6,7 @@ export interface IBaseRepository<T extends Document> {
     id: string,
     populate?: PopulateOptions | (string | PopulateOptions)[]
   ): Promise<T | null>;
-  update(id: string, updateData: Partial<T>): Promise<T | null>;
+  update(id: string, updateData: UpdateQuery<T>): Promise<T | null>;
   delete(id: string): Promise<boolean>;
   findAll(
     filter?: Record<string, unknown>,

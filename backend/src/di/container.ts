@@ -179,6 +179,7 @@ import {
   CloudinaryController,
   ICloudinaryController,
 } from "../controllers/CloudinaryController";
+import skillModal, { ISkill } from "../models/skill.modal";
 // import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
@@ -401,6 +402,9 @@ container
 
 // SocketIO binding (set this up when you create your socket server)
 // container.bind<Server>(TYPES.SocketIO).toConstantValue(io);
+
+//skill
+container.bind<Model<ISkill>>(TYPES.skillModal).toConstantValue(skillModal);
 
 // subscritption related
 container

@@ -7,8 +7,9 @@ import { IUserExperience } from "../../models/userExperience.model";
 import { IUserProject } from "../../models/userProject.model";
 import { ISkill } from "../../models/skill.modal";
 import { IUserWithStatus } from "../../repositories/mongo/UserRepository";
+import { IBaseRepository } from "./IBaseRepository";
 
-export interface IUserRepository {
+export interface IUserRepository extends IBaseRepository<IUser> {
   // Core user operations
   createUser(userData: Partial<IUser>): Promise<IUser>;
   updateUser(userId: string, updateData: Partial<IUser>): Promise<IUser | null>;
