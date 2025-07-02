@@ -1,9 +1,9 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IInterview extends Document {
-  companyId: mongoose.Types.ObjectId|string;
-  userId: mongoose.Types.ObjectId|string;
-  applicationId: mongoose.Types.ObjectId|string;
+  companyId: mongoose.Types.ObjectId | string;
+  userId: mongoose.Types.ObjectId | string;
+  applicationId: mongoose.Types.ObjectId | string;
   scheduledAt: Date;
   status: "pending" | "accepted" | "rejected";
   result: "pending" | "pass" | "fail";
