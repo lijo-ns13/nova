@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { debounce } from "lodash";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   getCompanies,
   blockCompany,
   unblockCompany,
 } from "../../services/companyServices";
 import { ApiResponse, Company, Pagination } from "../../types/types";
+import { useDebounce } from "../../../../hooks/useDebounce"; // Import your custom hook
 
 // Component imports
 import SearchBar from "../UserManagement/SearchBar";
@@ -26,16 +26,16 @@ const CompanyManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  // Modal state
+  const debouncedSearchQuery = useDebounce(searchQuery, 500); // Using your debounce hook
   const [showModal, setShowModal] = useState(false);
   const [modalAction, setModalAction] = useState<"block" | "unblock">("block");
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true); // for first load only
 
-  // Debounced fetch function
-  const debouncedFetchCompanies = debounce(
-    async (query: string, pageNum: number) => {
+  const fetchCompanies = useCallback(
+    async (query: string, pageNum: number, isInitial = false) => {
       try {
-        setLoading(true);
+        if (isInitial) setInitialLoading(true);
         const response: ApiResponse = await getCompanies(
           pageNum,
           pagination.companiesPerPage,
@@ -53,21 +53,22 @@ const CompanyManagement: React.FC = () => {
         console.error("Error fetching companies:", err);
         setError("Failed to fetch companies");
       } finally {
-        setLoading(false);
+        if (isInitial) setInitialLoading(false);
       }
     },
-    2000
+    [pagination.companiesPerPage]
   );
 
-  // Fetch companies with current search and page
-  const fetchCompanies = (pageNum: number, query: string = searchQuery) => {
-    debouncedFetchCompanies(query, pageNum);
-  };
-
-  // Initial load and when search/page changes
+  // Fetch companies when debounced search query or page changes
+  // Initial load
   useEffect(() => {
-    fetchCompanies(1);
-  }, []);
+    fetchCompanies(searchQuery, 1, true); // initial = true
+  }, [fetchCompanies]);
+
+  // Search or page change
+  useEffect(() => {
+    fetchCompanies(debouncedSearchQuery, pagination.currentPage, false);
+  }, [debouncedSearchQuery, fetchCompanies, pagination.currentPage]);
 
   const handleBlock = (company: Company) => {
     setSelectedCompany(company);
@@ -81,20 +82,16 @@ const CompanyManagement: React.FC = () => {
     try {
       if (selectedCompany.isBlocked) {
         await unblockCompany(selectedCompany._id);
-        setCompanies(
-          companies.map((company) =>
-            company._id == selectedCompany._id
-              ? { ...company, isBlocked: false }
-              : company
+        setCompanies((prev) =>
+          prev.map((c) =>
+            c._id === selectedCompany._id ? { ...c, isBlocked: false } : c
           )
         );
       } else {
         await blockCompany(selectedCompany._id);
-        setCompanies(
-          companies.map((company) =>
-            company._id == selectedCompany._id
-              ? { ...company, isBlocked: true }
-              : company
+        setCompanies((prev) =>
+          prev.map((c) =>
+            c._id === selectedCompany._id ? { ...c, isBlocked: true } : c
           )
         );
       }
@@ -108,16 +105,15 @@ const CompanyManagement: React.FC = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    fetchCompanies(1, e.target.value);
   };
 
   const handleClearSearch = () => {
     setSearchQuery("");
-    fetchCompanies(1, "");
   };
 
   const handlePageChange = (newPage: number) => {
-    fetchCompanies(newPage);
+    setPagination((prev) => ({ ...prev, currentPage: newPage }));
+    fetchCompanies(debouncedSearchQuery, newPage);
   };
 
   return (
@@ -140,24 +136,20 @@ const CompanyManagement: React.FC = () => {
         </div>
 
         <div className="p-4 sm:p-6">
-          {/* Error Message */}
           {error && (
             <div className="mb-4 p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
               <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
             </div>
           )}
 
-          {/* Loading Indicator */}
           {loading ? (
             <LoadingIndicator />
           ) : (
             <>
-              {/* Desktop view: Table */}
               <div className="hidden md:block">
                 <CompanyTable companies={companies} onBlock={handleBlock} />
               </div>
 
-              {/* Mobile view: Cards */}
               <div className="md:hidden space-y-3">
                 {companies.length === 0 ? (
                   <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 text-center">
@@ -178,7 +170,6 @@ const CompanyManagement: React.FC = () => {
                 )}
               </div>
 
-              {/* Pagination */}
               {pagination.totalPages > 1 && (
                 <div className="mt-6">
                   <PaginationComponent
@@ -195,7 +186,6 @@ const CompanyManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Confirmation Modal */}
       <ConfirmSoftDeleteModal
         isOpen={showModal}
         onConfirm={handleConfirmAction}
