@@ -9,7 +9,11 @@
 // src/socket/socket.ts
 
 import { io, Socket } from "socket.io-client";
-
+interface VideoParticipant {
+  userId: string;
+  video: boolean;
+  audio: boolean;
+}
 // Define types for better TypeScript support
 interface VideoCallSocketEvents {
   "join-video-room": (roomId: string, userId: string) => void;
@@ -38,7 +42,7 @@ interface VideoCallSocketEvents {
   userOffline: (userId: string) => void;
   "user-connected": (userId: string) => void;
   "user-disconnected": (userId: string) => void;
-  "video-room-participants": (participants: string[]) => void;
+  "video-room-participants": (participants: VideoParticipant[]) => void;
   unreadMessages: (messages: any[]) => void;
   "audio-toggle": (data: {
     roomId: string;

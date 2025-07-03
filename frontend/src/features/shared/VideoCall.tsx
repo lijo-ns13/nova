@@ -5,7 +5,6 @@ import {
   FaVideo,
   FaVideoSlash,
   FaPhone,
-  FaTimes,
 } from "react-icons/fa";
 
 const VideoCall = ({
@@ -25,6 +24,7 @@ const VideoCall = ({
     endCall,
     isAudioMuted,
     isVideoOff,
+    participants,
   } = useVideoCall(roomId, userId);
 
   const handleEndCall = () => {
@@ -32,25 +32,35 @@ const VideoCall = ({
     if (onEndCall) onEndCall();
   };
 
+  // Get remote participant (excluding self)
+  const remoteParticipant = participants.find((p) => p.userId !== userId);
+  console.log("remoteParticipant*********************", remoteParticipant);
   return (
     <div className="video-call-container relative w-full h-full">
-      {/* Remote Video (main) */}
-      <div className="remote-video w-full h-full bg-black">
+      {/* Remote Video */}
+      <div className="remote-video w-full h-full bg-black relative">
         <video
           ref={remoteVideoRef}
           autoPlay
           playsInline
           className="w-full h-full object-cover"
         />
-        {isVideoOff && (
-          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800">
-            <div className="text-white text-xl">Video is turned off</div>
+
+        {remoteParticipant?.video === false && (
+          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-75">
+            <p className="text-white text-xl">Remote video is off</p>
+          </div>
+        )}
+
+        {remoteParticipant && remoteParticipant.audio === false && (
+          <div className="absolute top-4 left-4 px-3 py-1 bg-black bg-opacity-50 text-white rounded">
+            Remote is muted
           </div>
         )}
       </div>
 
-      {/* Local Video (small overlay) */}
-      <div className="local-video absolute bottom-4 right-4 w-1/4 h-1/4 rounded-lg overflow-hidden border-2 border-white shadow-lg">
+      {/* Local Video */}
+      <div className="local-video absolute bottom-4 right-4 w-1/4 h-1/4 rounded-lg overflow-hidden border-2 border-white shadow-lg relative">
         <video
           ref={localVideoRef}
           autoPlay
@@ -59,8 +69,8 @@ const VideoCall = ({
           className="w-full h-full object-cover"
         />
         {isVideoOff && (
-          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800">
-            <div className="text-white text-sm">Your video is off</div>
+          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-75">
+            <p className="text-white text-sm">Your video is off</p>
           </div>
         )}
       </div>
@@ -68,10 +78,7 @@ const VideoCall = ({
       {/* Controls */}
       <div className="controls absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-4 bg-black bg-opacity-50 rounded-full p-3">
         <button
-          onClick={() => {
-            console.log("Toggling audio", isAudioMuted);
-            toggleAudio(!isAudioMuted);
-          }}
+          onClick={toggleAudio}
           className={`p-3 rounded-full ${
             isAudioMuted ? "bg-red-500" : "bg-gray-700"
           } text-white`}
@@ -81,7 +88,7 @@ const VideoCall = ({
         </button>
 
         <button
-          onClick={() => toggleVideo(!isVideoOff)}
+          onClick={toggleVideo}
           className={`p-3 rounded-full ${
             isVideoOff ? "bg-red-500" : "bg-gray-700"
           } text-white`}

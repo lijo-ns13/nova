@@ -1,11 +1,17 @@
-// hooks/useVideoCall.ts
 import { useEffect, useRef, useState, useCallback } from "react";
-import Peer from "peerjs";
+import Peer, { MediaConnection } from "peerjs";
+
 import socket, {
   connectSocket,
   joinVideoRoom,
   leaveVideoRoom,
 } from "../../socket/socket";
+
+interface Participant {
+  userId: string;
+  audio: boolean;
+  video: boolean;
+}
 
 export function useVideoCall(roomId: string, userId: string) {
   const localVideoRef = useRef<HTMLVideoElement>(null);
@@ -14,34 +20,43 @@ export function useVideoCall(roomId: string, userId: string) {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const peerRef = useRef<Peer | null>(null);
   const stringUserId = userId.toString();
+  const ongoingCalls = useRef<Map<string, MediaConnection>>(new Map());
 
-  const toggleAudio = useCallback(
-    (enabled: boolean) => {
+  const toggleAudio = useCallback(() => {
+    setIsAudioMuted((prevMuted) => {
+      const newMuted = !prevMuted;
+      const newEnabled = !newMuted;
+
       if (localStream) {
         localStream.getAudioTracks().forEach((track) => {
-          track.enabled = enabled;
+          track.enabled = newEnabled;
+          replaceTrack("audio", track); // ✅ Replace remote
         });
-        setIsAudioMuted(!enabled);
-        socket.emit("audio-toggle", { roomId, userId, enabled });
       }
-    },
-    [localStream, roomId, userId]
-  );
 
-  const toggleVideo = useCallback(
-    (enabled: boolean) => {
+      socket.emit("audio-toggle", { roomId, userId, enabled: newEnabled });
+      return newMuted;
+    });
+  }, [localStream, roomId, userId]);
+  const toggleVideo = useCallback(() => {
+    setIsVideoOff((prevOff) => {
+      const newOff = !prevOff;
+      const newEnabled = !newOff;
+
       if (localStream) {
         localStream.getVideoTracks().forEach((track) => {
-          track.enabled = enabled;
+          track.enabled = newEnabled;
+          replaceTrack("video", track); // ✅ Replace remote
         });
-        setIsVideoOff(!enabled);
-        socket.emit("video-toggle", { roomId, userId, enabled });
       }
-    },
-    [localStream, roomId, userId]
-  );
+
+      socket.emit("video-toggle", { roomId, userId, enabled: newEnabled });
+      return newOff;
+    });
+  }, [localStream, roomId, userId]);
 
   const endCall = useCallback(() => {
     if (peerRef.current) {
@@ -52,16 +67,27 @@ export function useVideoCall(roomId: string, userId: string) {
     }
     leaveVideoRoom(roomId, stringUserId);
   }, [localStream, roomId, stringUserId]);
+  const replaceTrack = (
+    kind: "audio" | "video",
+    newTrack: MediaStreamTrack
+  ) => {
+    ongoingCalls.current.forEach((call) => {
+      const sender = call.peerConnection
+        .getSenders()
+        .find((s) => s.track?.kind === kind);
+      if (sender) {
+        sender.replaceTrack(newTrack);
+      }
+    });
+  };
 
   useEffect(() => {
     let peerInstance: Peer;
     let stream: MediaStream;
 
-    // 1. First connect to socket
     connectSocket();
     joinVideoRoom(roomId, stringUserId);
 
-    // 2. Get user media
     navigator.mediaDevices
       .getUserMedia({
         video: {
@@ -75,20 +101,23 @@ export function useVideoCall(roomId: string, userId: string) {
         },
       })
       .then((mediaStream) => {
-        console.log("Audio tracks:", mediaStream.getAudioTracks());
-        console.log("Video tracks:", mediaStream.getVideoTracks());
         stream = mediaStream;
         setLocalStream(stream);
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
         }
-
-        // 3. Initialize PeerJS after media is ready
+        // peerInstance = new Peer(stringUserId, {
+        //   host: "api.lijons.shop", // ✅ your backend domain
+        //   port: 443, // ✅ HTTPS default port
+        //   path: "/peerjs", // ✅ must match the reverse proxy path
+        //   secure: true, // ✅ enables wss://
+        //   debug: 3,
+        // });
         peerInstance = new Peer(stringUserId, {
-          host: "api.lijons.shop", // ✅ your backend domain
-          port: 443, // ✅ HTTPS default port
-          path: "/peerjs", // ✅ must match the reverse proxy path
-          secure: true, // ✅ enables wss://
+          host: window.location.hostname,
+          port: 5000,
+          path: "/peerjs",
+          secure: false,
           debug: 3,
         });
 
@@ -100,10 +129,9 @@ export function useVideoCall(roomId: string, userId: string) {
         });
 
         peerInstance.on("call", (call) => {
-          console.log("Incoming call from:", call.peer);
           call.answer(stream);
+          ongoingCalls.current.set(call.peer, call); // Save the call for future use
           call.on("stream", (remoteStream) => {
-            console.log("Received remote stream");
             if (remoteVideoRef.current) {
               remoteVideoRef.current.srcObject = remoteStream;
             }
@@ -115,12 +143,10 @@ export function useVideoCall(roomId: string, userId: string) {
         });
 
         socket.on("user-connected", (remoteId) => {
-          console.log("User connected:", remoteId);
           if (!peerInstance || !stream || peerInstance.disconnected) return;
-
           const call = peerInstance.call(remoteId, stream);
+          ongoingCalls.current.set(remoteId, call); // Save the call
           call.on("stream", (remoteStream) => {
-            console.log("Received remote stream from call");
             if (remoteVideoRef.current) {
               remoteVideoRef.current.srcObject = remoteStream;
             }
@@ -129,15 +155,32 @@ export function useVideoCall(roomId: string, userId: string) {
       })
       .catch(console.error);
 
+    // Handle participant list on join
+    socket.on("video-room-participants", (initialParticipants) => {
+      setParticipants(initialParticipants);
+    });
+
+    // Handle remote user toggle updates
+    socket.on("audio-toggle", ({ userId, enabled }) => {
+      setParticipants((prev) =>
+        prev.map((p) => (p.userId === userId ? { ...p, audio: enabled } : p))
+      );
+    });
+
+    socket.on("video-toggle", ({ userId, enabled }) => {
+      setParticipants((prev) =>
+        prev.map((p) => (p.userId === userId ? { ...p, video: enabled } : p))
+      );
+    });
+
     socket.on("user-disconnected", (remoteId) => {
-      console.log("User disconnected:", remoteId);
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = null;
       }
+      setParticipants((prev) => prev.filter((p) => p.userId !== remoteId));
     });
 
     return () => {
-      console.log("Cleaning up video call");
       if (peerInstance && !peerInstance.destroyed) {
         peerInstance.destroy();
       }
@@ -147,6 +190,9 @@ export function useVideoCall(roomId: string, userId: string) {
       leaveVideoRoom(roomId, stringUserId);
       socket.off("user-connected");
       socket.off("user-disconnected");
+      socket.off("video-room-participants");
+      socket.off("audio-toggle");
+      socket.off("video-toggle");
     };
   }, [roomId, stringUserId]);
 
@@ -158,5 +204,6 @@ export function useVideoCall(roomId: string, userId: string) {
     endCall,
     isAudioMuted,
     isVideoOff,
+    participants, // ✅ newly added
   };
 }

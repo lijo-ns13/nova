@@ -28,7 +28,10 @@ export const initSocketServer = (server: Server) => {
 
   ioInstance = io; // Store the instance
 
-  const videoRooms = new Map<string, Set<string>>();
+  const videoRooms = new Map<
+    string, // roomId
+    Map<string, { video: boolean; audio: boolean }>
+  >();
 
   io.on("connection", (socket) => {
     console.log("Socket connected:", socket.id);
@@ -97,23 +100,31 @@ export const initSocketServer = (server: Server) => {
     socket.on("join-video-room", (roomId: string, userId: string) => {
       socket.join(roomId);
 
+      // If room doesn't exist, initialize it
       if (!videoRooms.has(roomId)) {
-        videoRooms.set(roomId, new Set());
+        videoRooms.set(roomId, new Map());
       }
 
       const room = videoRooms.get(roomId)!;
-      room.add(userId);
 
+      // Set initial audio/video state as enabled by default
+      room.set(userId, { video: true, audio: true });
+
+      // Notify others in the room that this user has connected
       io.to(roomId).emit("user-connected", userId);
-      const participants = Array.from(room).filter((id) => id !== userId);
+
+      // Send current participants (including their media states) to the newly joined user
+      const participants = Array.from(room.entries())
+        .filter(([id]) => id !== userId)
+        .map(([id, state]) => ({ userId: id, ...state }));
+
       socket.emit("video-room-participants", participants);
     });
-
     socket.on("leave-video-room", (roomId: string, userId: string) => {
       socket.leave(roomId);
 
-      if (videoRooms.has(roomId)) {
-        const room = videoRooms.get(roomId)!;
+      const room = videoRooms.get(roomId);
+      if (room) {
         room.delete(userId);
 
         if (room.size === 0) {
@@ -152,14 +163,22 @@ export const initSocketServer = (server: Server) => {
 
     // Call toggles
     // Ensure these handlers are properly forwarding the events
-    socket.on("video-toggle", ({ roomId, userId, enabled }) => {
-      console.log(`Video ${enabled ? "enabled" : "disabled"} by ${userId}`);
-      socket.to(roomId).emit("video-toggle", { userId, enabled });
-    });
-
     socket.on("audio-toggle", ({ roomId, userId, enabled }) => {
       console.log(`Audio ${enabled ? "unmuted" : "muted"} by ${userId}`);
+      const room = videoRooms.get(roomId);
+      if (room?.has(userId)) {
+        room.get(userId)!.audio = enabled;
+      }
       socket.to(roomId).emit("audio-toggle", { userId, enabled });
+    });
+
+    socket.on("video-toggle", ({ roomId, userId, enabled }) => {
+      console.log(`Video ${enabled ? "enabled" : "disabled"} by ${userId}`);
+      const room = videoRooms.get(roomId);
+      if (room?.has(userId)) {
+        room.get(userId)!.video = enabled;
+      }
+      socket.to(roomId).emit("video-toggle", { userId, enabled });
     });
 
     socket.on("end-call", ({ roomId, userId }) => {
