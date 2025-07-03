@@ -11,4 +11,5 @@ export interface IMediaService {
   getMediaUrl(s3Key: string): Promise<string>;
   deleteMedia(mediaIds: string[]): Promise<void>;
   getMediaById(mediaId: string): Promise<IMedia | null>;
+  getMediaDataByS3KEY(s3Key: string): Promise<IMedia | null>;
 }

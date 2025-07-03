@@ -28,6 +28,7 @@ export const TYPES = {
   MediaRepository: Symbol.for("MediaRepository"),
   skillModal: Symbol.for("skillModal"),
   postModal: Symbol.for("postModal"),
+  mediaModal: Symbol.for("mediaModal"),
   // services**************************************
   // user
   UserAuthService: Symbol.for("UserAuthService"),
@@ -145,4 +146,5 @@ export const TYPES = {
   // cluadinary
   CloudinaryService: Symbol.for("CloudinaryService"),
   CloudinaryController: Symbol.for("CloudinaryController"),
+  // media
 };

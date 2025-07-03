@@ -4,7 +4,7 @@ import { TYPES } from "../di/types";
 import { ISkillService } from "../interfaces/services/ISkillService";
 import { ISkill } from "../models/skill.modal";
 import { IUserRepository } from "../interfaces/repositories/IUserRepository";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import userModal from "../models/user.modal";
 
 @injectable()
@@ -67,5 +67,47 @@ export class SkillService implements ISkillService {
       _id: skill._id,
       title: skill.title,
     }));
+  }
+  async getOrCreateSkills(
+    skillTitles: string[],
+    createdById: string,
+    createdBy: "user" | "company" | "admin"
+  ): Promise<Types.ObjectId[]> {
+    const skillIds: Types.ObjectId[] = [];
+
+    for (const title of skillTitles) {
+      let skill = await this._skillRepository.findOne({ title });
+
+      if (!skill) {
+        skill = await this._skillRepository.create({
+          title,
+          createdById: new mongoose.Types.ObjectId(createdById),
+          createdBy,
+        });
+      }
+
+      skillIds.push(skill._id);
+    }
+
+    return skillIds;
+  }
+
+  // ✅ New method
+  async findOrCreateSkillByTitle(
+    title: string,
+    createdById: string,
+    createdBy: "user" | "company" | "admin"
+  ): Promise<ISkill> {
+    let skill = await this._skillRepository.findOne({ title });
+
+    if (!skill) {
+      skill = await this._skillRepository.create({
+        title,
+        createdById: new mongoose.Types.ObjectId(createdById),
+        createdBy,
+      });
+    }
+
+    return skill;
   }
 }

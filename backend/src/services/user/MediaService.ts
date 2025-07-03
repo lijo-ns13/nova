@@ -1,4 +1,4 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import {
   S3Client,
   PutObjectCommand,
@@ -10,6 +10,8 @@ import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import mediaModal, { IMedia } from "../../models/media.modal";
 import { v4 as uuidv4 } from "uuid";
 import { Types } from "mongoose";
+import { TYPES } from "../../di/types";
+import { IMediaRepository } from "../../interfaces/repositories/IMediaRepository";
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION!,
@@ -21,6 +23,9 @@ const s3 = new S3Client({
 
 @injectable()
 export class MediaService implements IMediaService {
+  constructor(
+    @inject(TYPES.MediaRepository) private _mediaRepo: IMediaRepository
+  ) {}
   private readonly MAX_FILE_SIZE = 1024 * 1024 * 100; // 100MB
   private readonly ALLOWED_MIME_TYPES = [
     "image/jpeg", // JPEG image
@@ -75,8 +80,9 @@ export class MediaService implements IMediaService {
           return mediaDoc._id.toString();
         })
       );
-    } catch (error: any) {
-      throw new Error(`Media upload failed:${error.message} `);
+    } catch (error) {
+      const err = error as Error;
+      throw new Error(`Media upload failed:${err.message} `);
     }
   }
 
@@ -147,6 +153,9 @@ export class MediaService implements IMediaService {
   }
   // updated any issue remove this
   async getMediaById(mediaId: string): Promise<IMedia | null> {
-    return mediaModal.findById(mediaId);
+    return this._mediaRepo.findById(mediaId);
+  }
+  async getMediaDataByS3KEY(s3Key: string): Promise<IMedia | null> {
+    return this._mediaRepo.findOne({ s3Key: s3Key });
   }
 }

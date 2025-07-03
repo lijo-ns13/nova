@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { ISkill } from "../../models/skill.modal";
 
 export interface ISkillService {
@@ -30,4 +31,14 @@ export interface ISkillService {
    */
   deleteSkillFromUser(userId: string, skillId: string): Promise<boolean>;
   getUserSkills(userId: string): Promise<Pick<ISkill, "_id" | "title">[]>;
+  getOrCreateSkills(
+    skillTitles: string[],
+    createdById: string,
+    createdBy: "user" | "company" | "admin"
+  ): Promise<Types.ObjectId[]>;
+  findOrCreateSkillByTitle(
+    title: string,
+    createdById: string,
+    createdBy: "user" | "company" | "admin"
+  ): Promise<ISkill>;
 }

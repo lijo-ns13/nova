@@ -1,6 +1,7 @@
 // components/SecureImage.tsx
 import React, { useEffect, useState } from "react";
 import userAxios from "../utils/userAxios";
+import { cloudinaryService } from "../services/cloudinaryService";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const DEFAULT_IMAGE_URL = "../assets/default.png"; // Path to your default image
@@ -34,10 +35,8 @@ export const SecureCloudinaryImage: React.FC<SecureImageProps> = ({
 
     const fetchImage = async () => {
       try {
-        const res = await userAxios.get(
-          `${API_BASE_URL}/cloudinary/media/${publicId}`
-        );
-        setImageUrl(res.data.url || DEFAULT_IMAGE_URL);
+        const { url } = await cloudinaryService.getMediaUrl(publicId);
+        setImageUrl(url || DEFAULT_IMAGE_URL);
       } catch (error) {
         console.error("Failed to load secure image", error);
         setImageUrl(DEFAULT_IMAGE_URL);

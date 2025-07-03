@@ -13,6 +13,7 @@ import {
 } from "../../core/dtos/company/job.validation.dto";
 import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
 import { ICompanyJobController } from "../../interfaces/controllers/ICompanyJobController";
+import { ISkillService } from "../../interfaces/services/ISkillService";
 interface Userr {
   id: string;
   email: string;
@@ -20,7 +21,8 @@ interface Userr {
 }
 export class CompanyJobController implements ICompanyJobController {
   constructor(
-    @inject(TYPES.CompanyJobService) private jobService: ICompanyJobService
+    @inject(TYPES.CompanyJobService) private jobService: ICompanyJobService,
+    @inject(TYPES.SkillService) private _skillService: ISkillService
   ) {}
   createJob: RequestHandler = async (req: Request, res: Response) => {
     try {
@@ -33,15 +35,24 @@ export class CompanyJobController implements ICompanyJobController {
       }
       const skillsId = [];
       const skills = req.body.skillsRequired;
+
+      // for (const skill of skills) {
+      //   const skillIn = await skillModal.findOne({ title: skill });
+      //   if (!skillIn) {
+      //     const newSkill = new skillModal({ title: skill });
+      //     await newSkill.save();
+      //     skillsId.push(newSkill._id);
+      //   } else {
+      //     skillsId.push(skillIn._id);
+      //   }
+      // }
       for (const skill of skills) {
-        const skillIn = await skillModal.findOne({ title: skill });
-        if (!skillIn) {
-          const newSkill = new skillModal({ title: skill });
-          await newSkill.save();
-          skillsId.push(newSkill._id);
-        } else {
-          skillsId.push(skillIn._id);
-        }
+        const skillIn = await this._skillService.findOrCreateSkillByTitle(
+          skill,
+          companyId,
+          "company"
+        );
+        skillsId.push(skillIn._id);
       }
       console.log("req.boyd", req.body);
       const jobData = {
@@ -98,14 +109,12 @@ export class CompanyJobController implements ICompanyJobController {
       const skillsId: string[] = [];
       const skills = req.body.skillsRequired;
       for (const skill of skills) {
-        const skillIn = await skillModal.findOne({ title: skill });
-        if (!skillIn) {
-          const newSkill = new skillModal({ title: skill });
-          await newSkill.save();
-          skillsId.push(newSkill._id.toString());
-        } else {
-          skillsId.push(skillIn._id.toString());
-        }
+        const skillIn = await this._skillService.findOrCreateSkillByTitle(
+          skill,
+          companyId,
+          "company"
+        );
+        skillsId.push(skillIn._id.toString());
       }
 
       const jobData = {

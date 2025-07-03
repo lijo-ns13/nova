@@ -180,6 +180,9 @@ import {
   ICloudinaryController,
 } from "../controllers/CloudinaryController";
 import skillModal, { ISkill } from "../models/skill.modal";
+import { IMediaController } from "../interfaces/controllers/IMediaController";
+import { MediaController } from "../controllers/MediaController";
+import mediaModal, { IMedia } from "../models/media.modal";
 // import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
@@ -244,7 +247,7 @@ container
 container.bind<Model<ILike>>(TYPES.likeModal).toConstantValue(likeModal);
 container.bind<ILikeRepository>(TYPES.LikeRepository).to(LikeRepository);
 container.bind<IMediaRepository>(TYPES.MediaRepository).to(MediaRepository);
-
+container.bind<Model<IMedia>>(TYPES.mediaModal).toConstantValue(mediaModal);
 // admin
 
 container.bind<IAdminRepository>(TYPES.AdminRepository).to(AdminRepository);
@@ -460,4 +463,7 @@ container
 container
   .bind<ICloudinaryController>(TYPES.CloudinaryController)
   .to(CloudinaryController);
+
+// media
+container.bind<IMediaController>(TYPES.MediaController).to(MediaController);
 export default container;

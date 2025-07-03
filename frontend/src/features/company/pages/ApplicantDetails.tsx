@@ -12,6 +12,7 @@ import StatusManager from "../components/applicant/StatusManager";
 import ApplicationTimeline from "../components/applicant/ApplicationTimeline";
 import ScheduleInterviewModal from "../components/interview/ScheduleInterviewModal";
 import RescheduleInterviewModal from "../components/interview/RescheduleInterviewModal";
+import SecureDocumentViewer from "../../../components/SecureDocumentViewer";
 function ApplicantDetails() {
   const [loading, setLoading] = useState<boolean>(true);
   const [applicant, setApplicant] = useState<Applicant | null>(null);
@@ -148,7 +149,7 @@ function ApplicantDetails() {
                     )}
 
                     <div className="pt-4">
-                      <a
+                      {/* <a
                         href={applicant.resumeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -156,7 +157,8 @@ function ApplicantDetails() {
                       >
                         <FileText size={16} className="mr-2" />
                         View Resume
-                      </a>
+                      </a> */}
+                      <SecureDocumentViewer mediaId={applicant.resumeMediaId} />
                     </div>
                   </div>
                 </div>
