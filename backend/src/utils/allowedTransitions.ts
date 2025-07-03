@@ -15,12 +15,28 @@ export const allowedTransitions: Record<
     ApplicationStatus.WITHDRAWN,
   ],
   [ApplicationStatus.INTERVIEW_SCHEDULED]: [
-    ApplicationStatus.INTERVIEW_CANCELLED,
     ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER,
     ApplicationStatus.INTERVIEW_REJECTED_BY_USER,
+    ApplicationStatus.INTERVIEW_RESCHEDULE_PROPOSED,
+    ApplicationStatus.INTERVIEW_CANCELLED,
   ],
   [ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER]: [
+    ApplicationStatus.INTERVIEW_RESCHEDULE_PROPOSED,
     ApplicationStatus.INTERVIEW_COMPLETED,
+    ApplicationStatus.INTERVIEW_CANCELLED,
+  ],
+  [ApplicationStatus.INTERVIEW_RESCHEDULE_PROPOSED]: [
+    ApplicationStatus.INTERVIEW_RESCHEDULE_ACCEPTED,
+    ApplicationStatus.INTERVIEW_RESCHEDULE_REJECTED,
+  ],
+  [ApplicationStatus.INTERVIEW_RESCHEDULE_ACCEPTED]: [
+    ApplicationStatus.INTERVIEW_COMPLETED,
+    ApplicationStatus.INTERVIEW_CANCELLED,
+  ],
+  [ApplicationStatus.INTERVIEW_RESCHEDULE_REJECTED]: [
+    // When reschedule is rejected, it could go back to scheduled or cancelled
+    // ApplicationStatus.INTERVIEW_SCHEDULED,
+    ApplicationStatus.INTERVIEW_CANCELLED,
   ],
   [ApplicationStatus.INTERVIEW_COMPLETED]: [
     ApplicationStatus.INTERVIEW_PASSED,

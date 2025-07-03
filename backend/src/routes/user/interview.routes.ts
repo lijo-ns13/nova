@@ -18,5 +18,12 @@ router.patch(
   (req, res, next) =>
     interviewController.updateInterviewStatus(req, res).catch(next)
 );
-
+router.put(
+  "/application/:applicationId/reschedule-response",
+  interviewController.updateInterviewStatusRescheduled.bind(interviewController)
+);
+router.get(
+  "/application/:applicationId/reschedule-slots",
+  interviewController.getRescheduleSlots.bind(interviewController)
+);
 export default router;

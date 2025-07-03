@@ -15,7 +15,12 @@ export enum ApplicationStatus {
 
   INTERVIEW_ACCEPTED_BY_USER = "interview_accepted_by_user",
   INTERVIEW_REJECTED_BY_USER = "interview_rejected_by_user",
-
+  // new
+  // Rescheduling statuses
+  INTERVIEW_RESCHEDULE_PROPOSED = "interview_reschedule_proposed",
+  INTERVIEW_RESCHEDULE_ACCEPTED = "interview_reschedule_accepted",
+  INTERVIEW_RESCHEDULE_REJECTED = "interview_reschedule_rejected",
+  // ^
   INTERVIEW_COMPLETED = "interview_completed",
   INTERVIEW_PASSED = "interview_passed",
   INTERVIEW_FAILED = "interview_failed",
@@ -36,6 +41,7 @@ export interface IStatusHistory {
 }
 
 export interface IApplication extends Document {
+  _id: Types.ObjectId;
   job: Types.ObjectId | IJob | string;
   user: Types.ObjectId | IUser | string;
   appliedAt: Date;

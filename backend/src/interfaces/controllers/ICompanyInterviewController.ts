@@ -12,4 +12,5 @@ export interface ICompanyInterviewController {
     res: Response,
     next?: NextFunction
   ): Promise<void>;
+  proposeReschedule(req: Request, res: Response): Promise<void>;
 }

@@ -6,4 +6,6 @@ export interface IUserInterviewController {
     res: Response,
     next?: NextFunction
   ): Promise<void>;
+  updateInterviewStatusRescheduled(req: Request, res: Response): Promise<void>;
+  getRescheduleSlots(req: Request, res: Response): Promise<void>;
 }

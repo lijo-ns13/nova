@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import { Interview, IInterview } from "../../models/interview.modal";
 import { BaseRepository } from "../../repositories/mongo/BaseRepository";
 import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRepository";
-import { Model } from "mongoose";
+import { FilterQuery, Model, Types } from "mongoose";
 import { TYPES } from "../../di/types";
 
 @injectable()
@@ -57,5 +57,35 @@ export class InterviewRepository
       })
       .sort({ scheduledAt: 1 })
       .exec();
+  }
+  async findConflictingInterviewSlotIncludingProposals(
+    companyId: string,
+    slot: Date,
+    excludeInterviewId?: string
+  ): Promise<IInterview | null> {
+    const bufferMs = 60 * 60 * 1000;
+
+    const slotStart = new Date(slot.getTime() - bufferMs);
+    const slotEnd = new Date(slot.getTime() + bufferMs);
+
+    const filter: FilterQuery<IInterview> = {
+      companyId: new Types.ObjectId(companyId),
+      status: { $in: ["pending", "accepted", "reschedule_proposed"] },
+      ...(excludeInterviewId && {
+        _id: { $ne: new Types.ObjectId(excludeInterviewId) },
+      }),
+      $or: [
+        {
+          scheduledAt: { $lt: slotEnd, $gt: slotStart },
+        },
+        {
+          rescheduleProposedSlots: {
+            $elemMatch: { $lt: slotEnd, $gt: slotStart },
+          },
+        },
+      ],
+    };
+
+    return Interview.findOne(filter).exec();
   }
 }

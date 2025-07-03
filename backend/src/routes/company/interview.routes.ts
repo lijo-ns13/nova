@@ -20,4 +20,9 @@ router.post("/interview", (req, res, next) =>
 router.get("/interviews/upcoming", (req, res, next) =>
   interviewController.getUpcomingAcceptedInterviews(req, res).catch(next)
 );
+
+router.post(
+  "/interviews/:applicationId/reschedule",
+  interviewController.proposeReschedule.bind(interviewController)
+);
 export default router;

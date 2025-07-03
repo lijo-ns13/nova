@@ -184,4 +184,87 @@ export class CompanyInterviewService implements ICompanyInterviewService {
 
     return response;
   }
+  // updated
+  async proposeReschedule(
+    companyId: string,
+    applicationId: string,
+    reason: string,
+    timeSlots: string[]
+  ): Promise<IInterview> {
+    // Find existing interview
+    const interview = await this._interviewRepo.findOne({
+      companyId,
+      applicationId,
+    });
+
+    if (!interview) {
+      throw new Error("Interview not found");
+    }
+
+    // Validate application status
+    const application = await this._applicationRepo.findById(applicationId);
+    if (!application) {
+      throw new Error("Application not found");
+    }
+
+    if (
+      application.status !== ApplicationStatus.INTERVIEW_SCHEDULED &&
+      application.status !== ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER
+    ) {
+      throw new Error("Cannot reschedule interview in current status");
+    }
+
+    // Convert string dates to Date objects
+    const slotDates = timeSlots.map((slot) => new Date(slot));
+
+    // Check for conflicts with company's existing interviews
+    for (const slot of slotDates) {
+      const conflict =
+        await this._interviewRepo.findConflictingInterviewSlotIncludingProposals(
+          companyId,
+          slot,
+          interview._id.toString()
+        );
+
+      if (conflict) {
+        throw new Error(
+          `Conflict detected: Another interview is scheduled or proposed around ${slot.toISOString()}`
+        );
+      }
+    }
+
+    // Update interview with reschedule proposal
+    const updatedInterview = await this._interviewRepo.update(
+      interview._id.toString(),
+      {
+        status: "reschedule_proposed",
+        rescheduleProposedSlots: slotDates,
+        rescheduleReason: reason,
+      }
+    );
+    if (!updatedInterview) {
+      throw new Error("falied to updte interview");
+    }
+    // Update application status
+    await this._applicationRepo.updateStatus(
+      applicationId,
+      ApplicationStatus.INTERVIEW_RESCHEDULE_PROPOSED
+    );
+
+    // Notify user
+    const job = await this._jobRepo.findById(
+      typeof application.job === "string"
+        ? application.job
+        : application.job._id.toString()
+    );
+
+    await this.notificationService.sendNotification(
+      application.user.toString(),
+      `The company has proposed new time slots for your interview for "${job?.title}". Please respond.`,
+      NotificationType.JOB,
+      companyId
+    );
+
+    return updatedInterview;
+  }
 }

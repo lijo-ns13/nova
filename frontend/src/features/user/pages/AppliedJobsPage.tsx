@@ -34,6 +34,7 @@ interface AppliedJob {
 }
 const AppliedJobsPage: React.FC = () => {
   const navigate = useNavigate();
+  const [refreshTrigger, setRefreshTrigger] = useState(false);
   const [applications, setApplications] = useState<AppliedJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -49,7 +50,9 @@ const AppliedJobsPage: React.FC = () => {
   useEffect(() => {
     fetchAppliedJobs();
   }, []);
-
+  useEffect(() => {
+    fetchAppliedJobs();
+  }, [refreshTrigger]);
   const fetchAppliedJobs = async () => {
     try {
       setLoading(true);
@@ -235,6 +238,7 @@ const AppliedJobsPage: React.FC = () => {
               onAcceptInterview={(id) => openConfirmationModal(id, "accept")}
               onRejectInterview={(id) => openConfirmationModal(id, "reject")}
               onClick={() => navigateToApplicationDetail(application._id)}
+              onUpdateSuccess={() => setRefreshTrigger((prev) => !prev)}
             />
           ))}
         </div>

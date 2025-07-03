@@ -9,6 +9,7 @@ interface StatusManagerProps {
   applicationId: string;
   onStatusUpdate: () => void;
   onScheduleInterview: () => void;
+  onRescheduleInterview: () => void;
 }
 
 const StatusManager: React.FC<StatusManagerProps> = ({
@@ -16,6 +17,7 @@ const StatusManager: React.FC<StatusManagerProps> = ({
   applicationId,
   onStatusUpdate,
   onScheduleInterview,
+  onRescheduleInterview,
 }) => {
   const [newStatus, setNewStatus] = useState<ApplicationStatus | "">("");
   const [reason, setReason] = useState("");
@@ -32,10 +34,12 @@ const StatusManager: React.FC<StatusManagerProps> = ({
 
   // Statuses that cannot be set directly through the UI
   const disallowedStatuses: ApplicationStatus[] = [
-    ApplicationStatus.INTERVIEW_SCHEDULED,
-    ApplicationStatus.INTERVIEW_RESCHEDULED,
-    ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER,
-    ApplicationStatus.INTERVIEW_REJECTED_BY_USER,
+    ApplicationStatus.INTERVIEW_SCHEDULED, // Set via schedule interview
+    ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER, // Set by candidate
+    ApplicationStatus.INTERVIEW_REJECTED_BY_USER, // Set by candidate
+    ApplicationStatus.INTERVIEW_RESCHEDULE_ACCEPTED, // Set by candidate
+    ApplicationStatus.INTERVIEW_RESCHEDULE_REJECTED, // Set by candidate
+    ApplicationStatus.HIRED, // Set via separate process
   ];
 
   // Define allowed transitions for each status
@@ -51,27 +55,43 @@ const StatusManager: React.FC<StatusManagerProps> = ({
     ],
     [ApplicationStatus.INTERVIEW_SCHEDULED]: [
       ApplicationStatus.INTERVIEW_CANCELLED,
+      ApplicationStatus.INTERVIEW_RESCHEDULED,
     ],
-    [ApplicationStatus.INTERVIEW_RESCHEDULED]: [],
+    [ApplicationStatus.INTERVIEW_RESCHEDULED]: [
+      ApplicationStatus.INTERVIEW_CANCELLED,
+    ],
     [ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER]: [
       ApplicationStatus.INTERVIEW_COMPLETED,
+      ApplicationStatus.INTERVIEW_RESCHEDULED,
     ],
     [ApplicationStatus.INTERVIEW_COMPLETED]: [
       ApplicationStatus.INTERVIEW_PASSED,
       ApplicationStatus.INTERVIEW_FAILED,
     ],
-    [ApplicationStatus.INTERVIEW_PASSED]: [ApplicationStatus.OFFERED],
+    [ApplicationStatus.INTERVIEW_PASSED]: [
+      ApplicationStatus.OFFERED,
+      ApplicationStatus.REJECTED, // In case they change their mind
+    ],
     [ApplicationStatus.OFFERED]: [
       ApplicationStatus.WITHDRAWN,
-      ApplicationStatus.HIRED,
+      ApplicationStatus.HIRED, // Hired is typically a separate process
     ],
-    [ApplicationStatus.REJECTED]: [],
-    [ApplicationStatus.WITHDRAWN]: [],
-    [ApplicationStatus.HIRED]: [],
-    [ApplicationStatus.INTERVIEW_REJECTED_BY_USER]: [],
-    [ApplicationStatus.INTERVIEW_CANCELLED]: [],
-    [ApplicationStatus.INTERVIEW_FAILED]: [],
-    [ApplicationStatus.SELECTED]: [],
+    [ApplicationStatus.REJECTED]: [], // Final state
+    [ApplicationStatus.WITHDRAWN]: [], // Final state
+    [ApplicationStatus.HIRED]: [], // Final state
+    [ApplicationStatus.INTERVIEW_REJECTED_BY_USER]: [
+      ApplicationStatus.REJECTED,
+      ApplicationStatus.INTERVIEW_RESCHEDULED,
+    ],
+    [ApplicationStatus.INTERVIEW_CANCELLED]: [
+      ApplicationStatus.REJECTED,
+      ApplicationStatus.SHORTLISTED, // Maybe want to reconsider
+    ],
+    [ApplicationStatus.INTERVIEW_FAILED]: [], // Final state
+    [ApplicationStatus.SELECTED]: [], // Final state
+    [ApplicationStatus.INTERVIEW_RESCHEDULE_PROPOSED]: [], // Handled by candidate
+    [ApplicationStatus.INTERVIEW_RESCHEDULE_ACCEPTED]: [], // Handled by candidate
+    [ApplicationStatus.INTERVIEW_RESCHEDULE_REJECTED]: [], // Handled by candidate
   };
 
   // Calculate available next statuses
@@ -118,7 +138,10 @@ const StatusManager: React.FC<StatusManagerProps> = ({
   const showScheduledInfo =
     applicant.status === ApplicationStatus.INTERVIEW_SCHEDULED ||
     applicant.status === ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER;
-
+  const showRescheduleButton = [
+    ApplicationStatus.INTERVIEW_SCHEDULED,
+    ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER,
+  ].includes(applicant.status as ApplicationStatus);
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Current Status Display */}
@@ -269,6 +292,29 @@ const StatusManager: React.FC<StatusManagerProps> = ({
           <Calendar size={18} className="mr-2" />
           Schedule Interview
         </button>
+      )}
+      {showScheduledInfo && applicant.scheduledAt && (
+        <div className="p-4 bg-blue-50 rounded-lg border border-blue-100 flex items-start">
+          <Calendar
+            size={20}
+            className="text-blue-600 mt-0.5 mr-3 flex-shrink-0"
+          />
+          <div>
+            <div className="font-medium text-blue-800">Interview Scheduled</div>
+            <div className="text-blue-700 mt-1">
+              {new Date(applicant.scheduledAt).toLocaleString()}
+            </div>
+            {showRescheduleButton && (
+              <button
+                onClick={onRescheduleInterview}
+                className="mt-2 text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center"
+              >
+                <Clock size={16} className="mr-1" />
+                Reschedule Interview
+              </button>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

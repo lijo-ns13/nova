@@ -14,4 +14,10 @@ export interface ICompanyInterviewService {
   getUpcomingAcceptedInterviews(
     companyId: string
   ): Promise<InterviewResponse[]>;
+  proposeReschedule(
+    companyId: string,
+    applicationId: string,
+    reason: string,
+    timeSlots: string[]
+  ): Promise<IInterview>;
 }

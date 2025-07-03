@@ -11,13 +11,13 @@ import ApplicantHeader from "../components/applicant/ApplicantHeader";
 import StatusManager from "../components/applicant/StatusManager";
 import ApplicationTimeline from "../components/applicant/ApplicationTimeline";
 import ScheduleInterviewModal from "../components/interview/ScheduleInterviewModal";
-
+import RescheduleInterviewModal from "../components/interview/RescheduleInterviewModal";
 function ApplicantDetails() {
   const [loading, setLoading] = useState<boolean>(true);
   const [applicant, setApplicant] = useState<Applicant | null>(null);
   const [error, setError] = useState<string>("");
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
-
+  const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
   const { applicationId } = useParams();
 
   const fetchApplicantData = async () => {
@@ -38,7 +38,14 @@ function ApplicantDetails() {
       setLoading(false);
     }
   };
-
+  const handleInterviewRescheduled = () => {
+    toast({
+      title: "Reschedule Request Sent",
+      description: "Your reschedule request has been sent to the candidate",
+      variant: "success",
+    });
+    fetchApplicantData();
+  };
   const handleStatusUpdateSuccess = () => {
     toast({
       title: "Status Updated",
@@ -172,6 +179,9 @@ function ApplicantDetails() {
                       applicationId={applicationId}
                       onStatusUpdate={handleStatusUpdateSuccess}
                       onScheduleInterview={() => setIsInterviewModalOpen(true)}
+                      onRescheduleInterview={() =>
+                        setIsRescheduleModalOpen(true)
+                      }
                     />
                   )}
                 </div>
@@ -197,13 +207,23 @@ function ApplicantDetails() {
 
       {/* Interview Modal */}
       {applicationId && (
-        <ScheduleInterviewModal
-          isOpen={isInterviewModalOpen}
-          onClose={() => setIsInterviewModalOpen(false)}
-          applicationId={applicationId}
-          userId={applicant.user._id}
-          onInterviewScheduled={handleInterviewScheduled}
-        />
+        <>
+          <ScheduleInterviewModal
+            isOpen={isInterviewModalOpen}
+            onClose={() => setIsInterviewModalOpen(false)}
+            applicationId={applicationId}
+            userId={applicant.user._id}
+            onInterviewScheduled={handleInterviewScheduled}
+          />
+          <RescheduleInterviewModal
+            isOpen={isRescheduleModalOpen}
+            onClose={() => setIsRescheduleModalOpen(false)}
+            applicationId={applicationId}
+            userId={applicant.user._id}
+            currentInterviewTime={applicant.scheduledAt}
+            onInterviewRescheduled={handleInterviewRescheduled}
+          />
+        </>
       )}
     </div>
   );

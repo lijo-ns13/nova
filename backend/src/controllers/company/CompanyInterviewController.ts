@@ -96,4 +96,52 @@ export class CompanyInterviewController implements ICompanyInterviewController {
       });
     }
   }
+  async proposeReschedule(req: Request, res: Response): Promise<void> {
+    try {
+      const { applicationId } = req.params;
+      const { reason, timeSlots } = req.body;
+      const companyId = (req.user as Userr)?.id;
+      console.log("req.body", req.body);
+      if (!companyId) {
+        res
+          .status(400)
+          .json({ success: false, message: "Company ID not found" });
+        return;
+      }
+
+      if (!timeSlots || timeSlots.length !== 3) {
+        res.status(400).json({
+          success: false,
+          message: "Please provide exactly 3 time slots",
+        });
+        return;
+      }
+
+      const now = new Date();
+      for (const slot of timeSlots) {
+        if (new Date(slot) <= now) {
+          res.status(400).json({
+            success: false,
+            message: "Time slots must be in the future",
+          });
+          return;
+        }
+      }
+
+      const interview = await this.companyInterviewService.proposeReschedule(
+        companyId,
+        applicationId,
+        reason,
+        timeSlots
+      );
+
+      res.status(200).json({ success: true, data: interview });
+    } catch (err) {
+      console.error("Reschedule error:", err);
+      res.status(500).json({
+        success: false,
+        message: err instanceof Error ? err.message : "Unknown error",
+      });
+    }
+  }
 }

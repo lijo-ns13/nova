@@ -1,13 +1,17 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface IInterview extends Document {
+  _id: Types.ObjectId;
   companyId: mongoose.Types.ObjectId | string;
   userId: mongoose.Types.ObjectId | string;
   applicationId: mongoose.Types.ObjectId | string;
   scheduledAt: Date;
-  status: "pending" | "accepted" | "rejected";
+  status: "pending" | "accepted" | "rejected" | "reschedule_proposed";
   result: "pending" | "pass" | "fail";
   roomId: string;
+  rescheduleProposedSlots?: Date[];
+  rescheduleReason?: string;
+  rescheduleSelectedSlot?: Date;
 }
 
 const InterviewSchema = new Schema<IInterview>(
@@ -22,7 +26,7 @@ const InterviewSchema = new Schema<IInterview>(
     scheduledAt: { type: Date, required: true },
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected"],
+      enum: ["pending", "accepted", "rejected", "reschedule_proposed"],
       default: "pending",
     },
     result: {
@@ -31,6 +35,9 @@ const InterviewSchema = new Schema<IInterview>(
       default: "pending",
     },
     roomId: { type: String, required: true },
+    rescheduleProposedSlots: [{ type: Date }],
+    rescheduleReason: { type: String },
+    rescheduleSelectedSlot: { type: Date },
   },
   { timestamps: true }
 );
