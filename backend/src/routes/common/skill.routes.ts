@@ -8,7 +8,8 @@ const skillController = container.get<ISkillController>(TYPES.SkillController);
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const router = Router();
-router.use(authMiddleware.authenticateMultiple(["user", "company"]));
+
+router.use(authMiddleware.authenticate("user"));
 // GET /api/skills/user
 router.get("/user", skillController.getUserSkills.bind(skillController));
 

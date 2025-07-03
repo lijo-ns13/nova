@@ -5,6 +5,7 @@ import { ISkillService } from "../interfaces/services/ISkillService";
 import { ISkill } from "../models/skill.modal";
 import { IUserRepository } from "../interfaces/repositories/IUserRepository";
 import { Types } from "mongoose";
+import userModal from "../models/user.modal";
 
 @injectable()
 export class SkillService implements ISkillService {
@@ -53,9 +54,12 @@ export class SkillService implements ISkillService {
       { _id: userId },
       {
         path: "skills",
-        select: "title",
+        select: "_id title",
       }
     );
+
+    console.log("User from DB:", user); // Check the complete user object
+    console.log("User skills:", user?.skills); // Check what skills are returned
 
     if (!user || !user.skills) return [];
 

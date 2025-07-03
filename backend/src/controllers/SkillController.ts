@@ -6,7 +6,7 @@ import { ISkillController } from "../interfaces/controllers/ISkillController";
 import { HTTP_STATUS_CODES } from "../core/enums/httpStatusCode";
 
 interface Userr {
-  _id: string;
+  id: string;
   email: string;
   role: string;
 }
@@ -31,7 +31,7 @@ export class SkillController implements ISkillController {
   async addSkill(req: Request, res: Response): Promise<void> {
     try {
       const { title } = req.body;
-      const userId = (req.user as Userr)?._id;
+      const userId = (req.user as Userr)?.id;
 
       await this.skillService.addSkillToUser(userId, title);
       res.status(HTTP_STATUS_CODES.OK).json({ message: "Skill added" });
@@ -45,7 +45,7 @@ export class SkillController implements ISkillController {
   async removeSkill(req: Request, res: Response): Promise<void> {
     try {
       const { skillId } = req.body;
-      const userId = (req.user as Userr)?._id;
+      const userId = (req.user as Userr)?.id;
 
       await this.skillService.deleteSkillFromUser(userId, skillId);
       res.status(HTTP_STATUS_CODES.OK).json({ message: "Skill removed" });
@@ -56,11 +56,12 @@ export class SkillController implements ISkillController {
     }
   }
   async getUserSkills(req: Request, res: Response): Promise<void> {
+    console.log("💣");
     try {
-      const userId = (req.user as Userr)._id;
-
+      const userId = (req.user as Userr)?.id;
+      console.log("userId✅", userId);
       const skills = await this.skillService.getUserSkills(userId);
-
+      console.log("skills", skills);
       res.status(HTTP_STATUS_CODES.OK).json({ success: true, data: skills });
     } catch (error) {
       console.error("Error fetching user skills:", error);

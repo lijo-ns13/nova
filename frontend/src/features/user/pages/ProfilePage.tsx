@@ -46,6 +46,7 @@ function ProfilePage() {
     { id: "Projects", label: "Projects" },
     { id: "Certificates", label: "Certificates" },
     { id: "Posts", label: "Posts" },
+    { id: "Skills", label: "Skills" },
   ];
 
   return (
@@ -150,6 +151,11 @@ function ProfilePage() {
                   <UserPostsSection userId={CURRENT_USER_ID} />
                 </Suspense>
               )}
+              {activeTab === "Skills" && (
+                <Suspense fallback={<SectionLoader />}>
+                  <SkillsManager />
+                </Suspense>
+              )}
             </div>
           </div>
         </div>
@@ -211,7 +217,6 @@ function ProfilePage() {
             </div>
           </div>
         </div>
-        <SkillsManager />
       </footer>
     </div>
   );
