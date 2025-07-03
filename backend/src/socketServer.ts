@@ -29,8 +29,8 @@ export const initSocketServer = (server: Server) => {
   ioInstance = io; // Store the instance
 
   const videoRooms = new Map<
-    string, // roomId
-    Map<string, { video: boolean; audio: boolean }>
+    string,
+    Map<string, { video: boolean; audio: boolean; screenSharing?: boolean }>
   >();
 
   io.on("connection", (socket) => {
@@ -133,6 +133,19 @@ export const initSocketServer = (server: Server) => {
           io.to(roomId).emit("user-disconnected", userId);
         }
       }
+    });
+    socket.on("screen-share-toggle", ({ roomId, userId, sharing }) => {
+      console.log(
+        `Screen sharing ${sharing ? "started" : "stopped"} by ${userId}`
+      );
+
+      const room = videoRooms.get(roomId);
+      if (room?.has(userId)) {
+        room.get(userId)!.screenSharing = sharing;
+      }
+
+      // Notify others in the room
+      socket.to(roomId).emit("screen-share-toggle", { userId, sharing });
     });
 
     socket.on("webrtc-signal", ({ roomId, userId, signal }) => {

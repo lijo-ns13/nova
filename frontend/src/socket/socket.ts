@@ -13,6 +13,7 @@ interface VideoParticipant {
   userId: string;
   video: boolean;
   audio: boolean;
+  screenSharing?: boolean;
 }
 // Define types for better TypeScript support
 interface VideoCallSocketEvents {
@@ -55,6 +56,11 @@ interface VideoCallSocketEvents {
     enabled: boolean;
   }) => void;
   "end-call": (data: { roomId: string; userId: string }) => void;
+  "screen-share-toggle": (data: {
+    roomId: string;
+    userId: string;
+    sharing: boolean;
+  }) => void;
   // notificationrealted
   newNotification: (notification: any) => void;
   unreadCountUpdate: (data: { count: number }) => void;
@@ -97,5 +103,12 @@ export const leaveVideoRoom = (roomId: string, userId: string) => {
 
 export const sendSignal = (roomId: string, userId: string, signal: any) => {
   socket.emit("webrtc-signal", { roomId, userId, signal });
+};
+export const toggleScreenShare = (
+  roomId: string,
+  userId: string,
+  sharing: boolean
+) => {
+  socket.emit("screen-share-toggle", { roomId, userId, sharing });
 };
 export default socket;
