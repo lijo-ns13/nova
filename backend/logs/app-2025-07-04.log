@@ -944,3 +944,6 @@
 2025-07-04T10:24:38.328Z info: DELETE /notification/delete-all 500 - 7ms
 2025-07-04T10:26:03.585Z info: DELETE /notification/delete-all 500 - 5ms
 2025-07-04T10:27:52.249Z info: DELETE /notification/delete-all 500 - 48ms
+2025-07-04T10:29:40.718Z info: DELETE /notification/delete-all 200 - 20ms
+2025-07-04T10:29:52.075Z info: GET /notification?page=1&limit=15 200 - 15ms
+2025-07-04T10:29:53.785Z info: GET /notification?page=1&limit=15 304 - 9ms
