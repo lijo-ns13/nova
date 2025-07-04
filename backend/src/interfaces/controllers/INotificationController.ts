@@ -7,4 +7,5 @@ export interface INotificationController {
   markAllNotificationsAsRead(req: Request, res: Response): Promise<void>;
   getUnreadCount(req: Request, res: Response): Promise<void>;
   deleteNotification(req: Request, res: Response): Promise<void>;
+  deleteAllNotifications(req: Request, res: Response): Promise<void>;
 }

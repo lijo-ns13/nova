@@ -99,4 +99,7 @@ export class NotificationService implements INotificationService {
       userId
     );
   }
+  async deleteAllNotifications(userId: string): Promise<number> {
+    return this.notificationRepository.deleteAllNotifications(userId);
+  }
 }

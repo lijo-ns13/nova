@@ -79,4 +79,8 @@ export class NotificationRepository implements INotificationRepository {
     });
     return result.deletedCount > 0;
   }
+  async deleteAllNotifications(userId: string): Promise<number> {
+    const result = await Notification.deleteMany({ userId });
+    return result.deletedCount ?? 0;
+  }
 }

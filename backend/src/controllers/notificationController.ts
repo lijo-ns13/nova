@@ -178,4 +178,29 @@ export class NotificationController implements INotificationController {
       });
     }
   }
+  async deleteAllNotifications(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req.user as Userr)?.id;
+      if (!userId) {
+        res
+          .status(HTTP_STATUS_CODES.UNAUTHORIZED)
+          .json({ success: false, message: "Unauthorized" });
+        return;
+      }
+
+      const deletedCount =
+        await this.notificationService.deleteAllNotifications(userId);
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: `${deletedCount} notifications deleted`,
+      });
+    } catch (error) {
+      console.error("Error deleting all notifications:", error);
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  }
 }
