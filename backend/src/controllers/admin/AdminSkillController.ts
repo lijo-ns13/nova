@@ -6,7 +6,11 @@ import { Request, RequestHandler, Response } from "express";
 
 import { IAdminSkillController } from "../../interfaces/controllers/IAdminSkillController";
 import { IAdminSkillService } from "../../interfaces/services/IAdminSkillService";
-
+interface Userr {
+  id: string;
+  email: string;
+  role: string;
+}
 @injectable()
 export class AdminSkillController implements IAdminSkillController {
   constructor(
@@ -15,7 +19,8 @@ export class AdminSkillController implements IAdminSkillController {
   ) {}
   async create(req: Request, res: Response) {
     try {
-      const skill = await this.skillService.create(req.body.title);
+      const adminId = (req.user as Userr)?.id;
+      const skill = await this.skillService.create(req.body.title, adminId);
       res.status(HTTP_STATUS_CODES.CREATED).json(skill);
     } catch (error) {
       res

@@ -3,7 +3,7 @@
 import { ISkill } from "../../models/skill.modal";
 
 export interface IAdminSkillService {
-  create(title: string): Promise<ISkill>;
+  create(title: string, adminId: string): Promise<ISkill>;
   update(id: string, updates: Partial<ISkill>): Promise<ISkill>;
   delete(id: string): Promise<void>;
   getAll(

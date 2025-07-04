@@ -3,6 +3,7 @@ import { TYPES } from "../../di/types";
 import { ISkill } from "../../models/skill.modal";
 import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
 import { IAdminSkillService } from "../../interfaces/services/IAdminSkillService";
+import mongoose from "mongoose";
 
 @injectable()
 export class AdminSkillService implements IAdminSkillService {
@@ -10,7 +11,7 @@ export class AdminSkillService implements IAdminSkillService {
     @inject(TYPES.SkillRepository)
     private _skillRepository: ISkillRepository
   ) {}
-  async create(title: string): Promise<ISkill> {
+  async create(title: string, adminId: string): Promise<ISkill> {
     if (!title.trim()) {
       throw new Error("Skill title cannot be empty");
     }
@@ -19,7 +20,11 @@ export class AdminSkillService implements IAdminSkillService {
     if (existingSkill) {
       throw new Error("Skill already exists");
     }
-    return this._skillRepository.create(title);
+    return this._skillRepository.create({
+      title,
+      createdById: new mongoose.Types.ObjectId(adminId),
+      createdBy: "admin",
+    });
   }
 
   async update(id: string, updates: Partial<ISkill>): Promise<ISkill> {
@@ -41,7 +46,7 @@ export class AdminSkillService implements IAdminSkillService {
   }
 
   async delete(id: string): Promise<void> {
-    const exists = await this._skillRepository.getById(id);
+    const exists = await this._skillRepository.findById(id);
     if (!exists) {
       throw new Error("Skill not found");
     }
@@ -79,7 +84,7 @@ export class AdminSkillService implements IAdminSkillService {
     };
   }
   async getById(id: string): Promise<ISkill> {
-    const skill = await this._skillRepository.getById(id);
+    const skill = await this._skillRepository.findById(id);
     if (!skill) {
       throw new Error("Skill not found");
     }
