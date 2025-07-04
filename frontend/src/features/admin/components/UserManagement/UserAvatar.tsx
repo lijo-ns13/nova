@@ -1,4 +1,5 @@
 import React from "react";
+import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
 
 interface UserAvatarProps {
   name: string;
@@ -51,9 +52,13 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
 
   if (imageSrc) {
     return (
-      <img
-        src={imageSrc}
-        alt={name}
+      // <img
+      //   src={imageSrc}
+      //   alt={name}
+      //   className={`${sizeClasses[size]} rounded-full object-cover`}
+      // />
+      <SecureCloudinaryImage
+        publicId={imageSrc}
         className={`${sizeClasses[size]} rounded-full object-cover`}
       />
     );

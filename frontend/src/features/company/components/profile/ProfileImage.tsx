@@ -15,6 +15,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import { Crop, X } from "lucide-react";
 import { useAppDispatch } from "../../../../hooks/useAppDispatch";
 import toast from "react-hot-toast";
+import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
 
 function ProfileImage() {
   const { id, profilePicture: userProfilePicture } = useAppSelector(
@@ -125,13 +126,14 @@ function ProfileImage() {
           if (!blob) return;
 
           const url = await uploadToCloudinary(blob);
+          console.log("userskslfjslkfj", url);
           const res = await updateProfileImage(url);
-
+          console.log("blaaaa", res);
           if (res) {
             console.log("res", res);
             dispatch(
               updateSlice({
-                profilePicture: res.data.profilePicture,
+                profilePicture: url,
               })
             );
           }
@@ -173,9 +175,14 @@ function ProfileImage() {
       {/* Profile Image with click to open modal */}
       <div className="flex-shrink-0">
         <div className="relative">
-          <img
+          {/* <img
             src={profilePicture || "/api/placeholder/150/150"}
             alt="Profile"
+            className="w-32 h-32 rounded-full object-cover border-4 border-gray-100 cursor-pointer hover:border-gray-200 transition"
+            onClick={() => setIsImageModalOpen(true)}
+          /> */}
+          <SecureCloudinaryImage
+            publicId={profilePicture}
             className="w-32 h-32 rounded-full object-cover border-4 border-gray-100 cursor-pointer hover:border-gray-200 transition"
             onClick={() => setIsImageModalOpen(true)}
           />
@@ -267,9 +274,13 @@ function ProfileImage() {
           ) : (
             <>
               <div className="flex justify-center">
-                <img
+                {/* <img
                   src={profilePicture || "/api/placeholder/150/150"}
                   alt="Profile"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
+                />  */}
+                <SecureCloudinaryImage
+                  publicId={profilePicture}
                   className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
                 />
               </div>

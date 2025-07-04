@@ -6,18 +6,10 @@ import messageModal from "../models/message.modal";
 import notificationRouter from "./notification.routes";
 import cloudinaryRouter from "./common/cloudinary.routes";
 import mediaRouter from "./common/media.routes";
-import container from "../di/container";
-import { pipeline } from "stream";
-import { promisify } from "util";
-import fetch from "node-fetch"; // or global fetch if on Node 18+
-const streamPipeline = promisify(pipeline);
-import { IAuthMiddleware } from "../interfaces/middlewares/IAuthMiddleware";
-import { TYPES } from "../di/types";
+
 import userModal from "../models/user.modal";
 import mongoose from "mongoose";
-import axios from "axios";
 const router = Router();
-const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 router.use("/media", mediaRouter);
 router.use("/skill", skillRouter);

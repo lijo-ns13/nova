@@ -11,12 +11,13 @@ const router = Router();
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const mediaController = container.get<IMediaController>(TYPES.MediaController);
+router.use(authMiddleware.authenticateMultiple(["user", "company", "admin"]));
 
-router.use(authMiddleware.authenticateMultiple(["user", "admin", "company"]));
 router.get(
   "/view/:s3key(*)",
   mediaController.getMediaByS3.bind(mediaController)
 );
+
 router.post("/view", mediaController.streamMediaById.bind(mediaController));
 
 export default router;
