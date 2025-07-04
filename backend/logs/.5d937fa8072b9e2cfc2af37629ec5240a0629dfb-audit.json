@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\Lijo\\Desktop\\main\\nova\\backend\\logs\\.5d937fa8072b9e2cfc2af37629ec5240a0629dfb-audit.json",
+    "files": [
+        {
+            "date": 1751605315501,
+            "name": "C:\\Users\\Lijo\\Desktop\\main\\nova\\backend\\logs\\app-2025-07-04.log",
+            "hash": "a91e06866dbc7a94023576593a50807c4d457ee23a14adfeea57862365519bca"
+        }
+    ],
+    "hashType": "sha256"
+}

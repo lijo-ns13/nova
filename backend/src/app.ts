@@ -24,6 +24,8 @@ import { TYPES } from "./di/types";
 import { HTTP_STATUS_CODES } from "./core/enums/httpStatusCode";
 import adminAnalyticsRoutes from "./routes/admindash.routes";
 import "./cron/userCronJob";
+import { requestLogger } from "./middlewares/requestLogger";
+import logger from "./utils/logger";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const app: Application = express();
@@ -43,6 +45,7 @@ app.use(
 app.use(cors(corsOptions));
 
 //middlewares
+app.use(requestLogger);
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -62,7 +65,7 @@ app.use("/", userRouter);
 app.use("/company", companyRouter);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error("Global error handler:", err);
+  logger.error(`Global error handler: ${err.stack || err}`);
   res
     .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
     .json({ message: "Internal Server Error" });
