@@ -13,11 +13,27 @@ function App() {
   const { id: userId } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    if (userId) {
-      connectSocket();
+    if (!userId) return;
+
+    // Always try to connect
+    connectSocket();
+
+    // Login once when mounted
+    socket.emit("login", userId);
+
+    // On reconnect, emit login again
+    const handleReconnect = () => {
+      console.log("Reconnected. Re-logging in...");
       socket.emit("login", userId);
-    }
+    };
+
+    socket.on("connect", handleReconnect);
+
+    return () => {
+      socket.off("connect", handleReconnect);
+    };
   }, [userId]);
+
   return (
     <BrowserRouter>
       <Routes>
