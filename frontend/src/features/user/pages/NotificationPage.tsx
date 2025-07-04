@@ -55,6 +55,17 @@ const NotificationPage: React.FC = () => {
     },
     []
   );
+  const deleteAllFn = async () => {
+    try {
+      await userAxios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}/notification/delete-all`
+      );
+      dispatch(setUnreadCount(0));
+      setNotifications([]); // clear UI
+    } catch (err) {
+      console.error("Failed to delete all notifications", err);
+    }
+  };
 
   // Mark all as read
   const readAllFn = async () => {
@@ -176,9 +187,16 @@ const NotificationPage: React.FC = () => {
               }`}
             />
           </button>
-          <button
+          {/* <button
             onClick={readAllFn}
             className="flex items-center px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+          >
+            <Check size={16} className="mr-1" />
+            Mark all as read
+          </button> */}
+          <button
+            onClick={deleteAllFn}
+            className="flex items-center px-3 py-1 text-sm bg-red-100 dark:bg-red-800 hover:bg-red-200 dark:hover:bg-red-700 text-red-700 dark:text-white rounded-lg transition-colors"
           >
             <Check size={16} className="mr-1" />
             Mark all as read

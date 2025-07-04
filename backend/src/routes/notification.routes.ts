@@ -31,11 +31,11 @@ router.patch("/read-all", (req, res) =>
 router.get("/unread-count", (req, res) =>
   notificationController.getUnreadCount(req, res)
 );
-router.delete("/:notificationId", (req, res) =>
-  notificationController.deleteNotification(req, res)
-);
 router.delete("/delete-all", (req, res) =>
   notificationController.deleteAllNotifications(req, res)
+);
+router.delete("/:notificationId", (req, res) =>
+  notificationController.deleteNotification(req, res)
 );
 
 export default router;
