@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import UserAvatar from "../../admin/components/UserManagement/UserAvatar";
+import { SecureCloudinaryImage } from "../../../components/SecureCloudinaryImage";
 
 interface Application {
   _id: string;
@@ -93,11 +94,17 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
           {/* Profile Picture and Basic Info */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
             <div className="relative group">
-              <UserAvatar
+              {/* <UserAvatar
                 name={applicant.user.name}
                 imageSrc={applicant.user.avatar}
                 size="lg"
+              /> */}
+              <SecureCloudinaryImage
+                publicId={applicant.user.avatar}
+                alt={applicant.user.name}
+                className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover"
               />
+
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-full transition-all duration-200" />
             </div>
 
@@ -111,7 +118,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                   className="inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700 transition-colors"
                 >
                   <ExternalLink size={14} />
-                  <span>View Profile</span>
+                  <span>View Applicant</span>
                 </a>
               </div>
 
@@ -161,7 +168,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                 className="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm"
               >
                 <Download size={16} className="flex-shrink-0" />
-                <span>Resume</span>
+                <span>Resume*</span>
               </a>
 
               {applicant.status === "applied" && (

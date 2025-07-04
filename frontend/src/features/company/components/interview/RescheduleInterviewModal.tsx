@@ -61,15 +61,37 @@ const RescheduleInterviewModal: React.FC<RescheduleInterviewModalProps> = ({
       onInterviewRescheduled();
       onClose();
     } catch (err) {
-      console.error(err);
-      setError("Failed to submit reschedule request. Please try again.");
+      console.log(err);
+      setError(
+        err.response.data.message ||
+          "Failed to submit reschedule request. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const addTimeSlot = (date: Date) => {
-    if (timeSlots.length >= 3) return;
+    const isDuplicate = timeSlots.some(
+      (slot) => slot.getTime() === date.getTime()
+    );
+
+    if (isDuplicate) {
+      toast({
+        title: "Duplicate Time Slot",
+        description: "This time slot has already been selected.",
+      });
+      return;
+    }
+
+    if (timeSlots.length >= 3) {
+      toast({
+        title: "Limit Reached",
+        description: "You can only select up to 3 time slots.",
+      });
+      return;
+    }
+
     setTimeSlots([...timeSlots, date]);
   };
 

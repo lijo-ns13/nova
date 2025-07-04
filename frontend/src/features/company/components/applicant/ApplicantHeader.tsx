@@ -2,6 +2,7 @@ import React from "react";
 import { Applicant } from "../../types/applicant";
 import { getStatusColor, getStatusIcon } from "../../util/statusUtilsApplicant";
 import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
+import { Link } from "react-router-dom";
 
 interface ApplicantHeaderProps {
   applicant: Applicant;
@@ -47,9 +48,11 @@ const ApplicantHeader: React.FC<ApplicantHeaderProps> = ({ applicant }) => {
                   {applicant.user.name}
                 </h1>
                 <div className="flex flex-wrap items-center mt-1 gap-x-2">
-                  <span className="text-sm sm:text-base text-slate-500 truncate">
-                    @{applicant.user.username}
-                  </span>
+                  <Link to={`/in/${applicant.user.username}`}>
+                    <span className="text-sm sm:text-base text-slate-500 truncate">
+                      @ view profile
+                    </span>
+                  </Link>
                   <span className="text-slate-300 hidden sm:inline">•</span>
                   <span className="text-sm sm:text-base text-slate-500">
                     Applied on{" "}

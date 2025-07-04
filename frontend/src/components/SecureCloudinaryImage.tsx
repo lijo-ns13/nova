@@ -4,7 +4,8 @@ import userAxios from "../utils/userAxios";
 import { cloudinaryService } from "../services/cloudinaryService";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const DEFAULT_IMAGE_URL = "../assets/default.png"; // Path to your default image
+// const DEFAULT_IMAGE_URL = "././assets/default.png"; // Path to your default image
+const DEFAULT_IMAGE_URL = "/default.png";
 
 interface SecureImageProps {
   publicId: string;

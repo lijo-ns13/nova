@@ -13,6 +13,7 @@ import {
 } from "../../services/FollowService";
 import UserListModal from "../modals/UserListModal";
 import toast from "react-hot-toast";
+import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
 
 interface ProfileHeaderProps {
   userData: UserData;
@@ -120,11 +121,14 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
         <div className="max-w-7xl mx-auto">
           <div className="bg-white w-full overflow-hidden">
             <div
-              className="h-36 sm:h-48 md:h-64 lg:h-80 bg-gradient-to-r from-gray-50 to-gray-100 relative w-full overflow-hidden"
+              className="h-36 sm:h-48 md:h-64 lg:h-80 relative w-full overflow-hidden"
               style={{
                 backgroundImage: userData?.coverPhoto
                   ? `url(${userData.coverPhoto})`
-                  : undefined,
+                  : `linear-gradient(to right, #e0f2fe, #f1f5f9, #f3e8ff)`, // soft blue → gray → lavender
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
               }}
             >
               <div
@@ -133,27 +137,23 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
                   transform: scrolled ? "translateY(-5%)" : "translateY(0)",
                   transition: "transform 0.5s ease-out",
                 }}
-              ></div>
-
-              <button className="absolute right-4 top-4 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 p-2 rounded-full shadow-sm hover:shadow-md transition-all">
-                <Camera className="w-5 h-5" />
-              </button>
+              />
             </div>
 
             <div className="px-4 sm:px-6 md:px-8 lg:px-12 pt-2 pb-6 relative">
               <div className="relative -mt-16 sm:-mt-20 md:-mt-24 mb-4 flex justify-between items-end">
                 <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full border-4 border-white overflow-hidden bg-white shadow-md group relative">
-                  <img
+                  {/* <img
                     src={
-                      userData?.profilePicture ||
-                      "https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg"
-                    }
+                      userData?.profilePicture}
+                    alt={userData?.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  /> */}
+                  <SecureCloudinaryImage
+                    publicId={userData?.profilePicture}
                     alt={userData?.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <Camera className="w-6 h-6 text-white" />
-                  </div>
                 </div>
               </div>
 

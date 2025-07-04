@@ -55,14 +55,15 @@ const StatusManager: React.FC<StatusManagerProps> = ({
     ],
     [ApplicationStatus.INTERVIEW_SCHEDULED]: [
       ApplicationStatus.INTERVIEW_CANCELLED,
-      ApplicationStatus.INTERVIEW_RESCHEDULED,
+      // ApplicationStatus.INTERVIEW_RESCHEDULED,
     ],
     [ApplicationStatus.INTERVIEW_RESCHEDULED]: [
       ApplicationStatus.INTERVIEW_CANCELLED,
     ],
     [ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER]: [
       ApplicationStatus.INTERVIEW_COMPLETED,
-      ApplicationStatus.INTERVIEW_RESCHEDULED,
+      // ApplicationStatus.INTERVIEW_RESCHEDULED,
+      ApplicationStatus.INTERVIEW_CANCELLED,
     ],
     [ApplicationStatus.INTERVIEW_COMPLETED]: [
       ApplicationStatus.INTERVIEW_PASSED,
@@ -307,7 +308,7 @@ const StatusManager: React.FC<StatusManagerProps> = ({
             {showRescheduleButton && (
               <button
                 onClick={onRescheduleInterview}
-                className="mt-2 text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center"
+                className="mt-3 inline-flex items-center px-3 py-1.5 bg-yellow-500 text-white text-sm font-medium rounded-md hover:bg-yellow-600 transition"
               >
                 <Clock size={16} className="mr-1" />
                 Reschedule Interview
