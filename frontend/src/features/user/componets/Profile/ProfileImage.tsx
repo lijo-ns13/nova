@@ -14,6 +14,7 @@ import { Crop, X } from "lucide-react";
 import { useAppDispatch } from "../../../../hooks/useAppDispatch";
 import toast from "react-hot-toast";
 import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
+import { cloudinaryService } from "../../../../services/cloudinaryService";
 
 function ProfileImage() {
   const { id, profilePicture: userProfilePicture } = useAppSelector(
@@ -26,6 +27,9 @@ function ProfileImage() {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [srcImage, setSrcImage] = useState<string | null>(null);
   const [isCropping, setIsCropping] = useState<boolean>(false);
+  const [imageKey, setImageKey] = useState<number>(Date.now());
+  const [isIt, setIsIt] = useState<boolean>(false);
+  const [signedUrl, setSignedUrl] = useState<string>("");
   const [crop, setCrop] = useState<ReactCropType>({
     unit: "%",
     width: 30,
@@ -46,6 +50,28 @@ function ProfileImage() {
       fetchUserData(id);
     }
   }, [id]);
+  useEffect(() => {
+    const fetchSignedUrl = async () => {
+      if (!profilePicture) {
+        setSignedUrl(""); // fallback later
+        return;
+      }
+      try {
+        const { url } = await cloudinaryService.getMediaUrl(profilePicture);
+        setSignedUrl(`${url}`); // ✅ cache-busting
+      } catch (err) {
+        console.error("Failed to get signed URL:", err);
+        setSignedUrl(""); // fallback later
+      }
+    };
+
+    fetchSignedUrl();
+  }, [profilePicture]);
+  useEffect(() => {
+    setImageKey(Date.now());
+    // This forces remount of SecureCloudinaryImage
+    setIsIt(!!isIt);
+  }, [profilePicture]);
   useEffect(() => {
     if (isImageModalOpen && profilePicture) {
       setProfilePicture(userProfilePicture); // reset so `SecureCloudinaryImage` fetches again
@@ -185,11 +211,17 @@ function ProfileImage() {
             className="w-32 h-32 rounded-full object-cover border-4 border-gray-100 cursor-pointer hover:border-gray-200 transition"
             onClick={() => setIsImageModalOpen(true)}
           /> */}
-          <SecureCloudinaryImage
-            publicId={profilePicture}
-            alt={"profile"}
+          {/* <img
+            src={userProfilePicture || "/default-avatar.png"}
+            alt="profile"
             onClick={() => setIsImageModalOpen(true)}
-            className="rounded-full object-cover"
+            className="rounded-full object-cover w-32 h-32 border-4 border-gray-100 cursor-pointer hover:border-gray-200 transition"
+          /> */}
+          <SecureCloudinaryImage
+            publicId={userProfilePicture}
+            alt="profile"
+            onClick={() => setIsImageModalOpen(true)}
+            className="rounded-full object-cover w-32 h-32 border-4 border-gray-100 cursor-pointer hover:border-gray-200 transition"
           />
           <div
             className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-20 rounded-full transition-opacity cursor-pointer"

@@ -53,7 +53,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
   const [localProcessing, setLocalProcessing] = useState<
     "accept" | "reject" | null
   >(null);
-
+  console.log("aplicaiotnsklfjslkf", application);
   const getRejectionReason = () => {
     if (application.status === ApplicationStatus.REJECTED) {
       const rejectionEntry = application.statusHistory.find(
