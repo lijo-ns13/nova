@@ -17,5 +17,6 @@ router.get(
   "/view/:s3key(*)",
   mediaController.getMediaByS3.bind(mediaController)
 );
+router.post("/view", mediaController.streamMediaById.bind(mediaController));
 
 export default router;

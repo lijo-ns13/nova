@@ -49,4 +49,46 @@ export class MediaController implements IMediaController {
       });
     }
   }
+  // updated
+  async streamMediaById(req: Request, res: Response): Promise<void> {
+    try {
+      const { mediaId } = req.body;
+
+      if (!mediaId) {
+        res
+          .status(HTTP_STATUS_CODES.BAD_REQUEST)
+          .json({ message: "mediaId is required" });
+        return;
+      }
+
+      const media = await this.mediaService.getMediaById(mediaId);
+
+      if (!media) {
+        res
+          .status(HTTP_STATUS_CODES.NOT_FOUND)
+          .json({ message: "Media not found" });
+        return;
+      }
+
+      const signedUrl = await this.mediaService.getMediaUrl(media.s3Key);
+
+      // Stream from S3 using axios
+      const axiosResponse = await import("axios").then((mod) =>
+        mod.default.get(signedUrl, { responseType: "stream" })
+      );
+
+      res.setHeader("Content-Type", axiosResponse.headers["content-type"]);
+      res.setHeader(
+        "Content-Disposition",
+        `inline; filename="${media.s3Key.split("/").pop()}"`
+      );
+
+      axiosResponse.data.pipe(res);
+    } catch (error) {
+      console.error("Error streaming media:", error);
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+        message: "Failed to stream media",
+      });
+    }
+  }
 }

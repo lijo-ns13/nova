@@ -151,54 +151,54 @@ router.get("/api/username/:otherUserId", async (req, res) => {
   }
 });
 // GET /media/stream/:s3key
-import { S3 } from "aws-sdk";
-import {
-  S3Client,
-  PutObjectCommand,
-  GetObjectCommand,
-  DeleteObjectCommand,
-} from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import mediaModal from "../models/media.modal";
-const s3 = new S3Client({
-  region: process.env.AWS_REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
+// import { S3 } from "aws-sdk";
+// import {
+//   S3Client,
+//   PutObjectCommand,
+//   GetObjectCommand,
+//   DeleteObjectCommand,
+// } from "@aws-sdk/client-s3";
+// import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+// import mediaModal from "../models/media.modal";
+// const s3 = new S3Client({
+//   region: process.env.AWS_REGION!,
+//   credentials: {
+//     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+//     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+//   },
+// });
 
-router.post("/api/view-doc", async (req, res) => {
-  try {
-    const { mediaId } = req.body; // e.g. "secure/myfile.pdf"
-    const media = await mediaModal.findById(mediaId);
-    if (!media) {
-      throw new Error("media not found");
-    }
-    const s3Key = media.s3Key;
-    // (Optional) Verify user access here...
+// router.post("/api/view-doc", async (req, res) => {
+//   try {
+//     const { mediaId } = req.body; // e.g. "secure/myfile.pdf"
+//     const media = await mediaModal.findById(mediaId);
+//     if (!media) {
+//       throw new Error("media not found");
+//     }
+//     const s3Key = media.s3Key;
+//     // (Optional) Verify user access here...
 
-    // Generate signed URL
-    const command = new GetObjectCommand({
-      Bucket: process.env.S3_BUCKET_NAME!,
-      Key: s3Key,
-    });
+//     // Generate signed URL
+//     const command = new GetObjectCommand({
+//       Bucket: process.env.S3_BUCKET_NAME!,
+//       Key: s3Key,
+//     });
 
-    const signedUrl = await getSignedUrl(s3, command, { expiresIn: 60 }); // 1 min
+//     const signedUrl = await getSignedUrl(s3, command, { expiresIn: 60 }); // 1 min
 
-    // Fetch the file using axios
-    const fileResponse = await axios.get(signedUrl, { responseType: "stream" });
+//     // Fetch the file using axios
+//     const fileResponse = await axios.get(signedUrl, { responseType: "stream" });
 
-    res.setHeader("Content-Type", fileResponse.headers["content-type"]);
-    res.setHeader(
-      "Content-Disposition",
-      `inline; filename="${s3Key.split("/").pop()}"`
-    );
+//     res.setHeader("Content-Type", fileResponse.headers["content-type"]);
+//     res.setHeader(
+//       "Content-Disposition",
+//       `inline; filename="${s3Key.split("/").pop()}"`
+//     );
 
-    fileResponse.data.pipe(res);
-  } catch (error) {
-    console.error("Error streaming S3 file:", error);
-    res.status(500).json({ message: "Failed to load document" });
-  }
-});
+//     fileResponse.data.pipe(res);
+//   } catch (error) {
+//     console.error("Error streaming S3 file:", error);
+//     res.status(500).json({ message: "Failed to load document" });
+//   }
+// });
 export default router;
