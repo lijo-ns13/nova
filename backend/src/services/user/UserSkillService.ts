@@ -7,6 +7,7 @@ import { IUserSkillService } from "../../interfaces/services/IUserSkillService";
 import mongoose from "mongoose";
 import { ISkill } from "../../models/skill.modal";
 import { ISkillService } from "../../interfaces/services/ISkillService";
+import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
 
 @injectable()
 export class UserSkillService implements IUserSkillService {
@@ -14,7 +15,7 @@ export class UserSkillService implements IUserSkillService {
     @inject(TYPES.UserRepository)
     private _userRepo: IUserRepository,
     @inject(TYPES.SkillService)
-    private _skillService: ISkillService
+    private _skillRepo: ISkillRepository
   ) {}
 
   async getUserSkills(userId: string): Promise<ISkill[] | undefined> {
@@ -28,9 +29,13 @@ export class UserSkillService implements IUserSkillService {
     const skillIds = await Promise.all(
       skillTitles.map(async (title) => {
         title = title.trim().toLowerCase();
-        let skill = await this._skillService.getByTitle(title);
+        let skill = await this._skillRepo.getByTitle(title);
         if (!skill) {
-          skill = await this._skillService.create(title);
+          skill = await this._skillRepo.create({
+            title,
+            createdById: new mongoose.Types.ObjectId(userId),
+            createdBy: "user",
+          });
         }
         return new mongoose.Types.ObjectId(skill._id);
       })

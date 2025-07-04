@@ -15,12 +15,15 @@ interface Userr {
 export class AdminSkillController implements IAdminSkillController {
   constructor(
     @inject(TYPES.AdminSkillService)
-    private skillService: IAdminSkillService
+    private _adminSkillService: IAdminSkillService
   ) {}
   async create(req: Request, res: Response) {
     try {
       const adminId = (req.user as Userr)?.id;
-      const skill = await this.skillService.create(req.body.title, adminId);
+      const skill = await this._adminSkillService.create(
+        req.body.title,
+        adminId
+      );
       res.status(HTTP_STATUS_CODES.CREATED).json(skill);
     } catch (error) {
       res
@@ -31,7 +34,10 @@ export class AdminSkillController implements IAdminSkillController {
 
   async update(req: Request, res: Response) {
     try {
-      const skill = await this.skillService.update(req.params.id, req.body);
+      const skill = await this._adminSkillService.update(
+        req.params.id,
+        req.body
+      );
       res.status(HTTP_STATUS_CODES.OK).json(skill);
     } catch (error) {
       // const status = error.message.includes("not found") ? 404 : 400;
@@ -43,7 +49,7 @@ export class AdminSkillController implements IAdminSkillController {
 
   async delete(req: Request, res: Response) {
     try {
-      await this.skillService.delete(req.params.id);
+      await this._adminSkillService.delete(req.params.id);
       res.status(HTTP_STATUS_CODES.OK).send();
     } catch (error) {
       // const status = error.message.includes("not found") ? 404 : 400;
@@ -59,7 +65,7 @@ export class AdminSkillController implements IAdminSkillController {
       const limit = parseInt(req.query.limit as string) || 10;
       const search = req.query.search as string | undefined;
       console.log(search, "serach");
-      const result = await this.skillService.getAll(page, limit, search);
+      const result = await this._adminSkillService.getAll(page, limit, search);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -81,7 +87,7 @@ export class AdminSkillController implements IAdminSkillController {
 
   async getById(req: Request, res: Response) {
     try {
-      const skill = await this.skillService.getById(req.params.id);
+      const skill = await this._adminSkillService.getById(req.params.id);
       res.status(HTTP_STATUS_CODES.OK).json(skill);
     } catch (error) {
       res

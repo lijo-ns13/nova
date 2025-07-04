@@ -4,6 +4,17 @@ import BaseModal from "../../user/componets/modals/BaseModal";
 import { PlusCircle, Edit, Trash2, Loader2, Search } from "lucide-react";
 import toast from "react-hot-toast";
 import { ISkill } from "../types/skills";
+export interface SkillWithCreatorEmail {
+  _id: string;
+  title: string;
+  createdBy: "user" | "company" | "admin";
+  createdById: {
+    _id: string;
+    email: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function SkillList() {
   const [skills, setSkills] = useState<ISkill[]>([]);
@@ -14,6 +25,10 @@ export default function SkillList() {
   const [editingSkill, setEditingSkill] = useState<ISkill | null>(null);
   const [createSkillModal, setCreateSkillModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [viewingSkill, setViewingSkill] =
+    useState<SkillWithCreatorEmail | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isViewLoading, setIsViewLoading] = useState(false);
 
   // Pagination and search state
   const [currentPage, setCurrentPage] = useState(1);
@@ -91,6 +106,20 @@ export default function SkillList() {
       toast.error("Failed to create skill");
     } finally {
       setIsLoading(false);
+    }
+  };
+  const handleViewMore = async (skillId: string) => {
+    setIsViewLoading(true);
+    try {
+      const skill = await SkillService.getSkillById(skillId);
+      console.log("resskil", skill);
+      setViewingSkill(skill);
+      setIsViewModalOpen(true);
+    } catch (error) {
+      toast.error("Failed to fetch skill details");
+      console.error("Error fetching skill by ID:", error);
+    } finally {
+      setIsViewLoading(false);
     }
   };
 
@@ -288,6 +317,17 @@ export default function SkillList() {
                     >
                       <Trash2 size={16} />
                     </button>
+                    <button
+                      className="flex items-center justify-center px-3 py-1 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors text-sm"
+                      onClick={() => handleViewMore(skill._id)}
+                      aria-label="View skill details"
+                    >
+                      {isViewLoading && viewingSkill?._id === skill._id ? (
+                        <Loader2 className="animate-spin h-4 w-4" />
+                      ) : (
+                        "View More"
+                      )}
+                    </button>
                   </div>
                 </li>
               ))}
@@ -387,6 +427,64 @@ export default function SkillList() {
         </form>
       </BaseModal>
 
+      <BaseModal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        title="Skill Details"
+      >
+        {viewingSkill ? (
+          <div className="space-y-5 text-gray-700 text-sm">
+            {/* Skill Title */}
+            <div>
+              <p className="text-gray-500 font-medium">Skill Name</p>
+              <p className="text-lg font-semibold capitalize text-gray-800 mt-1">
+                {viewingSkill.title}
+              </p>
+            </div>
+
+            {/* Created By */}
+            <div>
+              <p className="text-gray-500 font-medium">Created By</p>
+              <p className="capitalize text-gray-800 mt-1">
+                {viewingSkill.createdBy}
+              </p>
+            </div>
+
+            {/* Email and Copy */}
+            <div>
+              <p className="text-gray-500 font-medium">Email</p>
+              <div className="flex items-center gap-3 mt-1">
+                <span className="text-gray-800">
+                  {viewingSkill.createdById.email}
+                </span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      viewingSkill.createdById.email
+                    );
+                    toast.success("Email copied to clipboard");
+                  }}
+                  className="text-xs px-2 py-1 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition"
+                >
+                  Copy Email
+                </button>
+              </div>
+            </div>
+
+            {/* Created At */}
+            <div>
+              <p className="text-gray-500 font-medium">Created At</p>
+              <p className="text-gray-800 mt-1">
+                {new Date(viewingSkill.createdAt).toLocaleString()}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-6 text-gray-500 text-sm">
+            No skill data found.
+          </div>
+        )}
+      </BaseModal>
       {/* Edit Skill Modal */}
       <BaseModal
         isOpen={!!editingSkill}

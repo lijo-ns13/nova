@@ -1,4 +1,5 @@
 import adminAxios from "../../../utils/adminAxios";
+import { SkillWithCreatorEmail } from "../pages/SkillList";
 import { ISkill, CreateSkillDto, UpdateSkillDto } from "../types/skills";
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -39,8 +40,10 @@ export const SkillService = {
     return response.data;
   },
 
-  async getSkillById(id: string): Promise<ISkill> {
-    const response = await adminAxios.get<ISkill>(`${API_BASE_URL}/${id}`);
+  async getSkillById(id: string): Promise<SkillWithCreatorEmail> {
+    const response = await adminAxios.get<SkillWithCreatorEmail>(
+      `${API_BASE_URL}/${id}`
+    );
     return response.data;
   },
 

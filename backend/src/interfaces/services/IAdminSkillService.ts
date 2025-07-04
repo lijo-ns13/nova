@@ -1,5 +1,6 @@
 // src/core/interfaces/services/ISkillService.ts
 
+import { SkillWithCreatorEmail } from "../../core/entities/skilladmin";
 import { ISkill } from "../../models/skill.modal";
 
 export interface IAdminSkillService {
@@ -11,5 +12,5 @@ export interface IAdminSkillService {
     limit?: number,
     search?: string
   ): Promise<{ skills: ISkill[]; total: number; page: number; limit: number }>;
-  getById(id: string): Promise<ISkill>;
+  getById(id: string): Promise<SkillWithCreatorEmail>;
 }
