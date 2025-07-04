@@ -7,6 +7,7 @@ import { useAppSelector } from "../../../../hooks/useAppSelector";
 import { useAppDispatch } from "../../../../hooks/useAppDispatch";
 import { updateCreatePostCount } from "../../../auth/auth.slice";
 import BaseModal from "../modals/BaseModal";
+import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const postLimit = import.meta.env.VITE_POST_CREATION_COUNT || 2;
 const BASE_URL = `${API_BASE_URL}`;
@@ -103,10 +104,14 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="p-4">
           <div className="flex items-center gap-3">
-            <Avatar
+            {/* <Avatar
               src={profilePicture}
               alt={name || "Your profile"}
               size="md"
+            /> */}
+            <SecureCloudinaryImage
+              publicId={profilePicture}
+              className="rounded-full w-10 h-10 object-cover"
             />
             <div
               onClick={handleOpenModal}

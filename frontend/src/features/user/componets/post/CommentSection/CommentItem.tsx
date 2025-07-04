@@ -20,6 +20,7 @@ import {
   deleteComment as deleteCommentAPI,
 } from "../../../services/PostService";
 import type { Comment } from "../../../../../types/comment";
+import { SecureCloudinaryImage } from "../../../../../components/SecureCloudinaryImage";
 
 interface CommentItemProps {
   comment: Comment;
@@ -247,18 +248,22 @@ const CommentItem: React.FC<CommentItemProps> = ({
       }`}
     >
       <div className="flex gap-2 sm:gap-3">
-        <Avatar
+        {/* <Avatar
           src={comment?.authorId?.profilePicture}
           alt={comment?.authorId?.name}
           size="sm"
           className="mt-1 hidden sm:block flex-shrink-0"
+        /> */}
+        <SecureCloudinaryImage
+          publicId={comment?.authorId?.profilePicture}
+          className="w-8 h-8 rounded-full object-cover"
         />
-        <Avatar
+        {/* <Avatar
           src={comment?.authorId?.profilePicture}
           alt={comment?.authorId?.name}
           size="xs"
           className="mt-1 sm:hidden flex-shrink-0"
-        />
+        /> */}
         <div className="flex-1 min-w-0">
           <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl px-3 py-3 sm:px-4 group-hover:bg-gray-100 dark:group-hover:bg-gray-700 transition-colors">
             <div className="flex justify-between items-start mb-1.5">

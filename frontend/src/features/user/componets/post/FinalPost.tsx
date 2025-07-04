@@ -12,6 +12,7 @@ import Button from "../ui/Button";
 import CommentSection from "./CommentSection/CommentSection";
 import { Link } from "react-router-dom";
 import LikesButton from "./PostLikes/LikesButton";
+import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
 
 interface Media {
   mediaUrl: string;
@@ -141,11 +142,15 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
     <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 my-6 border border-gray-200 dark:border-gray-700 transform hover:translate-y-[-2px]">
       {/* Post Header */}
       <div className="flex items-center p-4 border-b border-gray-100 dark:border-gray-700">
-        <Avatar
+        {/* <Avatar
           src={post.creatorId.profilePicture}
           alt={post.creatorId.name}
           size="md"
           bordered
+        /> */}
+        <SecureCloudinaryImage
+          publicId={post.creatorId.profilePicture}
+          className="rounded-full w-10 h-10 object-cover"
         />
         <div className="ml-3 flex-1">
           <Link to={`/in/${post.creatorId.username}`}>

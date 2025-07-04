@@ -3,6 +3,7 @@ import { User as UserIcon, UserPlus, UserMinus } from "lucide-react";
 
 import { Link } from "react-router-dom";
 import { NetworkUser } from "../../pages/NetworkPage";
+import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
 
 interface NetworkCardProps {
   networkUser: NetworkUser;
@@ -47,10 +48,15 @@ const NetworkCard: React.FC<NetworkCardProps> = ({
           <div className="flex items-start space-x-4 mb-4">
             <div className="relative -mt-10 flex-shrink-0">
               {user.profilePicture ? (
-                <img
-                  className="h-16 w-16 rounded-full object-cover border-4 border-white shadow-md"
-                  src={user.profilePicture}
+                // <img
+                //   className="h-16 w-16 rounded-full object-cover border-4 border-white shadow-md"
+                //   src={user.profilePicture}
+                //   alt={user.name}
+                // />
+                <SecureCloudinaryImage
+                  publicId={user.profilePicture}
                   alt={user.name}
+                  className="w-12 h-12 rounded-full object-cover"
                 />
               ) : (
                 <div className="h-16 w-16 rounded-full bg-gradient-to-br from-gray-100 to-gray-300 flex items-center justify-center border-4 border-white shadow-md">

@@ -2,6 +2,7 @@ import React from "react";
 import { X } from "lucide-react";
 import Avatar from "../../ui/Avatar";
 import { Link } from "react-router-dom";
+import { SecureCloudinaryImage } from "../../../../../components/SecureCloudinaryImage";
 
 interface User {
   _id: string;
@@ -71,10 +72,14 @@ const PostLikesModal: React.FC<PostLikesModalProps> = ({
                     to={`/in/${like.userId?.username}`}
                     className="flex items-center space-x-3"
                   >
-                    <Avatar
+                    {/* <Avatar
                       src={like.userId?.profilePicture}
                       alt={like.userId?.name || "User"}
                       size="sm"
+                    /> */}
+                    <SecureCloudinaryImage
+                      publicId={like.userId?.profilePicture}
+                      className="rounded-full w-10 h-10 object-cover"
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
