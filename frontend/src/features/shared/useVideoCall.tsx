@@ -106,20 +106,20 @@ export function useVideoCall(roomId: string, userId: string) {
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
         }
-        // peerInstance = new Peer(stringUserId, {
-        //   host: "api.lijons.shop", // ✅ your backend domain
-        //   port: 443, // ✅ HTTPS default port
-        //   path: "/peerjs", // ✅ must match the reverse proxy path
-        //   secure: true, // ✅ enables wss://
-        //   debug: 3,
-        // });
         peerInstance = new Peer(stringUserId, {
-          host: window.location.hostname,
-          port: 5000,
-          path: "/peerjs",
-          secure: false,
+          host: "api.lijons.shop", // ✅ your backend domain
+          port: 443, // ✅ HTTPS default port
+          path: "/peerjs", // ✅ must match the reverse proxy path
+          secure: true, // ✅ enables wss://
           debug: 3,
         });
+        // peerInstance = new Peer(stringUserId, {
+        //   host: window.location.hostname,
+        //   port: 5000,
+        //   path: "/peerjs",
+        //   secure: false,
+        //   debug: 3,
+        // });
 
         peerRef.current = peerInstance;
         setPeer(peerInstance);
