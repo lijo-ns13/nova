@@ -6,7 +6,9 @@ import {
   requestRefund,
   RefundSessionData,
 } from "../services/subStripeService";
-
+import { updateSubscriptionStatus } from "../../auth/auth.slice";
+import toast from "react-hot-toast";
+import { useAppDispatch } from "../../../hooks/useAppDispatch";
 const RefundPage: React.FC = () => {
   const [sessionData, setSessionData] = useState<RefundSessionData | null>(
     null
@@ -15,7 +17,7 @@ const RefundPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState("");
-
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { id: userId, isSubscriptionTaken } = useAppSelector(
     (state) => state.auth
@@ -70,12 +72,17 @@ const RefundPage: React.FC = () => {
       });
 
       setSubmitStatus("✅ Refund request submitted successfully.");
+      toast.success("Refund requested successfully.");
+
+      // ⬇️ Update subscription status in Redux store
+      dispatch(updateSubscriptionStatus({ isSubscriptionTaken: false }));
+
       setReason("");
 
       // Redirect after 3 seconds
       setTimeout(() => {
         navigate("/feed");
-      }, 3000);
+      }, 2000);
     } catch (err: any) {
       console.error("Refund request error:", err);
       setSubmitStatus(err.message || "❌ Refund request failed.");
