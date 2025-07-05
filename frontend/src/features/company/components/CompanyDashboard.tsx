@@ -16,6 +16,7 @@ import {
   LineElement,
 } from "chart.js";
 import { Pie, Bar, Line } from "react-chartjs-2";
+import { useAppSelector } from "../../../hooks/useAppSelector";
 
 // Register ChartJS components
 ChartJS.register(
@@ -69,6 +70,7 @@ interface DashboardStats {
 
 const CompanyDashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const { id } = useAppSelector((state) => state.auth);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<"daily" | "weekly" | "monthly">(
@@ -80,8 +82,9 @@ const CompanyDashboard: React.FC = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/stats`
+          `${import.meta.env.VITE_API_BASE_URL}/stats?companyId=${id}`
         );
+
         setStats(response.data);
       } catch (err) {
         setError("Failed to load dashboard data");

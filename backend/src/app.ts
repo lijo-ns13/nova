@@ -55,7 +55,7 @@ app.use(cookieParser());
 app.use("/api/auth", googleRouter);
 app.use("/api/admin/analytics", adminAnalyticsRoutes);
 app.use("/auth", authRouter);
-app.use("", dashRouter);
+app.use("/", dashRouter);
 app.use("/api/stripe", stripeRoutes);
 
 app.use("/", sharedRouter);
