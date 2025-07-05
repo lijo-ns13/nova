@@ -72,7 +72,7 @@ export default function ApplyModal({
         // coverLetter,
       });
       if (appliedJobCount) {
-        dispatch(updateAppliedJobCount(appliedJobCount + 1));
+        dispatch(updateAppliedJobCount((appliedJobCount || 0) + 1));
       }
 
       onApplySuccess();
