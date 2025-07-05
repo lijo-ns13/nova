@@ -85,7 +85,7 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
       // Call the onPostSubmit callback if provided
       if (onPostSubmit) {
         if (createdPostCount) {
-          dispath(updateCreatePostCount(createdPostCount + 1));
+          dispath(updateCreatePostCount((createdPostCount || 0) + 1));
         }
 
         onPostSubmit();
