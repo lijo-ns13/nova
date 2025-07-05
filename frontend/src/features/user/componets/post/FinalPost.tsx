@@ -205,18 +205,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
                         <Loader className="w-8 h-8 animate-spin text-gray-400" />
                       </div>
                     )}
-                    <SecureCloudinaryImage
-                      publicId={media.mediaUrl}
-                      alt={`Media ${index + 1}`}
-                      className={`w-full h-full object-contain transition-opacity duration-300 ${
-                        isImageLoaded(media.mediaUrl)
-                          ? "opacity-100"
-                          : "opacity-0"
-                      }`}
-                      // onLoad={() => handleImageLoad(media.mediaUrl)}
-                      // loading={index === currentMediaIndex ? "eager" : "lazy"}
-                    />
-                    {/* <img
+                    <img
                       src={media.mediaUrl}
                       alt={`Media ${index + 1}`}
                       className={`w-full h-full object-contain transition-opacity duration-300 ${
@@ -226,7 +215,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
                       }`}
                       onLoad={() => handleImageLoad(media.mediaUrl)}
                       loading={index === currentMediaIndex ? "eager" : "lazy"}
-                    /> */}
+                    />
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300"></div>
                   </div>
                 ) : media.mimeType === "application/pdf" ? (
