@@ -5,6 +5,7 @@ import {
   deleteCertificate,
 } from "../../services/ProfileService";
 import { useAppSelector } from "../../../../hooks/useAppSelector";
+import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
 
 interface Certificate {
   _id: string;
@@ -141,9 +142,14 @@ function CertificateSection() {
                     </div>
                     {cert.certificateImageUrl && (
                       <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden border border-gray-200">
-                        <img
+                        {/* <img
                           src={cert.certificateImageUrl}
                           alt={`${cert.title} certificate`}
+                          className="w-full h-full object-cover"
+                        /> */}
+                        <SecureCloudinaryImage
+                          publicId={cert.certificateImageUrl}
+                          alt={`${cert.title} certificate `}
                           className="w-full h-full object-cover"
                         />
                       </div>
