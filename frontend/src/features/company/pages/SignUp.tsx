@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { IndustryTypes } from "../../../constants/industryTypes";
 import { signUpCompanyRequestSchema } from "../util/validators";
-import { uploadToCloudinary } from "../services/cloudinaryService";
+
 import { signUpCompany } from "../services/AuthServices";
 import { useNavigate } from "react-router-dom";
 import SiteInfoNav from "../../../components/SiteInfoNav";
+import { uploadToCloudinary } from "../services/CloudinaryNormalService";
 type SignUpErrors = {
   companyName?: string;
   email?: string;
