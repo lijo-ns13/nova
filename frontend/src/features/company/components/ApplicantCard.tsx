@@ -161,7 +161,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
             <StatusBadge status={applicant.status} />
 
             <div className="flex gap-2 w-full sm:w-auto justify-center sm:justify-end">
-              <a
+              {/* <a
                 href={applicant.resumeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -169,7 +169,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
               >
                 <Download size={16} className="flex-shrink-0" />
                 <span>Resume*</span>
-              </a>
+              </a> */}
 
               {applicant.status === "applied" && (
                 <div className="hidden sm:flex gap-2">
