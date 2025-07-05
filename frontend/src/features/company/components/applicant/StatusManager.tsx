@@ -91,7 +91,10 @@ const StatusManager: React.FC<StatusManagerProps> = ({
     [ApplicationStatus.INTERVIEW_FAILED]: [], // Final state
     [ApplicationStatus.SELECTED]: [], // Final state
     [ApplicationStatus.INTERVIEW_RESCHEDULE_PROPOSED]: [], // Handled by candidate
-    [ApplicationStatus.INTERVIEW_RESCHEDULE_ACCEPTED]: [], // Handled by candidate
+    [ApplicationStatus.INTERVIEW_RESCHEDULE_ACCEPTED]: [
+      ApplicationStatus.INTERVIEW_PASSED,
+      ApplicationStatus.INTERVIEW_FAILED,
+    ], // Handled by candidate
     [ApplicationStatus.INTERVIEW_RESCHEDULE_REJECTED]: [], // Handled by candidate
   };
 
