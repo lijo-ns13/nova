@@ -213,7 +213,11 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
           {/* User info */}
           <div className="flex items-center mb-4">
             {/* <Avatar src={userProfilePic} alt={userName} size="md" /> */}
-            <SecureCloudinaryImage publicId={userProfilePic} alt={userName} />
+            <SecureCloudinaryImage
+              publicId={userProfilePic}
+              alt={userName}
+              className="w-10 h-10 rounded-full object-cover"
+            />
             <div className="ml-3">
               <p className="font-medium text-gray-900 dark:text-white">
                 {userName}
