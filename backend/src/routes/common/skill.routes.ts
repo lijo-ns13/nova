@@ -11,12 +11,7 @@ const router = Router();
 
 router.use(authMiddleware.authenticate("user"));
 // GET /api/skills/user
-router.get("/user", skillController.getUserSkills.bind(skillController));
 
 router.get("/search", skillController.searchSkills.bind(skillController));
-
-router.post("/", skillController.addSkill.bind(skillController));
-
-router.delete("/", skillController.removeSkill.bind(skillController));
 
 export default router;

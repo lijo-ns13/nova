@@ -5,7 +5,8 @@ import { ISkillService } from "../interfaces/services/ISkillService";
 import { ISkill } from "../models/skill.modal";
 import { IUserRepository } from "../interfaces/repositories/IUserRepository";
 import mongoose, { Types } from "mongoose";
-import userModal from "../models/user.modal";
+import { SkillMapper } from "../mapping/skill.mapper";
+import { SkillResponeDTO } from "../dtos/response/skill.response.dto";
 
 @injectable()
 export class SkillService implements ISkillService {
@@ -14,60 +15,15 @@ export class SkillService implements ISkillService {
     private _skillRepository: ISkillRepository,
     @inject(TYPES.UserRepository) private _userRepo: IUserRepository
   ) {}
-  async searchSkills(query: string): Promise<string[]> {
+  async searchSkills(query: string): Promise<SkillResponeDTO[]> {
     if (!query.trim()) return [];
-    return this._skillRepository.searchSkills(query);
+    const skills = await this._skillRepository.searchSkills(query, 10);
+    return SkillMapper.toSearchListDTO(skills);
   }
   async getByTitle(title: string): Promise<ISkill | null> {
     return this._skillRepository.getByTitle(title.trim().toLowerCase());
   }
-  async addSkillToUser(userId: string, skillTitle: string): Promise<void> {
-    const normalized = skillTitle.trim().toLowerCase();
 
-    let skill = await this._skillRepository.getByTitle(normalized);
-    if (!skill) {
-      const skillData = {
-        title: normalized,
-        createdById: new Types.ObjectId(userId),
-        createdBy: "user" as const,
-      };
-      skill = await this._skillRepository.create(skillData);
-    }
-    await this._userRepo.update(userId, {
-      $addToSet: { skills: skill._id },
-    });
-  }
-  async deleteSkillFromUser(userId: string, skillId: string): Promise<boolean> {
-    const skill = await this._skillRepository.findById(skillId);
-    if (!skill) {
-      throw new Error("skill not found");
-    }
-    const res = await this._userRepo.update(userId, {
-      $pull: { skills: new Types.ObjectId(skillId) },
-    });
-    return !!res;
-  }
-  async getUserSkills(
-    userId: string
-  ): Promise<Pick<ISkill, "_id" | "title">[]> {
-    const user = await this._userRepo.findOne(
-      { _id: userId },
-      {
-        path: "skills",
-        select: "_id title",
-      }
-    );
-
-    console.log("User from DB:", user); // Check the complete user object
-    console.log("User skills:", user?.skills); // Check what skills are returned
-
-    if (!user || !user.skills) return [];
-
-    return (user.skills as ISkill[]).map((skill) => ({
-      _id: skill._id,
-      title: skill.title,
-    }));
-  }
   async getOrCreateSkills(
     skillTitles: string[],
     createdById: string,

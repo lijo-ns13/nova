@@ -6,7 +6,7 @@ import container from "../../di/container";
 
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
-const userSkillController = container.get<IUserSkillController>(
+const skillController = container.get<IUserSkillController>(
   TYPES.UserSkillController
 );
 
@@ -14,15 +14,9 @@ const router = Router();
 router.use(authMiddleware.authenticate("user"));
 router.use(authMiddleware.check());
 
-// Get all skills for the authenticated user
-router.get("/", (req, res) => userSkillController.getUserSkills(req, res));
+router.get("/user", skillController.getUserSkills.bind(skillController));
+router.post("/", skillController.addSkill.bind(skillController));
 
-// Add skills to the authenticated user
-router.post("/", (req, res) => userSkillController.addSkills(req, res));
-
-// Delete a specific skill from the authenticated user
-router.delete("/:skillId", (req, res) =>
-  userSkillController.deleteSkill(req, res)
-);
+router.delete("/", skillController.removeSkill.bind(skillController));
 
 export default router;

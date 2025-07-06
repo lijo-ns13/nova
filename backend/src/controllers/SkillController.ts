@@ -4,8 +4,11 @@ import { TYPES } from "../di/types";
 import { ISkillService } from "../interfaces/services/ISkillService";
 import { ISkillController } from "../interfaces/controllers/ISkillController";
 import { HTTP_STATUS_CODES } from "../core/enums/httpStatusCode";
+import { SkillSearchRequestSchema } from "../dtos/request/skill.request.dto";
+import { query } from "winston";
+import { handleControllerError } from "../utils/errorHandler";
 
-interface Userr {
+interface UserPayload {
   id: string;
   email: string;
   role: string;
@@ -13,61 +16,16 @@ interface Userr {
 @injectable()
 export class SkillController implements ISkillController {
   constructor(
-    @inject(TYPES.SkillService) private skillService: ISkillService
+    @inject(TYPES.SkillService) private _skillService: ISkillService
   ) {}
 
   async searchSkills(req: Request, res: Response): Promise<void> {
     try {
-      const query = (req.query.q as string) || "";
-      const skills = await this.skillService.searchSkills(query);
-      res.status(HTTP_STATUS_CODES.OK).json(skills); // Removed 'return'
+      const parsedQuery = SkillSearchRequestSchema.parse(req.query);
+      const result = await this._skillService.searchSkills(parsedQuery.q);
+      res.status(HTTP_STATUS_CODES.OK).json({ success: true, data: result });
     } catch (error) {
-      console.error("Error fetching skills:", error);
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: "Internal Server Error" }); // Removed 'return'
-    }
-  }
-  async addSkill(req: Request, res: Response): Promise<void> {
-    try {
-      const { title } = req.body;
-      const userId = (req.user as Userr)?.id;
-
-      await this.skillService.addSkillToUser(userId, title);
-      res.status(HTTP_STATUS_CODES.OK).json({ message: "Skill added" });
-    } catch (err) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: "Failed to add skill" });
-    }
-  }
-
-  async removeSkill(req: Request, res: Response): Promise<void> {
-    try {
-      const { skillId } = req.body;
-      const userId = (req.user as Userr)?.id;
-
-      await this.skillService.deleteSkillFromUser(userId, skillId);
-      res.status(HTTP_STATUS_CODES.OK).json({ message: "Skill removed" });
-    } catch (err) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: "Failed to remove skill" });
-    }
-  }
-  async getUserSkills(req: Request, res: Response): Promise<void> {
-    console.log("💣");
-    try {
-      const userId = (req.user as Userr)?.id;
-      console.log("userId✅", userId);
-      const skills = await this.skillService.getUserSkills(userId);
-      console.log("skills", skills);
-      res.status(HTTP_STATUS_CODES.OK).json({ success: true, data: skills });
-    } catch (error) {
-      console.error("Error fetching user skills:", error);
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: "Failed to fetch user skills" });
+      handleControllerError(error, res, "SkillController::search");
     }
   }
 }

@@ -1,8 +1,6 @@
-import { ISkill } from "../../models/skill.modal";
-import { IUser } from "../../models/user.modal";
-
+import { SkillUserResponseDTO } from "../../dtos/response/user.skill.response.dto";
 export interface IUserSkillService {
-  getUserSkills(userId: string): Promise<ISkill[] | undefined>;
-  addSkills(userId: string, skillTitles: string[]): Promise<IUser | null>;
-  deleteSkill(userId: string, skillId: string): Promise<IUser | null>;
+  addSkillToUser(userId: string, skillTitle: string): Promise<void>;
+  deleteSkillFromUser(userId: string, skillId: string): Promise<void>;
+  getUserSkills(userId: string): Promise<SkillUserResponseDTO[]>;
 }

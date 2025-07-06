@@ -11,6 +11,9 @@ import { IBaseRepository } from "./IBaseRepository";
 
 export interface IUserRepository extends IBaseRepository<IUser> {
   // Core user operations
+  updateSkillUser(userId: string, skillId: string): Promise<void>;
+  addSkillToUser(userId: string, skillId: string): Promise<void>;
+  getUserSkills(userId: string): Promise<ISkill[]>;
   createUser(userData: Partial<IUser>): Promise<IUser>;
   updateUser(userId: string, updateData: Partial<IUser>): Promise<IUser | null>;
   findByEmail(email: string, isPassword?: boolean): Promise<IUser | null>;

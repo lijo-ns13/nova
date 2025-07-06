@@ -1,7 +1,7 @@
 import userAxios from "../../../utils/userAxios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const BASE_URL = `${API_BASE_URL}/skill`;
+const BASE_URL = `${API_BASE_URL}`;
 
 export interface Skill {
   _id: string;
@@ -35,7 +35,7 @@ export interface UserSkillsResponse {
 }
 export const searchSkills = async (query: string): Promise<string[]> => {
   try {
-    const response = await userAxios.get<string[]>(`${BASE_URL}/search`, {
+    const response = await userAxios.get<string[]>(`${BASE_URL}/skill/search`, {
       params: { q: query },
     });
     return response.data;
@@ -47,9 +47,12 @@ export const searchSkills = async (query: string): Promise<string[]> => {
 };
 export const addSkill = async (title: string): Promise<BasicResponse> => {
   try {
-    const response = await userAxios.post<BasicResponse>(`${BASE_URL}`, {
-      title,
-    });
+    const response = await userAxios.post<BasicResponse>(
+      `${BASE_URL}/userskills`,
+      {
+        title,
+      }
+    );
     return response.data;
   } catch (error) {
     throw {
@@ -59,9 +62,12 @@ export const addSkill = async (title: string): Promise<BasicResponse> => {
 };
 export const removeSkill = async (skillId: string): Promise<BasicResponse> => {
   try {
-    const response = await userAxios.delete<BasicResponse>(`${BASE_URL}`, {
-      data: { skillId },
-    });
+    const response = await userAxios.delete<BasicResponse>(
+      `${BASE_URL}/userskills`,
+      {
+        data: { skillId },
+      }
+    );
     return response.data;
   } catch (error) {
     throw {
@@ -72,7 +78,7 @@ export const removeSkill = async (skillId: string): Promise<BasicResponse> => {
 export const getUserSkills = async (): Promise<UserSkill[]> => {
   try {
     const response = await userAxios.get<UserSkillsResponse>(
-      `${BASE_URL}/user`
+      `${BASE_URL}/userskills/user`
     );
     return response.data.data;
   } catch (error) {

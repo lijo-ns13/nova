@@ -1,13 +1,15 @@
 import { Types } from "mongoose";
 import { ISkill } from "../../models/skill.modal";
 
+import { SkillResponeDTO } from "../../dtos/response/skill.response.dto";
+
 export interface ISkillService {
   /**
    * Search skills by a query string.
    * @param query - Search string
    * @returns List of matching skill titles
    */
-  searchSkills(query: string): Promise<string[]>;
+  searchSkills(query: string): Promise<SkillResponeDTO[]>;
 
   /**
    * Get a skill by its normalized title.
@@ -21,16 +23,7 @@ export interface ISkillService {
    * @param userId - User's ObjectId (string)
    * @param skillTitle - Title of the skill
    */
-  addSkillToUser(userId: string, skillTitle: string): Promise<void>;
 
-  /**
-   * Remove a skill from the user's skill list.
-   * @param userId - User's ObjectId (string)
-   * @param skillId - Skill's ObjectId (string)
-   * @returns True if update was successful
-   */
-  deleteSkillFromUser(userId: string, skillId: string): Promise<boolean>;
-  getUserSkills(userId: string): Promise<Pick<ISkill, "_id" | "title">[]>;
   getOrCreateSkills(
     skillTitles: string[],
     createdById: string,

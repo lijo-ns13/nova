@@ -2,7 +2,12 @@ import { ISkill } from "../../models/skill.modal";
 import { IBaseRepository } from "./IBaseRepository";
 
 export interface ISkillRepository extends IBaseRepository<ISkill> {
-  searchSkills(query: string, limit?: number): Promise<string[]>;
+  createSkillWith(
+    title: string,
+    createdById: string,
+    createdBy: "user" | "company" | "admin"
+  ): Promise<ISkill>;
+  searchSkills(query: string, limit: number): Promise<ISkill[]>;
   // create(skill: string): Promise<ISkill>;
   // update(id: string, skill: Partial<ISkill>): Promise<ISkill | null>;
   // delete(id: string): Promise<boolean>;

@@ -6,7 +6,6 @@ import { ZodError } from "zod";
 import { TYPES } from "../../di/types";
 import { inject } from "inversify";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
-import skillModal from "../../models/skill.modal";
 import {
   createJobSchema,
   updateJobSchema,
@@ -14,19 +13,21 @@ import {
 import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
 import { ICompanyJobController } from "../../interfaces/controllers/ICompanyJobController";
 import { ISkillService } from "../../interfaces/services/ISkillService";
-interface Userr {
+import { handleControllerError } from "../../utils/errorHandler";
+import logger from "../../utils/logger";
+interface UserPayload {
   id: string;
   email: string;
   role: string;
 }
 export class CompanyJobController implements ICompanyJobController {
   constructor(
-    @inject(TYPES.CompanyJobService) private jobService: ICompanyJobService,
+    @inject(TYPES.CompanyJobService) private _jobService: ICompanyJobService,
     @inject(TYPES.SkillService) private _skillService: ISkillService
   ) {}
   createJob: RequestHandler = async (req: Request, res: Response) => {
     try {
-      const companyId = (req.user as Userr)?.id; // assuming company is authenticated and available
+      const companyId = (req.user as UserPayload)?.id; // assuming company is authenticated and available
       if (!companyId) {
         res
           .status(HTTP_STATUS_CODES.BAD_REQUEST)
@@ -35,17 +36,6 @@ export class CompanyJobController implements ICompanyJobController {
       }
       const skillsId = [];
       const skills = req.body.skillsRequired;
-
-      // for (const skill of skills) {
-      //   const skillIn = await skillModal.findOne({ title: skill });
-      //   if (!skillIn) {
-      //     const newSkill = new skillModal({ title: skill });
-      //     await newSkill.save();
-      //     skillsId.push(newSkill._id);
-      //   } else {
-      //     skillsId.push(skillIn._id);
-      //   }
-      // }
       for (const skill of skills) {
         const skillIn = await this._skillService.findOrCreateSkillByTitle(
           skill,
@@ -73,7 +63,7 @@ export class CompanyJobController implements ICompanyJobController {
       const validatedData = createJobSchema.parse(jobData);
       console.log("isValidateData", validatedData);
 
-      const job = await this.jobService.createJob(validatedData, companyId);
+      const job = await this._jobService.createJob(validatedData, companyId);
       res
         .status(HTTP_STATUS_CODES.CREATED)
         .json({ message: "Job created successfully", job });
@@ -96,7 +86,7 @@ export class CompanyJobController implements ICompanyJobController {
 
   updateJob: RequestHandler = async (req: Request, res: Response) => {
     try {
-      const companyId = (req.user as Userr)?.id;
+      const companyId = (req.user as UserPayload)?.id;
       if (!companyId) {
         res
           .status(HTTP_STATUS_CODES.BAD_REQUEST)
@@ -123,7 +113,7 @@ export class CompanyJobController implements ICompanyJobController {
       };
 
       const validatedData = updateJobSchema.parse(jobData);
-      const updatedJob = await this.jobService.updateJob(
+      const updatedJob = await this._jobService.updateJob(
         jobId,
         companyId,
         validatedData
@@ -158,7 +148,7 @@ export class CompanyJobController implements ICompanyJobController {
 
   deleteJob: RequestHandler = async (req: Request, res: Response) => {
     try {
-      const companyId = (req.user as Userr)?.id;
+      const companyId = (req.user as UserPayload)?.id;
       if (!companyId) {
         res
           .status(HTTP_STATUS_CODES.BAD_REQUEST)
@@ -166,7 +156,7 @@ export class CompanyJobController implements ICompanyJobController {
         return;
       }
       const jobId = req.params.jobId;
-      const deleted = await this.jobService.deleteJob(jobId, companyId);
+      const deleted = await this._jobService.deleteJob(jobId, companyId);
       if (!deleted) {
         res
           .status(HTTP_STATUS_CODES.NOT_FOUND)
@@ -184,7 +174,7 @@ export class CompanyJobController implements ICompanyJobController {
   };
   getJobs: RequestHandler = async (req: Request, res: Response) => {
     try {
-      const companyId = (req.user as Userr)?.id;
+      const companyId = (req.user as UserPayload)?.id;
       if (!companyId) {
         res
           .status(HTTP_STATUS_CODES.BAD_REQUEST)
@@ -195,7 +185,7 @@ export class CompanyJobController implements ICompanyJobController {
       const page = Math.max(1, parseInt(req.query.page as string) || 1);
       const limit = Math.max(1, parseInt(req.query.limit as string) || 10);
 
-      const { jobs, total } = await this.jobService.getJobs(
+      const { jobs, total } = await this._jobService.getJobs(
         companyId,
         page,
         limit
@@ -219,7 +209,7 @@ export class CompanyJobController implements ICompanyJobController {
 
   getJobApplications: RequestHandler = async (req: Request, res: Response) => {
     try {
-      const companyId = (req.user as Userr)?.id;
+      const companyId = (req.user as UserPayload)?.id;
       if (!companyId) {
         res
           .status(HTTP_STATUS_CODES.BAD_REQUEST)
@@ -231,7 +221,7 @@ export class CompanyJobController implements ICompanyJobController {
       const page = Math.max(1, parseInt(req.query.page as string) || 1);
       const limit = Math.max(1, parseInt(req.query.limit as string) || 10);
 
-      const result = await this.jobService.getJobApplications(
+      const result = await this._jobService.getJobApplications(
         jobId,
         companyId,
         page,
@@ -270,7 +260,7 @@ export class CompanyJobController implements ICompanyJobController {
           .json({ success: false, message: "Job not found" });
         return;
       }
-      const result = await this.jobService.getJob(jobId);
+      const result = await this._jobService.getJob(jobId);
       if (!result) {
         res
           .status(HTTP_STATUS_CODES.NOT_FOUND)
@@ -300,7 +290,7 @@ export class CompanyJobController implements ICompanyJobController {
       delete filters.page;
       delete filters.limit;
 
-      const applicationsData = await this.jobService.getApplications(
+      const applicationsData = await this._jobService.getApplications(
         page,
         limit,
         filters,
@@ -333,7 +323,9 @@ export class CompanyJobController implements ICompanyJobController {
         return;
       }
 
-      const success = await this.jobService.shortlistApplication(applicationId);
+      const success = await this._jobService.shortlistApplication(
+        applicationId
+      );
 
       if (!success) {
         res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
@@ -369,7 +361,7 @@ export class CompanyJobController implements ICompanyJobController {
         return;
       }
 
-      const success = await this.jobService.rejectApplication(
+      const success = await this._jobService.rejectApplication(
         applicationId,
         rejectionReason
       );
@@ -406,7 +398,7 @@ export class CompanyJobController implements ICompanyJobController {
         return;
       }
 
-      const applicant = await this.jobService.getApplicantDetails(
+      const applicant = await this._jobService.getApplicantDetails(
         applicationId
       );
 

@@ -1,65 +1,60 @@
-import { inject, injectable } from "inversify";
-
 import { Request, Response } from "express";
-import { IUserSkillController } from "../../interfaces/controllers/IUserSkillController";
-import { IUserSkillService } from "../../interfaces/services/IUserSkillService";
+import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
-import { ISkillService } from "../../interfaces/services/ISkillService";
-interface Userr {
+import { IUserSkillService } from "../../interfaces/services/IUserSkillService";
+import {
+  AddUserSkillSchema,
+  RemoveUserSkillSchema,
+} from "../../dtos/request/user.skill.request.dto";
+import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
+import { handleControllerError } from "../../utils/errorHandler";
+
+interface UserPayload {
   id: string;
   email: string;
   role: string;
 }
+
 @injectable()
-export class UserSkillController implements IUserSkillController {
+export class UserSkillController {
   constructor(
     @inject(TYPES.UserSkillService)
-    private _userSkillService: IUserSkillService,
-    @inject(TYPES.SkillService) private _skillService: ISkillService
+    private _skillService: IUserSkillService
   ) {}
+
+  async addSkill(req: Request, res: Response): Promise<void> {
+    try {
+      const { title } = AddUserSkillSchema.parse(req.body);
+      const userId = (req.user as UserPayload)?.id;
+      await this._skillService.addSkillToUser(userId, title);
+      res
+        .status(HTTP_STATUS_CODES.OK)
+        .json({ success: true, message: "Skill added" });
+    } catch (err) {
+      handleControllerError(err, res, "UserSkillController::addSkill");
+    }
+  }
+
+  async removeSkill(req: Request, res: Response): Promise<void> {
+    try {
+      const { skillId } = RemoveUserSkillSchema.parse(req.body);
+      const userId = (req.user as UserPayload)?.id;
+      await this._skillService.deleteSkillFromUser(userId, skillId);
+      res
+        .status(HTTP_STATUS_CODES.OK)
+        .json({ success: true, message: "Skill removed" });
+    } catch (err) {
+      handleControllerError(err, res, "UserSkillController::removeSkill");
+    }
+  }
 
   async getUserSkills(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as Userr)?.id;
-      const skills = await this._userSkillService.getUserSkills(userId);
-      res.status(200).json({ success: true, data: skills });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, message: "Failed to get skills", error });
-    }
-  }
-
-  async addSkills(req: Request, res: Response): Promise<void> {
-    try {
-      const userId = (req.user as Userr)?.id;
-      const { skills } = req.body; // ["Java", "React"]
-      const updatedUser = await this._userSkillService.addSkills(
-        userId,
-        skills
-      );
-      res.status(200).json({ success: true, data: updatedUser?.skills });
-    } catch (error) {
-      console.error("Failed to add skills:", error);
-      res
-        .status(500)
-        .json({ success: false, message: "Failed to add skills", error });
-    }
-  }
-
-  async deleteSkill(req: Request, res: Response): Promise<void> {
-    try {
-      const userId = (req.user as Userr)?.id;
-      const skillId = req.params.skillId;
-      const updatedUser = await this._userSkillService.deleteSkill(
-        userId,
-        skillId
-      );
-      res.status(200).json({ success: true, data: updatedUser?.skills });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, message: "Failed to delete skill", error });
+      const userId = (req.user as UserPayload)?.id;
+      const skills = await this._skillService.getUserSkills(userId);
+      res.status(HTTP_STATUS_CODES.OK).json({ success: true, data: skills });
+    } catch (err) {
+      handleControllerError(err, res, "UserSkillController::getUserSkills");
     }
   }
 }

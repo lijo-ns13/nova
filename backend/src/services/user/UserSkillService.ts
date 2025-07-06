@@ -1,50 +1,38 @@
+// services/UserSkillService.ts
 import { inject, injectable } from "inversify";
-import { TYPES } from "../../di/types";
-import { IUser } from "../../models/user.modal";
 
-import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
+import { Types } from "mongoose";
 import { IUserSkillService } from "../../interfaces/services/IUserSkillService";
-import mongoose from "mongoose";
-import { ISkill } from "../../models/skill.modal";
-import { ISkillService } from "../../interfaces/services/ISkillService";
+import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
+import { TYPES } from "../../di/types";
+import { SkillUserResponseDTO } from "../../dtos/response/user.skill.response.dto";
+import { SkillUserMapper } from "../../mapping/user.skill.mapper";
 
 @injectable()
 export class UserSkillService implements IUserSkillService {
   constructor(
-    @inject(TYPES.UserRepository)
-    private _userRepo: IUserRepository,
-    @inject(TYPES.SkillService)
-    private _skillRepo: ISkillRepository
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
+    @inject(TYPES.SkillRepository) private _skillRepo: ISkillRepository
   ) {}
 
-  async getUserSkills(userId: string): Promise<ISkill[] | undefined> {
-    return await this._userRepo.getUserSkillsById(userId);
+  async addSkillToUser(userId: string, title: string): Promise<void> {
+    const normalized = title.trim().toLowerCase();
+    let skill = await this._skillRepo.getByTitle(normalized);
+
+    if (!skill) {
+      skill = await this._skillRepo.createSkillWith(normalized, userId, "user");
+    }
+
+    await this._userRepo.addSkillToUser(userId, skill._id.toString());
   }
 
-  async addSkills(
-    userId: string,
-    skillTitles: string[]
-  ): Promise<IUser | null> {
-    const skillIds = await Promise.all(
-      skillTitles.map(async (title) => {
-        title = title.trim().toLowerCase();
-        let skill = await this._skillRepo.getByTitle(title);
-        if (!skill) {
-          skill = await this._skillRepo.create({
-            title,
-            createdById: new mongoose.Types.ObjectId(userId),
-            createdBy: "user",
-          });
-        }
-        return new mongoose.Types.ObjectId(skill._id);
-      })
-    );
-
-    return await this._userRepo.addSkillsToUser(userId, skillIds);
+  async deleteSkillFromUser(userId: string, skillId: string): Promise<void> {
+    await this._userRepo.deleteUserSkill(userId, skillId);
   }
 
-  async deleteSkill(userId: string, skillId: string): Promise<IUser | null> {
-    return await this._userRepo.deleteUserSkill(userId, skillId);
+  async getUserSkills(userId: string): Promise<SkillUserResponseDTO[]> {
+    const skills = await this._userRepo.getUserSkills(userId);
+    return skills.map(SkillUserMapper.toDTO);
   }
 }

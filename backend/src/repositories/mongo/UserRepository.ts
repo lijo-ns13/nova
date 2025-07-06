@@ -35,6 +35,32 @@ export class UserRepository
   constructor(@inject(TYPES.UserModal) private userModel: Model<IUser>) {
     super(userModel);
   }
+  async updateSkillUser(userId: string, skillId: string): Promise<void> {
+    await this.update(userId, {
+      $pull: {
+        skills: new Types.ObjectId(skillId),
+      },
+    });
+  }
+  async addSkillToUser(userId: string, skillId: string): Promise<void> {
+    await this.update(userId, {
+      $addToSet: {
+        skills: new Types.ObjectId(skillId),
+      },
+    });
+  }
+  async getUserSkills(userId: string): Promise<ISkill[]> {
+    const user = await this.findOne(
+      { _id: userId },
+      { path: "skills", select: "_id title" }
+    );
+
+    if (!user || !user.skills || !Array.isArray(user.skills)) {
+      return [];
+    }
+
+    return user.skills as ISkill[];
+  }
 
   // User CRUD Operations
   async createUser(userData: Partial<IUser>): Promise<IUser> {
