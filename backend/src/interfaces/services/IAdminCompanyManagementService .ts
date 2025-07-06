@@ -1,41 +1,26 @@
 // src/core/interfaces/services/IAdminCompanyManagementService.ts
 
-import { ICompany } from "../../models/company.modal";
-
+import {
+  CompanyPaginatedResponse,
+  CompanySummaryDTO,
+} from "../../dtos/response/admin/admin.company.response.dto";
 export interface IAdminCompanyManagementService {
-  deleteCompany(companyId: string): Promise<any>;
-  findCompanyById(companyId: string): Promise<any>;
-  getCompanyById(companyId: string): Promise<any>;
+  getCompanyById(companyId: string): Promise<CompanySummaryDTO>;
   verifyCompany(
     companyId: string,
-    status: "accepted" | "rejected"
-  ): Promise<any>;
-  blockCompany(companyId: string): Promise<any>;
-  unblockCompany(companyId: string): Promise<any>;
+    status: "accepted" | "rejected",
+    rejectionReason?: string
+  ): Promise<CompanySummaryDTO>;
+  blockCompany(companyId: string): Promise<CompanySummaryDTO>;
+  unblockCompany(companyId: string): Promise<CompanySummaryDTO>;
 
   getCompanies(
-    page?: number,
-    limit?: number,
+    page: number,
+    limit: number,
     searchQuery?: string
-  ): Promise<{
-    companies: ICompany[];
-    pagination: {
-      totalCompanies: number;
-      totalPages: number;
-      currentPage: number;
-      companiesPerPage: number;
-    };
-  }>;
+  ): Promise<CompanyPaginatedResponse>;
   getUnverifiedCompanies(
-    page?: number,
-    limit?: number
-  ): Promise<{
-    companies: any[];
-    pagination: {
-      totalCompanies: number;
-      totalPages: number;
-      currentPage: number;
-      companiesPerPage: number;
-    };
-  }>;
+    page: number,
+    limit: number
+  ): Promise<CompanyPaginatedResponse>;
 }

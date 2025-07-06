@@ -5,15 +5,18 @@ import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { ZodError } from "zod";
 import { IAdminAuthController } from "../../interfaces/controllers/IAdminAuthController";
 import { Request, Response } from "express";
+import logger from "../../utils/logger";
+import { handleControllerError } from "../../utils/errorHandler";
+import { AdminSignInRequestSchema } from "../../core/dtos/admin/admin.auth.request.dto";
 @injectable()
 export class AdminAuthController implements IAdminAuthController {
   constructor(
-    @inject(TYPES.AdminAuthService) private authService: IAdminAuthService
+    @inject(TYPES.AdminAuthService) private _authService: IAdminAuthService
   ) {}
   async signIn(req: Request, res: Response): Promise<void> {
     try {
-      const data = req.body;
-      const result = await this.authService.signIn(data);
+      const parsed = AdminSignInRequestSchema.parse(req.body);
+      const result = await this._authService.signIn(parsed);
       res.cookie("refreshToken", result.refreshToken, {
         httpOnly: true,
         secure: true,
@@ -35,19 +38,7 @@ export class AdminAuthController implements IAdminAuthController {
         isBlocked: false,
       });
     } catch (error) {
-      if (error instanceof ZodError) {
-        const errObj: Record<string, string> = {};
-        error.errors.forEach((err) => {
-          errObj[err.path.join(".")] = err.message;
-        });
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, errors: errObj });
-        return;
-      }
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error: (error as Error).message });
+      handleControllerError(error, res, "AdminAuthController.signIn");
     }
   }
 }

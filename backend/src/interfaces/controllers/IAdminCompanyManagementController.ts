@@ -7,5 +7,5 @@ export interface IAdminCompanyManagementController {
   getUnverifiedCompaniesHandler: RequestHandler;
   blockCompany: RequestHandler;
   unblockCompany: RequestHandler;
-  getCompanies(req: Request, res: Response): Promise<void>;
+  getCompanies: RequestHandler;
 }
