@@ -16,7 +16,10 @@ export class UserSkillService implements IUserSkillService {
     @inject(TYPES.SkillRepository) private _skillRepo: ISkillRepository
   ) {}
 
-  async addSkillToUser(userId: string, title: string): Promise<void> {
+  async addSkillToUser(
+    userId: string,
+    title: string
+  ): Promise<SkillUserResponseDTO[]> {
     const normalized = title.trim().toLowerCase();
     let skill = await this._skillRepo.getByTitle(normalized);
 
@@ -25,6 +28,8 @@ export class UserSkillService implements IUserSkillService {
     }
 
     await this._userRepo.addSkillToUser(userId, skill._id.toString());
+    const skills = await this._userRepo.getUserSkills(userId);
+    return skills.map(SkillUserMapper.toDTO);
   }
 
   async deleteSkillFromUser(userId: string, skillId: string): Promise<void> {

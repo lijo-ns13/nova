@@ -17,6 +17,6 @@ router.use(authMiddleware.check());
 router.get("/user", skillController.getUserSkills.bind(skillController));
 router.post("/", skillController.addSkill.bind(skillController));
 
-router.delete("/", skillController.removeSkill.bind(skillController));
+router.delete("/:skillId", skillController.removeSkill.bind(skillController));
 
 export default router;

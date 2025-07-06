@@ -1,3 +1,7 @@
+# Ignore all .log files everywhere
+*.log
+
+
 # backend
 backend/.env
 backend/dist

@@ -26,10 +26,14 @@ export class UserSkillController {
     try {
       const { title } = AddUserSkillSchema.parse(req.body);
       const userId = (req.user as UserPayload)?.id;
-      await this._skillService.addSkillToUser(userId, title);
+      const result = await this._skillService.addSkillToUser(userId, title);
       res
         .status(HTTP_STATUS_CODES.OK)
-        .json({ success: true, message: "Skill added" });
+        .json({
+          success: true,
+          message: "Skill added successfully",
+          data: result,
+        });
     } catch (err) {
       handleControllerError(err, res, "UserSkillController::addSkill");
     }
@@ -37,7 +41,7 @@ export class UserSkillController {
 
   async removeSkill(req: Request, res: Response): Promise<void> {
     try {
-      const { skillId } = RemoveUserSkillSchema.parse(req.body);
+      const { skillId } = RemoveUserSkillSchema.parse(req.params);
       const userId = (req.user as UserPayload)?.id;
       await this._skillService.deleteSkillFromUser(userId, skillId);
       res
