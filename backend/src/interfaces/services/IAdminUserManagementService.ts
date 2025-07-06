@@ -1,19 +1,14 @@
-import { IUser } from "../../models/user.modal";
+import {
+  UserPaginatedResponse,
+  UserSummaryDTO,
+} from "../../dtos/response/admin/admin.user.response.dto";
 
 export interface IAdminUserManagementService {
-  blockUser(userId: string): Promise<IUser | null>;
-  unblockUser(userId: string): Promise<IUser | null>;
+  blockUser(userId: string): Promise<UserSummaryDTO>;
+  unblockUser(userId: string): Promise<UserSummaryDTO>;
   getUsers(
-    page?: number,
-    limit?: number,
-    searchQuery?: string
-  ): Promise<{
-    users: IUser[];
-    pagination: {
-      totalUsers: number;
-      totalPages: number;
-      currentPage: number;
-      usersPerPage: number;
-    };
-  }>;
+    page: number,
+    limit: number,
+    search?: string
+  ): Promise<UserPaginatedResponse>;
 }

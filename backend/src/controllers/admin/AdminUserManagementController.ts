@@ -1,10 +1,13 @@
-import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { TYPES } from "../../di/types";
 import { inject } from "inversify";
-import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { Request, RequestHandler, Response } from "express";
 import { IAdminUserManagementController } from "../../interfaces/controllers/IAdminUserManagementController ";
 import { IAdminUserManagementService } from "../../interfaces/services/IAdminUserManagementService";
+import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
+import { handleControllerError } from "../../utils/errorHandler";
+import { paginationSchema } from "../../core/validations/admin/admin.company.validation";
+import { userIdSchema } from "../../core/validations/admin/admin.user.validation";
+
 export class AdminUserManagementController
   implements IAdminUserManagementController
 {
@@ -12,33 +15,25 @@ export class AdminUserManagementController
     @inject(TYPES.AdminUserManagementService)
     private adminUserManagementService: IAdminUserManagementService
   ) {}
-  blockUser: RequestHandler = async (req: Request, res: Response) => {
+
+  blockUser: RequestHandler = async (req, res) => {
     try {
-      const { userId } = req.params;
+      const { userId } = userIdSchema.parse(req.params);
       const user = await this.adminUserManagementService.blockUser(userId);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "User blocked successfully",
-        data: {
-          _id: user?._id,
-          name: user?.name,
-          profilePicture: user?.profilePicture,
-          isBlocked: user?.isBlocked,
-          email: user?.email,
-        },
+        data: user,
       });
     } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: (error as Error).message });
+      handleControllerError(error, res, "blockUser");
     }
   };
 
-  // Unblock a user
-  unblockUser: RequestHandler = async (req: Request, res: Response) => {
+  unblockUser: RequestHandler = async (req, res) => {
     try {
-      const { userId } = req.params;
+      const { userId } = userIdSchema.parse(req.params);
       const user = await this.adminUserManagementService.unblockUser(userId);
 
       res.status(HTTP_STATUS_CODES.OK).json({
@@ -47,38 +42,28 @@ export class AdminUserManagementController
         data: user,
       });
     } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: (error as Error).message });
+      handleControllerError(error, res, "unblockUser");
     }
   };
 
-  async getUsers(req: Request, res: Response): Promise<void> {
+  getUsers: RequestHandler = async (req, res) => {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 1;
-      const searchQuery = req.query.search as string | undefined;
-
-      const usersData = await this.adminUserManagementService.getUsers(
+      const { page, limit, search } = paginationSchema.parse(req.query);
+      const result = await this.adminUserManagementService.getUsers(
         page,
         limit,
-        searchQuery
+        search
       );
-      if (!usersData) {
-        throw new Error("Service Layor not working");
-      }
+
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: searchQuery
+        message: search
           ? "Search results fetched successfully"
           : "Users fetched successfully",
-        data: usersData,
+        data: result,
       });
     } catch (error) {
-      console.error(error);
-      res
-        .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ success: false, error: (error as Error).message });
+      handleControllerError(error, res, "getUsers");
     }
-  }
+  };
 }
