@@ -9,12 +9,12 @@ import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import {
   createJobSchema,
   updateJobSchema,
-} from "../../core/dtos/company/job.validation.dto";
+} from "../../core/dtos/company/job.dto";
 import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
 import { ICompanyJobController } from "../../interfaces/controllers/ICompanyJobController";
 import { ISkillService } from "../../interfaces/services/ISkillService";
 import { handleControllerError } from "../../utils/errorHandler";
-import logger from "../../utils/logger";
+
 interface UserPayload {
   id: string;
   email: string;

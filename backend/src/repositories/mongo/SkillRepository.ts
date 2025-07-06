@@ -12,6 +12,23 @@ export class SkillRepository
   constructor(@inject(TYPES.skillModal) skillModal: Model<ISkill>) {
     super(skillModal);
   }
+  async findOrCreateByTitle(
+    title: string,
+    createdById: string,
+    createdBy: "company" | "user" | "admin"
+  ): Promise<ISkill> {
+    const existing = await skillModal.findOne({
+      title: title.toLowerCase().trim(),
+    });
+    if (existing) return existing;
+
+    return await skillModal.create({
+      title: title.toLowerCase().trim(),
+      createdById: new Types.ObjectId(createdById),
+      createdBy,
+    });
+  }
+
   async createSkillWith(
     title: string,
     createdById: string,

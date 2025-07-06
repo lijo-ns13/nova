@@ -2,6 +2,12 @@ import { ISkill } from "../../models/skill.modal";
 import { IBaseRepository } from "./IBaseRepository";
 
 export interface ISkillRepository extends IBaseRepository<ISkill> {
+  findOrCreateByTitle(
+    title: string,
+    createdById: string,
+    createdBy: "company" | "user" | "admin"
+  ): Promise<ISkill>;
+
   createSkillWith(
     title: string,
     createdById: string,

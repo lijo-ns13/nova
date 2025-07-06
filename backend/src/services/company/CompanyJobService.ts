@@ -15,6 +15,7 @@ import { INotificationService } from "../../interfaces/services/INotificationSer
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { Types } from "mongoose";
 import { NotificationType } from "../../models/notification.modal";
+import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
 
 export class CompanyJobService implements ICompanyJobService {
   constructor(
@@ -25,7 +26,8 @@ export class CompanyJobService implements ICompanyJobService {
     private _applicationRepo: IApplicationRepository,
     @inject(TYPES.NotificationService)
     private _notificationService: INotificationService,
-    @inject(TYPES.UserRepository) private _userRepo: IUserRepository
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
+    @inject(TYPES.SkillRepository) private _skillRepository: ISkillRepository
   ) {}
   async createJob(
     createJobDto: CreateJobDto,
