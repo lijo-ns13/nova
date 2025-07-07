@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from "react";
-import {
-  createFeature,
-  deleteFeature,
-  getAllFeatures,
-  updateFeature,
-} from "../../services/FeatureService";
 import FeatureCard from "./FeatureCard";
 import FeatureForm from "./FeatureForm";
 import { Feature, FeatureFormData } from "../../types/feature";
-
+import { FeatureService } from "../../services/FeatureService";
 import { PlusCircle, AlertTriangle, Loader2 } from "lucide-react";
 import Button from "../../../../components/ui/Button";
 import BaseModal from "../../../company/components/profile/BaseModal";
 import ConfirmationModal from "../../../../components/ui/ConfirmationModal";
+import { ParsedAPIError } from "../../../../utils/apiError";
 
 const FeatureManagement: React.FC = () => {
   const [features, setFeatures] = useState<Feature[]>([]);
@@ -26,15 +21,29 @@ const FeatureManagement: React.FC = () => {
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
+  // ✅ DRY Error Handler
+  const handleParsedError = (
+    err: unknown,
+    setFieldErrors: (e: Record<string, string>) => void,
+    setFormError: (e: string) => void
+  ) => {
+    const error = err as ParsedAPIError;
+    if (error.errors) setFieldErrors(error.errors);
+    else if (error.message) setFormError(error.message);
+    else setFormError("Something went wrong");
+  };
+
   const fetchFeatures = async () => {
     try {
       setLoading(true);
       setGlobalError(null);
-      const data = await getAllFeatures();
+      const data = await FeatureService.getAllFeatures();
       setFeatures(data);
     } catch (error) {
-      console.error("Error fetching features", error);
-      setGlobalError("Failed to load features. Please try again.");
+      const errObj = error as ParsedAPIError;
+      setGlobalError(
+        errObj.message || "Failed to load features. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -63,29 +72,22 @@ const FeatureManagement: React.FC = () => {
 
     try {
       if (selectedFeature) {
-        await updateFeature(selectedFeature._id, formData);
+        const res = await FeatureService.updateFeature(
+          selectedFeature.id,
+          formData
+        );
+        const other = features.filter(
+          (feature) => feature.id != selectedFeature.id
+        );
+        setFeatures([...other, res]);
       } else {
-        await createFeature(formData);
+        const res = await FeatureService.createFeature(formData);
+        await fetchFeatures();
       }
-      setFormModalOpen(false);
-      await fetchFeatures();
-    } catch (error: unknown) {
-      if (typeof error === "object" && error !== null) {
-        const errObj = error as {
-          errors?: Record<string, string>;
-          message?: string;
-        };
 
-        if (errObj.errors) {
-          setFieldErrors(errObj.errors);
-        } else if (errObj.message) {
-          setFormError(errObj.message);
-        } else {
-          setFormError("An unexpected error occurred. Please try again.");
-        }
-      } else {
-        setFormError("An unknown error occurred.");
-      }
+      setFormModalOpen(false);
+    } catch (error) {
+      handleParsedError(error, setFieldErrors, setFormError);
     } finally {
       setSubmitLoading(false);
     }
@@ -95,13 +97,13 @@ const FeatureManagement: React.FC = () => {
     if (!selectedFeature) return;
 
     try {
-      setDeleteLoading(selectedFeature._id);
-      await deleteFeature(selectedFeature._id);
+      setDeleteLoading(selectedFeature.id);
+      await FeatureService.deleteFeature(selectedFeature.id);
       setDeleteModalOpen(false);
-      await fetchFeatures();
+      setFeatures(features.filter((feat) => feat.id != selectedFeature.id));
     } catch (error) {
-      console.error("Error deleting feature", error);
-      setGlobalError("Failed to delete the feature.");
+      const errObj = error as ParsedAPIError;
+      setGlobalError(errObj.message || "Failed to delete the feature.");
     } finally {
       setDeleteLoading(null);
     }
@@ -142,7 +144,7 @@ const FeatureManagement: React.FC = () => {
         </div>
       )}
 
-      {/* Feature Cards */}
+      {/* Feature List */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12">
           <Loader2 className="h-12 w-12 text-teal-500 animate-spin mb-4" />
@@ -163,11 +165,11 @@ const FeatureManagement: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((feature) => (
             <FeatureCard
-              key={feature._id}
+              key={feature.id}
               feature={feature}
               onEdit={() => handleOpenFormModal(feature)}
               onDelete={() => handleOpenDeleteModal(feature)}
-              isDeleteLoading={deleteLoading === feature._id}
+              isDeleteLoading={deleteLoading === feature.id}
             />
           ))}
         </div>

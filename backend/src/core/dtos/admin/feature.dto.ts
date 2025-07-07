@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // Strict validation
 export const FeatureCreateSchema = z.object({
-  name: z.string().min(1, "Feature name is required"),
+  name: z.string().trim().min(1, "Feature name is required"),
 });
 
 export const FeatureUpdateSchema = FeatureCreateSchema.partial();

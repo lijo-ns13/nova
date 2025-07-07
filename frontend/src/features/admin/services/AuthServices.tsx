@@ -1,6 +1,5 @@
 import axios from "axios";
 import { AdminSignInInput, AdminSignInResponse } from "../types/adminAuth";
-import { APIResponse, HTTPErrorResponse } from "../../../types/api";
 import { handleApiError } from "../../../utils/apiError";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;

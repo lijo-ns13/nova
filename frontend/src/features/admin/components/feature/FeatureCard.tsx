@@ -16,7 +16,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   onDelete,
   isDeleteLoading,
 }) => {
-  const { _id, name, isActive = true, createdAt } = feature;
+  const { id, name, isActive = true } = feature;
 
   // Determine card styling
   const getCardStyle = () => {
@@ -56,21 +56,21 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
 
         {/* Feature details */}
         <div className="space-y-3 mb-6">
-          <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+          {/* <div className="flex justify-between items-center pt-2 border-t border-gray-200">
             <span className="text-xs text-gray-500">Created:</span>
             <span className="text-xs text-gray-500">
               {formatDate(createdAt)}
             </span>
-          </div>
+          </div> */}
 
-          {feature.updatedAt && (
+          {/* {feature.updatedAt && (
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-500">Last Updated:</span>
               <span className="text-xs text-gray-500">
                 {formatDate(feature.updatedAt)}
               </span>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Action buttons */}
@@ -89,7 +89,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             variant="danger"
             size="sm"
             icon={<Trash2 size={16} />}
-            onClick={() => onDelete(_id)}
+            onClick={() => onDelete(id)}
             isLoading={isDeleteLoading}
             disabled={isDeleteLoading}
           >

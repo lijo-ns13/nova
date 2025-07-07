@@ -1,6 +1,12 @@
 import axios, { AxiosError } from "axios";
 import { HTTPErrorResponse, ValidationErrorResponse } from "../types/api";
 
+export type ParsedAPIError = {
+  message?: string;
+  errors?: Record<string, string>;
+  statusCode: number;
+};
+
 export function isValidationError(
   error: unknown
 ): error is AxiosError<ValidationErrorResponse> {
@@ -30,13 +36,22 @@ export function getErrorMessage(error: unknown): string | undefined {
 
 export function handleApiError(
   error: unknown,
-  fallbackMessage: string
-): HTTPErrorResponse {
+  fallbackMessage = "Something went wrong"
+): ParsedAPIError {
+  const statusCode =
+    axios.isAxiosError(error) && error.response?.status
+      ? error.response.status
+      : 500;
+
+  if (isValidationError(error)) {
+    return {
+      statusCode,
+      errors: error.response!.data.errors, // ✅ field-level
+    };
+  }
+
   return {
-    message: getErrorMessage(error)?.trim() || fallbackMessage,
-    statusCode:
-      axios.isAxiosError(error) && error.response?.status
-        ? error.response.status
-        : 500,
+    statusCode,
+    message: getErrorMessage(error) || fallbackMessage,
   };
 }

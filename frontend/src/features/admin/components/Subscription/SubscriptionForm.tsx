@@ -1,14 +1,22 @@
-import React, { useState, useEffect } from "react";
-import { Subscription, SubscriptionFormData } from "../../types/subscription";
-
+import React, { useEffect, useState } from "react";
 import Input from "../../../../components/ui/Input";
 import Button from "../../../../components/ui/Button";
 import SelectSub from "../../../../components/ui/SelectSub";
 
+import type {
+  SubscriptionPlanResponse,
+  CreatePlanInput,
+} from "../../types/subscription";
+
+type SubscriptionFormData = CreatePlanInput;
+
 interface SubscriptionFormProps {
   onSubmit: (formData: SubscriptionFormData) => Promise<void>;
   onClose: () => void;
-  initialData?: Subscription;
+  initialData?: Pick<
+    SubscriptionPlanResponse,
+    "name" | "price" | "validityDays"
+  >;
   isLoading: boolean;
   formError: string | null;
   fieldErrors: Record<string, string>;
@@ -24,8 +32,8 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
 }) => {
   const [formData, setFormData] = useState<SubscriptionFormData>({
     name: initialData?.name || "BASIC",
-    price: initialData?.price || NaN,
-    validityDays: initialData?.validityDays || NaN,
+    price: initialData?.price ?? 0,
+    validityDays: initialData?.validityDays ?? 1,
   });
 
   useEffect(() => {
@@ -42,22 +50,36 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "name" ? value : parseInt(value) || 0,
-    }));
+
+    if (name === "name") {
+      setFormData((prev) => ({
+        ...prev,
+        name: value as SubscriptionFormData["name"],
+      }));
+    } else {
+      const parsed = Number(value);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: isNaN(parsed) ? 0 : parsed,
+      }));
+    }
   };
 
-  const handleSelectChange = (name: string) => (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const handleSelectChange =
+    (name: keyof SubscriptionFormData) => (value: string) => {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value as SubscriptionFormData["name"],
+      }));
+    };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit(formData);
+    try {
+      await onSubmit(formData);
+    } catch (err) {
+      console.error("Unexpected form submission error:", err);
+    }
   };
 
   return (
@@ -80,7 +102,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
           ]}
           value={formData.name}
           onChange={handleSelectChange("name")}
-          disabled={!!initialData}
+          disabled={!!initialData} // lock name on update
           error={fieldErrors.name}
           hint="Select the subscription tier"
         />
@@ -91,7 +113,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
           name="price"
           value={formData.price}
           onChange={handleChange}
-          min={0}
+          // min={0}
           placeholder="Enter price in rupees"
           error={fieldErrors.price}
           hint="Set the subscription price"
@@ -103,7 +125,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
           name="validityDays"
           value={formData.validityDays}
           onChange={handleChange}
-          min={1}
+          // min={1}
           placeholder="Enter validity period in days"
           error={fieldErrors.validityDays}
           hint="Set how many days the subscription will be valid"

@@ -1,12 +1,12 @@
 import React from "react";
-import { Subscription } from "../../types/subscription";
+import { SubscriptionPlanResponse } from "../../types/subscription";
 
 import { Edit, Trash2, Eye, EyeOff } from "lucide-react";
 import Button from "../../../../components/ui/Button";
 
 interface SubscriptionCardProps {
-  subscription: Subscription;
-  onEdit: (subscription: Subscription) => void;
+  subscription: SubscriptionPlanResponse;
+  onEdit: (subscription: SubscriptionPlanResponse) => void;
   onDelete: (id: string) => void;
   onToggleStatus: (id: string, isActive: boolean) => void;
   isToggleLoading: boolean;
@@ -21,10 +21,10 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   isToggleLoading,
   isDeleteLoading,
 }) => {
-  const { _id, name, price, validityDays, isActive, createdAt } = subscription;
+  const { id, name, price, validityDays, isActive } = subscription;
 
-  // Determine card styling based on plan type
-  const getPlanColor = () => {
+  // Determine card background color based on plan name
+  const getPlanColor = (): string => {
     switch (name) {
       case "BASIC":
         return "border-blue-200 bg-blue-50";
@@ -37,20 +37,10 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
     }
   };
 
-  // Determine badge styling based on status
-  const getStatusBadge = () => {
+  const getStatusBadge = (): string => {
     return isActive
       ? "bg-green-100 text-green-800 border-green-200"
       : "bg-gray-100 text-gray-800 border-gray-200";
-  };
-
-  // Format date for better readability
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
   };
 
   return (
@@ -58,7 +48,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
       className={`rounded-lg border-2 shadow-sm transition-all duration-300 hover:shadow-md ${getPlanColor()}`}
     >
       <div className="p-5">
-        {/* Header with plan name and status */}
+        {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <h3
             className={`text-xl font-bold ${
@@ -78,7 +68,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
           </span>
         </div>
 
-        {/* Plan details */}
+        {/* Plan Details */}
         <div className="space-y-3 mb-6">
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Price:</span>
@@ -91,16 +81,9 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
             <span className="text-gray-600">Validity:</span>
             <span className="font-semibold">{validityDays} days</span>
           </div>
-
-          <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-            <span className="text-xs text-gray-500">Created:</span>
-            <span className="text-xs text-gray-500">
-              {formatDate(createdAt)}
-            </span>
-          </div>
         </div>
 
-        {/* Action buttons */}
+        {/* Actions */}
         <div className="flex flex-wrap gap-2">
           <Button
             variant="primary"
@@ -112,22 +95,22 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
             Edit
           </Button>
 
-          <Button
+          {/* <Button
             variant={isActive ? "outline" : "success"}
             size="sm"
             icon={isActive ? <EyeOff size={16} /> : <Eye size={16} />}
-            onClick={() => onToggleStatus(_id, isActive)}
+            onClick={() => onToggleStatus(id, isActive)}
             isLoading={isToggleLoading}
             disabled={isToggleLoading || isDeleteLoading}
           >
             {isActive ? "Hide" : "Activate"}
-          </Button>
+          </Button> */}
 
           <Button
             variant="danger"
             size="sm"
             icon={<Trash2 size={16} />}
-            onClick={() => onDelete(_id)}
+            onClick={() => onDelete(id)}
             isLoading={isDeleteLoading}
             disabled={isToggleLoading || isDeleteLoading}
           >

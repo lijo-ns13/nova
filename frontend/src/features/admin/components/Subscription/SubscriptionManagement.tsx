@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-
+import React, { useEffect, useState } from "react";
 import {
   CreateSubscriptionPlan,
   DeleteSubscription,
@@ -8,25 +7,28 @@ import {
   UpdateSubscriptionPlan,
 } from "../../services/SubscriptionService";
 import SubscriptionCard from "./SubscriptionCard";
-
 import SubscriptionForm from "./SubscriptionForm";
 
 import { PlusCircle, AlertTriangle, Loader2 } from "lucide-react";
-import { Subscription, SubscriptionFormData } from "../../types/subscription";
+import {
+  SubscriptionPlanResponse,
+  CreatePlanInput,
+} from "../../types/subscription";
+
 import Button from "../../../../components/ui/Button";
 import BaseModal from "../../../user/componets/modals/BaseModal";
 import ConfirmationModal from "../../../../components/ui/ConfirmationModal";
-interface ApiError {
-  errors?: Record<string, string>;
-  message?: string;
-}
+import { ParsedAPIError } from "../../../../utils/apiError";
+
 const SubscriptionManagement: React.FC = () => {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [subscriptions, setSubscriptions] = useState<
+    SubscriptionPlanResponse[]
+  >([]);
   const [loading, setLoading] = useState(false);
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedSubscription, setSelectedSubscription] =
-    useState<Subscription | null>(null);
+    useState<SubscriptionPlanResponse | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -34,20 +36,18 @@ const SubscriptionManagement: React.FC = () => {
   const [toggleLoading, setToggleLoading] = useState<string | null>(null);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
-  // Fetch all subscriptions
   const fetchSubscriptions = async () => {
     try {
       setLoading(true);
       setGlobalError(null);
       const data = await GetAllSubscription();
-      const filteredSubscriptions = data.filter(
-        (sub): sub is Subscription =>
-          sub.name === "BASIC" || sub.name === "PRO" || sub.name === "PREMIUM"
+      const filtered = data.filter((plan) =>
+        ["BASIC", "PRO", "PREMIUM"].includes(plan.name)
       );
-      setSubscriptions(filteredSubscriptions);
-    } catch (error) {
-      console.error("Error fetching subscriptions", error);
-      setGlobalError("Failed to load subscription plans. Please try again.");
+      setSubscriptions(filtered);
+    } catch (err) {
+      const error = err as ParsedAPIError;
+      setGlobalError(error.message || "Failed to load subscription plans.");
     } finally {
       setLoading(false);
     }
@@ -57,74 +57,71 @@ const SubscriptionManagement: React.FC = () => {
     fetchSubscriptions();
   }, []);
 
-  // Handle opening the add/edit modal
-  const handleOpenFormModal = (subscription?: Subscription) => {
-    setSelectedSubscription(subscription || null);
+  const openFormModal = (sub?: SubscriptionPlanResponse) => {
+    setSelectedSubscription(sub || null);
     setFormError(null);
     setFieldErrors({});
     setFormModalOpen(true);
   };
 
-  // Handle opening the delete confirmation modal
-  const handleOpenDeleteModal = (subscription: Subscription) => {
-    setSelectedSubscription(subscription);
+  const openDeleteModal = (sub: SubscriptionPlanResponse) => {
+    setSelectedSubscription(sub);
     setDeleteModalOpen(true);
   };
 
-  // Handle form submission for create/update
-  const handleSubmitForm = async (formData: SubscriptionFormData) => {
+  const handleSubmitForm = async (formData: CreatePlanInput) => {
     setFormError(null);
     setFieldErrors({});
     setSubmitLoading(true);
-
     try {
       if (selectedSubscription) {
-        await UpdateSubscriptionPlan(selectedSubscription._id, formData);
+        const res = await UpdateSubscriptionPlan(
+          selectedSubscription.id,
+          formData
+        );
+        const otherSub = subscriptions.filter(
+          (sub) => sub.id != selectedSubscription.id
+        );
+        setSubscriptions([...otherSub, res]);
       } else {
-        await CreateSubscriptionPlan(formData);
+        const res = await CreateSubscriptionPlan(formData);
+        setSubscriptions([...subscriptions, res]);
       }
       setFormModalOpen(false);
-      await fetchSubscriptions();
-    } catch (error) {
-      const apiError = error as ApiError;
-      if (apiError?.errors) {
-        setFieldErrors(apiError.errors);
-      } else if (apiError.message) {
-        setFormError(apiError.message);
-      } else {
-        setFormError("An unexpected error occurred. Please try again.");
-      }
+    } catch (err) {
+      const error = err as ParsedAPIError;
+      if (error.errors) setFieldErrors(error.errors);
+      else setFormError(error.message || "Something went wrong.");
     } finally {
       setSubmitLoading(false);
     }
   };
 
-  // Handle delete confirmation
   const handleConfirmDelete = async () => {
     if (!selectedSubscription) return;
-
     try {
-      setDeleteLoading(selectedSubscription._id);
-      await DeleteSubscription(selectedSubscription._id);
+      setDeleteLoading(selectedSubscription.id);
+      await DeleteSubscription(selectedSubscription.id);
       setDeleteModalOpen(false);
-      await fetchSubscriptions();
-    } catch (error) {
-      console.error("Error deleting subscription", error);
-      setGlobalError("Failed to delete the subscription plan.");
+      setSubscriptions(
+        subscriptions.filter((sub) => sub.id != selectedSubscription.id)
+      );
+    } catch (err) {
+      const error = err as ParsedAPIError;
+      setGlobalError(error.message || "Failed to delete subscription plan.");
     } finally {
       setDeleteLoading(null);
     }
   };
 
-  // Handle toggling subscription status
   const handleToggleStatus = async (id: string, isActive: boolean) => {
     try {
       setToggleLoading(id);
       await TogglePlanStatus(id, !isActive);
       await fetchSubscriptions();
-    } catch (error) {
-      console.error("Error toggling subscription status", error);
-      setGlobalError("Failed to update subscription status.");
+    } catch (err) {
+      const error = err as ParsedAPIError;
+      setGlobalError(error.message || "Failed to update status.");
     } finally {
       setToggleLoading(null);
     }
@@ -142,12 +139,11 @@ const SubscriptionManagement: React.FC = () => {
             Manage your subscription offerings
           </p>
         </div>
-
         <Button
           variant="primary"
           size="md"
           icon={<PlusCircle size={18} />}
-          onClick={() => handleOpenFormModal()}
+          onClick={() => openFormModal()}
         >
           Add New Plan
         </Button>
@@ -157,17 +153,13 @@ const SubscriptionManagement: React.FC = () => {
       {globalError && (
         <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
           <div className="flex">
-            <div className="flex-shrink-0">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-700">{globalError}</p>
-            </div>
+            <AlertTriangle className="h-5 w-5 text-red-500" />
+            <p className="ml-3 text-sm text-red-700">{globalError}</p>
           </div>
         </div>
       )}
 
-      {/* Subscription Cards */}
+      {/* Subscriptions */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12">
           <Loader2 className="h-12 w-12 text-blue-500 animate-spin mb-4" />
@@ -178,29 +170,29 @@ const SubscriptionManagement: React.FC = () => {
           <p className="text-gray-500 mb-4">No subscription plans found</p>
           <Button
             variant="outline"
-            onClick={() => handleOpenFormModal()}
             icon={<PlusCircle size={16} />}
+            onClick={() => openFormModal()}
           >
             Create Your First Plan
           </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {subscriptions.map((subscription) => (
+          {subscriptions.map((sub) => (
             <SubscriptionCard
-              key={subscription._id}
-              subscription={subscription}
-              onEdit={() => handleOpenFormModal(subscription)}
-              onDelete={() => handleOpenDeleteModal(subscription)}
+              key={sub.id}
+              subscription={sub}
+              onEdit={() => openFormModal(sub)}
+              onDelete={() => openDeleteModal(sub)}
               onToggleStatus={handleToggleStatus}
-              isToggleLoading={toggleLoading === subscription._id}
-              isDeleteLoading={deleteLoading === subscription._id}
+              isToggleLoading={toggleLoading === sub.id}
+              isDeleteLoading={deleteLoading === sub.id}
             />
           ))}
         </div>
       )}
 
-      {/* Create/Edit Modal */}
+      {/* Create / Edit Modal */}
       <BaseModal
         isOpen={formModalOpen}
         onClose={() => setFormModalOpen(false)}
@@ -220,13 +212,13 @@ const SubscriptionManagement: React.FC = () => {
         />
       </BaseModal>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       <ConfirmationModal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={handleConfirmDelete}
         title="Delete Subscription Plan"
-        message={`Are you sure you want to delete the ${selectedSubscription?.name} plan? This action cannot be undone.`}
+        message={`Are you sure you want to delete the "${selectedSubscription?.name}" plan? This action cannot be undone.`}
         confirmButtonText="Delete Plan"
         confirmButtonVariant="danger"
         isLoading={!!deleteLoading}
