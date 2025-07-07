@@ -1,7 +1,9 @@
+import { CreateSkillDto } from "../../core/dtos/admin/admin.skill.dto";
 import { ISkill } from "../../models/skill.modal";
 import { IBaseRepository } from "./IBaseRepository";
 
 export interface ISkillRepository extends IBaseRepository<ISkill> {
+  createSkillAsAdmin(dto: CreateSkillDto, adminId: string): Promise<ISkill>;
   findOrCreateByTitle(
     title: string,
     createdById: string,

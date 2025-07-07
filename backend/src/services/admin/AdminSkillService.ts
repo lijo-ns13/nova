@@ -1,141 +1,98 @@
+// src/services/admin/AdminSkillService.ts
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
-import { ISkill } from "../../models/skill.modal";
-import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
 import { IAdminSkillService } from "../../interfaces/services/IAdminSkillService";
-import mongoose from "mongoose";
-import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
-import { ICompanyRepository } from "../../interfaces/repositories/ICompanyRepository";
-import { IAdminRepository } from "../../interfaces/repositories/IAdminRepository";
-import { SkillWithCreatorEmail } from "../../core/entities/skilladmin";
+import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
+import {
+  CreateSkillDto,
+  UpdateSkillDto,
+} from "../../core/dtos/admin/admin.skill.dto";
+
+import { Logger } from "winston";
+import logger from "../../utils/logger";
+import { SkillMapper } from "../../mapping/admin/admin.skill.mapper";
+import {
+  PaginatedSkillResponse,
+  SkillResponseDto,
+} from "../../dtos/response/admin/admin.skill.reponse.dto";
 
 @injectable()
 export class AdminSkillService implements IAdminSkillService {
+  private readonly logger: Logger;
+
   constructor(
     @inject(TYPES.SkillRepository)
-    private _skillRepository: ISkillRepository,
-    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
-    @inject(TYPES.CompanyRepository) private _companyRepo: ICompanyRepository,
-    @inject(TYPES.AdminRepository) private _adminRepo: IAdminRepository
-  ) {}
-  async create(title: string, adminId: string): Promise<ISkill> {
-    if (!title.trim()) {
-      throw new Error("Skill title cannot be empty");
-    }
-    const lowerTitle = title.trim();
-    const existingSkill = await this._skillRepository.getByTitle(lowerTitle);
-    if (existingSkill) {
-      throw new Error("Skill already exists");
-    }
-    return this._skillRepository.create({
-      title,
-      createdById: new mongoose.Types.ObjectId(adminId),
-      createdBy: "admin",
-    });
+    private readonly skillRepository: ISkillRepository
+  ) {
+    this.logger = logger.child({ context: "AdminSkillService" });
   }
 
-  async update(id: string, updates: Partial<ISkill>): Promise<ISkill> {
-    if (updates.title && !updates.title.trim()) {
-      throw new Error("Skill title cannot be empty");
-    }
-    const lowerTitle = updates.title;
-    if (lowerTitle) {
-      const existingSkill = await this._skillRepository.getByTitle(lowerTitle);
-      if (existingSkill) {
+  async create(
+    dto: CreateSkillDto,
+    adminId: string
+  ): Promise<SkillResponseDto> {
+    this.logger.info("Creating new skill", { title: dto.title, adminId });
+
+    const lowerTitle = dto.title.trim().toLowerCase();
+    const exists = await this.skillRepository.getByTitle(lowerTitle);
+    if (exists) throw new Error("Skill already exists");
+
+    const created = await this.skillRepository.createSkillAsAdmin(dto, adminId);
+    return SkillMapper.toResponse(created);
+  }
+
+  async update(id: string, dto: UpdateSkillDto): Promise<SkillResponseDto> {
+    this.logger.info("Updating skill", { id, title: dto.title });
+
+    if (dto.title) {
+      const lowerTitle = dto.title.trim().toLowerCase();
+      const existing = await this.skillRepository.getByTitle(lowerTitle);
+      if (existing && existing.id !== id)
         throw new Error("Skill already exists");
-      }
     }
-    const updated = await this._skillRepository.update(id, updates);
-    if (!updated) {
-      throw new Error("Skill not found");
-    }
-    return updated;
+
+    const updated = await this.skillRepository.update(id, dto);
+    if (!updated) throw new Error("Skill not found");
+
+    return SkillMapper.toResponse(updated);
   }
 
   async delete(id: string): Promise<void> {
-    const exists = await this._skillRepository.findById(id);
-    if (!exists) {
-      throw new Error("Skill not found");
-    }
+    this.logger.info("Deleting skill", { id });
 
-    const success = await this._skillRepository.delete(id);
-    if (!success) {
-      throw new Error("Failed to delete skill");
-    }
+    const exists = await this.skillRepository.findById(id);
+    if (!exists) throw new Error("Skill not found");
+
+    const deleted = await this.skillRepository.delete(id);
+    if (!deleted) throw new Error("Failed to delete skill");
   }
 
   async getAll(
-    page: number = 1,
-    limit: number = 10,
+    page: number,
+    limit: number,
     search?: string
-  ): Promise<{
-    skills: ISkill[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
-    if (page < 1) page = 1;
-    if (limit < 1 || limit > 100) limit = 10;
+  ): Promise<PaginatedSkillResponse> {
+    this.logger.info("Fetching skills list", { page, limit, search });
 
-    const { skills, total } = await this._skillRepository.getAll(
+    const { skills, total } = await this.skillRepository.getAll(
       page,
       limit,
       search
     );
-    console.log("skilss", skills, total);
     return {
-      skills,
+      skills: skills.map(SkillMapper.toResponse),
       total,
       page,
       limit,
     };
   }
-  async getById(id: string): Promise<SkillWithCreatorEmail> {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new Error("Invalid skill ID");
-    }
 
-    const skill = await this._skillRepository.findById(id);
-    if (!skill) {
-      throw new Error("Skill not found");
-    }
+  async getById(id: string): Promise<SkillResponseDto> {
+    this.logger.info("Fetching skill by ID", { id });
 
-    if (!skill.createdById) {
-      throw new Error("Skill does not have a creator ID");
-    }
+    const skill = await this.skillRepository.findById(id);
+    if (!skill) throw new Error("Skill not found");
 
-    let creatorEmail: string;
-
-    if (skill.createdBy === "user") {
-      const user = await this._userRepo.findById(skill.createdById.toString());
-      if (!user) throw new Error("User not found");
-      creatorEmail = user.email;
-    } else if (skill.createdBy === "company") {
-      const company = await this._companyRepo.findById(
-        skill.createdById.toString()
-      );
-      if (!company) throw new Error("Company not found");
-      creatorEmail = company.email;
-    } else if (skill.createdBy === "admin") {
-      const admin = await this._adminRepo.findById(
-        skill.createdById.toString()
-      );
-      if (!admin) throw new Error("Admin not found");
-      creatorEmail = admin.email;
-    } else {
-      throw new Error("Unknown creator type");
-    }
-
-    return {
-      _id: skill._id,
-      title: skill.title,
-      createdBy: skill.createdBy,
-      createdById: {
-        _id: skill.createdById,
-        email: creatorEmail,
-      },
-      createdAt: skill.createdAt,
-      updatedAt: skill.updatedAt,
-    };
+    return SkillMapper.toResponse(skill);
   }
 }

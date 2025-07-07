@@ -1,4 +1,4 @@
-export interface UserResponse {
+export interface User {
   id: string;
   name: string;
   email: string;
@@ -6,9 +6,14 @@ export interface UserResponse {
   isBlocked: boolean;
 }
 
-export interface PaginatedUserResponse {
-  users: UserResponse[];
-  total: number;
-  page: number;
-  limit: number;
+export interface Pagination {
+  totalUsers: number;
+  totalPages: number;
+  currentPage: number;
+  usersPerPage: number;
+}
+
+export interface PaginatedUserData {
+  users: User[];
+  pagination: Pagination;
 }

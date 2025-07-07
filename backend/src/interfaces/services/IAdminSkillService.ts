@@ -1,16 +1,21 @@
-// src/core/interfaces/services/ISkillService.ts
-
-import { SkillWithCreatorEmail } from "../../core/entities/skilladmin";
-import { ISkill } from "../../models/skill.modal";
+// src/interfaces/services/IAdminSkillService.ts
+import {
+  CreateSkillDto,
+  UpdateSkillDto,
+} from "../../core/dtos/admin/admin.skill.dto";
+import {
+  PaginatedSkillResponse,
+  SkillResponseDto,
+} from "../../dtos/response/admin/admin.skill.reponse.dto";
 
 export interface IAdminSkillService {
-  create(title: string, adminId: string): Promise<ISkill>;
-  update(id: string, updates: Partial<ISkill>): Promise<ISkill>;
+  create(dto: CreateSkillDto, adminId: string): Promise<SkillResponseDto>;
+  update(id: string, dto: UpdateSkillDto): Promise<SkillResponseDto>;
   delete(id: string): Promise<void>;
   getAll(
-    page?: number,
-    limit?: number,
+    page: number,
+    limit: number,
     search?: string
-  ): Promise<{ skills: ISkill[]; total: number; page: number; limit: number }>;
-  getById(id: string): Promise<SkillWithCreatorEmail>;
+  ): Promise<PaginatedSkillResponse>;
+  getById(id: string): Promise<SkillResponseDto>;
 }

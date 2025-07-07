@@ -47,7 +47,7 @@ export class AdminUserManagementService implements IAdminUserManagementService {
       throw new Error("User not found during unblock");
     }
 
-    if (user.isBlocked) {
+    if (!user.isBlocked) {
       this.logger.warn(`User already unblocked: ${userId}`);
       throw new Error("User already unblocked");
     }
@@ -55,10 +55,12 @@ export class AdminUserManagementService implements IAdminUserManagementService {
     const updatedUser = await this._userRepository.updateUser(userId, {
       isBlocked: false,
     });
+
     if (!updatedUser) {
-      this.logger.warn("user not updated for unblock");
-      throw new Error("user not updated for unblock");
+      this.logger.warn("User not updated for unblock");
+      throw new Error("User not updated for unblock");
     }
+
     return UserMapper.toSummaryDTO(updatedUser);
   }
 

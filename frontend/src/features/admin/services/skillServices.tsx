@@ -32,18 +32,32 @@ export const SkillService = {
     search?: string
   ): Promise<PaginatedSkillResponse> {
     try {
-      const response = await adminAxios.get<
-        APIResponse<PaginatedSkillResponse>
-      >(BASE_URL, {
+      const response = await adminAxios.get<{
+        success: boolean;
+        data: ISkill[];
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          totalPages: number;
+        };
+      }>(BASE_URL, {
         params: { page, limit, search },
         withCredentials: true,
       });
-      return response.data.data;
+
+      const { data, pagination } = response.data;
+
+      return {
+        skills: data, // ✅ Fix: rename `data` → `skills`
+        total: pagination.total,
+        page: pagination.page,
+        limit: pagination.limit,
+      };
     } catch (error) {
       throw handleApiError(error, "Failed to fetch skills");
     }
   },
-
   async getSkillById(id: string): Promise<SkillWithCreatorEmail> {
     try {
       const response = await adminAxios.get<APIResponse<SkillWithCreatorEmail>>(

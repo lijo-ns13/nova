@@ -1,7 +1,8 @@
 import adminAxios from "../../../utils/adminAxios";
 import { APIResponse, HTTPErrorResponse } from "../../../types/api";
-import { UserResponse, PaginatedUserResponse } from "../types/user";
+
 import { getErrorMessage, handleApiError } from "../../../utils/apiError";
+import { PaginatedUserData, User } from "../types/user";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const BASE_URL = `${API_BASE_URL}/admin/users`;
@@ -11,7 +12,7 @@ export const getUsers = async (
   page = 1,
   limit = 10,
   searchQuery?: string
-): Promise<PaginatedUserResponse> => {
+): Promise<PaginatedUserData> => {
   try {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -22,11 +23,12 @@ export const getUsers = async (
       params.append("search", searchQuery);
     }
 
-    const response = await adminAxios.get<APIResponse<PaginatedUserResponse>>(
+    const response = await adminAxios.get<APIResponse<PaginatedUserData>>(
       `${BASE_URL}?${params.toString()}`,
       { withCredentials: true }
     );
 
+    // ✅ .data contains { users, pagination }
     return response.data.data;
   } catch (error) {
     throw handleApiError(error, "Failed to fetch users");
@@ -34,9 +36,9 @@ export const getUsers = async (
 };
 
 // Block user
-export const blockUser = async (userId: string): Promise<UserResponse> => {
+export const blockUser = async (userId: string): Promise<User> => {
   try {
-    const response = await adminAxios.patch<APIResponse<UserResponse>>(
+    const response = await adminAxios.patch<APIResponse<User>>(
       `${BASE_URL}/block/${userId}`,
       {},
       { withCredentials: true }
@@ -48,9 +50,9 @@ export const blockUser = async (userId: string): Promise<UserResponse> => {
 };
 
 // Unblock user
-export const unblockUser = async (userId: string): Promise<UserResponse> => {
+export const unblockUser = async (userId: string): Promise<User> => {
   try {
-    const response = await adminAxios.patch<APIResponse<UserResponse>>(
+    const response = await adminAxios.patch<APIResponse<User>>(
       `${BASE_URL}/unblock/${userId}`,
       {},
       { withCredentials: true }

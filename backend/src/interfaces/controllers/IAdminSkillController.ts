@@ -1,11 +1,9 @@
-// src/core/interfaces/controllers/ISkillController.ts
-
-import { Request, Response } from "express";
+import { RequestHandler } from "express";
 
 export interface IAdminSkillController {
-  create(req: Request, res: Response): Promise<void>;
-  update(req: Request, res: Response): Promise<void>;
-  delete(req: Request, res: Response): Promise<void>;
-  getAll(req: Request, res: Response): Promise<void>;
-  getById(req: Request, res: Response): Promise<void>;
+  create: RequestHandler;
+  update: RequestHandler;
+  delete: RequestHandler;
+  getAll: RequestHandler;
+  getById: RequestHandler;
 }

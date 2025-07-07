@@ -1,9 +1,10 @@
-import { Model, Types } from "mongoose";
+import mongoose, { Model, Types } from "mongoose";
 import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
 import skillModal, { ISkill } from "../../models/skill.modal";
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";
 import { inject } from "inversify";
+import { CreateSkillDto } from "../../core/dtos/admin/admin.skill.dto";
 
 export class SkillRepository
   extends BaseRepository<ISkill>
@@ -12,6 +13,18 @@ export class SkillRepository
   constructor(@inject(TYPES.skillModal) skillModal: Model<ISkill>) {
     super(skillModal);
   }
+  // src/repositories/SkillRepository.ts
+  async createSkillAsAdmin(
+    dto: CreateSkillDto,
+    adminId: string
+  ): Promise<ISkill> {
+    return skillModal.create({
+      title: dto.title.trim().toLowerCase(),
+      createdById: new mongoose.Types.ObjectId(adminId),
+      createdBy: "admin",
+    });
+  }
+
   async findOrCreateByTitle(
     title: string,
     createdById: string,
