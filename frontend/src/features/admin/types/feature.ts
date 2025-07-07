@@ -1,21 +1,14 @@
-export interface Feature {
-  _id: string;
+export interface FeatureResponse {
+  id: string;
   name: string;
-  isActive?: boolean;
   createdAt: string;
   updatedAt?: string;
 }
 
-export interface FeatureFormData {
+export interface FeatureInput {
   name: string;
 }
 
-export interface ValidationErrorResponse {
-  success: false;
-  errors: Record<string, string>;
-}
-
-export interface HTTPErrorResponse {
-  message: string;
-  statusCode?: number;
+export interface UpdateFeatureInput {
+  name?: string;
 }

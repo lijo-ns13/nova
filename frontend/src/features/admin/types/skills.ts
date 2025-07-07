@@ -1,16 +1,30 @@
 export interface ISkill {
-  _id: string;
+  id: string;
   title: string;
-  createdAt: string;
-  updatedAt: string;
+  createdBy: string;
 }
 
-export type CreateSkillDto = Pick<ISkill, "title">;
-export type UpdateSkillDto = Partial<CreateSkillDto>;
-
-export interface Skill {
-  _id: string;
+export interface CreateSkillDto {
   title: string;
-  createdAt: string;
-  updatedAt: string;
+}
+
+export interface UpdateSkillDto {
+  title: string;
+}
+
+export interface SkillWithCreatorEmail {
+  id: string;
+  title: string;
+  createdBy: {
+    id: string;
+    email: string;
+  };
+}
+
+export interface PaginatedSkillResponse {
+  skills: ISkill[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
