@@ -1,18 +1,22 @@
 // src/interfaces/services/ISubscriptionPlanService.ts
 
-import { ISubscriptionPlan } from "../../models/subscription.modal";
+import {
+  SubscriptionPlanInput,
+  SubscriptionPlanResponse,
+  SubscriptionPlanUpdateInput,
+} from "../../core/dtos/admin/subscription.dto";
 
 export interface ISubscriptionPlanService {
-  createPlan(plan: Partial<ISubscriptionPlan>): Promise<ISubscriptionPlan>;
+  createPlan(input: SubscriptionPlanInput): Promise<SubscriptionPlanResponse>;
   updatePlan(
     id: string,
-    updates: Partial<ISubscriptionPlan>
-  ): Promise<ISubscriptionPlan | null>;
-  deletePlan(id: string): Promise<boolean>;
-  getAllPlans(): Promise<ISubscriptionPlan[]>;
-  getPlanById(id: string): Promise<ISubscriptionPlan | null>;
+    updates: SubscriptionPlanUpdateInput
+  ): Promise<SubscriptionPlanResponse>;
+  deletePlan(id: string): Promise<void>;
+  getAllPlans(): Promise<SubscriptionPlanResponse[]>;
+  getPlanById(id: string): Promise<SubscriptionPlanResponse>;
   togglePlanStatus(
     id: string,
     isActive: boolean
-  ): Promise<ISubscriptionPlan | null>;
+  ): Promise<SubscriptionPlanResponse>;
 }

@@ -1,88 +1,78 @@
-// src/services/subscriptionPlan.service.ts
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { ISubscriptionPlanService } from "../../interfaces/services/ISubscriptionPlanService";
 import { ISubscriptionPlanRepository } from "../../interfaces/repositories/ISubscriptonPlanRepository";
-import { ISubscriptionPlan } from "../../models/subscription.modal";
-import { ZodError } from "zod";
 import {
-  SubscriptionPlanCreateSchema,
   SubscriptionPlanInput,
+  SubscriptionPlanResponse,
   SubscriptionPlanUpdateInput,
-  SubscriptionPlanUpdateSchema,
 } from "../../core/dtos/admin/subscription.dto";
+
+import logger from "../../utils/logger";
+import { SubscriptionPlanMapper } from "../../mapping/admin/admin.subscription.mapper";
 
 @injectable()
 export class SubscriptionPlanService implements ISubscriptionPlanService {
+  private logger = logger.child({ context: "SubscriptionPlanService" });
+
   constructor(
     @inject(TYPES.SubscriptionPlanRepository)
     private _subscriptionPlanRepository: ISubscriptionPlanRepository
   ) {}
 
-  private handleZodError(error: ZodError) {
-    const errObj: Record<string, string> = {};
-    error.errors.forEach((err) => {
-      const path = err.path.join(".");
-      errObj[path] = err.message;
-    });
-    return {
-      statusCode: 400,
-      errors: errObj,
-      success: false,
-    };
-  }
-
-  private validateCreateInput(input: unknown): SubscriptionPlanInput {
-    try {
-      return SubscriptionPlanCreateSchema.parse(input);
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw this.handleZodError(error);
-      }
-      throw error;
-    }
-  }
-
-  private validateUpdateInput(input: unknown): SubscriptionPlanUpdateInput {
-    try {
-      return SubscriptionPlanUpdateSchema.parse(input);
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw this.handleZodError(error);
-      }
-      throw error;
-    }
-  }
-
-  async createPlan(plan: unknown): Promise<ISubscriptionPlan> {
-    const validatedData = this.validateCreateInput(plan);
-    return this._subscriptionPlanRepository.create(validatedData);
+  async createPlan(
+    input: SubscriptionPlanInput
+  ): Promise<SubscriptionPlanResponse> {
+    const plan = await this._subscriptionPlanRepository.create(input);
+    return SubscriptionPlanMapper.toResponse(plan);
   }
 
   async updatePlan(
     id: string,
-    updates: unknown
-  ): Promise<ISubscriptionPlan | null> {
-    const validatedUpdates = this.validateUpdateInput(updates);
-    return this._subscriptionPlanRepository.update(id, validatedUpdates);
+    updates: SubscriptionPlanUpdateInput
+  ): Promise<SubscriptionPlanResponse> {
+    const updated = await this._subscriptionPlanRepository.update(id, updates);
+    if (!updated) {
+      this.logger.warn("Plan not found for update", { id });
+      throw new Error("Subscription plan not found");
+    }
+    return SubscriptionPlanMapper.toResponse(updated);
   }
 
-  async deletePlan(id: string): Promise<boolean> {
-    return this._subscriptionPlanRepository.delete(id);
+  async deletePlan(id: string): Promise<void> {
+    const deleted = await this._subscriptionPlanRepository.delete(id);
+    if (!deleted) {
+      this.logger.warn("Plan not found for delete", { id });
+      throw new Error("Subscription plan not found");
+    }
   }
 
-  async getAllPlans(): Promise<ISubscriptionPlan[]> {
-    return this._subscriptionPlanRepository.getAll();
+  async getAllPlans(): Promise<SubscriptionPlanResponse[]> {
+    const plans = await this._subscriptionPlanRepository.getAll();
+    return plans.map(SubscriptionPlanMapper.toResponse);
   }
 
-  async getPlanById(id: string): Promise<ISubscriptionPlan | null> {
-    return this._subscriptionPlanRepository.getById(id);
+  async getPlanById(id: string): Promise<SubscriptionPlanResponse> {
+    const plan = await this._subscriptionPlanRepository.getById(id);
+    if (!plan) {
+      this.logger.warn("Plan not found by ID", { id });
+      throw new Error("Subscription plan not found");
+    }
+    return SubscriptionPlanMapper.toResponse(plan);
   }
 
   async togglePlanStatus(
     id: string,
     isActive: boolean
-  ): Promise<ISubscriptionPlan | null> {
-    return this._subscriptionPlanRepository.toggleStatus(id, isActive);
+  ): Promise<SubscriptionPlanResponse> {
+    const updated = await this._subscriptionPlanRepository.toggleStatus(
+      id,
+      isActive
+    );
+    if (!updated) {
+      this.logger.warn("Plan not found for toggle", { id });
+      throw new Error("Subscription plan not found");
+    }
+    return SubscriptionPlanMapper.toResponse(updated);
   }
 }

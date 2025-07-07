@@ -40,7 +40,10 @@ export type SubscriptionPlanUpdateInput = z.infer<
 >;
 
 // Response DTO
-export interface SubscriptionPlanResponse
-  extends Omit<ISubscriptionPlan, keyof Document> {
+export interface SubscriptionPlanResponse {
   id: string;
+  name: "BASIC" | "PRO" | "PREMIUM";
+  price: number;
+  validityDays: number;
+  isActive: boolean;
 }
