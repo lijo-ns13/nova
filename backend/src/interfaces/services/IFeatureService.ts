@@ -1,10 +1,13 @@
-// src/interfaces/services/IFeatureService.ts
-import { IFeature } from "../repositories/IFeatureRepository";
+import { FeatureSummaryDTO } from "../../dtos/response/admin/admin.feature.response.dto";
+import {
+  FeatureInput,
+  FeatureUpdateInput,
+} from "../../core/dtos/admin/feature.dto";
 
 export interface IFeatureService {
-  create(feature: unknown): Promise<IFeature>;
-  update(id: string, updates: unknown): Promise<IFeature | null>;
+  create(input: FeatureInput): Promise<FeatureSummaryDTO>;
+  update(id: string, updates: FeatureUpdateInput): Promise<FeatureSummaryDTO>;
   delete(id: string): Promise<boolean>;
-  getAll(): Promise<IFeature[]>;
-  getById(id: string): Promise<IFeature | null>;
+  getAll(): Promise<FeatureSummaryDTO[]>;
+  getById(id: string): Promise<FeatureSummaryDTO>;
 }

@@ -1,16 +1,17 @@
-// src/controllers/feature.controller.ts
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
-
-import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { IFeatureController } from "../../interfaces/controllers/IFeatureController";
 import { IFeatureService } from "../../interfaces/services/IFeatureService";
-export interface CustomError extends Error {
-  statusCode?: number;
-  success?: boolean;
-  errors?: Error; // optionally make this more specific
-}
+
+import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
+import { handleControllerError } from "../../utils/errorHandler";
+import {
+  FeatureCreateSchema,
+  FeatureUpdateSchema,
+} from "../../core/dtos/admin/feature.dto";
+import { IdSchema } from "../../core/validations/id.schema";
+
 @injectable()
 export class FeatureController implements IFeatureController {
   constructor(
@@ -18,85 +19,72 @@ export class FeatureController implements IFeatureController {
     private _featureService: IFeatureService
   ) {}
 
-  private handleError(error: CustomError, res: Response): void {
-    if (error.statusCode === 400 && error.success === false) {
-      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
-        success: false,
-        errors: error.errors,
-      });
-      return;
-    }
-
-    res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-      message: error.message || "Internal server error",
-    });
-  }
-
   async create(req: Request, res: Response): Promise<void> {
     try {
-      const feature = await this._featureService.create(req.body);
-      res.status(HTTP_STATUS_CODES.CREATED).json(feature);
+      const parsed = FeatureCreateSchema.parse(req.body);
+      const feature = await this._featureService.create(parsed);
+      res.status(HTTP_STATUS_CODES.CREATED).json({
+        success: true,
+        message: "Feature created successfully",
+        data: feature,
+      });
     } catch (error) {
-      this.handleError(error as Error, res);
+      handleControllerError(error, res, "FeatureController.create");
     }
   }
 
   async update(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
-      const feature = await this._featureService.update(id, req.body);
-      if (!feature) {
-        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
-          message: "Feature not found",
-        });
-        return;
-      }
-      res.status(HTTP_STATUS_CODES.OK).json(feature);
+      const { id } = IdSchema.parse(req.params);
+      const parsedBody = FeatureUpdateSchema.parse(req.body);
+      const feature = await this._featureService.update(id, parsedBody);
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Feature updated successfully",
+        data: feature,
+      });
     } catch (error) {
-      this.handleError(error as Error, res);
+      handleControllerError(error, res, "FeatureController.update");
     }
   }
 
   async delete(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
-      const success = await this._featureService.delete(id);
-      if (!success) {
-        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
-          message: "Feature not found",
-        });
-        return;
-      }
+      const { id } = IdSchema.parse(req.params);
+      await this._featureService.delete(id);
       res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
         message: "Feature deleted successfully",
       });
     } catch (error) {
-      this.handleError(error as Error, res);
+      handleControllerError(error, res, "FeatureController.delete");
     }
   }
 
-  async getAll(req: Request, res: Response): Promise<void> {
+  async getAll(_: Request, res: Response): Promise<void> {
     try {
       const features = await this._featureService.getAll();
-      res.status(HTTP_STATUS_CODES.OK).json(features);
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "succesfully fetched all features",
+        data: features,
+      });
     } catch (error) {
-      this.handleError(error as Error, res);
+      handleControllerError(error, res, "FeatureController.getAll");
     }
   }
 
   async getById(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      const { id } = IdSchema.parse(req.params);
       const feature = await this._featureService.getById(id);
-      if (!feature) {
-        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
-          message: "Feature not found",
-        });
-        return;
-      }
-      res.status(HTTP_STATUS_CODES.OK).json(feature);
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "successfully fetch feature",
+        data: feature,
+      });
     } catch (error) {
-      this.handleError(error as Error, res);
+      handleControllerError(error, res, "FeatureController.getById");
     }
   }
 }
