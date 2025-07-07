@@ -1,15 +1,18 @@
-export interface Subscription {
-  _id: string;
+export interface SubscriptionPlanResponse {
+  id: string;
   name: "BASIC" | "PRO" | "PREMIUM";
   price: number;
   validityDays: number;
   isActive: boolean;
-  createdAt: string;
-  updatedAt?: string;
 }
 
-export interface SubscriptionFormData {
-  name: string;
+export interface CreatePlanInput {
+  name: "BASIC" | "PRO" | "PREMIUM";
   price: number;
   validityDays: number;
+  isActive?: boolean;
 }
+
+export type UpdatePlanInput = Partial<
+  Omit<SubscriptionPlanResponse, "id" | "name">
+>;
