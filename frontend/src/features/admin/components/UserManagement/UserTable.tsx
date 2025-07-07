@@ -1,5 +1,5 @@
 import React from "react";
-import { User } from "../../types/userTypes";
+import { User } from "../../types/user";
 import StatusBadge from "./StatusBadge";
 import UserAvatar from "./UserAvatar";
 
