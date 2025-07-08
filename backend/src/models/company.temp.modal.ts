@@ -53,6 +53,8 @@ export interface ITempCompany extends Document {
   companySize?: number;
   documents: string[];
   verificationStatus: "pending" | "accepted" | "rejected";
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const tempCompanySchema = new Schema<ITempCompany>(

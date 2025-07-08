@@ -1,39 +1,32 @@
 // src/core/interfaces/services/ICompanyJobService.ts
 
+import { ApplicantDetailDTO } from "../../core/dtos/company/getApplicant.dto";
+import {
+  ApplicantSummaryDTO,
+  GetApplicationsQuery,
+} from "../../core/dtos/company/getapplications.dto";
+import {
+  CreateJobInput,
+  JobResponseDto,
+  UpdateJobInput,
+} from "../../core/dtos/company/job.dto";
 import { IJob } from "../../models/job.modal";
-import { CreateJobDto, UpdateJobDto } from "../repositories/IJobRepository";
 
 export interface ICompanyJobService {
-  createJob(createJobDto: CreateJobDto, companyId: string): Promise<IJob>;
-
+  createJob(input: CreateJobInput, companyId: string): Promise<JobResponseDto>;
   updateJob(
     jobId: string,
     companyId: string,
-    updateJobDto: UpdateJobDto
-  ): Promise<IJob | null>;
-
+    updated: UpdateJobInput
+  ): Promise<JobResponseDto | null>;
   deleteJob(jobId: string, companyId: string): Promise<boolean>;
-
   getJobs(
     companyId: string,
     page: number,
     limit: number
-  ): Promise<{ jobs: IJob[]; total: number }>;
+  ): Promise<{ jobs: JobResponseDto[]; total: number }>;
+  getJob(jobId: string): Promise<JobResponseDto>;
 
-  getJobApplications(
-    jobId: string,
-    companyId: string,
-    page: number,
-    limit: number
-  ): Promise<{ applications: any[]; total: number } | null>;
-
-  getJob(jobId: string): Promise<IJob | null>;
-  getApplications(
-    page: number,
-    limit: number,
-    filters: Record<string, any>,
-    jobId: string
-  ): Promise<any>;
   // updated
   shortlistApplication(applicationId: string): Promise<boolean>;
 
@@ -41,5 +34,21 @@ export interface ICompanyJobService {
     applicationId: string,
     rejectionReason?: string
   ): Promise<boolean>;
-  getApplicantDetails(applicationId: string): Promise<any>;
+  getApplicantDetails(
+    applicationId: string
+  ): Promise<ApplicantDetailDTO | null>;
+  getApplications(
+    page: number,
+    limit: number,
+    filters: GetApplicationsQuery,
+    jobId: string
+  ): Promise<{
+    applications: ApplicantSummaryDTO[];
+    pagination: {
+      totalApplications: number;
+      totalPages: number;
+      currentPage: number;
+      applicationsPerPage: number;
+    };
+  }>;
 }

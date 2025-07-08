@@ -6,9 +6,19 @@ import applicationModel, {
 } from "../../models/application.modal";
 import { BaseRepository } from "./BaseRepository";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
-import { Model, Types } from "mongoose";
+import mongoose, { Model, PipelineStage, Types } from "mongoose";
 import { TYPES } from "../../di/types";
 import { MongoServerError } from "mongodb";
+import { IApplicationWithUserAndJob } from "../../core/dtos/company/application.dto";
+import {
+  ApplicationMapper,
+  IApplicationPopulated,
+} from "../../mapping/company/application.mapper";
+import {
+  ApplicantRawData,
+  GetApplicationsQuery,
+} from "../../core/dtos/company/getapplications.dto";
+import jobModal from "../../models/job.modal";
 
 @injectable()
 export class ApplicationRepository
@@ -19,6 +29,119 @@ export class ApplicationRepository
     @inject(TYPES.applicationModal) applicationModel: Model<IApplication>
   ) {
     super(applicationModel);
+  }
+  async findApplicationsByFilter(
+    filter: GetApplicationsQuery,
+    page: number,
+    limit: number,
+    jobId: string
+  ): Promise<{ applications: ApplicantRawData[]; total: number }> {
+    const skip = (page - 1) * limit;
+
+    const query: Record<string, unknown> = {};
+
+    if (jobId) {
+      query.job = new mongoose.Types.ObjectId(jobId);
+      if (filter.companyId) {
+        const exists = await jobModal.exists({
+          _id: jobId,
+          company: filter.companyId,
+        });
+        if (!exists) return { applications: [], total: 0 };
+      }
+    }
+
+    if (filter.status) {
+      query.status = {
+        $in: Array.isArray(filter.status) ? filter.status : [filter.status],
+      };
+    }
+
+    if (filter.dateFrom || filter.dateTo) {
+      const appliedAt: { $gte?: Date; $lte?: Date } = {};
+      if (filter.dateFrom) appliedAt.$gte = new Date(filter.dateFrom);
+      if (filter.dateTo) appliedAt.$lte = new Date(filter.dateTo);
+      query.appliedAt = appliedAt;
+    }
+
+    if (filter.userId) {
+      query.user = new mongoose.Types.ObjectId(filter.userId);
+    }
+
+    const aggregation: PipelineStage[] = [
+      { $match: query },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+      { $unwind: "$userDetails" },
+      {
+        $project: {
+          _id: 1,
+          appliedAt: 1,
+          status: 1,
+          user: {
+            name: "$userDetails.name",
+            email: "$userDetails.email",
+            profilePicture: "$userDetails.profilePicture",
+          },
+        },
+      },
+    ];
+
+    if (filter.search) {
+      aggregation.push({
+        $match: {
+          $or: [
+            { "user.name": { $regex: filter.search, $options: "i" } },
+            { "user.email": { $regex: filter.search, $options: "i" } },
+          ],
+        },
+      });
+    }
+
+    aggregation.push(
+      { $sort: { appliedAt: -1 } },
+      {
+        $facet: {
+          paginatedResults: [{ $skip: skip }, { $limit: limit }],
+          totalCount: [{ $count: "total" }],
+        },
+      },
+      {
+        $project: {
+          applications: "$paginatedResults",
+          total: { $ifNull: [{ $arrayElemAt: ["$totalCount.total", 0] }, 0] },
+        },
+      }
+    );
+
+    const result = await applicationModel.aggregate<{
+      applications: ApplicantRawData[];
+      total: number;
+    }>(aggregation);
+
+    return {
+      applications: result[0]?.applications ?? [],
+      total: result[0]?.total ?? 0,
+    };
+  }
+  async findWithUserAndJobById(
+    applicationId: string
+  ): Promise<IApplicationWithUserAndJob | null> {
+    const doc = await this.model
+      .findById(applicationId)
+      .populate("user", "name username profilePicture")
+      .populate("job", "title company")
+      .lean<IApplicationPopulated>()
+      .exec();
+
+    if (!doc) return null;
+    return ApplicationMapper.toUserAndJobDTO(doc);
   }
 
   async create(data: {

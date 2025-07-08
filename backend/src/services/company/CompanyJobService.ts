@@ -16,8 +16,25 @@ import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { Types } from "mongoose";
 import { NotificationType } from "../../models/notification.modal";
 import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
+import { JobMapper } from "../../mapping/job.mapper";
+import {
+  CreateJobInput,
+  JobResponseDto,
+  UpdateJobInput,
+} from "../../core/dtos/company/job.dto";
+import logger from "../../utils/logger";
+import { ApplicationStatus } from "../../core/enums/applicationStatus";
+import { ApplicationMapper } from "../../mapping/company/application.mapper";
+import {
+  ApplicantSummaryDTO,
+  GetApplicationsQuery,
+} from "../../core/dtos/company/getapplications.dto";
+import { ApplicationJobMapper } from "../../mapping/company/job.application.mapper";
+import { ApplicationGetMapper } from "../../mapping/company/getApplicant.mapper";
+import { ApplicantDetailDTO } from "../../core/dtos/company/getApplicant.dto";
 
 export class CompanyJobService implements ICompanyJobService {
+  private logger = logger.child({ context: "companyjobservice" });
   constructor(
     @inject(TYPES.JobRepository)
     private _jobRepository: IJobRepository,
@@ -30,18 +47,20 @@ export class CompanyJobService implements ICompanyJobService {
     @inject(TYPES.SkillRepository) private _skillRepository: ISkillRepository
   ) {}
   async createJob(
-    createJobDto: CreateJobDto,
+    input: CreateJobInput,
     companyId: string
-  ): Promise<IJob> {
-    return await this._jobRepository.createJob(createJobDto, companyId);
+  ): Promise<JobResponseDto> {
+    const job = await this._jobRepository.createJob(input, companyId);
+    return JobMapper.toResponseDto(job);
   }
 
   async updateJob(
     jobId: string,
     companyId: string,
-    updateJobDto: UpdateJobDto
-  ): Promise<IJob | null> {
-    return await this._jobRepository.updateJob(jobId, companyId, updateJobDto);
+    updated: UpdateJobInput
+  ): Promise<JobResponseDto | null> {
+    const job = await this._jobRepository.updateJob(jobId, companyId, updated);
+    return job ? JobMapper.toResponseDto(job) : null;
   }
 
   async deleteJob(jobId: string, companyId: string): Promise<boolean> {
@@ -51,161 +70,116 @@ export class CompanyJobService implements ICompanyJobService {
     companyId: string,
     page: number,
     limit: number
-  ): Promise<{ jobs: IJob[]; total: number }> {
-    return await this._jobRepository.getJobs(companyId, page, limit);
-  }
-
-  async getJobApplications(
-    jobId: string,
-    companyId: string,
-    page: number,
-    limit: number
-  ): Promise<{ applications: any[]; total: number } | null> {
-    return await this._jobRepository.getJobApplications(
-      jobId,
+  ): Promise<{ jobs: JobResponseDto[]; total: number }> {
+    const { jobs, total } = await this._jobRepository.getJobs(
       companyId,
       page,
       limit
     );
-  }
-  async getJob(jobId: string) {
-    return await this._jobRepository.getJob(jobId);
-  }
-  async getApplications(
-    page: number = 1,
-    limit: number = 10,
-    filters: Record<string, any> = {},
-    jobId: string
-  ) {
-    const { applications, total } =
-      await this._jobRepository.findApplicationsByFilter(
-        filters,
-        page,
-        limit,
-        jobId
-      );
-
-    const totalPages = Math.ceil(total / limit);
-
     return {
-      applications,
-      pagination: {
-        totalApplications: total,
-        totalPages,
-        currentPage: page,
-        applicationsPerPage: limit,
-      },
+      jobs: jobs.map(JobMapper.toResponseWithSkillDto),
+      total,
     };
   }
-  async shortlistApplication(applicationId: string): Promise<boolean> {
-    const applicant = await this._applicationRepo.findById(applicationId);
-    if (!applicant) {
-      throw new Error("application not found");
+  async getJob(jobId: string): Promise<JobResponseDto> {
+    const job = await this._jobRepository.getJob(jobId);
+    if (!job) {
+      this.logger.warn("job not found");
+      throw new Error("job not found");
     }
-    const jobId =
-      typeof applicant.job === "string"
-        ? applicant.job
-        : applicant.job instanceof Types.ObjectId
-        ? applicant.job.toString()
-        : applicant.job._id?.toString(); // when populated
-    if (!jobId) {
-      throw new Error("jobid not found");
-    }
-    const jobData = await this._jobRepository.findById(jobId);
-    const jobTitle = jobData?.title || "position";
-    const companyId = jobData?.company;
-    const userId =
-      typeof applicant.user === "string"
-        ? applicant.user
-        : applicant.user instanceof Types.ObjectId
-        ? applicant.user.toString()
-        : applicant.user._id?.toString(); // when populated
+    return JobMapper.toResponseWithSkillDto(job);
+  }
 
-    if (!userId) {
-      throw new Error("user id not found");
-    }
-    const userData = await this._userRepo.findById(userId);
-    const message = `Congratulations! Your application for the position "${jobTitle}" has been shortlisted. We will contact you with the next steps.`;
+  async shortlistApplication(applicationId: string): Promise<boolean> {
+    const application = await this._applicationRepo.findWithUserAndJobById(
+      applicationId
+    );
+    if (!application) return false;
 
     await this._notificationService.sendNotification(
-      userId,
-      message,
+      application.user.id,
+      `Congrats! Your application for "${application.job.title}" is shortlisted.`,
       NotificationType.JOB,
-      companyId?.toString()
+      application.job.companyId
     );
-    return await this._applicationRepo.shortlistApplication(applicationId);
+
+    const res = await this._applicationRepo.updateStatus(
+      applicationId,
+      ApplicationStatus.SHORTLISTED
+    );
+    return !!res;
   }
 
   async rejectApplication(
     applicationId: string,
     reason?: string
   ): Promise<boolean> {
-    const applicant = await this._applicationRepo.findById(applicationId);
-    if (!applicant) {
-      throw new Error("application not found");
-    }
-    const jobId =
-      typeof applicant.job === "string"
-        ? applicant.job
-        : applicant.job instanceof Types.ObjectId
-        ? applicant.job.toString()
-        : applicant.job._id?.toString(); // when populated
-    if (!jobId) {
-      throw new Error("jobid not found");
-    }
-    const jobData = await this._jobRepository.findById(jobId);
-    const jobTitle = jobData?.title;
-    const companyId = jobData?.company;
-    const userId =
-      typeof applicant.user === "string"
-        ? applicant.user
-        : applicant.user instanceof Types.ObjectId
-        ? applicant.user.toString()
-        : applicant.user._id?.toString(); // when populated
-
-    if (!userId) {
-      throw new Error("user id not found");
-    }
-    const userData = await this._userRepo.findById(userId);
-    await this._notificationService.sendNotification(
-      userId,
-      `Your application for the position "${jobTitle}" has been rejected.${
-        reason ? ` Reason: ${reason}.` : ""
-      }`,
-      NotificationType.JOB,
-      companyId?.toString()
+    const application = await this._applicationRepo.findWithUserAndJobById(
+      applicationId
     );
-    return await this._applicationRepo.rejectApplication(applicationId, reason);
+    if (!application) return false;
+
+    await this._notificationService.sendNotification(
+      application.user.id,
+      `Congrats! Your application for "${application.job.title}" is shortlisted.`,
+      NotificationType.JOB,
+      application.job.companyId
+    );
+
+    const res = await this._applicationRepo.updateStatus(
+      applicationId,
+      ApplicationStatus.REJECTED,
+      reason
+    );
+    return !!res;
   }
 
-  async getApplicantDetails(applicationId: string): Promise<any> {
-    try {
-      const applicant = await this._jobRepository.getApplicantDetails(
-        applicationId
+  async getApplicantDetails(
+    applicationId: string
+  ): Promise<ApplicantDetailDTO | null> {
+    const applicant = await this._jobRepository.getApplicantDetails(
+      applicationId
+    );
+    if (!applicant) return null;
+
+    const resumeUrl = applicant.resumeMediaId?.s3Key
+      ? await this._mediaService.getMediaUrl(applicant.resumeMediaId.s3Key)
+      : null;
+
+    return ApplicationGetMapper.toDetailDTO(applicant, resumeUrl);
+  }
+  async getApplications(
+    page: number = 1,
+    limit: number = 10,
+    filters: GetApplicationsQuery,
+    jobId: string
+  ): Promise<{
+    applications: ApplicantSummaryDTO[];
+    pagination: {
+      totalApplications: number;
+      totalPages: number;
+      currentPage: number;
+      applicationsPerPage: number;
+    };
+  }> {
+    const { applications, total } =
+      await this._applicationRepo.findApplicationsByFilter(
+        filters,
+        page,
+        limit,
+        jobId
       );
 
-      if (!applicant) {
-        return null;
-      }
+    const mapped = applications.map(ApplicationJobMapper.toApplicantSummaryDTO);
 
-      // If there's a resume media document
-      if (applicant.resumeMediaId) {
-        // Get signed URL for the resume
-        const resumeUrl = await this._mediaService.getMediaUrl(
-          applicant.resumeMediaId.s3Key
-        );
-
-        // Create a new object with the signed URL
-        return {
-          ...applicant.toObject(),
-          resumeUrl,
-        };
-      }
-
-      return applicant;
-    } catch (error) {
-      console.error("Error get application:", error);
-      throw new Error("Failed to get application");
-    }
+    return {
+      applications: mapped,
+      pagination: {
+        totalApplications: total,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+        applicationsPerPage: limit,
+      },
+    };
   }
 }

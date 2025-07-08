@@ -22,6 +22,18 @@ import crypto from "crypto";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { NotificationType } from "../../models/notification.modal";
 import { IAdminRepository } from "../../interfaces/repositories/IAdminRepository";
+import {
+  TempCompanyMapper,
+  TempCompanyResponseDTO,
+} from "../../mapping/company/auth/TempCompany.mapper";
+import { SignInCompanyMapper } from "../../mapping/company/auth/SignInCompanyMapper";
+import {
+  CompanyAuthMapper,
+  CompanyResponseDTO,
+  ForgetPasswordResponseDTO,
+  ResendOtpResponseDTO,
+  ResetPasswordInputDTO,
+} from "../../mapping/company/auth/company.auth.mapper";
 
 @injectable()
 export class CompanyAuthService implements ICompanyAuthService {
@@ -41,218 +53,201 @@ export class CompanyAuthService implements ICompanyAuthService {
     @inject(TYPES.AdminRepository) private _adminRepo: IAdminRepository
   ) {}
 
-  async signUp(payload: SignUpCompanyRequestDTO): Promise<any> {
-    const existingCompany = await this._companyRepository.findByEmail(
+  async signUp(
+    payload: SignUpCompanyRequestDTO
+  ): Promise<TempCompanyResponseDTO> {
+    const existing = await this._companyRepository.findByEmail(payload.email);
+    if (existing) throw new Error("Email already exists");
+
+    const existingTemp = await this._tempCompanyRepository.findByEmail(
       payload.email
     );
-    const existingTempCompany = await this._tempCompanyRepository.findByEmail(
-      payload.email
-    );
-    if (existingCompany) {
-      throw new Error("Email already exists");
-    }
-    if (existingTempCompany) {
-      throw new Error("Too many tries ,try later");
-    }
-    const tempCompany = await this._tempCompanyRepository.create(payload);
+    if (existingTemp) throw new Error("Too many tries. Try again later.");
+
+    const createdTemp = await this._tempCompanyRepository.create(payload);
+
     const otp = generateOTP();
-    const expiresAt = new Date(Date.now() + 1 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 60 * 1000);
     await this._otpRepository.createOTP({
-      accountId: tempCompany._id,
+      accountId: createdTemp._id,
       accountType: "company",
-      otp: otp,
-      expiresAt: expiresAt,
+      otp,
+      expiresAt,
     });
-    await sendOTPEmail(tempCompany.email, otp);
-    return { tempCompany };
+
+    await sendOTPEmail(createdTemp.email, otp);
+
+    return TempCompanyMapper.toDTO(createdTemp);
   }
+
   async signIn(
     payload: SignInCompanyRequestDTO
   ): Promise<SignInCompanyResponseDTO> {
     const company = await this._companyRepository.findByEmail(payload.email);
-    if (!company) {
-      throw new Error("User not found");
-    }
+    if (!company) throw new Error("Company not found");
+
     const isPasswordValid = await bcrypt.compare(
       payload.password,
       company.password
     );
-    if (!isPasswordValid) {
-      throw new Error("Enter invalid password");
-    }
-    const companyAccessToken = this._jwtService.generateAccessToken("company", {
+    if (!isPasswordValid) throw new Error("Invalid password");
+
+    const accessToken = this._jwtService.generateAccessToken("company", {
       id: company._id.toString(),
       email: company.email,
       role: "company",
     });
-    const companyRefreshToken = this._jwtService.generateRefreshToken(
-      "company",
-      {
-        id: company._id.toString(),
-        email: company.email,
-        role: "company",
-      }
-    );
+
+    const refreshToken = this._jwtService.generateRefreshToken("company", {
+      id: company._id.toString(),
+      email: company.email,
+      role: "company",
+    });
+
     const admins = await this._adminRepo.findAll();
     for (const admin of admins) {
       await this.notificationService.sendNotification(
         admin._id.toString(),
-        `company ${company.companyName} signin succussflly`,
+        `Company ${company.companyName} signed in`,
         NotificationType.GENERAL,
-        company._id.toString() // senderId
+        company._id.toString()
       );
     }
-    return {
-      accessToken: companyAccessToken,
-      refreshToken: companyRefreshToken,
-      company: company,
-      isVerified: company.isVerified,
-      isBlocked: company.isBlocked,
-    };
+
+    return SignInCompanyMapper.toDTO(company, accessToken, refreshToken);
   }
-  async verifyOTP(
-    email: string,
-    otp: string
-  ): Promise<{ message: string; company: object }> {
+
+  async verifyOTP(email: string, otp: string): Promise<CompanyResponseDTO> {
     const tempCompany = await this._tempCompanyRepository.findByEmail(email);
-    if (!tempCompany) {
-      throw new Error("Invalid Company account");
-    }
+    if (!tempCompany) throw new Error("Invalid company account");
+
     const otpRecord = await this._otpRepository.findOTPByAccount(
-      tempCompany?._id,
+      tempCompany._id,
       "company"
     );
-    if (!otpRecord) {
-      throw new Error("Invalid otp enter correct otp");
+    if (!otpRecord || otpRecord.expiresAt < new Date()) {
+      throw new Error("OTP expired or invalid");
     }
-    if (otpRecord.expiresAt < new Date()) {
-      throw new Error("OTP expired");
-    }
-    const isMatch = await bcrypt.compare(otp, otpRecord.otp);
 
-    if (!isMatch) {
-      throw new Error("Invalid OTP");
-    }
+    const isMatch = await bcrypt.compare(otp, otpRecord.otp);
+    if (!isMatch) throw new Error("Invalid OTP");
+
     let username = generateUsername(tempCompany.companyName);
     while (await this._companyRepository.isUsernameTaken(username)) {
-      username = `${generateUsername(tempCompany.companyName)}`;
+      username = generateUsername(tempCompany.companyName);
     }
-    const tempCompanyData = {
+
+    const createdCompany = await this._companyRepository.create({
       companyName: tempCompany.companyName,
+      email: tempCompany.email,
       password: tempCompany.password,
       about: tempCompany.about,
-      email: tempCompany.email,
       industryType: tempCompany.industryType,
       foundedYear: tempCompany.foundedYear,
       documents: tempCompany.documents,
       location: tempCompany.location,
-      username: username,
-    };
+      username,
+    });
 
-    const companyData = await this._companyRepository.create(tempCompanyData);
     await this._tempCompanyRepository.delete(tempCompany._id.toString());
+
     const admins = await this._adminRepo.findAll();
     for (const admin of admins) {
       await this.notificationService.sendNotification(
         admin._id.toString(),
-        `New company registered: ${companyData.companyName}`,
+        `New company registered: ${createdCompany.companyName}`,
         NotificationType.GENERAL,
-        companyData._id.toString() // senderId
+        createdCompany._id.toString()
       );
     }
 
-    return { message: "verfied successfull", company: companyData };
+    return CompanyAuthMapper.toDTO(createdCompany);
   }
-  async resendOTP(email: string): Promise<{ message: string }> {
+  async resendOTP(email: string): Promise<ResendOtpResponseDTO> {
     const tempCompany = await this._tempCompanyRepository.findByEmail(email);
-    if (!tempCompany) throw new Error("User not found or already verified");
+    if (!tempCompany) {
+      throw new Error("Account not found or already verified");
+    }
+
     const otpRecord = await this._otpRepository.findOTPByAccount(
       tempCompany._id,
       "company"
     );
 
-    // 4. Generate new OTP
-    const newOTP = generateOTP();
-    const expiresAt = new Date(Date.now() + 1 * 60 * 1000); // 3 mins expiry
-
-    // 5. Hash the OTP before saving it (security best practice)
-    const hashedOTP = await bcrypt.hash(newOTP, 10);
+    const otp = generateOTP();
+    const expiresAt = new Date(Date.now() + 3 * 60 * 1000); // 3 minutes
+    const hashedOtp = await bcrypt.hash(otp, 10);
 
     if (otpRecord) {
-      // 6. Update the existing OTP record with new OTP and expiry
       await this._otpRepository.updateOTP(otpRecord._id, {
-        otp: hashedOTP,
-        expiresAt: expiresAt,
+        otp: hashedOtp,
+        expiresAt,
       });
     } else {
-      // Or create a new one if no existing record
       await this._otpRepository.createOTP({
         accountId: tempCompany._id,
         accountType: "company",
-        otp: hashedOTP,
-        expiresAt: expiresAt,
+        otp: hashedOtp,
+        expiresAt,
       });
     }
 
-    // 7. Send the new OTP via email
-    await sendOTPEmail(tempCompany.email, newOTP);
+    await this._emailService.sendOTP(tempCompany.email, otp); // inject it, not static util
 
     return { message: "OTP resent successfully. Please check your email." };
   }
-  // forget
-  async forgetPassword(email: string): Promise<{ rawToken: string }> {
-    const user = await this._companyRepository.findByEmail(email);
-    if (!user) throw new Error("User not found");
 
-    const userId = user._id;
+  async forgetPassword(email: string): Promise<ForgetPasswordResponseDTO> {
+    const company = await this._companyRepository.findByEmail(email);
+    if (!company) throw new Error("Company not found");
 
-    await this._passwordResetTokenRepository.deleteByAccount(userId, "company");
+    await this._passwordResetTokenRepository.deleteByAccount(
+      company._id,
+      "company"
+    );
 
     const { rawToken, hashedToken, expiresAt } = generatePasswordResetToken();
 
     await this._passwordResetTokenRepository.createToken({
       token: hashedToken,
-      accountId: userId,
+      accountId: company._id,
       accountType: "company",
       expiresAt,
     });
 
     await this._emailService.sendPasswordResetCompanyEmail(
-      user.email,
+      company.email,
       rawToken
     );
 
     return { rawToken };
   }
 
-  async resetPassword(
-    token: string,
-    password: string,
-    confirmPassword: string
-  ): Promise<void> {
-    if (password !== confirmPassword) throw new Error("Passwords do not match");
+  async resetPassword(data: ResetPasswordInputDTO): Promise<void> {
+    const { token, password } = data;
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
     const tokenDoc = await this._passwordResetTokenRepository.findByToken(
       hashedToken
     );
-    if (!tokenDoc || tokenDoc.expiresAt < new Date())
+    if (!tokenDoc || tokenDoc.expiresAt < new Date()) {
       throw new Error("Token is invalid or has expired");
+    }
 
-    const { accountId, accountType } = tokenDoc;
-    if (accountType !== "company")
+    if (tokenDoc.accountType !== "company") {
       throw new Error("Invalid account type for this operation");
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await this._companyRepository.updatePassword(
-      accountId.toString(),
+      tokenDoc.accountId.toString(),
       hashedPassword
     );
 
     await this._passwordResetTokenRepository.deleteByAccount(
-      accountId,
-      accountType
+      tokenDoc.accountId,
+      tokenDoc.accountType
     );
   }
 }

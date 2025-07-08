@@ -9,6 +9,13 @@ export interface ISkillRepository extends IBaseRepository<ISkill> {
     createdById: string,
     createdBy: "company" | "user" | "admin"
   ): Promise<ISkill>;
+  createSkill(
+    title: string,
+    createdById: string,
+    createdBy: "user" | "company" | "admin"
+  ): Promise<ISkill>;
+
+  findByTitle(title: string): Promise<ISkill | null>;
 
   createSkillWith(
     title: string,

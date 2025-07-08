@@ -1,10 +1,16 @@
-import { SkillResponeDTO } from "../dtos/response/skill.response.dto";
+// src/mapping/skill.mapper.ts
+import { SkillResponseDTO } from "../dtos/response/skill.response.dto";
 import { ISkill } from "../models/skill.modal";
 
 export class SkillMapper {
-  static toSearchListDTO(skills: ISkill[]): SkillResponeDTO[] {
-    return skills.map((skill) => ({
+  static toResponseDTO(skill: ISkill): SkillResponseDTO {
+    return {
+      id: skill._id.toString(),
       title: skill.title,
-    }));
+    };
+  }
+
+  static toSearchListDTO(skills: ISkill[]): SkillResponseDTO[] {
+    return skills.map(this.toResponseDTO);
   }
 }

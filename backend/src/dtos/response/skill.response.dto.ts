@@ -1,8 +1,9 @@
+// src/dtos/response/skill.response.dto.ts
 import { z } from "zod";
-import { Types } from "mongoose";
 
-// Output DTOs
 export const SkillResponseSchema = z.object({
+  id: z.string(), // Needed for mapping, job relation, etc.
   title: z.string(),
 });
-export type SkillResponeDTO = z.infer<typeof SkillResponseSchema>;
+
+export type SkillResponseDTO = z.infer<typeof SkillResponseSchema>;

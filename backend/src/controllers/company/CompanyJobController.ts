@@ -2,18 +2,33 @@
 
 import { Request, Response, RequestHandler } from "express";
 
-import { ZodError } from "zod";
 import { TYPES } from "../../di/types";
 import { inject } from "inversify";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
-import {
-  createJobSchema,
-  updateJobSchema,
-} from "../../core/dtos/company/job.dto";
+
 import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
 import { ICompanyJobController } from "../../interfaces/controllers/ICompanyJobController";
 import { ISkillService } from "../../interfaces/services/ISkillService";
 import { handleControllerError } from "../../utils/errorHandler";
+import {
+  createJobSchema,
+  updateJobSchema,
+} from "../../core/validations/company/company.job.validation";
+import {
+  CreateJobInput,
+  UpdateJobInput,
+} from "../../core/dtos/company/job.dto";
+import { paginationSchema } from "../../core/validations/admin/admin.company.validation";
+import { z } from "zod";
+const getApplicationsQuerySchema = z.object({
+  page: z.string().optional(),
+  limit: z.string().optional(),
+  status: z.string().optional(),
+});
+
+const rejectApplicationBodySchema = z.object({
+  rejectionReason: z.string().optional(),
+});
 
 interface UserPayload {
   id: string;
@@ -27,270 +42,223 @@ export class CompanyJobController implements ICompanyJobController {
   ) {}
   createJob: RequestHandler = async (req: Request, res: Response) => {
     try {
-      const companyId = (req.user as UserPayload)?.id; // assuming company is authenticated and available
+      const companyId = (req.user as UserPayload)?.id;
       if (!companyId) {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ message: "no company id" });
+        res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
+          success: false,
+          message: "Unauthorized",
+        });
         return;
       }
-      const skillsId = [];
-      const skills = req.body.skillsRequired;
-      for (const skill of skills) {
-        const skillIn = await this._skillService.findOrCreateSkillByTitle(
-          skill,
-          companyId,
-          "company"
-        );
-        skillsId.push(skillIn._id);
-      }
-      console.log("req.boyd", req.body);
-      const jobData = {
-        title: req.body.title,
-        location: req.body.location,
-        jobType: req.body.jobType,
-        employmentType: req.body.employmentType,
-        description: req.body.description,
-        salary: req.body.salary,
-        benefits: req.body.benefits,
-        experienceLevel: req.body.experienceLevel,
-        applicationDeadline: req.body.applicationDeadline,
-        skillsRequired: skillsId.map((id) => id.toString()),
-        createdBy: companyId,
-      };
-      console.log("jobData", jobData);
+      const skillDtos = await Promise.all(
+        req.body.skillsRequired.map((skill: string) =>
+          this._skillService.findOrCreateSkillByTitle(
+            skill,
+            companyId,
+            "company"
+          )
+        )
+      );
 
-      const validatedData = createJobSchema.parse(jobData);
-      console.log("isValidateData", validatedData);
+      const input: CreateJobInput = createJobSchema.parse({
+        ...req.body,
+        skillsRequired: skillDtos.map((s) => s.id),
+      });
 
-      const job = await this._jobService.createJob(validatedData, companyId);
-      res
-        .status(HTTP_STATUS_CODES.CREATED)
-        .json({ message: "Job created successfully", job });
+      const job = await this._jobService.createJob(input, companyId);
+
+      res.status(HTTP_STATUS_CODES.CREATED).json({
+        success: true,
+        message: "Job created successfully",
+        data: job,
+      });
     } catch (err) {
-      if (err instanceof ZodError) {
-        const errObj: Record<string, string> = {};
-        err.errors.forEach((err) => {
-          errObj[err.path.join(".")] = err.message;
-        });
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, errors: errObj });
-      } else {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, error: (err as Error).message });
-      }
+      handleControllerError(err, res, "CompanyJobController:createJob");
     }
   };
 
   updateJob: RequestHandler = async (req: Request, res: Response) => {
     try {
       const companyId = (req.user as UserPayload)?.id;
-      if (!companyId) {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ message: "No company id provided" });
-        return;
-      }
-
       const jobId = req.params.jobId;
 
-      const skillsId: string[] = [];
-      const skills = req.body.skillsRequired;
-      for (const skill of skills) {
-        const skillIn = await this._skillService.findOrCreateSkillByTitle(
-          skill,
-          companyId,
-          "company"
-        );
-        skillsId.push(skillIn._id.toString());
-      }
-
-      const jobData = {
-        ...req.body,
-        skillsRequired: skillsId,
-      };
-
-      const validatedData = updateJobSchema.parse(jobData);
-      const updatedJob = await this._jobService.updateJob(
-        jobId,
-        companyId,
-        validatedData
-      );
-
-      if (!updatedJob) {
-        res
-          .status(HTTP_STATUS_CODES.NOT_FOUND)
-          .json({ message: "Job not found or unauthorized" });
+      if (!companyId || !jobId) {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
+          success: false,
+          message: "Invalid company or job ID",
+        });
         return;
       }
 
-      res
-        .status(HTTP_STATUS_CODES.OK)
-        .json({ message: "Job updated successfully", updatedJob });
-    } catch (err) {
-      if (err instanceof ZodError) {
-        const errObj: Record<string, string> = {};
-        err.errors.forEach((err) => {
-          errObj[err.path.join(".")] = err.message;
+      // 🔐 Resolve skills and validate each one
+      const rawSkills = await Promise.all(
+        req.body.skillsRequired.map((skill: string) =>
+          this._skillService.findOrCreateSkillByTitle(
+            skill,
+            companyId,
+            "company"
+          )
+        )
+      );
+
+      const invalidSkill = rawSkills.find((skill) => !skill || !skill._id);
+      if (invalidSkill) {
+        res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: "Failed to resolve one or more skills",
         });
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, errors: errObj });
-      } else {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, error: (err as Error).message });
+        return;
       }
+
+      const input: UpdateJobInput = updateJobSchema.parse({
+        ...req.body,
+        skillsRequired: rawSkills.map((s) => s._id.toString()),
+      });
+
+      const updated = await this._jobService.updateJob(jobId, companyId, input);
+
+      if (!updated) {
+        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
+          success: false,
+          message: "Job not found or unauthorized",
+        });
+        return;
+      }
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Job updated successfully",
+        data: updated,
+      });
+    } catch (err) {
+      handleControllerError(err, res, "CompanyJobController:updateJob");
     }
   };
 
   deleteJob: RequestHandler = async (req: Request, res: Response) => {
     try {
       const companyId = (req.user as UserPayload)?.id;
-      if (!companyId) {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ message: "no company id" });
-        return;
-      }
       const jobId = req.params.jobId;
-      const deleted = await this._jobService.deleteJob(jobId, companyId);
-      if (!deleted) {
-        res
-          .status(HTTP_STATUS_CODES.NOT_FOUND)
-          .json({ message: "Job not found or unauthorized" });
-        return;
-      }
-      res
-        .status(HTTP_STATUS_CODES.OK)
-        .json({ message: "Job deleted successfully" });
-    } catch (err) {
-      res
-        .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ error: (err as Error).message });
-    }
-  };
-  getJobs: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const companyId = (req.user as UserPayload)?.id;
-      if (!companyId) {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ message: "Company ID required" });
+
+      if (!companyId || !jobId) {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
+          success: false,
+          message: "Invalid company or job ID",
+        });
         return;
       }
 
-      const page = Math.max(1, parseInt(req.query.page as string) || 1);
-      const limit = Math.max(1, parseInt(req.query.limit as string) || 10);
+      const deleted = await this._jobService.deleteJob(jobId, companyId);
+
+      if (!deleted) {
+        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
+          success: false,
+          message: "Job not found or unauthorized",
+        });
+        return;
+      }
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Job deleted successfully",
+      });
+    } catch (err) {
+      handleControllerError(err, res, "CompanyJobController:deleteJob");
+    }
+  };
+  getJobs = async (req: Request, res: Response) => {
+    try {
+      const companyId = (req.user as UserPayload)?.id;
+      if (!companyId) {
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
+          success: false,
+          message: "Company ID is required",
+        });
+        return;
+      }
+
+      const { page, limit } = paginationSchema.parse(req.query);
 
       const { jobs, total } = await this._jobService.getJobs(
         companyId,
         page,
         limit
       );
-      res.status(HTTP_STATUS_CODES.OK).json({
-        success: true,
-        data: jobs,
-        pagination: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
-        },
-      });
-    } catch (err) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error: (err as Error).message });
-    }
-  };
-
-  getJobApplications: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const companyId = (req.user as UserPayload)?.id;
-      if (!companyId) {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ message: "Company ID required" });
-        return;
-      }
-
-      const jobId = req.params.jobId;
-      const page = Math.max(1, parseInt(req.query.page as string) || 1);
-      const limit = Math.max(1, parseInt(req.query.limit as string) || 10);
-
-      const result = await this._jobService.getJobApplications(
-        jobId,
-        companyId,
-        page,
-        limit
-      );
-      if (!result) {
-        res
-          .status(HTTP_STATUS_CODES.NOT_FOUND)
-          .json({ success: false, message: "Job not found" });
-        return;
-      }
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        data: result.applications,
-        pagination: {
-          total: result.total,
-          page,
-          limit,
-          totalPages: Math.ceil(result.total / limit),
+        message: "Jobs fetched successfully",
+        data: {
+          jobs,
+          pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+          },
         },
       });
     } catch (err) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error: (err as Error).message });
+      handleControllerError(err, res, "JobController:getJobs");
     }
   };
+
   getJob: RequestHandler = async (req: Request, res: Response) => {
     try {
       const { jobId } = req.params;
-      console.log("jobId", jobId);
-      if (!jobId) {
-        res
-          .status(HTTP_STATUS_CODES.NOT_FOUND)
-          .json({ success: false, message: "Job not found" });
-        return;
-      }
+
       const result = await this._jobService.getJob(jobId);
-      if (!result) {
-        res
-          .status(HTTP_STATUS_CODES.NOT_FOUND)
-          .json({ success: false, message: "job not found detailed" });
-        return;
-      }
-      console.log("result", result);
-      res.status(HTTP_STATUS_CODES.OK).json({ success: true, job: result });
+
+      res.status(HTTP_STATUS_CODES.OK).json({ success: true, data: result });
     } catch (err) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, error: (err as Error).message });
+      handleControllerError(err, res, "JobController:getJob");
     }
   };
-  // updated
+
+  async shortlistApplication(req: Request, res: Response): Promise<void> {
+    try {
+      const { applicationId } = req.params;
+      const result = await this._jobService.shortlistApplication(applicationId);
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Application shortlisted successfully",
+      });
+    } catch (error) {
+      handleControllerError(error, res, "shortlistApplication");
+    }
+  }
+
+  async rejectApplication(req: Request, res: Response): Promise<void> {
+    try {
+      const { applicationId } = req.params;
+      const { rejectionReason } = rejectApplicationBodySchema.parse(req.body);
+
+      const result = await this._jobService.rejectApplication(
+        applicationId,
+        rejectionReason
+      );
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Application rejected successfully",
+      });
+    } catch (error) {
+      handleControllerError(error, res, "rejectApplication");
+    }
+  }
   async getApplications(req: Request, res: Response): Promise<void> {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
       const { jobId } = req.params;
-      // Extract filters from query params
-      const filters: Record<string, any> = {
-        ...req.query,
-      };
+      const parsedQuery = getApplicationsQuerySchema.parse(req.query);
+      const page = parseInt(parsedQuery.page || "1", 10);
+      const limit = parseInt(parsedQuery.limit || "10", 10);
 
-      // Remove pagination params from filters
+      const filters = { ...parsedQuery };
       delete filters.page;
       delete filters.limit;
 
-      const applicationsData = await this._jobService.getApplications(
+      const result = await this._jobService.getApplications(
         page,
         limit,
         filters,
@@ -300,127 +268,24 @@ export class CompanyJobController implements ICompanyJobController {
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Applications fetched successfully",
-        data: applicationsData,
+        data: result,
       });
     } catch (error) {
-      console.error(error);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        error: (error as Error).message,
-      });
-    }
-  }
-  // updated
-  async shortlistApplication(req: Request, res: Response): Promise<void> {
-    try {
-      const { applicationId } = req.params;
-
-      if (!applicationId) {
-        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
-          success: false,
-          message: "Application ID required",
-        });
-        return;
-      }
-
-      const success = await this._jobService.shortlistApplication(
-        applicationId
-      );
-
-      if (!success) {
-        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
-          success: false,
-          message: "Application not found",
-        });
-        return;
-      }
-
-      res.status(HTTP_STATUS_CODES.OK).json({
-        success: true,
-        message: "Application shortlisted successfully",
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: (error as Error).message,
-      });
-    }
-  }
-
-  async rejectApplication(req: Request, res: Response): Promise<void> {
-    try {
-      const { applicationId } = req.params;
-      const { rejectionReason } = req.body;
-
-      if (!applicationId) {
-        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
-          success: false,
-          message: "Application ID required",
-        });
-        return;
-      }
-
-      const success = await this._jobService.rejectApplication(
-        applicationId,
-        rejectionReason
-      );
-
-      if (!success) {
-        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
-          success: false,
-          message: "Application not found",
-        });
-        return;
-      }
-
-      res.status(HTTP_STATUS_CODES.OK).json({
-        success: true,
-        message: "Application rejected successfully",
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: (error as Error).message,
-      });
+      handleControllerError(error, res, "getApplications");
     }
   }
   async getApplicantDetails(req: Request, res: Response): Promise<void> {
     try {
       const { applicationId } = req.params;
-
-      if (!applicationId) {
-        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
-          success: false,
-          message: "Application ID required",
-        });
-        return;
-      }
-
-      const applicant = await this._jobService.getApplicantDetails(
-        applicationId
-      );
-
-      if (!applicant) {
-        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
-          success: false,
-          message: "Application not found",
-        });
-        return;
-      }
+      const result = await this._jobService.getApplicantDetails(applicationId);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Application details get successfully",
-        applicant,
+        message: "Applicant details fetched successfully",
+        data: result,
       });
     } catch (error) {
-      console.error(error);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: (error as Error).message,
-      });
+      handleControllerError(error, res, "getApplicantDetails");
     }
   }
 }

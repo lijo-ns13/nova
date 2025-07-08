@@ -79,6 +79,21 @@ export class SkillRepository
   async getByTitle(title: string): Promise<ISkill | null> {
     return await skillModal.findOne({ title: title });
   }
+  async findByTitle(title: string): Promise<ISkill | null> {
+    return this.model.findOne({ title: title.trim().toLowerCase() });
+  }
+
+  async createSkill(
+    title: string,
+    createdById: string,
+    createdBy: "user" | "company" | "admin"
+  ): Promise<ISkill> {
+    return this.model.create({
+      title: title.trim().toLowerCase(),
+      createdById: new Types.ObjectId(createdById),
+      createdBy,
+    });
+  }
   async searchSkills(query: string, limit = 10): Promise<ISkill[]> {
     const regex = new RegExp(`^${query}`, "i"); // ^ anchors to start of string
     const skills = await skillModal.find({ title: regex }).limit(limit);

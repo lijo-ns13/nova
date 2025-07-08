@@ -7,7 +7,6 @@ export interface ICompanyJobController {
   updateJob: RequestHandler;
   deleteJob: RequestHandler;
   getJobs: RequestHandler;
-  getJobApplications: RequestHandler;
   getJob: RequestHandler;
   getApplications(req: Request, res: Response): Promise<void>;
   shortlistApplication(req: Request, res: Response): Promise<void>;

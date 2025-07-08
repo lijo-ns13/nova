@@ -4,15 +4,28 @@ import {
   IApplication,
   ApplicationStatus,
 } from "../../models/application.modal";
+import { IApplicationWithUserAndJob } from "../../core/dtos/company/application.dto";
+import {
+  ApplicantRawData,
+  GetApplicationsQuery,
+} from "../../core/dtos/company/getapplications.dto";
 
 export interface IApplicationRepository extends IBaseRepository<IApplication> {
+  findWithUserAndJobById(
+    applicationId: string
+  ): Promise<IApplicationWithUserAndJob | null>;
   updateStatus(
     applicationId: string,
     status: ApplicationStatus,
     reason?: string,
     scheduledAt?: Date
   ): Promise<IApplication | null>;
-
+  findApplicationsByFilter(
+    filter: GetApplicationsQuery,
+    page: number,
+    limit: number,
+    jobId: string
+  ): Promise<{ applications: ApplicantRawData[]; total: number }>;
   findByJobId(jobId: string): Promise<IApplication[]>;
 
   findByUserId(userId: string): Promise<IApplication[]>;

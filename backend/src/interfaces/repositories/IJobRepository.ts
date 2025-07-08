@@ -1,4 +1,7 @@
+import { IJobWithSkills } from "../../mapping/job.mapper";
+import { IApplication } from "../../models/application.modal";
 import { IJob } from "../../models/job.modal";
+import { PopulatedApplicationWithUserAndResume } from "../../repositories/mongo/JobRepository";
 import { IBaseRepository } from "./IBaseRepository";
 export interface JobFilters {
   title?: string;
@@ -52,30 +55,21 @@ export interface JobCandidate {
 }
 
 export interface IJobRepository extends IBaseRepository<IJob> {
-  // 🟢 CREATE
   createJob(createJobDto: CreateJobDto, companyId: string): Promise<IJob>;
 
-  // 🟡 UPDATE
   updateJob(
     jobId: string,
     companyId: string,
     updateJobDto: UpdateJobDto
   ): Promise<IJob | null>;
 
-  // 🔴 DELETE
   deleteJob(jobId: string, companyId: string): Promise<boolean>;
   getJobs(
     companyId: string,
     page: number,
     limit: number
-  ): Promise<{ jobs: IJob[]; total: number }>;
-  getJobApplications(
-    jobId: string,
-    companyId: string,
-    page: number,
-    limit: number
-  ): Promise<{ applications: any[]; total: number } | null>;
-  getJob(jobId: string): Promise<any>;
+  ): Promise<{ jobs: IJobWithSkills[]; total: number }>;
+  getJob(jobId: string): Promise<IJobWithSkills | null>;
   getAllJobs(
     page?: number,
     limit?: number,
@@ -87,19 +81,8 @@ export interface IJobRepository extends IBaseRepository<IJob> {
     resumeUrl: string,
     coverLetter?: string
   ): Promise<any>;
-  // updated
-  findApplicationsByFilter(
-    filter: Record<string, any>,
-    page: number,
-    limit: number,
-    jobId: string
-  ): Promise<any>;
-  // new update
-  shortlistApplication(applicationId: string): Promise<boolean>;
 
-  rejectApplication(
-    applicationId: string,
-    rejectionReason?: string
-  ): Promise<boolean>;
-  getApplicantDetails(applicantId: string): Promise<any>;
+  getApplicantDetails(
+    applicantId: string
+  ): Promise<PopulatedApplicationWithUserAndResume | null>;
 }

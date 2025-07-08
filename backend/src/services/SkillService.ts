@@ -1,12 +1,12 @@
+// src/services/SkillService.ts
+
 import { inject, injectable } from "inversify";
-import { ISkillRepository } from "../interfaces/repositories/ISkillRepository";
 import { TYPES } from "../di/types";
+import { SkillResponseDTO } from "../dtos/response/skill.response.dto";
+import { ISkillRepository } from "../interfaces/repositories/ISkillRepository";
 import { ISkillService } from "../interfaces/services/ISkillService";
-import { ISkill } from "../models/skill.modal";
-import { IUserRepository } from "../interfaces/repositories/IUserRepository";
-import mongoose, { Types } from "mongoose";
 import { SkillMapper } from "../mapping/skill.mapper";
-import { SkillResponeDTO } from "../dtos/response/skill.response.dto";
+import { IUserRepository } from "../interfaces/repositories/IUserRepository";
 
 @injectable()
 export class SkillService implements ISkillService {
@@ -15,55 +15,63 @@ export class SkillService implements ISkillService {
     private _skillRepository: ISkillRepository,
     @inject(TYPES.UserRepository) private _userRepo: IUserRepository
   ) {}
-  async searchSkills(query: string): Promise<SkillResponeDTO[]> {
+
+  async searchSkills(query: string): Promise<SkillResponseDTO[]> {
     if (!query.trim()) return [];
     const skills = await this._skillRepository.searchSkills(query, 10);
     return SkillMapper.toSearchListDTO(skills);
   }
-  async getByTitle(title: string): Promise<ISkill | null> {
-    return this._skillRepository.getByTitle(title.trim().toLowerCase());
+
+  async getByTitle(title: string): Promise<SkillResponseDTO | null> {
+    const skill = await this._skillRepository.getByTitle(
+      title.trim().toLowerCase()
+    );
+    return skill ? SkillMapper.toResponseDTO(skill) : null;
   }
 
   async getOrCreateSkills(
     skillTitles: string[],
     createdById: string,
     createdBy: "user" | "company" | "admin"
-  ): Promise<Types.ObjectId[]> {
-    const skillIds: Types.ObjectId[] = [];
+  ): Promise<SkillResponseDTO[]> {
+    const result: SkillResponseDTO[] = [];
 
-    for (const title of skillTitles) {
-      let skill = await this._skillRepository.findOne({ title });
+    for (const titleRaw of skillTitles) {
+      const title = titleRaw.trim().toLowerCase();
+
+      let skill = await this._skillRepository.findByTitle(title);
 
       if (!skill) {
-        skill = await this._skillRepository.create({
+        skill = await this._skillRepository.createSkill(
           title,
-          createdById: new mongoose.Types.ObjectId(createdById),
-          createdBy,
-        });
+          createdById,
+          createdBy
+        );
       }
 
-      skillIds.push(skill._id);
+      result.push(SkillMapper.toResponseDTO(skill));
     }
 
-    return skillIds;
+    return result;
   }
 
-  // ✅ New method
   async findOrCreateSkillByTitle(
     title: string,
     createdById: string,
     createdBy: "user" | "company" | "admin"
-  ): Promise<ISkill> {
-    let skill = await this._skillRepository.findOne({ title });
+  ): Promise<SkillResponseDTO> {
+    const normalized = title.trim().toLowerCase();
+
+    let skill = await this._skillRepository.findByTitle(normalized);
 
     if (!skill) {
-      skill = await this._skillRepository.create({
-        title,
-        createdById: new mongoose.Types.ObjectId(createdById),
-        createdBy,
-      });
+      skill = await this._skillRepository.createSkill(
+        normalized,
+        createdById,
+        createdBy
+      );
     }
 
-    return skill;
+    return SkillMapper.toResponseDTO(skill);
   }
 }

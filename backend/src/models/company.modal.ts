@@ -61,6 +61,8 @@ export interface ICompany extends Document {
   profilePicture: string;
   socketId?: string;
   online?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const companySchema = new Schema<ICompany>(

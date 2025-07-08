@@ -6,7 +6,7 @@ import { TYPES } from "../../di/types";
 
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 
-interface Userr {
+interface UserPayload {
   id: string;
   email: string;
   role: string;
@@ -38,7 +38,7 @@ export class CompanyInterviewController implements ICompanyInterviewController {
   async createInterview(req: Request, res: Response): Promise<void> {
     try {
       const { userId, applicationId, scheduledAt } = req.body;
-      const companyId = (req.user as Userr)?.id; // Assumes auth middleware sets req.user
+      const companyId = (req.user as UserPayload)?.id; // Assumes auth middleware sets req.user
       if (!userId || !applicationId || !scheduledAt) {
         res.status(400).json({
           success: false,
@@ -81,7 +81,7 @@ export class CompanyInterviewController implements ICompanyInterviewController {
     res: Response
   ): Promise<void> {
     try {
-      const companyId = (req.user as Userr)?.id;
+      const companyId = (req.user as UserPayload)?.id;
       if (!companyId) throw new Error("Company ID not found");
 
       const interviews =
@@ -100,7 +100,7 @@ export class CompanyInterviewController implements ICompanyInterviewController {
     try {
       const { applicationId } = req.params;
       const { reason, timeSlots } = req.body;
-      const companyId = (req.user as Userr)?.id;
+      const companyId = (req.user as UserPayload)?.id;
       console.log("req.body", req.body);
       if (!companyId) {
         res
