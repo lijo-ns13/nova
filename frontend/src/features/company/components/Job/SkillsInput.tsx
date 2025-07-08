@@ -20,29 +20,31 @@ const SkillsInput: React.FC<SkillsInputProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Mock API call for skills suggestions
-  const fetchSkillSuggestions = async (query: string) => {
-    if (!query || query.length < 1) {
-      return [];
-    }
-    const response = await userAxios.get(
+  type Skill = { id: string; title: string };
+
+  const fetchSkillSuggestions = async (query: string): Promise<string[]> => {
+    if (!query || query.trim().length < 1) return [];
+
+    const response = await userAxios.get<{ success: boolean; data: Skill[] }>(
       `${import.meta.env.VITE_API_BASE_URL}/skill/search?q=${query}`,
       { withCredentials: true }
     );
-    console.log("response", response);
 
-    const skills: string[] = response.data;
+    const skills = response.data.data; // ✅ FIX: access nested data
+
     const lowerQuery = query.toLowerCase();
+
     return skills
-      .filter((skill) => skill.toLowerCase().includes(lowerQuery))
-      .slice(0, 5);
+      .filter((skill) => skill.title.toLowerCase().includes(lowerQuery))
+      .slice(0, 5)
+      .map((skill) => skill.title);
   };
 
   useEffect(() => {
     const getSkillSuggestions = async () => {
-      if (inputValue.length > 0) {
+      if (inputValue.trim().length > 0) {
         const skillsData = await fetchSkillSuggestions(inputValue);
-        console.log("sklldta", skillsData);
+        console.log("skillsData", skillsData);
         setSuggestions(skillsData);
         setShowSuggestions(skillsData.length > 0);
         setActiveSuggestion(0);

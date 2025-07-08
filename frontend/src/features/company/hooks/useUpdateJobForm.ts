@@ -1,7 +1,8 @@
 import { useState, FormEvent, useEffect } from "react";
 import toast from "react-hot-toast";
-import { JobService } from "../services/jobServices";
+import { JobService, UpdateJobInput } from "../services/jobServices";
 import { JobFormState } from "./useJobForm";
+import { isParsedApiError } from "../../../utils/apiError";
 
 interface UseUpdateJobFormProps {
   jobId: string;
@@ -12,15 +13,15 @@ export function useUpdateJobForm({ jobId, onSuccess }: UseUpdateJobFormProps) {
   const [formState, setFormState] = useState<JobFormState>({
     title: "",
     location: "",
-    jobType: "",
-    employmentType: "",
-    experienceLevel: "",
+    jobType: "remote",
+    employmentType: "full-time",
+    experienceLevel: "entry",
     applicationDeadline: "",
     description: "",
     skillsRequired: [],
     benefits: [],
     salary: {
-      currency: "USD",
+      currency: "INR",
       min: "",
       max: "",
       isVisibleToApplicants: true,
@@ -38,50 +39,43 @@ export function useUpdateJobForm({ jobId, onSuccess }: UseUpdateJobFormProps) {
   }, [jobId]);
 
   const loadJobData = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      const { success, job } = await JobService.getJob(jobId);
-
-      if (!success || !job?.length) {
-        toast.error("Failed to load job data");
-        return;
-      }
-
-      const jobData = job[0];
+      const jobData = await JobService.getJob(jobId); // returns JobResponseDto
 
       setFormState({
-        title: jobData.title || "",
-        location: jobData.location || "",
-        jobType: jobData.jobType || "",
-        employmentType: jobData.employmentType || "",
-        experienceLevel: jobData.experienceLevel || "",
+        title: jobData.title ?? "",
+        location: jobData.location ?? "",
+        jobType: jobData.jobType ?? "remote",
+        employmentType: jobData.employmentType ?? "full-time",
+        experienceLevel: jobData.experienceLevel ?? "entry",
         applicationDeadline: jobData.applicationDeadline
-          ? jobData.applicationDeadline.split("T")[0]
+          ? new Date(jobData.applicationDeadline).toISOString().split("T")[0]
           : "",
-        description: jobData.description || "",
-        skillsRequired:
-          jobData.skillsRequired?.map((skill: any) =>
-            typeof skill === "string" ? skill : skill.title
-          ) || [],
-        benefits: jobData.benefits || [],
+        description: jobData.description ?? "",
+        skillsRequired: jobData.skillsRequired ?? [],
+        benefits: jobData.benefits ?? [],
         salary: {
-          currency: jobData.salary?.currency || "USD",
-          min: jobData.salary?.min?.toString() || "",
-          max: jobData.salary?.max?.toString() || "",
-          isVisibleToApplicants:
-            jobData.salary?.isVisibleToApplicants !== undefined
-              ? jobData.salary.isVisibleToApplicants
-              : true,
+          currency: jobData.salary?.currency ?? "USD",
+          min: jobData.salary?.min?.toString() ?? "",
+          max: jobData.salary?.max?.toString() ?? "",
+          isVisibleToApplicants: jobData.salary?.isVisibleToApplicants ?? true,
         },
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error loading job data:", error);
-      toast.error("Failed to load job data");
+
+      if (isParsedApiError(error)) {
+        toast.error(error.message || "Failed to load job");
+      } else {
+        toast.error("Unexpected error occurred while loading job");
+      }
     } finally {
       setIsLoading(false);
     }
   };
-const handleLocationSelect = (location: string) => {
+
+  const handleLocationSelect = (location: string) => {
     setFormState((prev) => ({
       ...prev,
       location,
@@ -220,12 +214,15 @@ const handleLocationSelect = (location: string) => {
     setIsSubmitting(true);
 
     try {
-      const formData = {
+      const formData: UpdateJobInput = {
         ...formState,
+        applicationDeadline: formState.applicationDeadline
+          ? new Date(formState.applicationDeadline)
+          : undefined,
         salary: {
           ...formState.salary,
-          min: formState.salary.min ? Number(formState.salary.min) : undefined,
-          max: formState.salary.max ? Number(formState.salary.max) : undefined,
+          min: Number(formState.salary.min),
+          max: Number(formState.salary.max),
         },
       };
 
@@ -253,6 +250,9 @@ const handleLocationSelect = (location: string) => {
     handleSkillsChange,
     handleBenefitsChange,
     handleSubmit,
-    handleLocationSelect
+    handleLocationSelect,
   };
+}
+function ParsedAPIError(error: any) {
+  throw new Error("Function not implemented.");
 }

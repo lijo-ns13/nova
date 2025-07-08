@@ -9,10 +9,14 @@ import {
 } from "../../models/application.modal";
 import { IJobApplicantManagementService } from "../../interfaces/services/IJobApplicantManagement";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
-import { AppIntegrations } from "aws-sdk";
+
 import { INotificationService } from "../../interfaces/services/INotificationService";
-import { NotificationType } from "../../models/notification.modal";
+
 import { allowedTransitions } from "../../utils/allowedTransitions";
+import {
+  ApplicationMapper,
+  ApplicationResponseDTO,
+} from "../../mapping/company/applicant/aplicationtwo.mapper";
 
 @injectable()
 export class JobApplicantManagementService
@@ -28,35 +32,27 @@ export class JobApplicantManagementService
     private _notificationService: INotificationService
   ) {}
 
-  async getApplicationsByJob(jobId: string): Promise<IApplication[]> {
-    return this._applicationRepo.findByJobId(jobId);
-  }
-
-  async getApplicationsByUser(userId: string): Promise<IApplication[]> {
-    return this._applicationRepo.findByUserId(userId);
-  }
-
   async getApplicationWithDetails(
     applicationId: string
-  ): Promise<IApplication | null> {
-    const application = await this._applicationRepo.findByIdWithUserAndJob(
+  ): Promise<ApplicationResponseDTO | null> {
+    const doc = await this._applicationRepo.findByIdWithUserAndJob(
       applicationId
     );
-    if (!application) return null;
+    if (!doc) return null;
 
-    const applicationObj = application.toObject?.() || application;
-    const media = await this._mediaService.getMediaById(
-      application.resumeMediaId.toString()
-    );
-    if (media?.s3Key) {
-      const resumeUrl = await this._mediaService.getMediaUrl(media.s3Key);
-      return {
-        ...applicationObj,
-        resumeUrl,
-      };
+    const dto = ApplicationMapper.toUserAndJobDTO(doc);
+
+    if (doc.resumeMediaId) {
+      const media = await this._mediaService.getMediaById(
+        doc.resumeMediaId.toString()
+      );
+      if (media?.s3Key) {
+        const resumeUrl = await this._mediaService.getMediaUrl(media.s3Key);
+        return { ...dto, resumeUrl };
+      }
     }
 
-    return applicationObj;
+    return dto;
   }
 
   async updateApplicationStatus(
@@ -64,30 +60,17 @@ export class JobApplicantManagementService
     newStatus: ApplicationStatus,
     reason?: string
   ): Promise<IApplication | null> {
-    if (!newStatus) throw new Error("Status is required");
-    if (newStatus == ApplicationStatus.INTERVIEW_SCHEDULED) {
-      throw new Error("interview shculed cant do like this");
-    }
-    if (
-      newStatus == ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER ||
-      newStatus == ApplicationStatus.INTERVIEW_REJECTED_BY_USER
-    ) {
-      throw new Error("this things in user side");
-    }
     const application = await this._applicationRepo.findById(applicationId);
-    if (!application) throw new Error("Application not found");
+    if (!application) return null;
 
     const currentStatus = application.status;
-
-    // Validate transition
-    const allowedNextStatuses = allowedTransitions[currentStatus];
-    if (!allowedNextStatuses.includes(newStatus)) {
+    const allowed = allowedTransitions[currentStatus];
+    if (!allowed.includes(newStatus)) {
       throw new Error(
         `Invalid status transition from ${currentStatus} to ${newStatus}`
       );
     }
 
-    // Enforce reason if needed
     const statusesRequiringReason: ApplicationStatus[] = [
       ApplicationStatus.REJECTED,
       ApplicationStatus.INTERVIEW_CANCELLED,
@@ -98,15 +81,22 @@ export class JobApplicantManagementService
     if (statusesRequiringReason.includes(newStatus) && !reason) {
       throw new Error(`Reason is required for status: ${newStatus}`);
     }
-    // Proceed with update
+
     return this._applicationRepo.updateStatus(applicationId, newStatus, reason);
   }
 
-  async createApplication(data: {
-    job: string;
-    user: string;
-    resumeMediaId: string;
-  }): Promise<IApplication> {
-    return this._applicationRepo.create(data);
-  }
+  // async createApplication(data: {
+  //   job: string;
+  //   user: string;
+  //   resumeMediaId: string;
+  // }): Promise<IApplication> {
+  //   return this._applicationRepo.create(data);
+  // }
+  // async getApplicationsByJob(jobId: string): Promise<IApplication[]> {
+  //   return this._applicationRepo.findByJobId(jobId);
+  // }
+
+  // async getApplicationsByUser(userId: string): Promise<IApplication[]> {
+  //   return this._applicationRepo.findByUserId(userId);
+  // }
 }

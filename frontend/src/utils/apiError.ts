@@ -6,6 +6,14 @@ export type ParsedAPIError = {
   errors?: Record<string, string>;
   statusCode: number;
 };
+export function isParsedApiError(error: unknown): error is ParsedAPIError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "statusCode" in error &&
+    typeof (error as ParsedAPIError).statusCode === "number"
+  );
+}
 
 export function isValidationError(
   error: unknown

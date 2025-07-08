@@ -1,32 +1,26 @@
 import { useState, FormEvent } from "react";
 import toast from "react-hot-toast";
-import { JobService } from "../services/jobServices";
-
-export interface JobFormState {
-  title: string;
-  location: string;
-  jobType: string;
-  employmentType: string;
-  experienceLevel: string;
-  applicationDeadline: string;
-  description: string;
-  skillsRequired: string[];
-  benefits: string[];
+import { CreateJobInput, JobService } from "../services/jobServices";
+export type JobFormState = Omit<
+  CreateJobInput,
+  "salary" | "applicationDeadline"
+> & {
   salary: {
     currency: string;
-    min: string;
-    max: string;
+    min: string; // for form input
+    max: string; // for form input
     isVisibleToApplicants: boolean;
   };
-}
+  applicationDeadline: string; // ISO string or formatted input value
+};
 
 export function useJobForm() {
   const [formState, setFormState] = useState<JobFormState>({
     title: "",
     location: "",
-    jobType: "",
-    employmentType: "",
-    experienceLevel: "",
+    jobType: "remote",
+    employmentType: "full-time",
+    experienceLevel: "entry",
     applicationDeadline: "",
     description: "",
     skillsRequired: [],
@@ -217,6 +211,7 @@ export function useJobForm() {
           min: formState.salary.min ? Number(formState.salary.min) : undefined,
           max: formState.salary.max ? Number(formState.salary.max) : undefined,
         },
+        applicationDeadline: new Date(formState.applicationDeadline),
       };
 
       await JobService.createJob(formData);

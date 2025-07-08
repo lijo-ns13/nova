@@ -50,12 +50,7 @@ export class CompanyAuthController implements ICompanyAuthController {
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Login successful",
-        data: {
-          role: "company",
-          isVerified: result.isVerified,
-          isBlocked: result.isBlocked,
-          company: result.company,
-        },
+        data: result.company,
       });
     } catch (error) {
       handleControllerError(error, res, "CompanyAuthController.signIn");
@@ -96,7 +91,6 @@ export class CompanyAuthController implements ICompanyAuthController {
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Password reset token sent",
-        data: result,
       });
     } catch (error) {
       handleControllerError(error, res, "CompanyAuthController.forgetPassword");

@@ -64,9 +64,14 @@ const CreateJobForm: React.FC<Props> = ({ onSuccess }) => {
   };
   const fetchSkills = async (query: string) => {
     const res = await fetch(`/skills?query=${query}`);
-
-    return res.json();
+    const data = await res.json(); // ✅ parse the response body
+    const skills = data.map(
+      (skill: { id: string; title: string }) => skill.title
+    ); // ✅ map after parsing
+    console.log("jlkdsfjlkdsfjlk =>>skil", skills);
+    return skills;
   };
+
   const handleSubmit = async (e: FormEvent) => {
     console.log("clikced");
     e.preventDefault();

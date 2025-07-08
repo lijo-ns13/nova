@@ -12,10 +12,25 @@ import StatusManager from "../components/applicant/StatusManager";
 import ApplicationTimeline from "../components/applicant/ApplicationTimeline";
 import ScheduleInterviewModal from "../components/interview/ScheduleInterviewModal";
 import RescheduleInterviewModal from "../components/interview/RescheduleInterviewModal";
-import SecureDocumentViewer from "../../../components/SecureDocumentViewer";
+
+import SecureDocViewer from "../../../components/SecureDocViewer";
+export interface RawApplicantDetailDTO {
+  id: string;
+  jobId: string;
+  jobTitle: string;
+  companyName: string;
+  userId: string;
+  userName: string;
+  userProfilePicture: string;
+  status: string;
+  appliedAt: string; // ISO 8601 date string
+  resumeUrl: string;
+}
 function ApplicantDetails() {
   const [loading, setLoading] = useState<boolean>(true);
-  const [applicant, setApplicant] = useState<Applicant | null>(null);
+  const [applicant, setApplicant] = useState<RawApplicantDetailDTO | null>(
+    null
+  );
   const [error, setError] = useState<string>("");
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
@@ -28,7 +43,7 @@ function ApplicantDetails() {
     try {
       const res = await getApplicantById(applicationId);
       if (res.success) {
-        setApplicant(res.data);
+        setApplicant(res);
       } else {
         setError("Failed to fetch applicant details.");
       }
@@ -85,7 +100,7 @@ function ApplicantDetails() {
         <div className="space-y-6">
           {/* Header Section */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <ApplicantHeader applicant={applicant} />
+            {/* <ApplicantHeader applicant={applicant} /> */}
           </div>
 
           {/* Main Content Grid */}
@@ -95,7 +110,7 @@ function ApplicantDetails() {
               <div className="sticky top-6 space-y-6">
                 {/* Job Details Card */}
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                  <div className="px-4 py-5 sm:px-6 border-b border-slate-200 bg-slate-50">
+                  {/* <div className="px-4 py-5 sm:px-6 border-b border-slate-200 bg-slate-50">
                     <h2 className="text-lg font-semibold text-slate-800">
                       Job Details
                     </h2>
@@ -133,9 +148,9 @@ function ApplicantDetails() {
                           {applicant.job.experienceLevel}
                         </span>
                       </div>
-                    </div>
+                    </div> */}
 
-                    {applicant.job.salary.isVisibleToApplicants && (
+                  {/* {applicant.job.salary.isVisibleToApplicants && (
                       <div className="mt-4 p-3 bg-slate-50 rounded-lg">
                         <div className="text-sm font-medium text-slate-700">
                           Salary Range
@@ -146,10 +161,10 @@ function ApplicantDetails() {
                           {applicant.job.salary.max.toLocaleString()}
                         </div>
                       </div>
-                    )}
+                    )} */}
 
-                    <div className="pt-4">
-                      {/* <a
+                  {/* <div className="pt-4"> */}
+                  {/* <a
                         href={applicant.resumeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -158,9 +173,11 @@ function ApplicantDetails() {
                         <FileText size={16} className="mr-2" />
                         View Resume
                       </a> */}
-                      <SecureDocumentViewer mediaId={applicant.resumeMediaId} />
-                    </div>
-                  </div>
+                  {/* <SecureDocumentViewer mediaId={applicant.resumeMediaId} />
+                   */}
+                  <SecureDocViewer resumeUrl={applicant.resumeUrl} />
+                  {/* </div>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -168,7 +185,7 @@ function ApplicantDetails() {
             {/* Main Content Area */}
             <div className="lg:col-span-8 space-y-6">
               {/* Status Section */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              {/* <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div className="px-4 py-5 sm:px-6 border-b border-slate-200 bg-slate-50">
                   <h2 className="text-lg font-semibold text-slate-800">
                     Application Status
@@ -187,10 +204,10 @@ function ApplicantDetails() {
                     />
                   )}
                 </div>
-              </div>
+              </div> */}
 
               {/* Timeline Section */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              {/* <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div className="px-4 py-5 sm:px-6 border-b border-slate-200 bg-slate-50">
                   <h2 className="text-lg font-semibold text-slate-800">
                     Application History
@@ -201,32 +218,32 @@ function ApplicantDetails() {
                     statusHistory={applicant.statusHistory}
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
       </div>
 
       {/* Interview Modal */}
-      {applicationId && (
+      {/* {applicationId && (
         <>
           <ScheduleInterviewModal
             isOpen={isInterviewModalOpen}
             onClose={() => setIsInterviewModalOpen(false)}
             applicationId={applicationId}
-            userId={applicant.user._id}
+            userId={applicant.userId}
             onInterviewScheduled={handleInterviewScheduled}
           />
           <RescheduleInterviewModal
             isOpen={isRescheduleModalOpen}
             onClose={() => setIsRescheduleModalOpen(false)}
             applicationId={applicationId}
-            userId={applicant.user._id}
+            userId={applicant.userId}
             currentInterviewTime={applicant.scheduledAt}
             onInterviewRescheduled={handleInterviewRescheduled}
           />
         </>
-      )}
+      )} */}
     </div>
   );
 }

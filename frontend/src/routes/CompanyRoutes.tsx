@@ -22,6 +22,7 @@ import NotFoundPage from "../components/PageNotFound";
 import ForgetPasswordPage from "../features/company/pages/ForgetPassword";
 import ResetPasswordPage from "../features/company/pages/ResetPasswordPage";
 import CompanyUpcomingInterviews from "../features/company/pages/CompanyUpcomingInterviews";
+import ApplicantList from "../features/company/pages/ApplicantList";
 const CompanyRoutes = () => {
   return (
     <Routes>
@@ -45,10 +46,11 @@ const CompanyRoutes = () => {
         <Route path="/manage-jobs" element={<ManageJobsPage />} />
         <Route path="/jobs/:jobId" element={<JobDetailedPage />} />
         <Route path="/notifications" element={<NotificationPage />} />
-        <Route
+        {/* <Route
           path="/job/applicants/:jobId"
           element={<CompanyApplicantsPage />}
-        />
+        /> */}
+        <Route path="/job/applicants/:jobId" element={<ApplicantList />} />
         <Route path="/company-profile" element={<CompanyProfilePage />} />
         <Route path="/interview/:roomId" element={<InterviewCompanyPage />} />
         <Route path="/upcoming" element={<CompanyUpcomingInterviews />} />

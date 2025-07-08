@@ -20,10 +20,15 @@ import {
 } from "../../core/dtos/company/job.dto";
 import { paginationSchema } from "../../core/validations/admin/admin.company.validation";
 import { z } from "zod";
-const getApplicationsQuerySchema = z.object({
+export const getApplicationsQuerySchema = z.object({
   page: z.string().optional(),
   limit: z.string().optional(),
   status: z.string().optional(),
+  userId: z.string().optional(),
+  companyId: z.string().optional(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+  search: z.string().optional(),
 });
 
 const rejectApplicationBodySchema = z.object({
@@ -101,7 +106,8 @@ export class CompanyJobController implements ICompanyJobController {
         )
       );
 
-      const invalidSkill = rawSkills.find((skill) => !skill || !skill._id);
+      const invalidSkill = rawSkills.find((skill) => !skill?.id);
+
       if (invalidSkill) {
         res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
           success: false,
@@ -112,7 +118,7 @@ export class CompanyJobController implements ICompanyJobController {
 
       const input: UpdateJobInput = updateJobSchema.parse({
         ...req.body,
-        skillsRequired: rawSkills.map((s) => s._id.toString()),
+        skillsRequired: rawSkills.map((s) => s.id.toString()),
       });
 
       const updated = await this._jobService.updateJob(jobId, companyId, input);

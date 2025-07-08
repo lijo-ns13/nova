@@ -1,28 +1,33 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { JobService } from "../services/jobServices";
 import Spinner from "../components/Spinner";
 import CreateJobPage from "./CreateJobPage";
+import { JobResponseDto, JobService } from "../services/jobServices";
+import { handleApiError, ParsedAPIError } from "../../../utils/apiError";
 
 function ManageJobsPage() {
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState<JobResponseDto[]>([]);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const fetchJobs = useCallback(async () => {
+    setLoading(true);
+    setError("");
+
     try {
-      setLoading(true);
-      setError("");
-      const res = await JobService.getJobs(page, 3);
-      setJobs(res.data);
-      setTotalPages(res.totalPages);
+      const result = await JobService.getJobs(page, limit);
+      setJobs(result.jobs);
+      setTotalPages(result.pagination.totalPages);
     } catch (err) {
-      setError("Failed to fetch jobs. Please try again later.");
-      console.error("Failed to fetch jobs:", err);
+      const parsedError = handleApiError(err, "Failed to fetch jobs");
+      setError(
+        parsedError.message || "Something went wrong while fetching jobs."
+      );
+      console.error("Fetch Jobs Error:", parsedError);
     } finally {
       setLoading(false);
     }
@@ -36,19 +41,12 @@ function ManageJobsPage() {
     setRefreshTrigger((prev) => prev + 1);
   }, []);
 
-  if (loading) {
-    return <Spinner />;
-  }
-
-  if (error) {
-    return <div className="text-red-500 p-4">{error}</div>;
-  }
+  if (loading) return <Spinner />;
+  if (error) return <div className="text-red-500 p-4">{error}</div>;
 
   return (
     <div className="container mx-auto p-4">
       <CreateJobPage onJobCreated={fetchJobs} />
-      <div className="flex justify-between items-center mb-6"></div>
-
       {jobs.length === 0 ? (
         <>
           <div className="text-center py-8 text-gray-500">
@@ -63,15 +61,10 @@ function ManageJobsPage() {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {jobs.map((job: any) => (
-              <JobCard
-                key={job._id}
-                job={job}
-                onJobUpdated={handleJobUpdated}
-              />
+            {jobs.map((job) => (
+              <JobCard key={job.id} job={job} onJobUpdated={handleJobUpdated} />
             ))}
           </div>
-
           <Pagination
             currentPage={page}
             totalPages={totalPages}
@@ -87,14 +80,14 @@ function JobCard({
   job,
   onJobUpdated,
 }: {
-  job: any;
+  job: JobResponseDto;
   onJobUpdated: () => void;
 }) {
   return (
     <Link
-      to={`/company/jobs/${job._id}`}
+      to={`/company/jobs/${job.id}`}
       className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden"
-      onClick={() => onJobUpdated()}
+      onClick={onJobUpdated}
     >
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">

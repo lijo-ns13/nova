@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { resendOTP, verifyCompanyByOTP } from "../services/AuthServices";
+
+import { CompanyAuthService } from "../services/AuthServices";
 import toast from "react-hot-toast";
 import SiteInfoNav from "../../../components/SiteInfoNav";
 import SiteInfoFooter from "../../../components/SiteInfoFooter";
+import { handleApiError } from "../../../utils/apiError";
+
 function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -14,19 +17,24 @@ function VerifyEmail() {
     const savedTime = localStorage.getItem("otpTimer");
     return savedTime ? parseInt(savedTime, 10) : 60;
   });
-  const [isResendAllowed, setIsResendAllowed] = useState<boolean>(false);
 
+  const [isResendAllowed, setIsResendAllowed] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
 
-  // Countdown Timer - runs once on mount
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [serverError, setServerError] = useState("");
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (!email) {
       toast.error("Email missing. Redirecting...");
-
       navigate("/signup");
       return;
     }
+
+    inputRef.current?.focus();
 
     const counter: NodeJS.Timeout = setInterval(() => {
       setTimer((prev) => {
@@ -45,45 +53,50 @@ function VerifyEmail() {
     return () => clearInterval(counter);
   }, [email, navigate]);
 
-  // Submit OTP verification
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isVerifying) return;
 
-    if (!otp) {
+    setErrors({});
+    setServerError("");
+
+    if (!otp.trim()) {
       toast.error("Please enter OTP");
       return;
     }
 
     try {
       setIsVerifying(true);
-      const res = await verifyCompanyByOTP(email!, otp);
-      console.log("Verification success:", res);
+      await CompanyAuthService.verifyOTP({ email: email!, otp: otp.trim() });
 
       toast.success("Email verified successfully!");
       navigate("/company/signin");
-    } catch (error: any) {
-      console.log("Verification failed:", error);
-      toast.error(error?.response?.data?.message || "Failed to verify OTP");
+    } catch (error) {
+      const parsedError = handleApiError(error, "Failed to verify OTP");
+      if (parsedError.errors) {
+        setErrors(parsedError.errors);
+      } else {
+        setServerError(parsedError.message);
+        toast.error(parsedError.message);
+      }
     } finally {
       setIsVerifying(false);
     }
   }
 
-  // Resend OTP Handler
   async function handleResend() {
     if (!email) {
-      toast.error("email missing!");
+      toast.error("Email missing!");
       return;
     }
 
     try {
       setIsResending(true);
-      await resendOTP(email);
-      alert("OTP resent successfully!");
+      await CompanyAuthService.resendOTP(email);
+      toast.success("OTP resent successfully!");
       setTimer(60);
       setIsResendAllowed(false);
     } catch (error) {
-      console.error("Failed to resend OTP:", error);
       toast.error("Failed to resend OTP");
     } finally {
       setIsResending(false);
@@ -99,25 +112,36 @@ function VerifyEmail() {
             Verify Your Email
           </h2>
           <p className="text-gray-600 mb-6">
-            We sent an OTP to <strong className="text-blue-600">{email}</strong>
+            We sent an OTP to{" "}
+            <strong className="text-blue-600">{email}</strong>
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <input
+              ref={inputRef}
               type="text"
               placeholder="Enter OTP"
               value={otp}
-              onChange={(e) => setOtp(e.target.value)}
+              onChange={(e) => setOtp(e.target.value.trim())}
               disabled={isVerifying}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
+            {errors.otp && (
+              <p className="text-red-600 text-sm mt-1">{errors.otp}</p>
+            )}
           </div>
+
+          {serverError && (
+            <div className="text-red-600 text-sm text-center mt-2">
+              {serverError}
+            </div>
+          )}
 
           <button
             type="submit"
-            disabled={isVerifying}
+            disabled={isVerifying || !otp}
             className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             {isVerifying ? (

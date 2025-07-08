@@ -42,10 +42,10 @@ export interface IStatusHistory {
 
 export interface IApplication extends Document {
   _id: Types.ObjectId;
-  job: Types.ObjectId | IJob | string;
-  user: Types.ObjectId | IUser | string;
+  job: Types.ObjectId;
+  user: Types.ObjectId;
   appliedAt: Date;
-  resumeMediaId: Types.ObjectId | string;
+  resumeMediaId: Types.ObjectId;
   coverLetter?: string;
   status: ApplicationStatus;
   notes?: string;

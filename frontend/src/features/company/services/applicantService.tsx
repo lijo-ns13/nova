@@ -1,127 +1,78 @@
 import companyAxios from "../../../utils/companyAxios";
+import { APIResponse } from "../../../types/api";
+import { handleApiError } from "../../../utils/apiError";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const BASE_URL = `${API_BASE_URL}/company`;
+export type ApplicationStatus =
+  | "applied"
+  | "shortlisted"
+  | "rejected"
+  | "interview_scheduled"
+  | "interview_cancelled"
+  | "interview_accepted_by_user"
+  | "interview_rejected_by_user"
+  | "interview_reschedule_proposed"
+  | "interview_reschedule_accepted"
+  | "interview_reschedule_rejected"
+  | "interview_completed"
+  | "interview_passed"
+  | "interview_failed"
+  | "offered"
+  | "selected"
+  | "hired"
+  | "withdrawn";
 
-export interface ApplicantResponse {
-  success: boolean;
-  message: string;
-  data: {
-    applications: Application[];
-    pagination: PaginationInfo;
-  };
-}
+export type UpdateApplicationStatusInput = {
+  status: ApplicationStatus;
+  reason?: string;
+};
 
-export interface Application {
-  _id: string;
-  appliedAt: string;
-  resumeUrl: string;
+export type ApplicationDetailDTO = {
+  id: string;
+  userId: string;
+  userName?: string;
+  userProfilePicture?: string;
+  jobId: string;
+  jobTitle?: string;
+  companyName?: string;
+  status: ApplicationStatus;
+  resumeUrl?: string;
+  appliedAt: Date;
+  scheduledAt?: Date;
+  reason?: string;
   coverLetter?: string;
-  username?: string;
-  status: "applied" | "shortlisted" | "rejected";
-  statusHistory?: Array<{
-    status: string;
-    date: string;
-    note?: string;
-  }>;
-  user: {
-    _id: string;
-    name: string;
-    email: string;
-    avatar?: string;
-  };
-  job: {
-    _id: string;
-    title: string;
-    company: string;
-  };
-}
+};
 
-export interface PaginationInfo {
-  totalApplications: number;
-  totalPages: number;
-  currentPage: number;
-  applicationsPerPage: number;
-}
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/company/applicant`;
 
-export interface FilterParams {
-  page?: number;
-  limit?: number;
-  status?: string | string[];
-  dateFrom?: string;
-  dateTo?: string;
-  search?: string;
-}
-
-class ApplicantService {
-  async getApplications(
-    jobId: string | null,
-    filters: FilterParams = {}
-  ): Promise<ApplicantResponse> {
-    try {
-      // Convert filters to query parameters
-      const queryParams = new URLSearchParams();
-
-      if (filters.page) queryParams.append("page", filters.page.toString());
-      if (filters.limit) queryParams.append("limit", filters.limit.toString());
-      if (filters.status) {
-        if (Array.isArray(filters.status)) {
-          filters.status.forEach((status) =>
-            queryParams.append("status", status)
-          );
-        } else {
-          queryParams.append("status", filters.status);
-        }
-      }
-      if (filters.dateFrom) queryParams.append("dateFrom", filters.dateFrom);
-      if (filters.dateTo) queryParams.append("dateTo", filters.dateTo);
-      if (filters.search) queryParams.append("search", filters.search);
-
-      const response = await companyAxios.get(
-        `${BASE_URL}/job/${jobId}/applicants?${queryParams.toString()}`,
-        {
-          withCredentials: true,
-        }
-      );
-
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching applications:", error);
-      throw error;
-    }
-  }
-
-  async rejectApplication(
-    applicationId: string,
-    rejectionReason?: string
-  ): Promise<{ success: boolean; message: string }> {
-    try {
-      const response = await companyAxios.patch(
-        `${BASE_URL}/job/reject/${applicationId}`,
-        { rejectionReason }
-      );
-
-      return response.data;
-    } catch (error) {
-      console.error("Error rejecting application:", error);
-      throw error;
-    }
-  }
-
-  async shortlistApplicaton(
+export const ApplicantService = {
+  async getApplicationDetails(
     applicationId: string
-  ): Promise<{ success: boolean; message: string }> {
+  ): Promise<ApplicationDetailDTO> {
     try {
-      const response = await companyAxios.patch(
-        `${BASE_URL}/job/shortlist/${applicationId}`
-      );
-
-      return response.data;
-    } catch (error) {
-      console.error("Error shortlisting application:", error);
-      throw error;
+      const response = await companyAxios.get<
+        APIResponse<ApplicationDetailDTO>
+      >(`${BASE_URL}/${applicationId}`, {
+        withCredentials: true,
+      });
+      return response.data.data;
+    } catch (err) {
+      throw handleApiError(err, "Failed to load application details");
     }
-  }
-}
+  },
 
-export const applicantService = new ApplicantService();
+  async updateApplicationStatus(
+    applicationId: string,
+    data: UpdateApplicationStatusInput
+  ): Promise<ApplicationDetailDTO> {
+    try {
+      const response = await companyAxios.patch<
+        APIResponse<ApplicationDetailDTO>
+      >(`${BASE_URL}/${applicationId}/status`, data, {
+        withCredentials: true,
+      });
+      return response.data.data;
+    } catch (err) {
+      throw handleApiError(err, "Failed to update application status");
+    }
+  },
+};

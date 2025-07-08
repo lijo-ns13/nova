@@ -226,8 +226,13 @@ export class JobRepository
   async getApplicantDetails(
     applicantId: string
   ): Promise<PopulatedApplicationWithUserAndResume | null> {
+    if (!mongoose.Types.ObjectId.isValid(applicantId)) {
+      return null; // Prevent crash on invalid ObjectId
+    }
+
+    const objectId = new mongoose.Types.ObjectId(applicantId);
     return applicationModal
-      .findById(applicantId)
+      .findById(objectId)
       .populate("user", "name username email profilePicture headline")
       .populate("resumeMediaId", "s3Key")
       .exec() as Promise<PopulatedApplicationWithUserAndResume | null>;

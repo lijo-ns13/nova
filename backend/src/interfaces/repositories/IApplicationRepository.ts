@@ -34,11 +34,7 @@ export interface IApplicationRepository extends IBaseRepository<IApplication> {
 
   findByJobIdAndPop(userId: string): Promise<IApplication[]>;
 
-  create(data: {
-    job: string;
-    user: string;
-    resumeMediaId: string;
-  }): Promise<IApplication>;
+  create(entity: Partial<IApplication>): Promise<IApplication>;
   rejectApplication(applicationId: string, reason?: string): Promise<boolean>;
   shortlistApplication(applicationId: string): Promise<boolean>;
   hasUserApplied(jobId: string, userId: string): Promise<boolean>;

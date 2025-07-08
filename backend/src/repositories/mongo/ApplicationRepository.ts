@@ -37,7 +37,6 @@ export class ApplicationRepository
     jobId: string
   ): Promise<{ applications: ApplicantRawData[]; total: number }> {
     const skip = (page - 1) * limit;
-
     const query: Record<string, unknown> = {};
 
     if (jobId) {
@@ -51,18 +50,27 @@ export class ApplicationRepository
       }
     }
 
-    if (filter.status) {
+    if (filter.status && filter.status !== "") {
       query.status = {
         $in: Array.isArray(filter.status) ? filter.status : [filter.status],
       };
     }
 
+    // Date filter (use full day UTC boundaries)
     if (filter.dateFrom || filter.dateTo) {
       const appliedAt: { $gte?: Date; $lte?: Date } = {};
-      if (filter.dateFrom) appliedAt.$gte = new Date(filter.dateFrom);
-      if (filter.dateTo) appliedAt.$lte = new Date(filter.dateTo);
+
+      if (filter.dateFrom) {
+        appliedAt.$gte = new Date(`${filter.dateFrom}T00:00:00.000Z`);
+      }
+
+      if (filter.dateTo) {
+        appliedAt.$lte = new Date(`${filter.dateTo}T23:59:59.999Z`);
+      }
+
       query.appliedAt = appliedAt;
     }
+    console.log("querjslk", query);
 
     if (filter.userId) {
       query.user = new mongoose.Types.ObjectId(filter.userId);
@@ -79,6 +87,31 @@ export class ApplicationRepository
         },
       },
       { $unwind: "$userDetails" },
+
+      // ✅ Correct place for search
+      ...(filter.search
+        ? [
+            {
+              $match: {
+                $or: [
+                  {
+                    "userDetails.name": {
+                      $regex: filter.search,
+                      $options: "i",
+                    },
+                  },
+                  {
+                    "userDetails.email": {
+                      $regex: filter.search,
+                      $options: "i",
+                    },
+                  },
+                ],
+              },
+            },
+          ]
+        : []),
+
       {
         $project: {
           _id: 1,
@@ -91,21 +124,9 @@ export class ApplicationRepository
           },
         },
       },
-    ];
 
-    if (filter.search) {
-      aggregation.push({
-        $match: {
-          $or: [
-            { "user.name": { $regex: filter.search, $options: "i" } },
-            { "user.email": { $regex: filter.search, $options: "i" } },
-          ],
-        },
-      });
-    }
-
-    aggregation.push(
       { $sort: { appliedAt: -1 } },
+
       {
         $facet: {
           paginatedResults: [{ $skip: skip }, { $limit: limit }],
@@ -117,8 +138,8 @@ export class ApplicationRepository
           applications: "$paginatedResults",
           total: { $ifNull: [{ $arrayElemAt: ["$totalCount.total", 0] }, 0] },
         },
-      }
-    );
+      },
+    ];
 
     const result = await applicationModel.aggregate<{
       applications: ApplicantRawData[];
@@ -130,6 +151,7 @@ export class ApplicationRepository
       total: result[0]?.total ?? 0,
     };
   }
+
   async findWithUserAndJobById(
     applicationId: string
   ): Promise<IApplicationWithUserAndJob | null> {
@@ -144,16 +166,17 @@ export class ApplicationRepository
     return ApplicationMapper.toUserAndJobDTO(doc);
   }
 
-  async create(data: {
-    job: string;
-    user: string;
-    resumeMediaId: string;
-  }): Promise<IApplication> {
+  async create(entity: Partial<IApplication>): Promise<IApplication> {
     try {
+      const { job, user, resumeMediaId } = entity;
+
+      if (!job || !user || !resumeMediaId) {
+        throw new Error("Missing required fields: job, user, or resumeMediaId");
+      }
       const application = new this.model({
-        job: new Types.ObjectId(data.job),
-        user: new Types.ObjectId(data.user),
-        resumeMediaId: new Types.ObjectId(data.resumeMediaId),
+        job: new Types.ObjectId(job),
+        user: new Types.ObjectId(user),
+        resumeMediaId: new Types.ObjectId(resumeMediaId),
         appliedAt: new Date(),
         status: ApplicationStatus.APPLIED,
         statusHistory: [
