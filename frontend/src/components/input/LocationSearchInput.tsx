@@ -20,29 +20,30 @@ interface Location {
 }
 
 interface Props {
+  value: string;
+  onChange: (value: string) => void;
   onSelect: (locationName: string) => void;
   placeholder?: string;
   className?: string;
   countryCodes?: string;
   apiKey: string;
-  initialValue?: string; // Add this
 }
 
 export function LocationSearchInput({
+  value,
+  onChange,
   onSelect,
   placeholder = "Search for your city...",
   className = "",
   countryCodes = "in",
   apiKey,
-  initialValue = "",
 }: Props) {
-  const [query, setQuery] = useState(initialValue);
   const [suggestions, setSuggestions] = useState<Location[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isFocused, setIsFocused] = useState(false);
-  const debouncedQuery = useDebounce(query.trim(), 300);
+  const debouncedQuery = useDebounce(value.trim(), 300);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLUListElement>(null);
 
@@ -81,33 +82,27 @@ export function LocationSearchInput({
 
   const getSimpleDisplayName = (loc: Location): string => {
     const { address } = loc;
-
-    // Priority: city > town > village
     const cityName = address.city || address.town || address.village;
     const stateName = address.state || address.state_district;
 
-    if (cityName && stateName) {
-      return `${cityName}, ${stateName}`;
-    } else if (cityName) {
-      return cityName;
-    }
+    if (cityName && stateName) return `${cityName}, ${stateName}`;
+    if (cityName) return cityName;
 
-    // Fallback to a clean version of display_name
     const parts = loc.display_name.split(",");
     return parts.slice(0, 2).join(", ").trim();
   };
 
   const handleSelect = (location: Location) => {
     const displayName = getSimpleDisplayName(location);
-    setQuery(displayName);
+    onChange(displayName); // update input
     setSuggestions([]);
     setIsFocused(false);
-    onSelect(displayName);
+    onSelect(displayName); // update form state
     inputRef.current?.blur();
   };
 
   const clearInput = () => {
-    setQuery("");
+    onChange("");
     setSuggestions([]);
     setError(null);
     inputRef.current?.focus();
@@ -163,9 +158,9 @@ export function LocationSearchInput({
         <input
           ref={inputRef}
           type="text"
-          value={query}
+          value={value}
           onChange={(e) => {
-            setQuery(e.target.value);
+            onChange(e.target.value);
             setError(null);
           }}
           onKeyDown={handleKeyDown}
@@ -179,7 +174,7 @@ export function LocationSearchInput({
           {isLoading ? (
             <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
           ) : (
-            query && (
+            value && (
               <button
                 onClick={clearInput}
                 className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors"
@@ -247,7 +242,7 @@ export function LocationSearchInput({
       )}
 
       {isFocused &&
-        query.length >= 2 &&
+        value.length >= 2 &&
         !isLoading &&
         suggestions.length === 0 &&
         !error && (

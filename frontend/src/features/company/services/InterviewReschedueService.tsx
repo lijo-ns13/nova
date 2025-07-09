@@ -1,76 +1,86 @@
-// companyInterviewService.ts
 import companyAxios from "../../../utils/companyAxios";
+import { APIResponse } from "../../../types/api";
+import { handleApiError } from "../../../utils/apiError";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const BASE_URL = `${API_BASE_URL}/company/interviews`;
-
-export interface Interview {
+export type InterviewResponseDTO = {
   id: string;
   roomId: string;
   scheduledAt: string;
-  status: string;
+  status: "pending" | "accepted" | "rejected" | "reschedule_proposed";
+  result: "pending" | "pass" | "fail";
+  rescheduleReason?: string;
+  rescheduleProposedSlots?: string[];
+  rescheduleSelectedSlot?: string;
+};
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/company/interview`;
+
+export type UpcomingInterviewResponseDTO = {
+  id: string;
+  roomId: string;
+  interviewTime: string;
   applicationId: string;
   user: {
     id: string;
     name: string;
     email: string;
-    avatar?: string;
+    profilePicture?: string;
   };
   job: {
     id: string;
     title: string;
+    description: string;
+    location: string;
+    jobType: string;
   };
-}
+};
 
-export interface RescheduleProposal {
-  applicationId: string;
+export interface ProposeRescheduleInput {
   reason: string;
+  jobId: string;
   timeSlots: string[]; // ISO date strings
 }
 
 class CompanyInterviewService {
-  //   async scheduleInterview(
-  //     userId: string,
-  //     applicationId: string,
-  //     scheduledAt: string
-  //   ): Promise<Interview> {
-  //     try {
-  //       const response = await companyAxios.post(`${BASE_URL}`, {
-  //         userId,
-  //         applicationId,
-  //         scheduledAt
-  //       });
-  //       return response.data.data;
-  //     } catch (error) {
-  //       console.error("Error scheduling interview:", error);
-  //       throw error;
-  //     }
-  //   }
-
-  //   async getUpcomingInterviews(): Promise<Interview[]> {
-  //     try {
-  //       const response = await companyAxios.get(`${BASE_URL}/upcoming`);
-  //       return response.data.data;
-  //     } catch (error) {
-  //       console.error("Error fetching interviews:", error);
-  //       throw error;
-  //     }
-  //   }
+  async getUpcomingInterviews(): Promise<UpcomingInterviewResponseDTO[]> {
+    try {
+      const res = await companyAxios.get<
+        APIResponse<UpcomingInterviewResponseDTO[]>
+      >(`${BASE_URL}/upcoming`);
+      return res.data.data;
+    } catch (error) {
+      throw handleApiError(error, "Failed to fetch upcoming interviews");
+    }
+  }
 
   async proposeReschedule(
     applicationId: string,
-    reason: string,
-    timeSlots: string[]
-  ): Promise<Interview> {
+    input: ProposeRescheduleInput
+  ): Promise<InterviewResponseDTO> {
     try {
-      const response = await companyAxios.post(
+      const res = await companyAxios.post<APIResponse<InterviewResponseDTO>>(
         `${BASE_URL}/${applicationId}/reschedule`,
-        { reason, timeSlots }
+        input
       );
-      return response.data.data;
+      return res.data.data;
     } catch (error) {
-      console.error("Error proposing reschedule:", error);
-      throw error;
+      throw handleApiError(error, "Failed to propose reschedule");
+    }
+  }
+
+  async scheduleInterview(input: {
+    userId: string;
+    applicationId: string;
+    jobId: string;
+    scheduledAt: string;
+  }): Promise<InterviewResponseDTO> {
+    try {
+      const res = await companyAxios.post<APIResponse<InterviewResponseDTO>>(
+        `${BASE_URL}`,
+        input
+      );
+      return res.data.data;
+    } catch (error) {
+      throw handleApiError(error, "Failed to schedule interview");
     }
   }
 }

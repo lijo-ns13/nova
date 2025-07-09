@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ApplicationStatus } from "../../../core/enums/applicationStatus";
 import { IApplication } from "../../../models/application.modal";
+import { Types } from "mongoose";
 
 export const UpdateApplicationStatusSchema = z.object({
   status: z.nativeEnum(ApplicationStatus),
@@ -10,7 +11,6 @@ export const UpdateApplicationStatusSchema = z.object({
 export type UpdateApplicationStatusInput = z.infer<
   typeof UpdateApplicationStatusSchema
 >;
-
 export interface ApplicationResponseDTO {
   id: string;
   jobId: string;
@@ -25,8 +25,24 @@ export interface ApplicationResponseDTO {
   scheduledAt?: Date;
   reason?: string;
   coverLetter?: string;
+  statusHistory?: {
+    status: ApplicationStatus;
+    reason?: string;
+    updatedAt: Date;
+  }[];
 }
-
+export type PopulatedApplication = Omit<IApplication, "user" | "job"> & {
+  user: {
+    _id: string | Types.ObjectId;
+    name: string;
+    profilePicture?: string;
+  };
+  job: {
+    _id: string | Types.ObjectId;
+    title: string;
+    company: string;
+  };
+};
 export class ApplicationMapper {
   static toDTO(
     application: IApplication & { resumeUrl?: string }
@@ -43,7 +59,9 @@ export class ApplicationMapper {
     };
   }
 
-  static toUserAndJobDTO(application: any): ApplicationResponseDTO {
+  static toUserAndJobDTO(
+    application: PopulatedApplication
+  ): ApplicationResponseDTO {
     return {
       id: application._id.toString(),
       jobId: application.job._id.toString(),
@@ -56,6 +74,11 @@ export class ApplicationMapper {
       appliedAt: application.appliedAt,
       scheduledAt: application.scheduledAt,
       coverLetter: application.coverLetter,
+      statusHistory: application.statusHistory?.map((entry) => ({
+        status: entry.status,
+        reason: entry.reason,
+        updatedAt: entry.changedAt,
+      })),
     };
   }
 }

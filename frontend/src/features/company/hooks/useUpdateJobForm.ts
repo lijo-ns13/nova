@@ -2,7 +2,7 @@ import { useState, FormEvent, useEffect } from "react";
 import toast from "react-hot-toast";
 import { JobService, UpdateJobInput } from "../services/jobServices";
 import { JobFormState } from "./useJobForm";
-import { isParsedApiError } from "../../../utils/apiError";
+import { handleApiError } from "../../../utils/apiError";
 
 interface UseUpdateJobFormProps {
   jobId: string;
@@ -41,7 +41,7 @@ export function useUpdateJobForm({ jobId, onSuccess }: UseUpdateJobFormProps) {
   const loadJobData = async () => {
     setIsLoading(true);
     try {
-      const jobData = await JobService.getJob(jobId); // returns JobResponseDto
+      const jobData = await JobService.getJob(jobId);
 
       setFormState({
         title: jobData.title ?? "",
@@ -56,72 +56,38 @@ export function useUpdateJobForm({ jobId, onSuccess }: UseUpdateJobFormProps) {
         skillsRequired: jobData.skillsRequired ?? [],
         benefits: jobData.benefits ?? [],
         salary: {
-          currency: jobData.salary?.currency ?? "USD",
+          currency: jobData.salary?.currency ?? "INR",
           min: jobData.salary?.min?.toString() ?? "",
           max: jobData.salary?.max?.toString() ?? "",
           isVisibleToApplicants: jobData.salary?.isVisibleToApplicants ?? true,
         },
       });
-    } catch (error: unknown) {
-      console.error("Error loading job data:", error);
-
-      if (isParsedApiError(error)) {
-        toast.error(error.message || "Failed to load job");
-      } else {
-        toast.error("Unexpected error occurred while loading job");
-      }
+    } catch (err: unknown) {
+      const parsed = handleApiError(err, "Failed to load job data");
+      toast.error(parsed.message);
+      setErrors(parsed.errors ?? {});
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleLocationSelect = (location: string) => {
-    setFormState((prev) => ({
-      ...prev,
-      location,
-    }));
-
-    // Clear location error if any
-    if (errors.location) {
-      setErrors((prev) => {
-        const updated = { ...prev };
-        delete updated.location;
-        return updated;
-      });
-    }
+    setFormState((prev) => ({ ...prev, location }));
+    clearFieldError("location");
   };
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormState((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (errors[name]) {
-      setErrors((prev) => {
-        const updated = { ...prev };
-        delete updated[name];
-        return updated;
-      });
-    }
+    setFormState((prev) => ({ ...prev, [name]: value }));
+    clearFieldError(name);
   };
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormState((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (errors[name]) {
-      setErrors((prev) => {
-        const updated = { ...prev };
-        delete updated[name];
-        return updated;
-      });
-    }
+    setFormState((prev) => ({ ...prev, [name]: value }));
+    clearFieldError(name);
   };
 
   const handleSalaryChange = (
@@ -130,46 +96,26 @@ export function useUpdateJobForm({ jobId, onSuccess }: UseUpdateJobFormProps) {
   ) => {
     setFormState((prev) => ({
       ...prev,
-      salary: {
-        ...prev.salary,
-        [field]: value,
-      },
+      salary: { ...prev.salary, [field]: value },
     }));
-
-    if (errors[`salary.${field}`]) {
-      setErrors((prev) => {
-        const updated = { ...prev };
-        delete updated[`salary.${field}`];
-        return updated;
-      });
-    }
+    clearFieldError(`salary.${field}`);
   };
 
   const handleSkillsChange = (skills: string[]) => {
-    setFormState((prev) => ({
-      ...prev,
-      skillsRequired: skills,
-    }));
-
-    if (errors.skillsRequired) {
-      setErrors((prev) => {
-        const updated = { ...prev };
-        delete updated.skillsRequired;
-        return updated;
-      });
-    }
+    setFormState((prev) => ({ ...prev, skillsRequired: skills }));
+    clearFieldError("skillsRequired");
   };
 
   const handleBenefitsChange = (benefits: string[]) => {
-    setFormState((prev) => ({
-      ...prev,
-      benefits: benefits,
-    }));
+    setFormState((prev) => ({ ...prev, benefits }));
+    clearFieldError("benefits");
+  };
 
-    if (errors.benefits) {
+  const clearFieldError = (field: string) => {
+    if (errors[field]) {
       setErrors((prev) => {
         const updated = { ...prev };
-        delete updated.benefits;
+        delete updated[field];
         return updated;
       });
     }
@@ -207,7 +153,7 @@ export function useUpdateJobForm({ jobId, onSuccess }: UseUpdateJobFormProps) {
     e.preventDefault();
 
     if (!validateForm()) {
-      toast.error("Please correct the errors in the form");
+      toast.error("Please correct the errors in the form.");
       return;
     }
 
@@ -227,13 +173,13 @@ export function useUpdateJobForm({ jobId, onSuccess }: UseUpdateJobFormProps) {
       };
 
       await JobService.updateJob(jobId, formData);
-      toast.success("Job updated successfully!");
 
-      // Call the onSuccess callback after successful update
+      toast.success("Job updated successfully!");
       onSuccess?.();
-    } catch (error) {
-      console.error("Error updating job:", error);
-      toast.error("Failed to update job. Please try again.");
+    } catch (err: unknown) {
+      const parsed = handleApiError(err, "Failed to update job");
+      toast.error(parsed.message);
+      setErrors(parsed.errors ?? {});
     } finally {
       setIsSubmitting(false);
     }
@@ -252,7 +198,4 @@ export function useUpdateJobForm({ jobId, onSuccess }: UseUpdateJobFormProps) {
     handleSubmit,
     handleLocationSelect,
   };
-}
-function ParsedAPIError(error: any) {
-  throw new Error("Function not implemented.");
 }

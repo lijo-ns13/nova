@@ -14,23 +14,14 @@ import ScheduleInterviewModal from "../components/interview/ScheduleInterviewMod
 import RescheduleInterviewModal from "../components/interview/RescheduleInterviewModal";
 
 import SecureDocViewer from "../../../components/SecureDocViewer";
-export interface RawApplicantDetailDTO {
-  id: string;
-  jobId: string;
-  jobTitle: string;
-  companyName: string;
-  userId: string;
-  userName: string;
-  userProfilePicture: string;
-  status: string;
-  appliedAt: string; // ISO 8601 date string
-  resumeUrl: string;
-}
+import {
+  ApplicantService,
+  ApplicationDetailDTO,
+} from "../services/applicantService";
+
 function ApplicantDetails() {
   const [loading, setLoading] = useState<boolean>(true);
-  const [applicant, setApplicant] = useState<RawApplicantDetailDTO | null>(
-    null
-  );
+  const [applicant, setApplicant] = useState<ApplicationDetailDTO | null>(null);
   const [error, setError] = useState<string>("");
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
@@ -41,12 +32,9 @@ function ApplicantDetails() {
 
     setLoading(true);
     try {
-      const res = await getApplicantById(applicationId);
-      if (res.success) {
-        setApplicant(res);
-      } else {
-        setError("Failed to fetch applicant details.");
-      }
+      const res = await ApplicantService.getApplicationDetails(applicationId);
+      console.log("resss", res);
+      setApplicant(res);
     } catch (error) {
       console.error(error);
       setError("An error occurred while fetching data.");
@@ -185,14 +173,15 @@ function ApplicantDetails() {
             {/* Main Content Area */}
             <div className="lg:col-span-8 space-y-6">
               {/* Status Section */}
-              {/* <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              {/* Status Section */}
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div className="px-4 py-5 sm:px-6 border-b border-slate-200 bg-slate-50">
                   <h2 className="text-lg font-semibold text-slate-800">
                     Application Status
                   </h2>
                 </div>
                 <div className="p-4 sm:p-6">
-                  {applicationId && (
+                  {applicationId && applicant && (
                     <StatusManager
                       applicant={applicant}
                       applicationId={applicationId}
@@ -204,7 +193,7 @@ function ApplicantDetails() {
                     />
                   )}
                 </div>
-              </div> */}
+              </div>
 
               {/* Timeline Section */}
               {/* <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -225,13 +214,14 @@ function ApplicantDetails() {
       </div>
 
       {/* Interview Modal */}
-      {/* {applicationId && (
+      {applicationId && (
         <>
           <ScheduleInterviewModal
             isOpen={isInterviewModalOpen}
             onClose={() => setIsInterviewModalOpen(false)}
             applicationId={applicationId}
             userId={applicant.userId}
+            jobId={applicant.jobId}
             onInterviewScheduled={handleInterviewScheduled}
           />
           <RescheduleInterviewModal
@@ -239,11 +229,12 @@ function ApplicantDetails() {
             onClose={() => setIsRescheduleModalOpen(false)}
             applicationId={applicationId}
             userId={applicant.userId}
+            jobId={applicant.jobId}
             currentInterviewTime={applicant.scheduledAt}
             onInterviewRescheduled={handleInterviewRescheduled}
           />
         </>
-      )} */}
+      )}
     </div>
   );
 }

@@ -64,11 +64,12 @@ const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({
 
         <FormField label="Location" htmlFor="location" error={errors.location}>
           <LocationSearchInput
+            value={formState.location}
+            onChange={(val) => handleLocationSelect(val)}
             onSelect={handleLocationSelect}
             apiKey={import.meta.env.VITE_LOCATIONIQ_APIKEY || ""}
             placeholder="Search for your city..."
             className="w-full"
-            initialValue={formState.location} // Pass current location value
           />
         </FormField>
 

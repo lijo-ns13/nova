@@ -3,7 +3,7 @@ import { inject } from "inversify";
 import { TYPES } from "../../di/types";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import { InterviewResponse } from "../../core/entities/interview.interface";
-
+import { v4 as uuidv4 } from "uuid";
 import { ICompanyInterviewService } from "../../interfaces/services/ICompanyInterviewService";
 import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRepository";
 import {
@@ -18,6 +18,15 @@ import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import { Types } from "mongoose";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { IInterview } from "../../models/interview.modal";
+import {
+  InterviewMapper,
+  InterviewResponseDTO,
+  UpcomingInterviewResponseDTO,
+} from "../../mapping/company/interview.mapper";
+import {
+  CreateInterviewInput,
+  ProposeRescheduleInput,
+} from "../../core/dtos/company/interview.dto";
 
 export class CompanyInterviewService implements ICompanyInterviewService {
   constructor(
@@ -26,73 +35,53 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     @inject(TYPES.ApplicationRepository)
     private _applicationRepo: IApplicationRepository,
     @inject(TYPES.NotificationService)
-    private notificationService: INotificationService,
+    private _notificationService: INotificationService,
     @inject(TYPES.CompanyRepository) private _companyRepo: ICompanyRepository,
     @inject(TYPES.JobRepository) private _jobRepo: IJobRepository,
     @inject(TYPES.UserRepository) private _userRepo: IUserRepository
   ) {}
-
   async createInterview(
-    companyId: string,
-    userId: string,
-    applicationId: string,
-    scheduledAt: string,
-    roomId: string
-  ): Promise<IInterview> {
-    // Check for existing interview at this time
-    const applicant = await this._applicationRepo.findById(applicationId);
+    input: CreateInterviewInput
+  ): Promise<InterviewResponseDTO> {
+    const { companyId, userId, applicationId, jobId, scheduledAt } = input;
 
-    console.log("applicantttttttttttttttttttt", applicant);
-    if (!applicant) {
-      throw new Error("applicnat not found");
+    const application = await this._applicationRepo.findById(applicationId);
+    if (!application) throw new Error("Application not found");
+    if (application.status !== ApplicationStatus.SHORTLISTED) {
+      throw new Error(
+        "Only shortlisted applications can be scheduled for interviews"
+      );
     }
-    if (applicant.status != "shortlisted") {
-      throw new Error("only shedule interview for shortlisted application");
+    if (application.job.toString() !== jobId) {
+      throw new Error("Job ID mismatch for the application");
     }
 
-    const jobId =
-      typeof applicant.job === "string"
-        ? applicant.job
-        : applicant.job instanceof Types.ObjectId
-        ? applicant.job.toString()
-        : applicant.job._id?.toString(); // when populated
-    if (!jobId) {
-      throw new Error("jobid not found");
-    }
-    const job = await this._jobRepo.findById(jobId);
-    const existingInterview = await this._interviewRepo.findByTimeSlot(
+    const existing = await this._interviewRepo.findByTimeSlot(
       companyId,
       new Date(scheduledAt)
     );
-    const alreadyCreatedInterview =
-      await this._interviewRepo.findByCompanyIdApplicantId(
-        companyId,
-        applicationId
-      );
-    if (alreadyCreatedInterview) {
-      throw new Error("you already created interview for this applicant");
-    }
-    if (existingInterview) {
-      throw new Error(
-        "Conflict: Company already has an interview at this time."
-      );
+    if (existing) {
+      throw new Error("Company already has an interview at this time");
     }
 
-    // Create new interview
+    const duplicate = await this._interviewRepo.findByCompanyIdApplicantId(
+      companyId,
+      applicationId
+    );
+    if (duplicate) {
+      throw new Error("Interview already exists for this application");
+    }
+    const roomId: string = uuidv4();
     const interview = await this._interviewRepo.create({
       companyId,
       userId,
       applicationId,
       scheduledAt: new Date(scheduledAt),
-      roomId,
+      roomId: roomId,
       status: "pending",
       result: "pending",
     });
-    const company = await this._companyRepo.findById(companyId);
-    if (!company) {
-      throw new Error("company not found");
-    }
-    // Update application status
+
     await this._applicationRepo.updateStatus(
       applicationId,
       ApplicationStatus.INTERVIEW_SCHEDULED
@@ -100,171 +89,115 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     await this._applicationRepo.update(applicationId, {
       scheduledAt: interview.scheduledAt,
     });
-    await this.notificationService.sendNotification(
+
+    const company = await this._companyRepo.findById(companyId);
+    const job = await this._jobRepo.findById(jobId);
+
+    await this._notificationService.sendNotification(
       userId,
-      `An interview has been scheduled by ${company.companyName} for the position of "${job?.title}". Please respond to proceed.`,
+      `An interview has been scheduled by ${company?.companyName} for the position of \"${job?.title}\". Please respond to proceed.`,
       NotificationType.JOB,
       companyId
     );
 
-    return interview;
+    return InterviewMapper.toDTO(interview);
   }
-  // src/modules/job/services/JobService.ts
-  async getUpcomingAcceptedInterviews(
-    companyId: string
-  ): Promise<InterviewResponse[]> {
-    const interviews = await this._interviewRepo.findByCompanyIdforPop(
-      companyId
-    );
 
-    const response: InterviewResponse[] = [];
-
-    for (const interview of interviews) {
-      let applicationId: string;
-
-      if (
-        typeof interview.applicationId === "object" &&
-        interview.applicationId !== null &&
-        "_id" in interview.applicationId
-      ) {
-        applicationId = interview.applicationId._id.toString();
-      } else {
-        applicationId = interview.applicationId?.toString();
-      }
-      if (!applicationId) continue;
-
-      const application = await this._applicationRepo.findById(applicationId);
-      if (!application) continue;
-
-      // Fetch user and job from repositories
-      const userId =
-        typeof application.user === "string"
-          ? application.user
-          : application.user instanceof Types.ObjectId
-          ? application.user.toString()
-          : application.user._id?.toString();
-
-      const jobId =
-        typeof application.job === "string"
-          ? application.job
-          : application.job instanceof Types.ObjectId
-          ? application.job.toString()
-          : application.job._id?.toString();
-
-      const user = await this._userRepo.findById(userId);
-      if (!user) {
-        throw new Error("user not found");
-      }
-      if (!jobId) {
-        throw new Error("jobid not found");
-      }
-      const job = await this._jobRepo.findById(jobId);
-      if (!job) {
-        throw new Error("job not found");
-      }
-      response.push({
-        roomId: interview.roomId,
-        interviewTime: interview.scheduledAt,
-        user: {
-          _id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          profilePicture: user.profilePicture,
-        },
-        job: {
-          _id: job._id.toString(),
-          title: job.title,
-          description: job.description,
-          location: job.location,
-          jobType: job.jobType,
-        },
-        applicationId: applicationId,
-      });
-    }
-
-    return response;
-  }
-  // updated
   async proposeReschedule(
-    companyId: string,
-    applicationId: string,
-    reason: string,
-    timeSlots: string[]
-  ): Promise<IInterview> {
-    // Find existing interview
+    input: ProposeRescheduleInput
+  ): Promise<InterviewResponseDTO> {
+    const { companyId, applicationId, jobId, reason, timeSlots } = input;
+
     const interview = await this._interviewRepo.findOne({
       companyId,
       applicationId,
     });
+    if (!interview) throw new Error("Interview not found");
 
-    if (!interview) {
-      throw new Error("Interview not found");
-    }
-
-    // Validate application status
     const application = await this._applicationRepo.findById(applicationId);
-    if (!application) {
-      throw new Error("Application not found");
-    }
+    if (!application) throw new Error("Application not found");
 
     if (
       application.status !== ApplicationStatus.INTERVIEW_SCHEDULED &&
       application.status !== ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER
     ) {
-      throw new Error("Cannot reschedule interview in current status");
+      throw new Error("Cannot propose reschedule at this status");
     }
 
-    // Convert string dates to Date objects
-    const slotDates = timeSlots.map((slot) => new Date(slot));
+    if (application.job.toString() !== jobId) {
+      throw new Error("Job ID mismatch for the application");
+    }
 
-    // Check for conflicts with company's existing interviews
-    for (const slot of slotDates) {
+    const parsedSlots = timeSlots.map((slot) => new Date(slot));
+    for (const slot of parsedSlots) {
       const conflict =
         await this._interviewRepo.findConflictingInterviewSlotIncludingProposals(
           companyId,
           slot,
           interview._id.toString()
         );
-
       if (conflict) {
         throw new Error(
-          `Conflict detected: Another interview is scheduled or proposed around ${slot.toISOString()}`
+          `Conflict with another interview at ${slot.toISOString()}`
         );
       }
     }
 
-    // Update interview with reschedule proposal
-    const updatedInterview = await this._interviewRepo.update(
-      interview._id.toString(),
-      {
-        status: "reschedule_proposed",
-        rescheduleProposedSlots: slotDates,
-        rescheduleReason: reason,
-      }
-    );
-    if (!updatedInterview) {
-      throw new Error("falied to updte interview");
-    }
-    // Update application status
+    const updated = await this._interviewRepo.update(interview._id.toString(), {
+      status: "reschedule_proposed",
+      rescheduleProposedSlots: parsedSlots,
+      rescheduleReason: reason,
+    });
+    if (!updated) throw new Error("Failed to update interview");
+
     await this._applicationRepo.updateStatus(
       applicationId,
       ApplicationStatus.INTERVIEW_RESCHEDULE_PROPOSED
     );
 
-    // Notify user
-    const job = await this._jobRepo.findById(
-      typeof application.job === "string"
-        ? application.job
-        : application.job._id.toString()
-    );
-
-    await this.notificationService.sendNotification(
+    const job = await this._jobRepo.findById(jobId);
+    await this._notificationService.sendNotification(
       application.user.toString(),
-      `The company has proposed new time slots for your interview for "${job?.title}". Please respond.`,
+      `The company has proposed new interview slots for \"${job?.title}\". Please respond.`,
       NotificationType.JOB,
       companyId
     );
 
-    return updatedInterview;
+    return InterviewMapper.toDTO(updated);
   }
+
+  async getUpcomingAcceptedInterviews(
+    companyId: string
+  ): Promise<UpcomingInterviewResponseDTO[]> {
+    const interviews = await this._interviewRepo.findByCompanyIdforPop(
+      companyId
+    );
+
+    const result: UpcomingInterviewResponseDTO[] = [];
+
+    for (const interview of interviews) {
+      const application = await this._applicationRepo.findById(
+        interview.applicationId.toString()
+      );
+      if (!application) continue;
+
+      const user = await this._userRepo.findById(application.user.toString());
+      const job = await this._jobRepo.findById(application.job.toString());
+      if (!user || !job) continue;
+
+      result.push(
+        InterviewMapper.toUpcomingDTO(
+          interview,
+          user,
+          job,
+          application._id.toString()
+        )
+      );
+    }
+
+    return result;
+  }
+}
+function uuid4() {
+  throw new Error("Function not implemented.");
 }

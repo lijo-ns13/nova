@@ -1,5 +1,5 @@
 import { APIResponse } from "../../../types/api";
-import { handleApiError, ParsedAPIError } from "../../../utils/apiError";
+import { handleApiError } from "../../../utils/apiError";
 import companyAxios from "../../../utils/companyAxios";
 import qs from "query-string";
 export type CreateJobInput = {

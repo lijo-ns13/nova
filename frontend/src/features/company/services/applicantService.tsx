@@ -1,25 +1,7 @@
 import companyAxios from "../../../utils/companyAxios";
 import { APIResponse } from "../../../types/api";
 import { handleApiError } from "../../../utils/apiError";
-
-export type ApplicationStatus =
-  | "applied"
-  | "shortlisted"
-  | "rejected"
-  | "interview_scheduled"
-  | "interview_cancelled"
-  | "interview_accepted_by_user"
-  | "interview_rejected_by_user"
-  | "interview_reschedule_proposed"
-  | "interview_reschedule_accepted"
-  | "interview_reschedule_rejected"
-  | "interview_completed"
-  | "interview_passed"
-  | "interview_failed"
-  | "offered"
-  | "selected"
-  | "hired"
-  | "withdrawn";
+import { ApplicationStatus } from "../../../constants/applicationStatus";
 
 export type UpdateApplicationStatusInput = {
   status: ApplicationStatus;
@@ -28,18 +10,23 @@ export type UpdateApplicationStatusInput = {
 
 export type ApplicationDetailDTO = {
   id: string;
-  userId: string;
-  userName?: string;
-  userProfilePicture?: string;
   jobId: string;
   jobTitle?: string;
   companyName?: string;
+  userId: string;
+  userName?: string;
+  userProfilePicture?: string;
   status: ApplicationStatus;
   resumeUrl?: string;
-  appliedAt: Date;
-  scheduledAt?: Date;
+  appliedAt: string; // ISO string from Date
+  scheduledAt?: string; // ISO string from Date
   reason?: string;
   coverLetter?: string;
+  statusHistory?: {
+    status: ApplicationStatus;
+    reason?: string;
+    changedAt: string; // ISO string from Date
+  }[];
 };
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/company/applicant`;

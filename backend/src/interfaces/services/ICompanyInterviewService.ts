@@ -1,23 +1,20 @@
-// src/interfaces/services/ICompanyInterviewService.ts
-import { InterviewResponse } from "../../core/entities/interview.interface";
-import { IApplication } from "../../models/application.modal";
-import { IInterview } from "../../models/interview.modal";
+import {
+  CreateInterviewInput,
+  ProposeRescheduleInput,
+} from "../../core/dtos/company/interview.dto";
+import {
+  InterviewResponseDTO,
+  UpcomingInterviewResponseDTO,
+} from "../../mapping/company/interview.mapper";
 
 export interface ICompanyInterviewService {
-  createInterview(
-    companyId: string,
-    userId: string,
-    applicationId: string,
-    scheduledAt: string,
-    roomId: string
-  ): Promise<IInterview>;
+  createInterview(input: CreateInterviewInput): Promise<InterviewResponseDTO>;
+
+  proposeReschedule(
+    input: ProposeRescheduleInput
+  ): Promise<InterviewResponseDTO>;
+
   getUpcomingAcceptedInterviews(
     companyId: string
-  ): Promise<InterviewResponse[]>;
-  proposeReschedule(
-    companyId: string,
-    applicationId: string,
-    reason: string,
-    timeSlots: string[]
-  ): Promise<IInterview>;
+  ): Promise<UpcomingInterviewResponseDTO[]>;
 }

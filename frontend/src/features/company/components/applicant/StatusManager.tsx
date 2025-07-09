@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from "react";
 import { Calendar, Users, CheckCircle, XCircle, Clock } from "lucide-react";
-import { ApplicationStatus } from "../../types/applicant";
+
 import { getStatusColor, getStatusIcon } from "../../util/statusUtilsApplicant";
-import { updateApplicationStatus } from "../../services/newApplicantService";
+import { ApplicationStatus } from "../../../../constants/applicationStatus";
+import { ApplicantService } from "../../services/applicantService";
 
 interface StatusManagerProps {
   applicant: any;
@@ -26,7 +27,6 @@ const StatusManager: React.FC<StatusManagerProps> = ({
   // Statuses that require a reason when selected
   const statusesRequiringReason: ApplicationStatus[] = [
     ApplicationStatus.REJECTED,
-    ApplicationStatus.INTERVIEW_RESCHEDULED,
     ApplicationStatus.INTERVIEW_CANCELLED,
     ApplicationStatus.INTERVIEW_REJECTED_BY_USER,
     ApplicationStatus.WITHDRAWN,
@@ -57,9 +57,6 @@ const StatusManager: React.FC<StatusManagerProps> = ({
       ApplicationStatus.INTERVIEW_CANCELLED,
       // ApplicationStatus.INTERVIEW_RESCHEDULED,
     ],
-    [ApplicationStatus.INTERVIEW_RESCHEDULED]: [
-      ApplicationStatus.INTERVIEW_CANCELLED,
-    ],
     [ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER]: [
       ApplicationStatus.INTERVIEW_COMPLETED,
       // ApplicationStatus.INTERVIEW_RESCHEDULED,
@@ -82,7 +79,6 @@ const StatusManager: React.FC<StatusManagerProps> = ({
     [ApplicationStatus.HIRED]: [], // Final state
     [ApplicationStatus.INTERVIEW_REJECTED_BY_USER]: [
       ApplicationStatus.REJECTED,
-      ApplicationStatus.INTERVIEW_RESCHEDULED,
     ],
     [ApplicationStatus.INTERVIEW_CANCELLED]: [
       ApplicationStatus.REJECTED,
@@ -119,7 +115,8 @@ const StatusManager: React.FC<StatusManagerProps> = ({
 
     try {
       setLoading(true);
-      await updateApplicationStatus(applicationId, {
+
+      await ApplicantService.updateApplicationStatus(applicationId, {
         status: newStatus,
         reason: reason.trim() || undefined,
       });
@@ -145,7 +142,7 @@ const StatusManager: React.FC<StatusManagerProps> = ({
   const showRescheduleButton = [
     ApplicationStatus.INTERVIEW_SCHEDULED,
     ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER,
-  ].includes(applicant.status as ApplicationStatus);
+  ].includes(applicant.status);
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Current Status Display */}

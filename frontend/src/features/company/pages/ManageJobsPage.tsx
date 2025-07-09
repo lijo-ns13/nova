@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import CreateJobPage from "./CreateJobPage";
 import { JobResponseDto, JobService } from "../services/jobServices";
-import { handleApiError, ParsedAPIError } from "../../../utils/apiError";
+import { handleApiError } from "../../../utils/apiError";
 
 function ManageJobsPage() {
   const [jobs, setJobs] = useState<JobResponseDto[]>([]);

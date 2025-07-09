@@ -1,73 +1,55 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
+// InterviewListPage.tsx
+import React, { useEffect, useState } from "react";
 import {
+  Avatar,
   Box,
-  Typography,
+  Button,
   Card,
   CardContent,
   CardHeader,
-  Avatar,
-  Button,
-  Pagination,
-  Stack,
   Chip,
+  CircularProgress,
   Divider,
+  Pagination,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  CircularProgress,
+  Typography,
 } from "@mui/material";
 import { Person, AccessTime, VideoCall } from "@mui/icons-material";
-
 import { format } from "date-fns";
-import companyAxios from "../../../utils/companyAxios";
-
-interface Interview {
-  roomId: string;
-  interviewTime: string;
-  user: {
-    _id: string;
-    name: string;
-    email: string;
-    profilePicture: string;
-  };
-  job: {
-    _id: string;
-    title: string;
-    description: string;
-    location: string;
-    jobType: string;
-  };
-  applicationId: string;
-}
+import { useNavigate } from "react-router-dom";
+import {
+  companyInterviewService,
+  UpcomingInterviewResponseDTO,
+} from "../services/InterviewReschedueService";
 
 const ITEMS_PER_PAGE = 5;
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const BASE_URL = `${API_BASE_URL}/company`;
+
 const CompanyUpcomingInterviews: React.FC = () => {
-  const [interviews, setInterviews] = useState<Interview[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [interviews, setInterviews] = useState<UpcomingInterviewResponseDTO[]>(
+    []
+  );
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState<number>(1);
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
         setLoading(true);
-        const response = await companyAxios.get(
-          `${BASE_URL}/interviews/upcoming`
-        );
-        setInterviews(response.data.data);
+        const data = await companyInterviewService.getUpcomingInterviews();
+        setInterviews(data);
         setError(null);
       } catch (err) {
-        setError("Failed to fetch upcoming interviews");
         console.error(err);
+        setError("Failed to fetch upcoming interviews");
       } finally {
         setLoading(false);
       }
@@ -75,6 +57,11 @@ const CompanyUpcomingInterviews: React.FC = () => {
 
     fetchInterviews();
   }, []);
+
+  const paginatedInterviews = interviews.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE
+  );
 
   const handlePageChange = (
     event: React.ChangeEvent<unknown>,
@@ -90,11 +77,6 @@ const CompanyUpcomingInterviews: React.FC = () => {
   const handleViewApplication = (applicationId: string) => {
     navigate(`/company/job/application/${applicationId}`);
   };
-
-  const paginatedInterviews = interviews.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
-  );
 
   if (loading) {
     return (
@@ -157,7 +139,7 @@ const CompanyUpcomingInterviews: React.FC = () => {
           </TableHead>
           <TableBody>
             {paginatedInterviews.map((interview) => (
-              <TableRow key={interview.roomId}>
+              <TableRow key={interview.id}>
                 <TableCell>
                   <Box display="flex" alignItems="center">
                     <Avatar
@@ -234,7 +216,7 @@ const CompanyUpcomingInterviews: React.FC = () => {
       {/* Mobile View */}
       <Box sx={{ display: { xs: "block", md: "none" } }}>
         {paginatedInterviews.map((interview) => (
-          <Card key={interview.roomId} sx={{ mb: 2 }}>
+          <Card key={interview.id} sx={{ mb: 2 }}>
             <CardHeader
               avatar={
                 <Avatar
@@ -256,7 +238,6 @@ const CompanyUpcomingInterviews: React.FC = () => {
                     {interview.job.location} • {interview.job.jobType}
                   </Typography>
                 </Box>
-
                 <Box>
                   <Typography variant="subtitle2" color="text.secondary">
                     Interview Time

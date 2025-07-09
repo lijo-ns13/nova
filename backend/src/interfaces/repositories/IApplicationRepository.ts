@@ -9,6 +9,7 @@ import {
   ApplicantRawData,
   GetApplicationsQuery,
 } from "../../core/dtos/company/getapplications.dto";
+import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
 
 export interface IApplicationRepository extends IBaseRepository<IApplication> {
   findWithUserAndJobById(
@@ -30,7 +31,9 @@ export interface IApplicationRepository extends IBaseRepository<IApplication> {
 
   findByUserId(userId: string): Promise<IApplication[]>;
 
-  findByIdWithUserAndJob(applicationId: string): Promise<IApplication | null>;
+  findByIdWithUserAndJob(
+    applicationId: string
+  ): Promise<PopulatedApplication | null>;
 
   findByJobIdAndPop(userId: string): Promise<IApplication[]>;
 

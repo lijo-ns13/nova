@@ -1,0 +1,22 @@
+export const ApplicationStatus = {
+  APPLIED: "applied",
+  SHORTLISTED: "shortlisted",
+  REJECTED: "rejected",
+  INTERVIEW_SCHEDULED: "interview_scheduled",
+  INTERVIEW_CANCELLED: "interview_cancelled",
+  INTERVIEW_ACCEPTED_BY_USER: "interview_accepted_by_user",
+  INTERVIEW_REJECTED_BY_USER: "interview_rejected_by_user",
+  INTERVIEW_RESCHEDULE_PROPOSED: "interview_reschedule_proposed",
+  INTERVIEW_RESCHEDULE_ACCEPTED: "interview_reschedule_accepted",
+  INTERVIEW_RESCHEDULE_REJECTED: "interview_reschedule_rejected",
+  INTERVIEW_COMPLETED: "interview_completed",
+  INTERVIEW_PASSED: "interview_passed",
+  INTERVIEW_FAILED: "interview_failed",
+  OFFERED: "offered",
+  SELECTED: "selected",
+  HIRED: "hired",
+  WITHDRAWN: "withdrawn",
+} as const;
+
+export type ApplicationStatus =
+  (typeof ApplicationStatus)[keyof typeof ApplicationStatus];

@@ -19,6 +19,7 @@ import {
   GetApplicationsQuery,
 } from "../../core/dtos/company/getapplications.dto";
 import jobModal from "../../models/job.modal";
+import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
 
 @injectable()
 export class ApplicationRepository
@@ -234,12 +235,13 @@ export class ApplicationRepository
 
   async findByIdWithUserAndJob(
     applicationId: string
-  ): Promise<IApplication | null> {
+  ): Promise<PopulatedApplication | null> {
     return this.model
       .findById(applicationId)
       .populate("user", "name username profilePicture")
       .populate("job")
-      .exec();
+      .lean()
+      .exec() as Promise<PopulatedApplication | null>;
   }
 
   async findByJobIdAndPop(userId: string): Promise<IApplication[]> {

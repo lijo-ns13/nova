@@ -15,8 +15,7 @@ import BigModal from "../../user/componets/modals/BigModal";
 import UpdateJobForm from "../components/Job/UpdateJobForm";
 
 import { JobResponseDto, JobService } from "../services/jobServices";
-
-import { ParsedAPIError } from "../../../utils/apiError";
+import { handleApiError } from "../../../utils/apiError";
 
 function JobDetailedPage() {
   const navigate = useNavigate();
@@ -39,14 +38,10 @@ function JobDetailedPage() {
       const jobData = await JobService.getJob(id); // ✅ jobData is JobResponseDto
       setJob(jobData);
       setError(null);
-    } catch (err) {
-      const parsedError =
-        err && typeof err === "object" && "statusCode" in err
-          ? (err as ParsedAPIError)
-          : { message: "Unexpected error", statusCode: 500 };
+    } catch (err: unknown) {
+      const parsed = handleApiError(err, "Failed to schedule interview");
 
-      console.error("Job fetch error:", parsedError);
-      setError(parsedError.message || "Failed to fetch job details.");
+      setError(parsed.message ?? "Something went wrong");
     } finally {
       setIsLoading(false);
     }
@@ -62,9 +57,10 @@ function JobDetailedPage() {
       await JobService.deleteJob(id); // throws on error
       toast.success("Job deleted successfully");
       navigate("/company/manage-jobs");
-    } catch (err) {
-      const error = err as ParsedAPIError;
-      toast.error(error.message || "Failed to delete job");
+    } catch (err: unknown) {
+      const parsed = handleApiError(err, "Failed to schedule interview");
+
+      toast.error(parsed.message || "error occured in delete");
     }
   };
 

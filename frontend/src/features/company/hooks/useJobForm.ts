@@ -1,17 +1,19 @@
 import { useState, FormEvent } from "react";
 import toast from "react-hot-toast";
 import { CreateJobInput, JobService } from "../services/jobServices";
+import { handleApiError } from "../../../utils/apiError";
+
 export type JobFormState = Omit<
   CreateJobInput,
   "salary" | "applicationDeadline"
 > & {
   salary: {
     currency: string;
-    min: string; // for form input
-    max: string; // for form input
+    min: string;
+    max: string;
     isVisibleToApplicants: boolean;
   };
-  applicationDeadline: string; // ISO string or formatted input value
+  applicationDeadline: string;
 };
 
 export function useJobForm() {
@@ -36,40 +38,28 @@ export function useJobForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormState((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    // Clear errors when user edits the field
-    if (errors[name]) {
+  const clearFieldError = (field: string) => {
+    if (errors[field]) {
       setErrors((prev) => {
         const updated = { ...prev };
-        delete updated[name];
+        delete updated[field];
         return updated;
       });
     }
   };
 
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormState((prev) => ({ ...prev, [name]: value }));
+    clearFieldError(name);
+  };
+
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormState((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    // Clear errors when user makes a selection
-    if (errors[name]) {
-      setErrors((prev) => {
-        const updated = { ...prev };
-        delete updated[name];
-        return updated;
-      });
-    }
+    setFormState((prev) => ({ ...prev, [name]: value }));
+    clearFieldError(name);
   };
 
   const handleSalaryChange = (
@@ -78,72 +68,29 @@ export function useJobForm() {
   ) => {
     setFormState((prev) => ({
       ...prev,
-      salary: {
-        ...prev.salary,
-        [field]: value,
-      },
+      salary: { ...prev.salary, [field]: value },
     }));
-
-    // Clear errors related to salary
-    if (errors[`salary.${field}`]) {
-      setErrors((prev) => {
-        const updated = { ...prev };
-        delete updated[`salary.${field}`];
-        return updated;
-      });
-    }
+    clearFieldError(`salary.${field}`);
   };
 
   const handleSkillsChange = (skills: string[]) => {
-    setFormState((prev) => ({
-      ...prev,
-      skillsRequired: skills,
-    }));
-
-    // Clear errors related to skills
-    if (errors.skillsRequired) {
-      setErrors((prev) => {
-        const updated = { ...prev };
-        delete updated.skillsRequired;
-        return updated;
-      });
-    }
+    setFormState((prev) => ({ ...prev, skillsRequired: skills }));
+    clearFieldError("skillsRequired");
   };
-  const handleLocationSelect = (location: string) => {
-    setFormState((prev) => ({
-      ...prev,
-      location,
-    }));
 
-    // Clear location error if any
-    if (errors.location) {
-      setErrors((prev) => {
-        const updated = { ...prev };
-        delete updated.location;
-        return updated;
-      });
-    }
-  };
   const handleBenefitsChange = (benefits: string[]) => {
-    setFormState((prev) => ({
-      ...prev,
-      benefits: benefits,
-    }));
+    setFormState((prev) => ({ ...prev, benefits }));
+    clearFieldError("benefits");
+  };
 
-    // Clear errors related to benefits
-    if (errors.benefits) {
-      setErrors((prev) => {
-        const updated = { ...prev };
-        delete updated.benefits;
-        return updated;
-      });
-    }
+  const handleLocationSelect = (location: string) => {
+    setFormState((prev) => ({ ...prev, location }));
+    clearFieldError("location");
   };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Required fields validation
     if (!formState.title.trim()) newErrors.title = "Job title is required";
     if (!formState.location.trim()) newErrors.location = "Location is required";
     if (!formState.jobType) newErrors.jobType = "Job type is required";
@@ -156,11 +103,9 @@ export function useJobForm() {
     if (!formState.experienceLevel)
       newErrors.experienceLevel = "Experience level is required";
 
-    // Salary validation
     const min = Number(formState.salary.min);
     const max = Number(formState.salary.max);
 
-    // Currency check
     if (formState.salary.currency !== "INR") {
       newErrors["salary.currency"] = "Only INR currency is supported";
     }
@@ -177,15 +122,8 @@ export function useJobForm() {
       newErrors["salary.max"] = "Maximum salary must be between 1 and 75 LPA";
     }
 
-    if (
-      formState.salary.min &&
-      formState.salary.max &&
-      !isNaN(min) &&
-      !isNaN(max) &&
-      min > max
-    ) {
-      newErrors["salary.min"] =
-        "Minimum salary cannot be greater than maximum salary";
+    if (!isNaN(min) && !isNaN(max) && min > max) {
+      newErrors["salary.min"] = "Minimum salary cannot be greater than maximum";
     }
 
     setErrors(newErrors);
@@ -203,26 +141,24 @@ export function useJobForm() {
     setIsSubmitting(true);
 
     try {
-      // Format the data for submission
-      const formData = {
+      const formData: CreateJobInput = {
         ...formState,
         salary: {
-          ...formState.salary,
-          min: formState.salary.min ? Number(formState.salary.min) : undefined,
-          max: formState.salary.max ? Number(formState.salary.max) : undefined,
+          currency: formState.salary.currency,
+          min: Number(formState.salary.min),
+          max: Number(formState.salary.max),
+          isVisibleToApplicants: formState.salary.isVisibleToApplicants,
         },
         applicationDeadline: new Date(formState.applicationDeadline),
       };
 
       await JobService.createJob(formData);
-      onSuccess?.();
       toast.success("Job created successfully!");
-
-      // Reset form or redirect
-      // setFormState(initialState);
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error("Failed to create job. Please try again.");
+      onSuccess?.();
+    } catch (err: unknown) {
+      const parsed = handleApiError(err, "Failed to create job");
+      toast.error(parsed.message);
+      setErrors(parsed.errors ?? {});
     } finally {
       setIsSubmitting(false);
     }
@@ -230,7 +166,7 @@ export function useJobForm() {
 
   return {
     formState,
-    setFormState, // Add this to the returned object
+    setFormState,
     errors,
     isSubmitting,
     handleInputChange,
@@ -239,6 +175,6 @@ export function useJobForm() {
     handleSkillsChange,
     handleBenefitsChange,
     handleSubmit,
-    handleLocationSelect, // Add this new handler
+    handleLocationSelect,
   };
 }
