@@ -31,6 +31,12 @@ export class ApplicationRepository
   ) {
     super(applicationModel);
   }
+  async findByJobIdAndPop(userId: string): Promise<IApplication[]> {
+    return this.model
+      .find({ user: userId })
+      .populate("job", "title description location jobType skillsRequired")
+      .exec();
+  }
   async findApplicationsByFilter(
     filter: GetApplicationsQuery,
     page: number,
@@ -244,12 +250,6 @@ export class ApplicationRepository
       .exec() as Promise<PopulatedApplication | null>;
   }
 
-  async findByJobIdAndPop(userId: string): Promise<IApplication[]> {
-    return this.model
-      .find({ user: userId })
-      .populate("job", "title description location jobType")
-      .exec();
-  }
   async shortlistApplication(applicationId: string): Promise<boolean> {
     const application = await this.findById(applicationId);
     if (!application) return false;

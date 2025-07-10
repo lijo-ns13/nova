@@ -14,6 +14,7 @@ import { inject } from "inversify";
 import { TYPES } from "../../di/types";
 import { IJobWithSkills } from "../../mapping/job.mapper";
 import { ISkill } from "../../models/skill.modal";
+import { IJobPopulated } from "../../mapping/user/jobmapper";
 
 type PopulatedUser = {
   _id: Types.ObjectId;
@@ -104,71 +105,22 @@ export class JobRepository
   }
 
   async getAllJobs(
-    page: number = 1,
-    limit: number = 10,
-    filters: Record<string, any> = {}
-  ): Promise<{ jobs: IJob[]; total: number; totalPages: number }> {
-    // Base query for open jobs with valid deadline
-    const query: any = {
-      status: "open",
-      applicationDeadline: { $gte: new Date() },
-    };
-
-    // Apply filters if provided
-    if (filters) {
-      if (filters.title) {
-        query.title = { $regex: filters.title, $options: "i" };
-      }
-      if (filters.location) {
-        query.location = { $regex: filters.location, $options: "i" };
-      }
-      if (filters.jobType) {
-        query.jobType = {
-          $in: Array.isArray(filters.jobType)
-            ? filters.jobType
-            : [filters.jobType],
-        };
-      }
-      if (filters.employmentType) {
-        query.employmentType = {
-          $in: Array.isArray(filters.employmentType)
-            ? filters.employmentType
-            : [filters.employmentType],
-        };
-      }
-      if (filters.experienceLevel) {
-        query.experienceLevel = {
-          $in: Array.isArray(filters.experienceLevel)
-            ? filters.experienceLevel
-            : [filters.experienceLevel],
-        };
-      }
-      if (filters.skills) {
-        query.skillsRequired = { $in: filters.skills };
-      }
-      if (filters.minSalary) {
-        query["salary.min"] = { $gte: Number(filters.minSalary) };
-      }
-      if (filters.maxSalary) {
-        query["salary.max"] = { $lte: Number(filters.maxSalary) };
-      }
-      if (filters.company) {
-        query.company = filters.company;
-      }
-    }
+    page: number,
+    limit: number,
+    filters: Record<string, unknown>
+  ): Promise<{ jobs: IJobPopulated[]; total: number; totalPages: number }> {
+    const query = filters;
 
     const total = await jobModal.countDocuments(query);
     const totalPages = Math.ceil(total / limit);
 
     const jobs = await jobModal
       .find(query)
-      .populate([
-        { path: "skillsRequired" },
-        { path: "company", select: "-password -documents" },
-      ])
+      .populate<{ skillsRequired: ISkill[] }>("skillsRequired")
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
-      .limit(limit);
+      .limit(limit)
+      .exec();
 
     return { jobs, total, totalPages };
   }

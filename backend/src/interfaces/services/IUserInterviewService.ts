@@ -1,3 +1,4 @@
+import { ApplicationStatusResponseDTO } from "../../mapping/user/userapplication.mapper";
 import {
   ApplicationStatus,
   IApplication,
@@ -6,18 +7,19 @@ import {
 export interface IUserInterviewService {
   updateStatus(
     applicationId: string,
-    status: string,
+    status: ApplicationStatus,
     email?: string
-  ): Promise<IApplication | null>;
+  ): Promise<ApplicationStatusResponseDTO>;
   findInterview(applicationId: string, userId: string): Promise<any>;
+
+  getRescheduleProposedSlots(
+    applicationId: string,
+    userId: string
+  ): Promise<Date[] | null>;
   handleRescheduleResponse(
     applicationId: string,
     status: ApplicationStatus,
     selectedSlot?: string,
     email?: string
-  ): Promise<IApplication | null>;
-  getRescheduleProposedSlots(
-    applicationId: string,
-    userId: string
-  ): Promise<Date[] | null>;
+  ): Promise<ApplicationStatusResponseDTO>;
 }

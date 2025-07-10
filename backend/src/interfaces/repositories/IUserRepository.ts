@@ -8,6 +8,10 @@ import { IUserProject } from "../../models/userProject.model";
 import { ISkill } from "../../models/skill.modal";
 import { IUserWithStatus } from "../../repositories/mongo/UserRepository";
 import { IBaseRepository } from "./IBaseRepository";
+import { CreateEducationInputDTO } from "../../core/dtos/user/UserEducation.dto";
+import { CreateExperienceInputDTO } from "../../core/dtos/user/userExperience";
+import { CreateProjectInputDTO } from "../../core/dtos/user/userproject";
+import { CreateCertificateInputDTO } from "../../core/dtos/user/certificate.dto";
 
 export interface IUserRepository extends IBaseRepository<IUser> {
   // Core user operations
@@ -50,48 +54,51 @@ export interface IUserRepository extends IBaseRepository<IUser> {
   // Education operations
   addEducation(
     userId: string,
-    education: IUserEducation
+    education: CreateEducationInputDTO
   ): Promise<IUserEducation>;
   updateEducation(
     educationId: string,
-    data: Partial<IUserEducation>
+    data: Partial<CreateEducationInputDTO>
   ): Promise<IUserEducation | null>;
-  deleteEducation(userId: string, educationId: string): Promise<boolean>;
 
+  deleteEducation(userId: string, educationId: string): Promise<boolean>;
+  getAllEducations(userId: string): Promise<IUserEducation[]>;
   // Experience operations
   addExperience(
     userId: string,
-    experience: IUserExperience
+    experience: CreateExperienceInputDTO
   ): Promise<IUserExperience>;
   updateExperience(
     experienceId: string,
-    data: Partial<IUserExperience>
+    data: Partial<CreateExperienceInputDTO>
   ): Promise<IUserExperience | null>;
   deleteExperience(userId: string, experienceId: string): Promise<boolean>;
+  getAllExperiences(userId: string): Promise<IUserExperience[]>;
 
   // Project operations
-  addProject(userId: string, project: IUserProject): Promise<IUserProject>;
+  addProject(
+    userId: string,
+    project: CreateProjectInputDTO
+  ): Promise<IUserProject>;
   updateProject(
     projectId: string,
-    data: Partial<IUserProject>
+    data: Partial<CreateProjectInputDTO>
   ): Promise<IUserProject | null>;
   deleteProject(userId: string, projectId: string): Promise<boolean>;
-
+  getAllProjects(userId: string): Promise<IUserProject[]>;
   // Certificate operations
   addCertificate(
     userId: string,
-    certificate: IUserCertificate
+    certificate: CreateCertificateInputDTO
   ): Promise<IUserCertificate>;
   updateCertificate(
     certificateId: string,
-    data: Partial<IUserCertificate>
+    data: Partial<CreateCertificateInputDTO>
   ): Promise<IUserCertificate | null>;
   deleteCertificate(userId: string, certificateId: string): Promise<boolean>;
 
   // Portfolio data access
-  getAllEducations(userId: string): Promise<IUserEducation[]>;
-  getAllExperiences(userId: string): Promise<IUserExperience[]>;
-  getAllProjects(userId: string): Promise<IUserProject[]>;
+
   getAllCertificates(userId: string): Promise<IUserCertificate[]>;
 
   // Security

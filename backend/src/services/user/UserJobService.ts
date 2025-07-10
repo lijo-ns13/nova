@@ -10,6 +10,8 @@ import { IApplication } from "../../models/application.modal";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { Types } from "mongoose";
 import { NotificationType } from "../../models/notification.modal";
+import { GetAllJobsQueryInput } from "../../core/validations/user/user.jobschema";
+import { JobResponseDTO, UserJobMapper } from "../../mapping/user/jobmapper";
 
 export class UserJobService implements IUserJobService {
   constructor(
@@ -26,12 +28,68 @@ export class UserJobService implements IUserJobService {
   ) {}
 
   async getAllJobs(
-    page: number = 1,
-    limit: number = 10,
-    filters: Record<string, any> = {}
-  ): Promise<{ jobs: IJob[]; total: number; totalPages: number }> {
-    return this._jobRepository.getAllJobs(page, limit, filters);
+    query: GetAllJobsQueryInput
+  ): Promise<{ jobs: JobResponseDTO[]; total: number; totalPages: number }> {
+    const { page, limit, ...rawFilters } = query;
+
+    const filters = this.mapFilters(rawFilters);
+
+    const { jobs, total, totalPages } = await this._jobRepository.getAllJobs(
+      page,
+      limit,
+      filters
+    );
+
+    return {
+      jobs: jobs.map(UserJobMapper.toJobResponse),
+      total,
+      totalPages,
+    };
   }
+
+  private mapFilters(
+    filters: Omit<GetAllJobsQueryInput, "page" | "limit">
+  ): Record<string, unknown> {
+    const result: Record<string, unknown> = {
+      status: "open",
+      applicationDeadline: { $gte: new Date() },
+    };
+
+    if (filters.title) result.title = { $regex: filters.title, $options: "i" };
+    if (filters.location)
+      result.location = { $regex: filters.location, $options: "i" };
+    if (filters.jobType)
+      result.jobType = {
+        $in: Array.isArray(filters.jobType)
+          ? filters.jobType
+          : [filters.jobType],
+      };
+    if (filters.employmentType)
+      result.employmentType = {
+        $in: Array.isArray(filters.employmentType)
+          ? filters.employmentType
+          : [filters.employmentType],
+      };
+    if (filters.experienceLevel)
+      result.experienceLevel = {
+        $in: Array.isArray(filters.experienceLevel)
+          ? filters.experienceLevel
+          : [filters.experienceLevel],
+      };
+    if (filters.skills)
+      result.skillsRequired = {
+        $in: Array.isArray(filters.skills) ? filters.skills : [filters.skills],
+      };
+    if (filters.minSalary) result["salary.min"] = { $gte: filters.minSalary };
+    if (filters.maxSalary) result["salary.max"] = { $lte: filters.maxSalary };
+    if (filters.company) result.company = filters.company;
+
+    return result;
+  }
+  async getAppliedJobs(userId: string): Promise<any> {
+    const application = await this._applicationRepo.findAll({ user: userId });
+  }
+
   async getJob(jobId: string) {
     return this._jobRepository.getJob(jobId);
   }
@@ -113,27 +171,7 @@ export class UserJobService implements IUserJobService {
       throw new Error(`Failed to apply to job: ${(error as Error).message}`);
     }
   }
-  async getSavedJobs(userId: string): Promise<IJob[]> {
-    if (!userId) throw new Error("user id not found");
-    console.log("userId in getSavedJob ->service", userId);
-    const user = await this._userRepository.getSavedJobs(userId);
-    if (!user) throw new Error("REpository realted error");
-    console.log("getSavedJobs in Service", user?.savedJobs);
-    return user?.savedJobs;
-  }
 
-  async getAppliedJobs(userId: string): Promise<any> {
-    const appliedJobs = await this._applicationRepo.findByJobIdAndPop(userId);
-    return appliedJobs;
-  }
-
-  async addToSavedJobs(userId: string, jobId: string): Promise<void> {
-    await this._userRepository.addToSavedJobs(userId, jobId);
-  }
-
-  async removeFromSavedJobs(userId: string, jobId: string): Promise<void> {
-    await this._userRepository.removeFromSavedJobs(userId, jobId);
-  }
   async hasApplied(jobId: string, userId: string): Promise<boolean> {
     return this._applicationRepo.hasUserApplied(jobId, userId);
   }

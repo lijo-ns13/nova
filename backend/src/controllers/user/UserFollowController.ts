@@ -1,12 +1,13 @@
-// src/controllers/UserFollowController.ts
-
 import { inject, injectable } from "inversify";
 import { Request, Response } from "express";
 import { IUserFollowController } from "../../interfaces/controllers/IUserFollowController";
 import { IUserFollowService } from "../../interfaces/services/IUserFollowService";
 import { TYPES } from "../../di/types";
+import { handleControllerError } from "../../utils/errorHandler";
+import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
+import { UserIdSchema } from "../../core/validations/user/userfollow.validator";
 
-interface AuthenticatedUser {
+interface UserPayload {
   id: string;
   email: string;
   role: string;
@@ -16,122 +17,102 @@ interface AuthenticatedUser {
 export class UserFollowController implements IUserFollowController {
   constructor(
     @inject(TYPES.UserFollowService)
-    private userFollowService: IUserFollowService
+    private _userFollowService: IUserFollowService
   ) {}
 
   async followUser(req: Request, res: Response): Promise<void> {
     try {
-      const followerId = (req.user as AuthenticatedUser)?.id;
-      const followingId = req.params.userId;
+      const followerId = (req.user as UserPayload).id;
+      const { userId: followingId } = UserIdSchema.parse(req.params);
 
-      const result = await this.userFollowService.followUser(
+      const dto = await this._userFollowService.followUser(
         followerId,
         followingId
       );
-
-      if (!result.success) {
-        res.status(400).json({ success: false, message: result.message });
-        return;
-      }
-
-      res.status(200).json({ success: true, message: result.message });
-    } catch (error) {
-      console.error("Error in followUser:", error);
       res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
+        .status(HTTP_STATUS_CODES.OK)
+        .json({ success: true, message: dto.message });
+    } catch (error) {
+      handleControllerError(error, res, "UserFollowController.followUser");
     }
   }
 
   async unfollowUser(req: Request, res: Response): Promise<void> {
     try {
-      const followerId = (req.user as AuthenticatedUser)?.id;
-      const followingId = req.params.userId;
+      const followerId = (req.user as UserPayload).id;
+      const { userId: followingId } = UserIdSchema.parse(req.params);
 
-      const result = await this.userFollowService.unfollowUser(
+      const dto = await this._userFollowService.unfollowUser(
         followerId,
         followingId
       );
-
-      if (!result.success) {
-        res.status(400).json({ success: false, message: result.message });
-        return;
-      }
-
-      res.status(200).json({ success: true, message: result.message });
-    } catch (error) {
-      console.error("Error in unfollowUser:", error);
       res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
+        .status(HTTP_STATUS_CODES.OK)
+        .json({ success: true, message: dto.message });
+    } catch (error) {
+      handleControllerError(error, res, "UserFollowController.unfollowUser");
     }
   }
 
   async getFollowers(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.params.userId;
-      const currentUserId = (req.user as AuthenticatedUser)?.id;
-      const followers = await this.userFollowService.getFollowers(
-        currentUserId,
-        userId
+      const currentUserId = (req.user as UserPayload).id;
+      const { userId } = UserIdSchema.parse(req.params);
+
+      const followers = await this._userFollowService.getFollowers(
+        userId,
+        currentUserId
       );
-      res.status(200).json({ success: true, data: followers });
+      res.status(HTTP_STATUS_CODES.OK).json({ success: true, data: followers });
     } catch (error) {
-      console.error("Error in getFollowers:", error);
-      res
-        .status(500)
-        .json({ success: false, message: "Failed to get followers" });
+      handleControllerError(error, res, "UserFollowController.getFollowers");
     }
   }
 
   async getFollowing(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.params.userId;
-      const currentUserId = (req.user as AuthenticatedUser)?.id;
-      const following = await this.userFollowService.getFollowing(
-        currentUserId,
-        userId
+      const currentUserId = (req.user as UserPayload).id;
+      const { userId } = UserIdSchema.parse(req.params);
+
+      const following = await this._userFollowService.getFollowing(
+        userId,
+        currentUserId
       );
-      res.status(200).json({ success: true, data: following });
+      res.status(HTTP_STATUS_CODES.OK).json({ success: true, data: following });
     } catch (error) {
-      console.error("Error in getFollowing:", error);
-      res
-        .status(500)
-        .json({ success: false, message: "Failed to get following" });
+      handleControllerError(error, res, "UserFollowController.getFollowing");
     }
   }
 
   async checkFollowStatus(req: Request, res: Response): Promise<void> {
     try {
-      const followerId = (req.user as AuthenticatedUser)?.id;
-      const followingId = req.params.userId;
+      const followerId = (req.user as UserPayload).id;
+      const { userId: followingId } = UserIdSchema.parse(req.params);
 
-      const isFollowing = await this.userFollowService.isFollowing(
+      const isFollowing = await this._userFollowService.isFollowing(
         followerId,
         followingId
       );
-      res.status(200).json({ success: true, isFollowing });
+      res.status(HTTP_STATUS_CODES.OK).json({ success: true, isFollowing });
     } catch (error) {
-      console.error("Error in checkFollowStatus:", error);
-      res
-        .status(500)
-        .json({ success: false, message: "Failed to check follow status" });
+      handleControllerError(
+        error,
+        res,
+        "UserFollowController.checkFollowStatus"
+      );
     }
   }
-  // Add to your UserFollowController class
+
   async getNetworkUsers(req: Request, res: Response): Promise<void> {
     try {
-      const currentUserId = (req.user as AuthenticatedUser)?.id;
-      const networkUsers = await this.userFollowService.getNetworkUsers(
+      const currentUserId = (req.user as UserPayload).id;
+      const users = await this._userFollowService.getNetworkUsers(
         currentUserId
       );
-      res.status(200).json({ success: true, data: networkUsers });
+
+      res.status(HTTP_STATUS_CODES.OK).json({ success: true, data: users });
     } catch (error) {
-      console.error("Error in getNetworkUsers:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to get network users",
-      });
+      handleControllerError(error, res, "UserFollowController.getNetworkUsers");
     }
   }
 }

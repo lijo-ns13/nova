@@ -1,32 +1,28 @@
-import { IUser } from "../../models/user.modal";
-import { IUserWithStatus } from "../../repositories/mongo/UserRepository";
+import {
+  FollowResultDTO,
+  NetworkUserDTO,
+  UserWithStatusDTO,
+} from "../../mapping/user/UserFollowMapper";
 
 export interface IUserFollowService {
-  followUser(
-    followerId: string,
-    followingId: string
-  ): Promise<{ success: boolean; message: string }>;
+  followUser(followerId: string, followingId: string): Promise<FollowResultDTO>;
 
   unfollowUser(
     followerId: string,
     followingId: string
-  ): Promise<{ success: boolean; message: string }>;
+  ): Promise<FollowResultDTO>;
 
-  // getFollowers(userId: string): Promise<IUser[]>;
   getFollowers(
     targetUserId: string,
     currentUserId: string
-  ): Promise<IUserWithStatus[]>;
+  ): Promise<UserWithStatusDTO[]>;
+
   getFollowing(
     targetUserId: string,
     currentUserId: string
-  ): Promise<IUserWithStatus[]>;
+  ): Promise<UserWithStatusDTO[]>;
+
   isFollowing(followerId: string, followingId: string): Promise<boolean>;
-  // Add to your IUserFollowService interface
-  getNetworkUsers(currentUserId: string): Promise<
-    {
-      user: IUser;
-      isFollowing: boolean;
-    }[]
-  >;
+
+  getNetworkUsers(currentUserId: string): Promise<NetworkUserDTO[]>;
 }

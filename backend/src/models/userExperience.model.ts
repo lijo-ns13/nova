@@ -3,7 +3,7 @@ import mongoose, { Document } from "mongoose";
 export interface IUserExperience extends Document {
   _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
-  title?: string;
+  title: string;
   description?: string;
   company: string;
   location: string;

@@ -4,10 +4,14 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { IUserInterviewService } from "../../interfaces/services/IUserInterviewService";
-import { privateDecrypt } from "crypto";
 import { IEmailService } from "../../interfaces/services/IEmailService";
 import { ApplicationStatus } from "../../models/application.modal";
-interface Userr {
+import { handleControllerError } from "../../utils/errorHandler";
+import {
+  UpdateInterviewStatusParamsSchema,
+  UpdateInterviewStatusRescheduledSchema,
+} from "../../core/validations/user/userinterview.schema";
+interface UserPayload {
   id: string;
   email: string;
   role: string;
@@ -16,215 +20,93 @@ interface Userr {
 export class UserInterviewController {
   constructor(
     @inject(TYPES.UserInterviewService)
-    private userInterviewService: IUserInterviewService,
-    @inject(TYPES.EmailService) private emailService: IEmailService
+    private userInterviewService: IUserInterviewService
   ) {}
 
   async updateInterviewStatus(req: Request, res: Response): Promise<void> {
     try {
-      const { applicationId, status } = req.params;
-      const userId = (req.user as Userr)?.id;
-      const email = (req.user as Userr)?.email;
-      if (!status || !applicationId) {
-        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
-          success: false,
-          message: "Missing applicationId or status",
-        });
-        return;
-      }
+      const { applicationId, status } = UpdateInterviewStatusParamsSchema.parse(
+        req.params
+      );
+      const user = req.user as UserPayload;
 
       const updated = await this.userInterviewService.updateStatus(
         applicationId,
-        status,
-        email
+        status as ApplicationStatus,
+        user.email
       );
-
-      if (!updated) {
-        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
-          success: false,
-          message: "Application not found or update failed",
-        });
-        return;
-      }
-      if (status === "interview_accepted_by_user") {
-        const interview = await this.userInterviewService.findInterview(
-          applicationId,
-          userId
-        );
-
-        if (!interview) {
-          res
-            .status(400)
-            .json({ success: false, message: "Interview not found" });
-          return;
-        }
-
-        const { roomId, scheduledAt } = interview;
-        const email = (req.user as Userr)?.email;
-
-        if (roomId && email && scheduledAt) {
-          await this.emailService.sendInterviewLink(
-            email,
-            roomId,
-            new Date(scheduledAt)
-          );
-        }
-      }
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Interview status updated",
         data: updated,
       });
-    } catch (err) {
-      console.error("UserInterviewController Error:", err);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: (err as Error).message,
-      });
+    } catch (error) {
+      handleControllerError(
+        error,
+        res,
+        "UserInterviewController.updateInterviewStatus"
+      );
     }
   }
-  // In UserInterviewController.ts
 
   async updateInterviewStatusRescheduled(
     req: Request,
     res: Response
   ): Promise<void> {
     try {
-      const { applicationId } = req.params;
-      const { status } = req.body;
-      const userId = (req.user as Userr)?.id;
-      const email = (req.user as Userr)?.email;
-
-      if (!status || !applicationId) {
-        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
-          success: false,
-          message: "Missing applicationId or status",
+      const { applicationId, status, selectedSlot } =
+        UpdateInterviewStatusRescheduledSchema.parse({
+          ...req.params,
+          ...req.body,
         });
-        return;
-      }
 
-      // Handle reschedule responses differently
-      if (
-        status === "interview_reschedule_accepted" ||
-        status === "interview_reschedule_rejected"
-      ) {
-        const { selectedSlot } = req.body;
+      const user = req.user as UserPayload;
 
-        if (status === "interview_reschedule_accepted" && !selectedSlot) {
-          res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
-            success: false,
-            message: "Selected slot is required when accepting reschedule",
-          });
-          return;
-        }
-
-        const updated =
-          await this.userInterviewService.handleRescheduleResponse(
-            applicationId,
-            status as ApplicationStatus,
-            selectedSlot,
-            email
-          );
-
-        res.status(HTTP_STATUS_CODES.OK).json({
-          success: true,
-          message: "Reschedule response processed",
-          data: updated,
-        });
-        return;
-      }
-
-      // Original logic for other statuses
-      const updated = await this.userInterviewService.updateStatus(
+      const updated = await this.userInterviewService.handleRescheduleResponse(
         applicationId,
-        status as ApplicationStatus,
-        email
+        status,
+        selectedSlot,
+        user.email
       );
-
-      if (!updated) {
-        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
-          success: false,
-          message: "Application not found or update failed",
-        });
-        return;
-      }
-
-      if (status === "interview_accepted_by_user") {
-        const interview = await this.userInterviewService.findInterview(
-          applicationId,
-          userId
-        );
-
-        if (!interview) {
-          res.status(400).json({
-            success: false,
-            message: "Interview not found",
-          });
-          return;
-        }
-
-        const { roomId, scheduledAt } = interview;
-
-        if (roomId && email && scheduledAt) {
-          await this.emailService.sendInterviewLink(
-            email,
-            roomId,
-            new Date(scheduledAt)
-          );
-        }
-      }
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Interview status updated",
+        message: "Interview reschedule status updated",
         data: updated,
       });
-    } catch (err) {
-      console.error("UserInterviewController Error:", err);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: (err as Error).message,
-      });
+    } catch (error) {
+      handleControllerError(
+        error,
+        res,
+        "UserInterviewController.updateInterviewStatusRescheduled"
+      );
     }
   }
+
   async getRescheduleSlots(req: Request, res: Response): Promise<void> {
     try {
-      const { applicationId } = req.params;
-      const userId = (req.user as Userr)?.id;
-
-      if (!applicationId) {
-        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
-          success: false,
-          message: "Missing applicationId",
-        });
-        return;
-      }
+      const { applicationId } = UpdateInterviewStatusParamsSchema.parse(
+        req.params
+      );
+      const user = req.user as UserPayload;
 
       const slots = await this.userInterviewService.getRescheduleProposedSlots(
         applicationId,
-        userId
+        user.id
       );
-
-      if (!slots) {
-        res.status(HTTP_STATUS_CODES.NOT_FOUND).json({
-          success: false,
-          message: "No reschedule slots found for this application",
-        });
-        return;
-      }
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Reschedule slots retrieved successfully",
+        message: "Reschedule slots retrieved",
         data: slots,
       });
-    } catch (err) {
-      console.error("Error fetching reschedule slots:", err);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: (err as Error).message,
-      });
+    } catch (error) {
+      handleControllerError(
+        error,
+        res,
+        "UserInterviewController.getRescheduleSlots"
+      );
     }
   }
 }

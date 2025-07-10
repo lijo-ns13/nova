@@ -17,6 +17,10 @@ import userEducationModel, {
 } from "../../models/userEducation.model";
 import { IJob } from "../../models/job.modal";
 import { ISkill } from "../../models/skill.modal";
+import { CreateEducationInputDTO } from "../../core/dtos/user/UserEducation.dto";
+import { CreateExperienceInputDTO } from "../../core/dtos/user/userExperience";
+import { CreateProjectInputDTO } from "../../core/dtos/user/userproject";
+import { CreateCertificateInputDTO } from "../../core/dtos/user/certificate.dto";
 export interface IUserWithStatus {
   user: {
     _id: Types.ObjectId;
@@ -26,6 +30,7 @@ export interface IUserWithStatus {
     headline?: string;
   };
   isFollowing: boolean;
+  isCurrentUser: boolean;
 }
 @injectable()
 export class UserRepository
@@ -34,6 +39,51 @@ export class UserRepository
 {
   constructor(@inject(TYPES.UserModal) private userModel: Model<IUser>) {
     super(userModel);
+  }
+  // *
+  // Profile Related Methods
+  async getUserProfile(userId: string): Promise<IUser | null> {
+    return this.findById(userId);
+  }
+  // *
+  async getUserProfileWithDetails(userId: string): Promise<IUser | null> {
+    return this.model
+      .findById(userId)
+      .populate("educations")
+      .populate("experiences")
+      .populate("projects")
+      .populate("certificates");
+  }
+  // *
+  async updateProfileImage(
+    userId: string,
+    imageUrl: string
+  ): Promise<IUser | null> {
+    return this.update(userId, { profilePicture: imageUrl });
+  }
+  // *
+  async updateUserProfile(
+    userId: string,
+    data: Partial<IUser>
+  ): Promise<IUser | null> {
+    return this.findOneAndUpdate({ _id: userId }, data);
+  }
+  // *
+  async deleteProfileImage(userId: string): Promise<boolean> {
+    const result = await this.model.findByIdAndUpdate(userId, {
+      profilePicture: null,
+    });
+    return result !== null;
+  }
+  async isUsernameTaken(
+    username: string,
+    excludeUserId?: string
+  ): Promise<boolean> {
+    const existingUser = await this.model.findOne({
+      username,
+      _id: { $ne: excludeUserId },
+    });
+    return !!existingUser;
   }
   async updateSkillUser(userId: string, skillId: string): Promise<void> {
     await this.update(userId, {
@@ -94,12 +144,19 @@ export class UserRepository
     newPassword: string
   ): Promise<boolean> {
     const user = await this.model.findById(userId).select("+password");
-    if (!user) throw new Error("User not found");
-    if (!user.password)
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (!user.password) {
       throw new Error("Google users can't change their password");
+    }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) throw new Error("Current password is incorrect");
+    if (!isMatch) {
+      throw new Error("Current password is incorrect");
+    }
 
     user.password = newPassword;
     await user.save();
@@ -142,43 +199,10 @@ export class UserRepository
     return user as (IUser & { appliedJobs: IJob[] }) | null;
   }
 
-  // Profile Related Methods
-  async getUserProfile(userId: string): Promise<IUser | null> {
-    return this.findById(userId);
-  }
-
-  async getUserProfileWithDetails(userId: string): Promise<IUser | null> {
-    return this.model
-      .findById(userId)
-      .populate("educations")
-      .populate("experiences")
-      .populate("projects")
-      .populate("certificates");
-  }
-
-  async updateProfileImage(
-    userId: string,
-    imageUrl: string
-  ): Promise<IUser | null> {
-    return this.update(userId, { profilePicture: imageUrl });
-  }
-  async updateUserProfile(
-    userId: string,
-    data: Partial<IUser>
-  ): Promise<IUser | null> {
-    return this.findOneAndUpdate({ _id: userId }, data);
-  }
-  async deleteProfileImage(userId: string): Promise<boolean> {
-    const result = await this.model.findByIdAndUpdate(userId, {
-      profilePicture: null,
-    });
-    return result !== null;
-  }
-
   // Education Methods
   async addEducation(
     userId: string,
-    education: IUserEducation
+    education: CreateEducationInputDTO
   ): Promise<IUserEducation> {
     const newEducation = await userEducationModel.create({
       ...education,
@@ -194,7 +218,7 @@ export class UserRepository
 
   async updateEducation(
     educationId: string,
-    data: Partial<IUserEducation>
+    data: Partial<CreateEducationInputDTO>
   ): Promise<IUserEducation | null> {
     return userEducationModel.findByIdAndUpdate(educationId, data, {
       new: true,
@@ -216,7 +240,7 @@ export class UserRepository
   // Experience Methods
   async addExperience(
     userId: string,
-    experience: IUserExperience
+    experience: CreateExperienceInputDTO
   ): Promise<IUserExperience> {
     const newExperience = await userExperienceModel.create({
       ...experience,
@@ -232,7 +256,7 @@ export class UserRepository
 
   async updateExperience(
     experienceId: string,
-    data: Partial<IUserExperience>
+    data: Partial<CreateExperienceInputDTO>
   ): Promise<IUserExperience | null> {
     return userExperienceModel.findByIdAndUpdate(experienceId, data, {
       new: true,
@@ -257,7 +281,7 @@ export class UserRepository
   // Project Methods
   async addProject(
     userId: string,
-    project: IUserProject
+    project: CreateProjectInputDTO
   ): Promise<IUserProject> {
     const newProject = await userProjectModel.create({ ...project, userId });
     await this.model.findByIdAndUpdate(
@@ -270,7 +294,7 @@ export class UserRepository
 
   async updateProject(
     projectId: string,
-    data: Partial<IUserProject>
+    data: Partial<CreateProjectInputDTO>
   ): Promise<IUserProject | null> {
     return userProjectModel.findByIdAndUpdate(projectId, data, { new: true });
   }
@@ -290,7 +314,7 @@ export class UserRepository
   // Certificate Methods
   async addCertificate(
     userId: string,
-    certificate: IUserCertificate
+    certificate: CreateCertificateInputDTO
   ): Promise<IUserCertificate> {
     const newCertificate = await userCertificateModel.create({
       ...certificate,
@@ -306,7 +330,7 @@ export class UserRepository
 
   async updateCertificate(
     certificateId: string,
-    data: Partial<IUserCertificate>
+    data: Partial<CreateCertificateInputDTO>
   ): Promise<IUserCertificate | null> {
     return userCertificateModel.findByIdAndUpdate(certificateId, data, {
       new: true,
@@ -349,17 +373,6 @@ export class UserRepository
   async searchUsers(query: string, limit = 10): Promise<IUser[]> {
     const regex = new RegExp(`^${query}`, "i");
     return this.model.find({ name: regex }).limit(limit);
-  }
-
-  async isUsernameTaken(
-    username: string,
-    excludeUserId?: string
-  ): Promise<boolean> {
-    const existingUser = await this.model.findOne({
-      username,
-      _id: { $ne: excludeUserId },
-    });
-    return !!existingUser;
   }
 
   // Skill Methods

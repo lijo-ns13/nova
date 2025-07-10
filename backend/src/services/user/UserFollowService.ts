@@ -4,11 +4,16 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 
-import { IUser } from "../../models/user.modal";
 import { IUserFollowService } from "../../interfaces/services/IUserFollowService";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { NotificationType } from "../../models/notification.modal";
 import { IUserWithStatus } from "../../repositories/mongo/UserRepository";
+import {
+  FollowResultDTO,
+  NetworkUserDTO,
+  UserFollowMapper,
+  UserWithStatusDTO,
+} from "../../mapping/user/UserFollowMapper";
 
 @injectable()
 export class UserFollowService implements IUserFollowService {
@@ -16,24 +21,23 @@ export class UserFollowService implements IUserFollowService {
     @inject(TYPES.UserRepository)
     private userRepository: IUserRepository,
     @inject(TYPES.NotificationService)
-    private notificationService: INotificationService,
-    @inject(TYPES.UserRepository) private _userRepo: IUserRepository
+    private notificationService: INotificationService
   ) {}
 
   async followUser(
     followerId: string,
     followingId: string
-  ): Promise<{ success: boolean; message: string }> {
+  ): Promise<FollowResultDTO> {
     if (followerId === followingId) {
-      return { success: false, message: "You cannot follow yourself" };
+      throw new Error("You cannot follow yourself");
     }
 
-    const isAlreadyFollowing = await this.userRepository.isFollowing(
+    const alreadyFollowing = await this.userRepository.isFollowing(
       followerId,
       followingId
     );
-    if (isAlreadyFollowing) {
-      return { success: false, message: "You are already following this user" };
+    if (alreadyFollowing) {
+      throw new Error("You are already following this user");
     }
 
     const { follower, following } = await this.userRepository.followUser(
@@ -42,24 +46,28 @@ export class UserFollowService implements IUserFollowService {
     );
 
     if (!follower || !following) {
-      return { success: false, message: "Failed to follow user" };
+      throw new Error("Failed to follow user");
     }
-    const userData = await this._userRepo.findById(followerId);
-    await this.notificationService.sendNotification(
-      followingId,
-      `${userData?.name} followed you`,
-      NotificationType.FOLLOW,
-      followerId.toString()
-    );
-    return { success: true, message: "Successfully followed user" };
+
+    const followerUser = await this.userRepository.findById(followerId);
+    if (followerUser) {
+      await this.notificationService.sendNotification(
+        followingId,
+        `${followerUser.name} followed you`,
+        NotificationType.FOLLOW,
+        followerId
+      );
+    }
+
+    return { message: "Successfully followed user" };
   }
 
   async unfollowUser(
     followerId: string,
     followingId: string
-  ): Promise<{ success: boolean; message: string }> {
+  ): Promise<FollowResultDTO> {
     if (followerId === followingId) {
-      return { success: false, message: "You cannot unfollow yourself" };
+      throw new Error("You cannot unfollow yourself");
     }
 
     const isFollowing = await this.userRepository.isFollowing(
@@ -67,7 +75,7 @@ export class UserFollowService implements IUserFollowService {
       followingId
     );
     if (!isFollowing) {
-      return { success: false, message: "You are not following this user" };
+      throw new Error("You are not following this user");
     }
 
     const { follower, following } = await this.userRepository.unfollowUser(
@@ -76,63 +84,56 @@ export class UserFollowService implements IUserFollowService {
     );
 
     if (!follower || !following) {
-      return { success: false, message: "Failed to unfollow user" };
+      throw new Error("Failed to unfollow user");
     }
 
-    return { success: true, message: "Successfully unfollowed user" };
+    return { message: "Successfully unfollowed user" };
   }
 
   async getFollowers(
     targetUserId: string,
     currentUserId: string
-  ): Promise<IUserWithStatus[]> {
-    return this.userRepository.getFollowersWithFollowingStatus(
-      targetUserId,
-      currentUserId
-    );
+  ): Promise<UserWithStatusDTO[]> {
+    const followers: IUserWithStatus[] =
+      await this.userRepository.getFollowersWithFollowingStatus(
+        targetUserId,
+        currentUserId
+      );
+    return followers.map(UserFollowMapper.toUserWithStatusDTO);
   }
 
   async getFollowing(
     targetUserId: string,
     currentUserId: string
-  ): Promise<IUserWithStatus[]> {
-    return this.userRepository.getFollowingWithFollowingStatus(
-      targetUserId,
-      currentUserId
-    );
+  ): Promise<UserWithStatusDTO[]> {
+    const following: IUserWithStatus[] =
+      await this.userRepository.getFollowingWithFollowingStatus(
+        targetUserId,
+        currentUserId
+      );
+    return following.map(UserFollowMapper.toUserWithStatusDTO);
   }
 
   async isFollowing(followerId: string, followingId: string): Promise<boolean> {
     return this.userRepository.isFollowing(followerId, followingId);
   }
-  // Add to your UserFollowService class
-  async getNetworkUsers(currentUserId: string): Promise<
-    {
-      user: IUser;
-      isFollowing: boolean;
-    }[]
-  > {
-    // Get all users except the current user
-    const allUsers = await this.userRepository.getAllUsersExcept(currentUserId);
 
-    // Get users the current user is following
+  async getNetworkUsers(currentUserId: string): Promise<NetworkUserDTO[]> {
+    const allUsers = await this.userRepository.getAllUsersExcept(currentUserId);
     const followingUsers = await this.userRepository.getFollowing(
       currentUserId
     );
     const followingIds = new Set(followingUsers.map((u) => u._id.toString()));
 
-    // Create the result array with follow status
-    const result = allUsers.map((user) => ({
-      user,
-      isFollowing: followingIds.has(user._id.toString()),
-    }));
-
-    // Sort to show non-followed users first
-    result.sort((a, b) => {
-      if (a.isFollowing === b.isFollowing) return 0;
-      return a.isFollowing ? 1 : -1;
-    });
-
-    return result;
+    return allUsers
+      .map((user) =>
+        UserFollowMapper.toNetworkUserDTO(
+          user,
+          followingIds.has(user._id.toString())
+        )
+      )
+      .sort((a, b) =>
+        a.isFollowing === b.isFollowing ? 0 : a.isFollowing ? 1 : -1
+      );
   }
 }

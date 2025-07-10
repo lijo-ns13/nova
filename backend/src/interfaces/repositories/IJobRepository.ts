@@ -1,4 +1,5 @@
 import { IJobWithSkills } from "../../mapping/job.mapper";
+import { IJobPopulated } from "../../mapping/user/jobmapper";
 import { IApplication } from "../../models/application.modal";
 import { IJob } from "../../models/job.modal";
 import { PopulatedApplicationWithUserAndResume } from "../../repositories/mongo/JobRepository";
@@ -71,10 +72,10 @@ export interface IJobRepository extends IBaseRepository<IJob> {
   ): Promise<{ jobs: IJobWithSkills[]; total: number }>;
   getJob(jobId: string): Promise<IJobWithSkills | null>;
   getAllJobs(
-    page?: number,
-    limit?: number,
-    filters?: JobFilters
-  ): Promise<PaginatedJobResult>;
+    page: number,
+    limit: number,
+    filters: Record<string, unknown>
+  ): Promise<{ jobs: IJobPopulated[]; total: number; totalPages: number }>;
   applyToJob(
     jobId: string,
     userId: string,

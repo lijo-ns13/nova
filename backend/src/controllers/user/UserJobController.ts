@@ -5,8 +5,10 @@ import { TYPES } from "../../di/types";
 import { inject, injectable } from "inversify";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { IUserJobController } from "../../interfaces/controllers/IUserJobController";
+import { handleControllerError } from "../../utils/errorHandler";
+import { GetAllJobsQuerySchema } from "../../core/validations/user/user.jobschema";
 
-interface Userr {
+interface UserPayload {
   id: string;
   email: string;
   role: string;
@@ -19,62 +21,60 @@ export class UserJobController implements IUserJobController {
   ) {}
   getAllJobs: RequestHandler = async (req: Request, res: Response) => {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
+      const query = GetAllJobsQuerySchema.parse(req.query);
 
-      // Extract filters from query params
-      const filters: Record<string, any> = {};
-
-      if (req.query.title) filters.title = req.query.title;
-      if (req.query.location) filters.location = req.query.location;
-      if (req.query.jobType) filters.jobType = req.query.jobType;
-      if (req.query.employmentType)
-        filters.employmentType = req.query.employmentType;
-      if (req.query.experienceLevel)
-        filters.experienceLevel = req.query.experienceLevel;
-      if (req.query.skills)
-        filters.skills = Array.isArray(req.query.skills)
-          ? req.query.skills
-          : [req.query.skills];
-      if (req.query.minSalary) filters.minSalary = req.query.minSalary;
-      if (req.query.maxSalary) filters.maxSalary = req.query.maxSalary;
-      if (req.query.company) filters.company = req.query.company;
-
-      const result = await this.jobService.getAllJobs(page, limit, filters);
+      const result = await this.jobService.getAllJobs(query);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
+        message: "Jobs fetched successfully",
         data: result.jobs,
         pagination: {
-          page,
-          limit,
+          page: query.page,
+          limit: query.limit,
           total: result.total,
           totalPages: result.totalPages,
         },
       });
     } catch (error) {
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: (error as Error).message,
-      });
+      handleControllerError(error, res, "UserJobController.getAllJobs");
     }
   };
+
+  getAppliedJobs: RequestHandler = async (req: Request, res: Response) => {
+    try {
+      const user = req.user as UserPayload;
+      const data = await this.jobService.getAppliedJobs(user.id);
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Applied jobs fetched successfully",
+        data,
+      });
+    } catch (error) {
+      handleControllerError(error, res, "UserJobController.getAppliedJobs");
+    }
+  };
+
   getJob: RequestHandler = async (req: Request, res: Response) => {
     try {
       const { jobId } = req.params;
+
       const job = await this.jobService.getJob(jobId);
-      console.log("jobs", job);
-      res.status(HTTP_STATUS_CODES.OK).json(job);
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Job fetched successfully",
+        data: job,
+      });
     } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
+      handleControllerError(error, res, "UserJobController.getJob");
     }
   };
   applyToJob: RequestHandler = async (req: Request, res: Response) => {
     try {
       const { jobId } = req.params;
-      const userId = (req.user as Userr)?.id;
+      const userId = (req.user as UserPayload)?.id;
       const resumeFile = req.file as Express.Multer.File; // Changed from resumeUrl to file
 
       if (!userId) {
@@ -120,74 +120,14 @@ export class UserJobController implements IUserJobController {
       });
     }
   };
-  getSavedJobs: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const user = req.user as Userr;
-      if (!user) {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, messge: "user id is not ofund" });
-        return;
-      }
-      const savedJobs = await this.jobService.getSavedJobs(user.id);
-      console.log("savedJobs", savedJobs);
-      res.status(HTTP_STATUS_CODES.OK).json(savedJobs);
-    } catch (error) {
-      console.log("errror in savedjbos get", error);
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
-    }
-  };
 
-  getAppliedJobs: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const user = req.user as Userr;
-      const appliedJobs = await this.jobService.getAppliedJobs(user.id);
-      res.status(HTTP_STATUS_CODES.OK).json(appliedJobs);
-    } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
-    }
-  };
-
-  saveJob: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const { jobId } = req.params;
-      const user = req.user as Userr;
-      await this.jobService.addToSavedJobs(user.id, jobId);
-      res
-        .status(HTTP_STATUS_CODES.OK)
-        .json({ message: "Job saved successfully" });
-    } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
-    }
-  };
-
-  unsaveJob: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const { jobId } = req.params;
-      const user = req.user as Userr;
-      await this.jobService.removeFromSavedJobs(user.id, jobId);
-      res
-        .status(HTTP_STATUS_CODES.OK)
-        .json({ message: "Job removed from saved jobs" });
-    } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
-    }
-  };
   checkApplicationStatus: RequestHandler = async (
     req: Request,
     res: Response
   ) => {
     try {
       const { jobId } = req.params;
-      const userId = (req.user as Userr)?.id;
+      const userId = (req.user as UserPayload)?.id;
 
       if (!userId) {
         res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
@@ -208,6 +148,55 @@ export class UserJobController implements IUserJobController {
         success: false,
         message: (error as Error).message,
       });
+    }
+  };
+  // ****
+  saveJob: RequestHandler = async (req: Request, res: Response) => {
+    try {
+      const { jobId } = req.params;
+      const user = req.user as UserPayload;
+      await this.jobService.addToSavedJobs(user.id, jobId);
+      res
+        .status(HTTP_STATUS_CODES.OK)
+        .json({ message: "Job saved successfully" });
+    } catch (error) {
+      res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .json({ message: (error as Error).message });
+    }
+  };
+
+  unsaveJob: RequestHandler = async (req: Request, res: Response) => {
+    try {
+      const { jobId } = req.params;
+      const user = req.user as UserPayload;
+      await this.jobService.removeFromSavedJobs(user.id, jobId);
+      res
+        .status(HTTP_STATUS_CODES.OK)
+        .json({ message: "Job removed from saved jobs" });
+    } catch (error) {
+      res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .json({ message: (error as Error).message });
+    }
+  };
+  getSavedJobs: RequestHandler = async (req: Request, res: Response) => {
+    try {
+      const user = req.user as UserPayload;
+      if (!user) {
+        res
+          .status(HTTP_STATUS_CODES.BAD_REQUEST)
+          .json({ success: false, messge: "user id is not ofund" });
+        return;
+      }
+      const savedJobs = await this.jobService.getSavedJobs(user.id);
+      console.log("savedJobs", savedJobs);
+      res.status(HTTP_STATUS_CODES.OK).json(savedJobs);
+    } catch (error) {
+      console.log("errror in savedjbos get", error);
+      res
+        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+        .json({ message: (error as Error).message });
     }
   };
 }
