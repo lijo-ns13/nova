@@ -23,7 +23,7 @@ export class PostController implements IPostController {
     @inject(TYPES.CommentService) private _commentService: ICommentService
   ) {}
 
-  public async create(req: Request, res: Response) {
+  async create(req: Request, res: Response) {
     try {
       const { description } = req.body;
       console.log("req.body in post contorler", req.body);

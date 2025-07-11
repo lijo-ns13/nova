@@ -1,5 +1,5 @@
 // models/notification.model.ts
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 export enum NotificationType {
   JOB = "job",
@@ -12,6 +12,7 @@ export enum NotificationType {
 }
 
 export interface INotification extends Document {
+  _id: Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   senderId: mongoose.Types.ObjectId;
   content: string;

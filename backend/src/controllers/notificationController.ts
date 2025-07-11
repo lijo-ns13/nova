@@ -5,7 +5,8 @@ import { TYPES } from "../di/types";
 import { INotificationController } from "../interfaces/controllers/INotificationController";
 import { INotificationService } from "../interfaces/services/INotificationService";
 import { HTTP_STATUS_CODES } from "../core/enums/httpStatusCode";
-interface Userr {
+import { handleControllerError } from "../utils/errorHandler";
+interface UserPayload {
   id: string;
   email: string;
   role: string;
@@ -19,24 +20,25 @@ export class NotificationController implements INotificationController {
 
   async getNotifications(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as Userr)?.id;
+      const userId = (req.user as UserPayload)?.id;
       if (!userId) {
-        res
-          .status(HTTP_STATUS_CODES.UNAUTHORIZED)
-          .json({ success: false, message: "Unauthorized" });
+        res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
+          success: false,
+          message: "Unauthorized",
+        });
         return;
       }
 
-      const { limit = 20, page = 1 } = req.query;
-      const skip = (Number(page) - 1) * Number(limit);
+      const limit = Number(req.query.limit) || 20;
+      const page = Number(req.query.page) || 1;
+      const skip = (page - 1) * limit;
 
       const { notifications, total } =
         await this.notificationService.getUserNotifications(
           userId,
-          Number(limit),
+          limit,
           skip
         );
-
       const unreadCount = await this.notificationService.getUnreadCount(userId);
 
       res.status(HTTP_STATUS_CODES.OK).json({
@@ -45,27 +47,29 @@ export class NotificationController implements INotificationController {
           notifications,
           total,
           unreadCount,
-          currentPage: Number(page),
-          totalPages: Math.ceil(total / Number(limit)),
+          currentPage: page,
+          totalPages: Math.ceil(total / limit),
         },
       });
     } catch (error) {
-      console.error("Error getting notifications:", error);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Internal server error",
-      });
+      handleControllerError(
+        error,
+        res,
+        "NotificationController.getNotifications"
+      );
     }
   }
 
   async markNotificationAsRead(req: Request, res: Response): Promise<void> {
     try {
+      const userId = (req.user as UserPayload)?.id;
       const { notificationId } = req.params;
-      const userId = (req.user as Userr)?.id;
+
       if (!userId) {
-        res
-          .status(HTTP_STATUS_CODES.UNAUTHORIZED)
-          .json({ success: false, message: "Unauthorized" });
+        res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
+          success: false,
+          message: "Unauthorized",
+        });
         return;
       }
 
@@ -84,25 +88,28 @@ export class NotificationController implements INotificationController {
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        notification,
-        unreadCount,
+        data: {
+          notification,
+          unreadCount,
+        },
       });
     } catch (error) {
-      console.error("Error marking notification as read:", error);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Internal server error",
-      });
+      handleControllerError(
+        error,
+        res,
+        "NotificationController.markNotificationAsRead"
+      );
     }
   }
 
   async markAllNotificationsAsRead(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as Userr)?.id;
+      const userId = (req.user as UserPayload)?.id;
       if (!userId) {
-        res
-          .status(HTTP_STATUS_CODES.UNAUTHORIZED)
-          .json({ success: false, message: "Unauthorized" });
+        res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
+          success: false,
+          message: "Unauthorized",
+        });
         return;
       }
 
@@ -111,47 +118,55 @@ export class NotificationController implements INotificationController {
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        updatedCount,
-        unreadCount,
+        data: {
+          updatedCount,
+          unreadCount,
+        },
       });
     } catch (error) {
-      console.error("Error marking all notifications as read:", error);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Internal server error",
-      });
+      handleControllerError(
+        error,
+        res,
+        "NotificationController.markAllNotificationsAsRead"
+      );
     }
   }
 
   async getUnreadCount(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as Userr)?.id;
+      const userId = (req.user as UserPayload)?.id;
       if (!userId) {
-        res
-          .status(HTTP_STATUS_CODES.UNAUTHORIZED)
-          .json({ success: false, message: "Unauthorized" });
+        res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
+          success: false,
+          message: "Unauthorized",
+        });
         return;
       }
 
       const count = await this.notificationService.getUnreadCount(userId);
-      res.status(HTTP_STATUS_CODES.OK).json({ success: true, count });
-    } catch (error) {
-      console.error("Error getting unread count:", error);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Internal server error",
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        data: { count },
       });
+    } catch (error) {
+      handleControllerError(
+        error,
+        res,
+        "NotificationController.getUnreadCount"
+      );
     }
   }
 
   async deleteNotification(req: Request, res: Response): Promise<void> {
     try {
+      const userId = (req.user as UserPayload)?.id;
       const { notificationId } = req.params;
-      const userId = (req.user as Userr)?.id;
+
       if (!userId) {
-        res
-          .status(HTTP_STATUS_CODES.UNAUTHORIZED)
-          .json({ success: false, message: "Unauthorized" });
+        res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
+          success: false,
+          message: "Unauthorized",
+        });
         return;
       }
 
@@ -168,39 +183,42 @@ export class NotificationController implements INotificationController {
       }
 
       const unreadCount = await this.notificationService.getUnreadCount(userId);
-
-      res.status(HTTP_STATUS_CODES.OK).json({ success: true, unreadCount });
-    } catch (error) {
-      console.error("Error deleting notification:", error);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Internal server error",
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        data: { unreadCount },
       });
+    } catch (error) {
+      handleControllerError(
+        error,
+        res,
+        "NotificationController.deleteNotification"
+      );
     }
   }
+
   async deleteAllNotifications(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as Userr)?.id;
+      const userId = (req.user as UserPayload)?.id;
       if (!userId) {
-        res
-          .status(HTTP_STATUS_CODES.UNAUTHORIZED)
-          .json({ success: false, message: "Unauthorized" });
+        res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
+          success: false,
+          message: "Unauthorized",
+        });
         return;
       }
 
       const deletedCount =
         await this.notificationService.deleteAllNotifications(userId);
-
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: `${deletedCount} notifications deleted`,
       });
     } catch (error) {
-      console.error("Error deleting all notifications:", error);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: "Internal server error",
-      });
+      handleControllerError(
+        error,
+        res,
+        "NotificationController.deleteAllNotifications"
+      );
     }
   }
 }

@@ -7,6 +7,8 @@ import { INotificationRepository } from "../interfaces/repositories/INotificatio
 import { INotification, NotificationType } from "../models/notification.modal";
 
 import { getUserByIdAcrossCollections } from "../utils/getUserSocketData";
+import { NotificationMapper } from "../mapping/notificationmapper";
+import { NotificationResponseDTO } from "../core/dtos/response/notification.response.dto";
 @injectable()
 export class NotificationService implements INotificationService {
   private io?: Server;
@@ -19,7 +21,7 @@ export class NotificationService implements INotificationService {
   }
   private async sendRealTimeNotification(
     userId: string,
-    notification: INotification
+    notification: NotificationResponseDTO
   ) {
     if (!this.io) {
       console.log(
@@ -44,7 +46,7 @@ export class NotificationService implements INotificationService {
     type: NotificationType,
     senderId?: string,
     relatedId?: string
-  ): Promise<INotification> {
+  ): Promise<NotificationResponseDTO> {
     const notification = await this.notificationRepository.createNotification(
       userId,
       content,
@@ -53,8 +55,9 @@ export class NotificationService implements INotificationService {
       relatedId
     );
 
-    await this.sendRealTimeNotification(userId, notification);
-    return notification;
+    const dto = NotificationMapper.toDTO(notification);
+    await this.sendRealTimeNotification(userId, dto);
+    return dto;
   }
 
   async sendNotification(
@@ -62,24 +65,34 @@ export class NotificationService implements INotificationService {
     content: string,
     type: NotificationType,
     senderId?: string
-  ): Promise<INotification> {
-    return this.createNotification(userId, content, type, senderId, undefined);
+  ): Promise<NotificationResponseDTO> {
+    return this.createNotification(userId, content, type, senderId);
   }
 
   async getUserNotifications(
     userId: string,
-    limit?: number,
-    skip?: number
-  ): Promise<{ notifications: INotification[]; total: number }> {
-    return this.notificationRepository.getUserNotifications(
-      userId,
-      limit,
-      skip
-    );
-  }
+    limit = 20,
+    skip = 0
+  ): Promise<{ notifications: NotificationResponseDTO[]; total: number }> {
+    const { notifications, total } =
+      await this.notificationRepository.getUserNotifications(
+        userId,
+        limit,
+        skip
+      );
 
-  async markAsRead(notificationId: string): Promise<INotification | null> {
-    return this.notificationRepository.markAsRead(notificationId);
+    return {
+      notifications: NotificationMapper.toDTOs(notifications),
+      total,
+    };
+  }
+  async markAsRead(
+    notificationId: string
+  ): Promise<NotificationResponseDTO | null> {
+    const notification = await this.notificationRepository.markAsRead(
+      notificationId
+    );
+    return notification ? NotificationMapper.toDTO(notification) : null;
   }
 
   async markAllAsRead(userId: string): Promise<number> {
@@ -99,6 +112,7 @@ export class NotificationService implements INotificationService {
       userId
     );
   }
+
   async deleteAllNotifications(userId: string): Promise<number> {
     return this.notificationRepository.deleteAllNotifications(userId);
   }

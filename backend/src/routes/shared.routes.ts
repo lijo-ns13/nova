@@ -5,13 +5,11 @@ import messageRoutes from "./common/messages.routes";
 import messageModal from "../models/message.modal";
 import notificationRouter from "./notification.routes";
 import cloudinaryRouter from "./common/cloudinary.routes";
-import mediaRouter from "./common/media.routes";
 
 import userModal from "../models/user.modal";
 import mongoose from "mongoose";
 const router = Router();
 
-router.use("/media", mediaRouter);
 router.use("/skill", skillRouter);
 router.use("/api", ProfileViewRouter);
 router.use("/api/messages", messageRoutes);

@@ -1,12 +1,4 @@
-// src/core/interfaces/services/IUserProfileService.ts
-
-import { IUser } from "../../models/user.modal";
-import { IUserEducation } from "../../models/userEducation.model";
-import { IUserExperience } from "../../models/userExperience.model";
-import { IUserProject } from "../../models/userProject.model";
-import { IUserCertificate } from "../../models/userCertificate.model";
 import { UpdateUserProfileInputDTO } from "../../core/dtos/user/userprofile";
-import { GetUserProfileResponseDTO } from "../../mapping/user/userprofile.mapper";
 import {
   CreateEducationInputDTO,
   EducationResponseDTO,
@@ -23,6 +15,7 @@ import {
   CertificateResponseDTO,
   CreateCertificateInputDTO,
 } from "../../core/dtos/user/certificate.dto";
+import { GetUserProfileResponseDTO } from "../../core/dtos/user/getuserresponse.dto";
 
 export interface IUserProfileService {
   getUserProfile(userId: string): Promise<GetUserProfileResponseDTO>;
@@ -31,13 +24,9 @@ export interface IUserProfileService {
     userId: string,
     data: UpdateUserProfileInputDTO
   ): Promise<GetUserProfileResponseDTO>;
+  updateProfileImage(userId: string, s3Key: string): Promise<string>;
 
-  updateProfileImage(
-    userId: string,
-    imageUrl: string
-  ): Promise<GetUserProfileResponseDTO>;
-
-  deleteProfileImage(userId: string): Promise<void>;
+  deleteProfileImage(userId: string): Promise<boolean>;
   // Add education
   addEducation(
     userId: string,

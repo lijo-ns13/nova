@@ -1,17 +1,9 @@
 import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { TYPES } from "../../di/types";
-import { IUser } from "../../models/user.modal";
-import { IUserEducation } from "../../models/userEducation.model";
-import { IUserExperience } from "../../models/userExperience.model";
-import { IUserProject } from "../../models/userProject.model";
-import { IUserCertificate } from "../../models/userCertificate.model";
 import { IUserProfileService } from "../../interfaces/services/IUserProfileService";
 import { UpdateUserProfileInputDTO } from "../../core/dtos/user/userprofile";
-import {
-  GetUserProfileResponseDTO,
-  UserProfileMapper,
-} from "../../mapping/user/userprofile.mapper";
+
 import { EducationMapper } from "../../mapping/user/education.mapper";
 import {
   CreateEducationInputDTO,
@@ -27,23 +19,28 @@ import {
   ProjectResponseDTO,
 } from "../../core/dtos/user/userproject";
 import { ProjectMapper } from "../../mapping/user/projectmapper";
-import { JobMapper } from "../../mapping/job.mapper";
 import {
   CertificateResponseDTO,
   CreateCertificateInputDTO,
 } from "../../core/dtos/user/certificate.dto";
 import { CertificateMapper } from "../../mapping/user/certificate.mapper";
+import { IMediaService } from "../../interfaces/services/Post/IMediaService";
+import { UserProfileMapper } from "../../mapping/user/userprofilemapper";
+import { GetUserProfileResponseDTO } from "../../core/dtos/user/getuserresponse.dto";
 
 @injectable()
 export class UserProfileService implements IUserProfileService {
   constructor(
     @inject(TYPES.UserRepository)
-    private _userRepository: IUserRepository
+    private _userRepository: IUserRepository,
+    @inject(TYPES.MediaService) private _mediaService: IMediaService
   ) {}
   async getUserProfile(userId: string): Promise<GetUserProfileResponseDTO> {
     const user = await this._userRepository.getUserProfile(userId);
-    if (!user) throw new Error("User not found");
-    return UserProfileMapper.toProfileDTO(user);
+    if (!user) throw new Error("user not found");
+    const s3Key = user && user.profilePicture ? user.profilePicture : "";
+    const signedUrl = await this._mediaService.getMediaUrl(s3Key);
+    return UserProfileMapper.toProfileDTO(user, signedUrl);
   }
 
   async updateUserProfile(
@@ -51,39 +48,43 @@ export class UserProfileService implements IUserProfileService {
     data: UpdateUserProfileInputDTO
   ): Promise<GetUserProfileResponseDTO> {
     if (data.username) {
-      const newUsername = data.username.trim().toLowerCase();
-
-      const isTaken = await this._userRepository.isUsernameTaken(
-        newUsername,
+      const username = data.username.trim().toLowerCase();
+      const taken = await this._userRepository.isUsernameTaken(
+        username,
         userId
       );
-      if (isTaken) {
-        throw new Error("Username already exists, try another one.");
-      }
-
-      data.username = newUsername;
+      if (taken)
+        throw new Error("This username is already taken, try another one.");
+      data.username = username;
     }
 
-    const updatedUser = await this._userRepository.updateUserProfile(
-      userId,
-      data
-    );
-    if (!updatedUser) throw new Error("User update failed");
-    return UserProfileMapper.toProfileDTO(updatedUser);
+    const updated = await this._userRepository.updateUserProfile(userId, data);
+    if (!updated) throw new Error("User profile update failed.");
+
+    // Resolve signed URL for profile picture
+    const s3Key = updated.profilePicture ?? "";
+    const signedUrl = s3Key
+      ? await this._mediaService.getMediaUrl(s3Key)
+      : null;
+
+    return UserProfileMapper.toProfileDTO(updated, signedUrl ?? undefined);
   }
 
-  async updateProfileImage(userId: string, imageUrl: string) {
-    const updated = await this._userRepository.updateProfileImage(
-      userId,
-      imageUrl
-    );
+  async updateProfileImage(userId: string, s3Key: string): Promise<string> {
+    const updated = await this._userRepository.update(userId, {
+      profilePicture: s3Key,
+    });
     if (!updated) throw new Error("Failed to update profile image");
-    return UserProfileMapper.toProfileDTO(updated);
+    const signedUrl = await this._mediaService.getMediaUrl(s3Key);
+    return signedUrl;
   }
 
-  async deleteProfileImage(userId: string): Promise<void> {
-    const deleted = await this._userRepository.deleteProfileImage(userId);
-    if (!deleted) throw new Error("Failed to delete profile image");
+  async deleteProfileImage(userId: string): Promise<boolean> {
+    const deleted = await this._userRepository.update(userId, {
+      profilePicture: "",
+    });
+    if (!deleted) throw new Error("failed to delete profilepicture");
+    return !!deleted;
   }
 
   async addEducation(

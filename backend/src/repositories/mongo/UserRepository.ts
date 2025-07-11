@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import { Model, Types } from "mongoose";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
-import { IUser } from "../../models/user.modal";
+import userModal, { IUser } from "../../models/user.modal";
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";
 import bcrypt from "bcryptjs";
@@ -21,6 +21,7 @@ import { CreateEducationInputDTO } from "../../core/dtos/user/UserEducation.dto"
 import { CreateExperienceInputDTO } from "../../core/dtos/user/userExperience";
 import { CreateProjectInputDTO } from "../../core/dtos/user/userproject";
 import { CreateCertificateInputDTO } from "../../core/dtos/user/certificate.dto";
+import { UpdateUserProfileInputDTO } from "../../core/dtos/user/getuserresponse.dto";
 export interface IUserWithStatus {
   user: {
     _id: Types.ObjectId;
@@ -39,6 +40,29 @@ export class UserRepository
 {
   constructor(@inject(TYPES.UserModal) private userModel: Model<IUser>) {
     super(userModel);
+  }
+
+  async updateUserProfile(
+    userId: string,
+    data: UpdateUserProfileInputDTO
+  ): Promise<IUser | null> {
+    return await userModal
+      .findByIdAndUpdate(userId, data, { new: true })
+      .lean();
+  }
+
+  async isUsernameTaken(
+    username: string,
+    excludeUserId: string
+  ): Promise<boolean> {
+    const user = await userModal
+      .findOne({
+        username,
+        _id: { $ne: excludeUserId },
+      })
+      .lean();
+
+    return !!user;
   }
   // *
   // Profile Related Methods
@@ -62,12 +86,12 @@ export class UserRepository
     return this.update(userId, { profilePicture: imageUrl });
   }
   // *
-  async updateUserProfile(
-    userId: string,
-    data: Partial<IUser>
-  ): Promise<IUser | null> {
-    return this.findOneAndUpdate({ _id: userId }, data);
-  }
+  // async updateUserProfile(
+  //   userId: string,
+  //   data: Partial<IUser>
+  // ): Promise<IUser | null> {
+  //   return this.findOneAndUpdate({ _id: userId }, data);
+  // }
   // *
   async deleteProfileImage(userId: string): Promise<boolean> {
     const result = await this.model.findByIdAndUpdate(userId, {
@@ -75,16 +99,16 @@ export class UserRepository
     });
     return result !== null;
   }
-  async isUsernameTaken(
-    username: string,
-    excludeUserId?: string
-  ): Promise<boolean> {
-    const existingUser = await this.model.findOne({
-      username,
-      _id: { $ne: excludeUserId },
-    });
-    return !!existingUser;
-  }
+  // async isUsernameTaken(
+  //   username: string,
+  //   excludeUserId?: string
+  // ): Promise<boolean> {
+  //   const existingUser = await this.model.findOne({
+  //     username,
+  //     _id: { $ne: excludeUserId },
+  //   });
+  //   return !!existingUser;
+  // }
   async updateSkillUser(userId: string, skillId: string): Promise<void> {
     await this.update(userId, {
       $pull: {

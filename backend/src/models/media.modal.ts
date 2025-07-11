@@ -6,6 +6,8 @@ export interface IMedia extends Document {
   mimeType: "image/jpeg" | "image/png" | "video/mp4";
   ownerId: Types.ObjectId;
   ownerModel: "User" | "Company";
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const MediaSchema = new Schema<IMedia>(

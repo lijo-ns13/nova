@@ -85,6 +85,55 @@ export class MediaService implements IMediaService {
       throw new Error(`Media upload failed:${err.message} `);
     }
   }
+  async uploadSingleMedia(
+    file: Express.Multer.File,
+    ownerId: string,
+    ownerModel: string
+  ): Promise<string> {
+    try {
+      // Validate file type
+      if (!this.ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+        throw new Error(`Unsupported file type: ${file.mimetype}`);
+      }
+
+      // Validate file size
+      if (file.size > this.MAX_FILE_SIZE) {
+        throw new Error(
+          `File too large: ${file.originalname} (Max ${
+            this.MAX_FILE_SIZE / 1024 / 1024
+          }MB)`
+        );
+      }
+
+      // Generate S3 key
+      const fileKey = `media/${uuidv4()}-${file.originalname}`;
+
+      // Upload to S3
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: process.env.S3_BUCKET_NAME!,
+          Key: fileKey,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+          ACL: "private",
+        })
+      );
+
+      // Optional: Save in MongoDB
+      await mediaModal.create({
+        s3Key: fileKey,
+        mimeType: file.mimetype,
+        ownerId,
+        ownerModel,
+      });
+
+      // Return S3 key directly
+      return fileKey;
+    } catch (error) {
+      const err = error as Error;
+      throw new Error(`Single media upload failed: ${err.message}`);
+    }
+  }
 
   async getMediaUrl(s3Key: string): Promise<string> {
     try {
