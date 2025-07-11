@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import BaseModal from "../../modals/BaseModal";
-import { uploadToCloudinary } from "../../../../company/services/cloudinaryService";
+import { uploadToCloudinary } from "../../../../company/services/CloudinaryNormalService";
 import ReactCrop, { Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { addCertificate } from "../../../services/ProfileService";
@@ -8,20 +8,19 @@ import { useAppSelector } from "../../../../../hooks/useAppSelector";
 import { CropIcon, Upload, X } from "lucide-react";
 import BigModal from "../../modals/BigModal";
 import toast from "react-hot-toast";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { handleApiError } from "../../../../../utils/apiError";
+import {
+  CreateCertificateInputDTO,
+  CreateCertificateInputSchema,
+} from "../../../schema/certificateSchema";
+
 interface AddCertificateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCertificateAdded: () => void;
-}
-
-interface CertificateFormData {
-  title: string;
-  issuer: string;
-  issueDate: string;
-  expirationDate: string;
-  certificateUrl: string;
-  certificateImageUrl: string;
-  description?: string;
 }
 
 export default function AddCertificateModal({
@@ -30,19 +29,30 @@ export default function AddCertificateModal({
   onCertificateAdded,
 }: AddCertificateModalProps) {
   const { id } = useAppSelector((state) => state.auth);
-  const [formData, setFormData] = useState<CertificateFormData>({
-    title: "",
-    issuer: "",
-    issueDate: "",
-    expirationDate: "",
-    certificateUrl: "",
-    certificateImageUrl: "",
-    description: "",
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    setError,
+    watch, // 👈 ADD THIS LINE
+    formState: { errors },
+  } = useForm<CreateCertificateInputDTO>({
+    resolver: zodResolver(CreateCertificateInputSchema),
+    defaultValues: {
+      title: "",
+      issuer: "",
+      issueDate: "",
+      expirationDate: "",
+      certificateUrl: "",
+      certificateImageUrl: "",
+    },
   });
 
-  const [uploading, setUploading] = useState(false);
   const [srcImage, setSrcImage] = useState<string | null>(null);
   const [isCropping, setIsCropping] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [crop, setCrop] = useState<Crop>({
     unit: "%",
     x: 25,
@@ -51,13 +61,6 @@ export default function AddCertificateModal({
     height: 50,
   });
   const imageRef = useRef<HTMLImageElement | null>(null);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -101,15 +104,12 @@ export default function AddCertificateModal({
       setUploading(true);
       try {
         const url = await uploadToCloudinary(blob);
-        console.log("url", url);
-        setFormData((prev) => ({
-          ...prev,
-          certificateImageUrl: url,
-        }));
+        setValue("certificateImageUrl", url);
         setIsCropping(false);
         setSrcImage(null);
       } catch (error) {
-        console.error("Image upload failed:", error);
+        toast.error("Image upload failed");
+        console.error(error);
       } finally {
         setUploading(false);
       }
@@ -117,119 +117,113 @@ export default function AddCertificateModal({
   };
 
   const handleRemoveImage = () => {
-    setFormData((prev) => ({
-      ...prev,
-      certificateImageUrl: "",
-    }));
+    setValue("certificateImageUrl", "");
     setSrcImage(null);
     setIsCropping(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: CreateCertificateInputDTO) => {
     try {
-      await addCertificate(id, formData);
-      toast.success("new certificate added")
+      await addCertificate(id, data);
+      toast.success("Certificate added successfully");
       onCertificateAdded();
-      onClose();
-      setFormData({
-        title: "",
-        issuer: "",
-        issueDate: "",
-        expirationDate: "",
-        certificateUrl: "",
-        certificateImageUrl: "",
-        description: "",
-      });
-    } catch (error) {
-      toast.error("failed to add certificate")
-      console.error("Failed to submit form:", error);
+      handleClose();
+    } catch (err: unknown) {
+      const parsed = handleApiError(err, "Failed to add certificate");
+      toast.error(parsed.message);
+      if (parsed.errors) {
+        for (const [key, value] of Object.entries(parsed.errors)) {
+          setError(key as keyof CreateCertificateInputDTO, {
+            type: "manual",
+            message: value,
+          });
+        }
+      }
     }
   };
 
+  const handleClose = () => {
+    reset();
+    setSrcImage(null);
+    setIsCropping(false);
+    onClose();
+  };
+
   return (
-    <BigModal isOpen={isOpen} onClose={onClose} title="Add Certificate">
-      <form onSubmit={handleSubmit} className="space-y-3">
+    <BigModal isOpen={isOpen} onClose={handleClose} title="Add Certificate">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <input
-          type="text"
-          name="title"
+          {...register("title")}
           placeholder="Certificate Title"
-          value={formData.title}
-          onChange={handleChange}
-          required
           className="w-full border px-3 py-2 rounded"
         />
+        {errors.title && (
+          <p className="text-red-500 text-sm">{errors.title.message}</p>
+        )}
+
         <input
-          type="text"
-          name="issuer"
+          {...register("issuer")}
           placeholder="Issuer"
-          value={formData.issuer}
-          onChange={handleChange}
-          required
           className="w-full border px-3 py-2 rounded"
         />
+        {errors.issuer && (
+          <p className="text-red-500 text-sm">{errors.issuer.message}</p>
+        )}
+
         <input
           type="date"
-          name="issueDate"
-          value={formData.issueDate}
-          onChange={handleChange}
-          required
+          {...register("issueDate")}
           className="w-full border px-3 py-2 rounded"
         />
+        {errors.issueDate && (
+          <p className="text-red-500 text-sm">{errors.issueDate.message}</p>
+        )}
+
         <input
           type="date"
-          name="expirationDate"
-          value={formData.expirationDate}
-          onChange={handleChange}
+          {...register("expirationDate")}
           className="w-full border px-3 py-2 rounded"
         />
+        {errors.expirationDate && (
+          <p className="text-red-500 text-sm">
+            {errors.expirationDate.message}
+          </p>
+        )}
+
         <input
-          type="url"
-          name="certificateUrl"
+          {...register("certificateUrl")}
           placeholder="Certificate URL"
-          value={formData.certificateUrl}
-          onChange={handleChange}
           className="w-full border px-3 py-2 rounded"
         />
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-        />
+        {errors.certificateUrl && (
+          <p className="text-red-500 text-sm">
+            {errors.certificateUrl.message}
+          </p>
+        )}
 
-        {/* Image Upload Section */}
-        <div className="mt-4">
-          <label className="block mb-2 font-medium">Certificate Image</label>
-
-          {!isCropping && !formData.certificateImageUrl && (
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-              <label className="cursor-pointer flex flex-col items-center">
-                <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-500 mb-2">
-                  Click to upload an image
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageSelect}
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  className="bg-blue-500 text-white px-4 py-1 rounded text-sm"
-                  onClick={() => document.querySelector('input[type="file"]')}
-                >
-                  Select Image
-                </button>
-              </label>
-            </div>
+        {/* Image Section */}
+        <div>
+          <label className="font-medium text-sm block mb-2">
+            Certificate Image
+          </label>
+          {!isCropping && !watch("certificateImageUrl") && (
+            <label className="cursor-pointer border-dashed border-2 rounded p-4 flex flex-col items-center">
+              <Upload className="h-8 w-8 text-gray-400 mb-2" />
+              <span className="text-sm text-gray-500 mb-2">
+                Click to upload an image
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+            </label>
           )}
 
           {isCropping && srcImage && (
-            <div className="border rounded-lg p-4">
-              <div className="mb-2 flex justify-between items-center">
+            <div className="p-4 border rounded">
+              <div className="flex justify-between items-center mb-2">
                 <span className="font-medium flex items-center">
                   <CropIcon className="h-4 w-4 mr-1" /> Crop Image
                 </span>
@@ -239,36 +233,24 @@ export default function AddCertificateModal({
                     setIsCropping(false);
                     setSrcImage(null);
                   }}
-                  className="text-red-500 hover:text-red-700"
+                  className="text-red-500"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
-
               <ReactCrop crop={crop} onChange={(c) => setCrop(c)}>
                 <img
                   src={srcImage}
                   ref={imageRef}
-                  alt="Image to crop"
+                  alt="Preview"
                   className="max-w-full"
                 />
               </ReactCrop>
-
-              <div className="flex justify-end mt-2 space-x-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsCropping(false);
-                    setSrcImage(null);
-                  }}
-                  className="bg-gray-300 px-3 py-1 rounded text-sm"
-                >
-                  Cancel
-                </button>
+              <div className="flex justify-end mt-2">
                 <button
                   type="button"
                   onClick={handleCropComplete}
-                  className="bg-green-500 text-white px-3 py-1 rounded text-sm"
+                  className="bg-green-600 text-white px-3 py-1 rounded"
                 >
                   Apply Crop
                 </button>
@@ -276,44 +258,34 @@ export default function AddCertificateModal({
             </div>
           )}
 
-          {formData.certificateImageUrl && !isCropping && (
-            <div className="relative border rounded-lg p-2">
+          {watch("certificateImageUrl") && !isCropping && (
+            <div className="relative mt-2 border rounded">
               <img
-                src={formData.certificateImageUrl}
-                alt="Certificate Preview"
-                className="w-full h-auto max-h-48 object-contain"
+                src={watch("certificateImageUrl")}
+                alt="Certificate"
+                className="w-full max-h-48 object-contain"
               />
-              <div className="absolute top-2 right-2 flex space-x-1">
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
-                  title="Remove image"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-                {/* <button
-                    type="button"
-                    onClick={() => {
-                      setSrcImage(formData.certificateImageUrl);
-                      setIsCropping(true);
-                    }}
-                    className="bg-blue-500 text-white p-1 rounded-full hover:bg-blue-600"
-                    title="Re-crop image"
-                  >
-                    <CropIcon className="h-4 w-4" />
-                  </button> */}
-              </div>
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
           )}
 
           {uploading && (
-            <div className="mt-2 text-center">
-              <div className="inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-500 mr-1"></div>
-              <span className="text-sm text-gray-600">Uploading image...</span>
-            </div>
+            <p className="text-sm text-gray-500 mt-2">Uploading image...</p>
+          )}
+
+          {errors.certificateImageUrl && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.certificateImageUrl.message}
+            </p>
           )}
         </div>
+
         <button
           type="submit"
           disabled={uploading}

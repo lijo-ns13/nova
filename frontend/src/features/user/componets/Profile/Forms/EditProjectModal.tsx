@@ -1,30 +1,40 @@
 import { useEffect, useState } from "react";
 import BaseModal from "../../modals/BaseModal";
-import { editExperience } from "../../../services/ProfileService";
+import { editProject } from "../../../services/ProfileService";
 import { useAppSelector } from "../../../../../hooks/useAppSelector";
 import toast from "react-hot-toast";
 import {
-  UpdateExperienceInputDTO,
-  UpdateExperienceInputSchema,
-} from "../../../schema/experienceSchema";
-import { useForm } from "react-hook-form";
+  UpdateProjectInputDTO,
+  UpdateProjectInputSchema,
+} from "../../../schema/projectSchema";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { handleApiError } from "../../../../../utils/apiError";
-import { ExperienceResponseDTO } from "../../../dto/experienceResponse.dto";
 
-interface EditExperienceModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  experience: ExperienceResponseDTO;
-  onExperienceUpdated: () => void;
+export interface ProjectResponseDTO {
+  id: string;
+  userId: string;
+  title: string;
+  description: string;
+  projectUrl?: string;
+  startDate: string;
+  endDate?: string;
+  technologies: string[];
 }
 
-export default function EditExperienceModal({
+interface EditProjectModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  project: ProjectResponseDTO;
+  onProjectUpdated: () => void;
+}
+
+export default function EditProjectModal({
   isOpen,
   onClose,
-  experience,
-  onExperienceUpdated,
-}: EditExperienceModalProps) {
+  project,
+  onProjectUpdated,
+}: EditProjectModalProps) {
   const { id } = useAppSelector((state) => state.auth);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
@@ -32,47 +42,52 @@ export default function EditExperienceModal({
     register,
     handleSubmit,
     reset,
+    control,
     setError,
     formState: { errors },
-  } = useForm<UpdateExperienceInputDTO>({
-    resolver: zodResolver(UpdateExperienceInputSchema),
+  } = useForm<UpdateProjectInputDTO>({
+    resolver: zodResolver(UpdateProjectInputSchema),
     defaultValues: {
       title: "",
-      company: "",
-      location: "",
+      description: "",
+      projectUrl: "",
       startDate: "",
       endDate: "",
-      description: "",
+      technologies: [""],
     },
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "technologies",
+  });
+
   useEffect(() => {
-    if (experience) {
+    if (project) {
       reset({
-        title: experience.title,
-        company: experience.company,
-        location: experience.location,
-        startDate: experience.startDate.split("T")[0],
-        endDate: experience.endDate?.split("T")[0] ?? "",
-        description: experience.description ?? "",
+        title: project.title,
+        description: project.description,
+        projectUrl: project.projectUrl ?? "",
+        startDate: project.startDate.split("T")[0],
+        endDate: project.endDate?.split("T")[0] ?? "",
+        technologies: project.technologies.length ? project.technologies : [""],
       });
     }
-  }, [experience, reset]);
+  }, [project, reset]);
 
-  const onSubmit = async (data: UpdateExperienceInputDTO) => {
+  const onSubmit = async (data: UpdateProjectInputDTO) => {
     try {
-      await editExperience(id, experience.id, data);
-      toast.success("Experience updated successfully");
-      onExperienceUpdated();
+      await editProject(id, project.id, data);
+      toast.success("Project updated successfully");
+      onProjectUpdated();
       handleClose();
     } catch (err: unknown) {
-      const parsed = handleApiError(err, "Failed to update experience");
-
+      const parsed = handleApiError(err, "Failed to update project");
       setGlobalError(parsed.message ?? "Something went wrong");
 
       if (parsed.errors) {
         Object.entries(parsed.errors).forEach(([key, value]) => {
-          setError(key as keyof UpdateExperienceInputDTO, {
+          setError(key as keyof UpdateProjectInputDTO, {
             type: "manual",
             message: value,
           });
@@ -88,7 +103,7 @@ export default function EditExperienceModal({
   };
 
   return (
-    <BaseModal isOpen={isOpen} onClose={handleClose} title="Edit Experience">
+    <BaseModal isOpen={isOpen} onClose={handleClose} title="Edit Project">
       {globalError && (
         <p className="text-red-600 text-sm font-medium text-center">
           {globalError}
@@ -100,7 +115,7 @@ export default function EditExperienceModal({
           <input
             type="text"
             {...register("title")}
-            placeholder="Job Title"
+            placeholder="Project Title"
             className="w-full border px-3 py-2 rounded"
           />
           {errors.title && (
@@ -109,29 +124,29 @@ export default function EditExperienceModal({
         </div>
 
         <div>
-          <input
-            type="text"
-            {...register("company")}
-            placeholder="Company Name"
+          <textarea
+            {...register("description")}
+            placeholder="Description"
             className="w-full border px-3 py-2 rounded"
+            rows={4}
           />
-          {errors.company && (
+          {errors.description && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.company.message}
+              {errors.description.message}
             </p>
           )}
         </div>
 
         <div>
           <input
-            type="text"
-            {...register("location")}
-            placeholder="Location"
+            type="url"
+            {...register("projectUrl")}
+            placeholder="Project URL (optional)"
             className="w-full border px-3 py-2 rounded"
           />
-          {errors.location && (
+          {errors.projectUrl && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.location.message}
+              {errors.projectUrl.message}
             </p>
           )}
         </div>
@@ -163,15 +178,33 @@ export default function EditExperienceModal({
         </div>
 
         <div>
-          <textarea
-            {...register("description")}
-            placeholder="Description (optional)"
-            className="w-full border px-3 py-2 rounded"
-            rows={4}
-          />
-          {errors.description && (
+          <label className="block text-sm font-medium mb-1">Technologies</label>
+          {fields.map((field, index) => (
+            <div key={field.id} className="flex gap-2 mb-2">
+              <input
+                type="text"
+                {...register(`technologies.${index}` as const)}
+                className="flex-1 border px-3 py-2 rounded"
+              />
+              <button
+                type="button"
+                onClick={() => remove(index)}
+                className="text-red-500 font-semibold"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => append("")}
+            className="text-blue-500 text-sm font-medium"
+          >
+            + Add Technology
+          </button>
+          {errors.technologies && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.description.message}
+              {errors.technologies.message as string}
             </p>
           )}
         </div>
@@ -180,7 +213,7 @@ export default function EditExperienceModal({
           type="submit"
           className="bg-indigo-600 text-white px-4 py-2 rounded w-full hover:bg-indigo-700"
         >
-          Update Experience
+          Update Project
         </button>
       </form>
     </BaseModal>

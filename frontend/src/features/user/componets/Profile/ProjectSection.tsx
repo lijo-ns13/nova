@@ -2,23 +2,24 @@ import { useEffect, useState } from "react";
 import AddProjectModal from "./Forms/AddProjectModal";
 import { getProjects, deleteProject } from "../../services/ProfileService";
 import { useAppSelector } from "../../../../hooks/useAppSelector";
-interface Project {
-  _id: string;
-  title: string;
-  description: string;
-  projectUrl?: string;
-  startDate: string;
-  endDate?: string;
-  technologies: string[];
-}
+import ConfirmDialog from "../../../../components/ConfirmDiolog";
+import toast from "react-hot-toast";
+import { ProjectResponseDTO } from "../../dto/projectResponse.dto";
 
 function ProjectSection() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectResponseDTO[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editProject, setEditProject] = useState<Project | null>(null);
+  const [editProject, setEditProject] = useState<ProjectResponseDTO | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(true);
   const { id } = useAppSelector((state) => state.auth);
-
+  // for delete
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
+    null
+  );
+  const [isDeleting, setIsDeleting] = useState(false);
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -41,19 +42,31 @@ function ProjectSection() {
     fetchProjects();
   };
 
-  const handleEdit = (project: Project) => {
+  const handleEdit = (project: ProjectResponseDTO) => {
     setEditProject(project);
     setIsModalOpen(true);
   };
+  const handleDeleteClick = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    setIsConfirmOpen(true);
+  };
 
-  const handleDelete = async (projectId: string) => {
-    if (confirm("Are you sure you want to delete this project?")) {
-      try {
-        await deleteProject(id, projectId);
-        fetchProjects();
-      } catch (error) {
-        console.error("Failed to delete project", error);
-      }
+  const confirmDelete = async () => {
+    if (!selectedProjectId) return;
+
+    setIsDeleting(true);
+
+    try {
+      await deleteProject(id, selectedProjectId);
+      setProjects((prev) => prev.filter((p) => p.id !== selectedProjectId));
+      toast.success("Project deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete project");
+      console.error("Delete error:", error);
+    } finally {
+      setIsDeleting(false);
+      setIsConfirmOpen(false);
+      setSelectedProjectId(null);
     }
   };
 
@@ -124,7 +137,7 @@ function ProjectSection() {
           <div className="grid grid-cols-1 gap-6">
             {projects.map((project) => (
               <div
-                key={project._id}
+                key={project.id}
                 className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden"
               >
                 <div className="p-6">
@@ -212,7 +225,7 @@ function ProjectSection() {
                     </svg>
                   </button>
                   <button
-                    onClick={() => handleDelete(project._id)}
+                    onClick={() => handleDeleteClick(project.id)}
                     className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
                     title="Delete"
                   >
@@ -285,6 +298,19 @@ function ProjectSection() {
             setEditProject(null);
           }}
           onProjectAdded={handleProjectAdded}
+        />
+        <ConfirmDialog
+          isOpen={isConfirmOpen}
+          title="Delete Project?"
+          description="Are you sure you want to delete this project? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          isLoading={isDeleting}
+          onConfirm={confirmDelete}
+          onCancel={() => {
+            setIsConfirmOpen(false);
+            setSelectedProjectId(null);
+          }}
         />
       </div>
     </div>

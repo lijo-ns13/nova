@@ -1,22 +1,19 @@
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import BaseModal from "../../modals/BaseModal";
-import { addProject } from "../../../services/ProfileService";
-import { useAppSelector } from "../../../../../hooks/useAppSelector";
 import toast from "react-hot-toast";
+import BaseModal from "../../modals/BaseModal";
+import { useAppSelector } from "../../../../../hooks/useAppSelector";
+import { addProject } from "../../../services/ProfileService";
+import {
+  CreateProjectInputDTO,
+  CreateProjectInputSchema,
+} from "../../../schema/projectSchema";
 
 interface AddProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
   onProjectAdded: () => void;
-}
-
-interface ProjectFormData {
-  title: string;
-  description: string;
-  projectUrl?: string;
-  startDate: string;
-  endDate?: string;
-  technologies: string[];
 }
 
 export default function AddProjectModal({
@@ -25,118 +22,146 @@ export default function AddProjectModal({
   onProjectAdded,
 }: AddProjectModalProps) {
   const { id } = useAppSelector((state) => state.auth);
-
-  const [formData, setFormData] = useState<ProjectFormData>({
-    title: "",
-    description: "",
-    projectUrl: "",
-    startDate: "",
-    endDate: "",
-    technologies: [],
-  });
-
   const [techInput, setTechInput] = useState("");
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    reset,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<CreateProjectInputDTO>({
+    resolver: zodResolver(CreateProjectInputSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      projectUrl: "",
+      startDate: "",
+      endDate: "",
+      technologies: [],
+    },
+  });
 
   const handleTechAdd = () => {
-    if (techInput.trim() !== "") {
-      setFormData((prev) => ({
-        ...prev,
-        technologies: [...prev.technologies, techInput.trim()],
-      }));
+    const tech = techInput.trim();
+    if (tech) {
+      const updatedTechs = [...getValues("technologies"), tech];
+      setValue("technologies", updatedTechs);
       setTechInput("");
     }
   };
 
   const handleTechRemove = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      technologies: prev.technologies.filter((_, i) => i !== index),
-    }));
+    const updated = [...getValues("technologies")];
+    updated.splice(index, 1);
+    setValue("technologies", updated);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleClose = () => {
+    onClose();
+    reset(); // clear form on close
+    setTechInput("");
+  };
+
+  const onSubmit = async (data: CreateProjectInputDTO) => {
     try {
-      await addProject(id, formData);
-      toast.success("Add new project successfully");
+      await addProject(id, data);
+      toast.success("Project added successfully");
       onProjectAdded();
-      onClose();
-      setFormData({
-        title: "",
-        description: "",
-        projectUrl: "",
-        startDate: "",
-        endDate: "",
-        technologies: [],
-      });
+      handleClose();
     } catch (error) {
-      toast.error("failed to add project");
-      console.error("Failed to submit form:", error);
+      console.error("Error adding project:", error);
+      toast.error("Failed to add project");
     }
   };
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title="Add Project">
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          type="text"
-          name="title"
-          placeholder="Project Title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-          className="w-full border px-3 py-2 rounded"
-        />
+    <BaseModal isOpen={isOpen} onClose={handleClose} title="Add Project">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Title */}
+        <div>
+          <input
+            {...register("title")}
+            placeholder="Project Title"
+            className={`w-full border px-3 py-2 rounded ${
+              errors.title ? "border-red-500" : ""
+            }`}
+          />
+          {errors.title && (
+            <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+          )}
+        </div>
 
-        <textarea
-          name="description"
-          placeholder="Project Description"
-          value={formData.description}
-          onChange={handleChange}
-          required
-          className="w-full border px-3 py-2 rounded"
-        />
+        {/* Description */}
+        <div>
+          <textarea
+            {...register("description")}
+            placeholder="Project Description"
+            className={`w-full border px-3 py-2 rounded ${
+              errors.description ? "border-red-500" : ""
+            }`}
+          />
+          {errors.description && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.description.message}
+            </p>
+          )}
+        </div>
 
-        <input
-          type="url"
-          name="projectUrl"
-          placeholder="Project URL (optional)"
-          value={formData.projectUrl}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-        />
+        {/* Project URL */}
+        <div>
+          <input
+            {...register("projectUrl")}
+            placeholder="Project URL (optional)"
+            className={`w-full border px-3 py-2 rounded ${
+              errors.projectUrl ? "border-red-500" : ""
+            }`}
+          />
+          {errors.projectUrl && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.projectUrl.message}
+            </p>
+          )}
+        </div>
 
+        {/* Dates */}
         <div className="flex gap-4">
           <div className="flex-1">
             <label className="text-sm text-gray-600">Start Date</label>
             <input
               type="date"
-              name="startDate"
-              value={formData.startDate}
-              onChange={handleChange}
-              required
-              className="w-full border px-3 py-2 rounded"
+              {...register("startDate")}
+              className={`w-full border px-3 py-2 rounded ${
+                errors.startDate ? "border-red-500" : ""
+              }`}
             />
+            {errors.startDate && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.startDate.message}
+              </p>
+            )}
           </div>
+
           <div className="flex-1">
             <label className="text-sm text-gray-600">End Date (optional)</label>
             <input
               type="date"
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              {...register("endDate")}
+              className={`w-full border px-3 py-2 rounded ${
+                errors.endDate ? "border-red-500" : ""
+              }`}
             />
+            {errors.endDate && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.endDate.message}
+              </p>
+            )}
           </div>
         </div>
 
+        {/* Technologies */}
         <div>
           <label className="text-sm text-gray-600">Technologies Used</label>
           <div className="flex items-center gap-2 mt-1">
@@ -155,8 +180,14 @@ export default function AddProjectModal({
               Add
             </button>
           </div>
+          {errors.technologies && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.technologies.message}
+            </p>
+          )}
+
           <div className="flex flex-wrap mt-2 gap-2">
-            {formData.technologies.map((tech, index) => (
+            {getValues("technologies").map((tech, index) => (
               <span
                 key={index}
                 className="bg-gray-200 px-2 py-1 rounded-full text-sm flex items-center gap-1"
@@ -174,11 +205,13 @@ export default function AddProjectModal({
           </div>
         </div>
 
+        {/* Submit */}
         <button
           type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded w-full"
+          disabled={isSubmitting}
+          className="bg-green-600 text-white px-4 py-2 rounded w-full hover:bg-green-700 disabled:opacity-50"
         >
-          Add Project
+          {isSubmitting ? "Adding..." : "Add Project"}
         </button>
       </form>
     </BaseModal>

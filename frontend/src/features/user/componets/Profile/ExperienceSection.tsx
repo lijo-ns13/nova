@@ -3,21 +3,19 @@ import AddExperienceModal from "./Forms/AddExperienceModal";
 import { getExperience, deleteExperience } from "../../services/ProfileService";
 import { useAppSelector } from "../../../../hooks/useAppSelector";
 import EditExperienceModal from "./Forms/EditExperienceModal";
+import toast from "react-hot-toast";
+import ConfirmDialog from "../../../../components/ConfirmDiolog";
+import { ExperienceResponseDTO } from "../../dto/experienceResponse.dto";
 
-interface Experience {
-  _id: string;
-  title: string;
-  company: string;
-  location: string;
-  startDate: string;
-  endDate: string;
-  description: string;
-}
 function ExperienceSection() {
-  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [experiences, setExperiences] = useState<ExperienceResponseDTO[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editExperience, setEditExperience] = useState<Experience | null>(null);
+  const [editExperience, setEditExperience] =
+    useState<ExperienceResponseDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedEXPId, setSelectedEXPId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { id } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
@@ -42,19 +40,32 @@ function ExperienceSection() {
     fetchExperiences();
   };
 
-  const handleEdit = (experience: Experience) => {
+  const handleEdit = (experience: ExperienceResponseDTO) => {
     setEditExperience(experience);
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (experienceId: string) => {
-    if (confirm("Are you sure you want to delete this experience?")) {
-      try {
-        await deleteExperience(id, experienceId);
-        fetchExperiences();
-      } catch (error) {
-        console.error("Failed to delete experience", error);
-      }
+  const handleDeleteClick = (projectId: string) => {
+    setSelectedEXPId(projectId);
+    setIsConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedEXPId) return;
+
+    setIsDeleting(true);
+
+    try {
+      await deleteExperience(id, selectedEXPId);
+      setExperiences((prev) => prev.filter((p) => p.id !== selectedEXPId));
+      toast.success("Project deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete project");
+      console.error("Delete error:", error);
+    } finally {
+      setIsDeleting(false);
+      setIsConfirmOpen(false);
+      setSelectedEXPId(null);
     }
   };
 
@@ -125,7 +136,7 @@ function ExperienceSection() {
           <div className="space-y-6">
             {experiences.map((exp) => (
               <div
-                key={exp._id}
+                key={exp.id}
                 className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden"
               >
                 <div className="p-6">
@@ -185,7 +196,7 @@ function ExperienceSection() {
                     </svg>
                   </button>
                   <button
-                    onClick={() => handleDelete(exp._id)}
+                    onClick={() => handleDeleteClick(exp.id)}
                     className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
                     title="Delete"
                   >
@@ -271,6 +282,19 @@ function ExperienceSection() {
             onExperienceUpdated={handleExperienceAdded}
           />
         )}
+        <ConfirmDialog
+          isOpen={isConfirmOpen}
+          title="Delete Experience?"
+          description="Are you sure you want to delete this Experience? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          isLoading={isDeleting}
+          onConfirm={confirmDelete}
+          onCancel={() => {
+            setIsConfirmOpen(false);
+            setSelectedEXPId(null);
+          }}
+        />
       </div>
     </div>
   );

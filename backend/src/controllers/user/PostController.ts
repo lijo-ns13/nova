@@ -1,12 +1,3 @@
-import {
-  controller,
-  httpPost,
-  httpGet,
-  httpDelete,
-  request,
-  response,
-  requestParam,
-} from "inversify-express-utils";
 import { injectable, inject } from "inversify";
 import { Request, Response } from "express";
 import { TYPES } from "../../di/types";

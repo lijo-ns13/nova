@@ -148,6 +148,7 @@ export class UserProfileController implements IUserProfileController {
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Education deleted successfully",
+        data: true,
       });
     } catch (error) {
       handleControllerError(error, res, "deleteEducation");
@@ -209,7 +210,7 @@ export class UserProfileController implements IUserProfileController {
       );
       res
         .status(HTTP_STATUS_CODES.OK)
-        .json({ success: true, message: "deleted successfully" });
+        .json({ success: true, message: "deleted successfully", data: true });
     } catch (error) {
       handleControllerError(error, res, "delete experience");
     }
@@ -268,7 +269,7 @@ export class UserProfileController implements IUserProfileController {
       );
       res
         .status(HTTP_STATUS_CODES.OK)
-        .json({ success: true, message: "deleted successfully" });
+        .json({ success: true, message: "deleted successfully", data: true });
     } catch (error) {
       handleControllerError(error, res, "delete project");
     }
@@ -328,7 +329,7 @@ export class UserProfileController implements IUserProfileController {
       );
       res
         .status(HTTP_STATUS_CODES.OK)
-        .json({ success: true, message: "deleted successfully" });
+        .json({ success: true, message: "deleted successfully", data: true });
     } catch (error) {
       handleControllerError(error, res, "delete certificate");
     }
@@ -366,6 +367,7 @@ export class UserProfileController implements IUserProfileController {
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Password updated successfully",
+        data: true,
       });
     } catch (error) {
       handleControllerError(error, res, "changePassword");

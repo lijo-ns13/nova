@@ -1,14 +1,21 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import BaseModal from "../../modals/BaseModal";
 import { editEducation } from "../../../services/ProfileService";
 import { useAppSelector } from "../../../../../hooks/useAppSelector";
 import toast from "react-hot-toast";
-import { Education } from "../../../../../types/profile";
+import {
+  UpdateEducationInputDTO,
+  UpdateEducationInputSchema,
+} from "../../../schema/educationSchema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { handleApiError } from "../../../../../utils/apiError";
+import { EducationResponseDTO } from "../../../dto/educationResponse.dto";
 
 interface EditEducationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  education: Education;
+  education: EducationResponseDTO;
   onEducationUpdated: () => void;
 }
 
@@ -19,164 +26,87 @@ export default function EditEducationModal({
   onEducationUpdated,
 }: EditEducationModalProps) {
   const { id } = useAppSelector((state) => state.auth);
-  const [formData, setFormData] = useState({
-    institutionName: "",
-    degree: "",
-    fieldOfStudy: "",
-    grade: "",
-    startDate: "",
-    endDate: "",
-    description: "",
+  const [globalError, setGlobalError] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors },
+  } = useForm<UpdateEducationInputDTO>({
+    resolver: zodResolver(UpdateEducationInputSchema),
+    defaultValues: {
+      institutionName: "",
+      degree: "",
+      fieldOfStudy: "",
+      grade: "",
+      startDate: "",
+      endDate: "",
+      description: "",
+    },
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (education) {
-      setFormData({
+      reset({
         institutionName: education.institutionName,
         degree: education.degree,
-        fieldOfStudy: education.fieldOfStudy,
-        grade: education.grade,
+        fieldOfStudy: education.fieldOfStudy ?? "",
+        grade: education.grade ?? "",
         startDate: education.startDate.split("T")[0],
-        endDate: education.endDate ? education.endDate.split("T")[0] : "",
-        description: education.description,
+        endDate: education.endDate?.split("T")[0] ?? "",
+        description: education.description ?? "",
       });
     }
-  }, [education]);
+  }, [education, reset]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleBlur = (
-    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setTouched((prev) => ({ ...prev, [name]: true }));
-    validateField(name, value);
-  };
-
-  const validateField = (name: string, value: string) => {
-    let error = "";
-    switch (name) {
-      case "institutionName":
-        if (!value.trim()) error = "Institution name is required";
-        else if (value.trim().length < 2)
-          error = "Must be at least 2 characters";
-        break;
-      case "degree":
-        if (!value.trim()) error = "Degree is required";
-        else if (value.trim().length < 2)
-          error = "Must be at least 2 characters";
-        break;
-      case "fieldOfStudy":
-        if (!value.trim()) error = "Field of study is required";
-        else if (value.trim().length < 2)
-          error = "Must be at least 2 characters";
-        break;
-      case "startDate":
-        if (!value) error = "Start date is required";
-        else {
-          const date = new Date(value);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          if (date > today) error = "Cannot be in the future";
-        }
-        break;
-      case "endDate":
-        if (value) {
-          const endDate = new Date(value);
-          const startDate = new Date(formData.startDate);
-          if (endDate < startDate) error = "Must be after start date";
-        }
-        break;
-      case "grade":
-        if (value && !/^[A-Za-z0-9./% -]+$/.test(value))
-          error = "Invalid characters detected";
-        break;
-      case "description":
-        if (value.length > 500) error = "Max 500 characters allowed";
-        break;
-    }
-    setErrors((prev) => ({ ...prev, [name]: error }));
-  };
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    // Required fields validation
-    if (!formData.institutionName.trim())
-      newErrors.institutionName = "Institution name is required";
-    if (!formData.degree.trim()) newErrors.degree = "Degree is required";
-    if (!formData.fieldOfStudy.trim())
-      newErrors.fieldOfStudy = "Field of study is required";
-    if (!formData.startDate) newErrors.startDate = "Start date is required";
-
-    // Date validation
-    if (formData.startDate) {
-      const startDate = new Date(formData.startDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (startDate > today) newErrors.startDate = "Cannot be in the future";
-    }
-
-    if (formData.endDate) {
-      const endDate = new Date(formData.endDate);
-      const startDate = new Date(formData.startDate);
-      if (endDate < startDate) newErrors.endDate = "Must be after start date";
-    }
-
-    // Grade validation
-    if (formData.grade && !/^[A-Za-z0-9./% -]+$/.test(formData.grade)) {
-      newErrors.grade = "Invalid characters detected";
-    }
-
-    // Description validation
-    if (formData.description.length > 500)
-      newErrors.description = "Max 500 characters allowed";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!education) return;
-
-    const isValid = validateForm();
-    if (!isValid) return;
-
+  const onSubmit = async (data: UpdateEducationInputDTO) => {
     try {
-      await editEducation(id, education._id, formData);
+      await editEducation(id, education.id, data);
       toast.success("Education updated successfully");
       onEducationUpdated();
-      onClose();
-    } catch (error) {
-      toast.error("Failed to update education");
-      console.error("Failed to submit form:", error);
+      handleClose();
+    } catch (err: unknown) {
+      const parsed = handleApiError(err, "Failed to update education");
+
+      setGlobalError(parsed.message ?? "Something went wrong");
+
+      if (parsed.errors) {
+        Object.entries(parsed.errors).forEach(([key, value]) => {
+          setError(key as keyof UpdateEducationInputDTO, {
+            type: "manual",
+            message: value,
+          });
+        });
+      }
     }
+  };
+
+  const handleClose = () => {
+    reset();
+    setGlobalError(null);
+    onClose();
   };
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title="Edit Education">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <BaseModal isOpen={isOpen} onClose={handleClose} title="Edit Education">
+      {globalError && (
+        <p className="text-red-600 text-sm font-medium text-center">
+          {globalError}
+        </p>
+      )}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <input
             type="text"
-            name="institutionName"
+            {...register("institutionName")}
             placeholder="Institution Name"
-            value={formData.institutionName}
-            onChange={handleChange}
-            onBlur={handleBlur}
             className="w-full border px-3 py-2 rounded"
           />
           {errors.institutionName && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.institutionName}
+              {errors.institutionName.message}
             </p>
           )}
         </div>
@@ -184,88 +114,78 @@ export default function EditEducationModal({
         <div>
           <input
             type="text"
-            name="degree"
+            {...register("degree")}
             placeholder="Degree"
-            value={formData.degree}
-            onChange={handleChange}
-            onBlur={handleBlur}
             className="w-full border px-3 py-2 rounded"
           />
           {errors.degree && (
-            <p className="text-red-500 text-sm mt-1">{errors.degree}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.degree.message}</p>
           )}
         </div>
 
         <div>
           <input
             type="text"
-            name="fieldOfStudy"
+            {...register("fieldOfStudy")}
             placeholder="Field of Study"
-            value={formData.fieldOfStudy}
-            onChange={handleChange}
-            onBlur={handleBlur}
             className="w-full border px-3 py-2 rounded"
           />
           {errors.fieldOfStudy && (
-            <p className="text-red-500 text-sm mt-1">{errors.fieldOfStudy}</p>
+            <p className="text-red-500 text-sm mt-1">
+              {errors.fieldOfStudy.message}
+            </p>
           )}
         </div>
 
         <div>
           <input
             type="text"
-            name="grade"
+            {...register("grade")}
             placeholder="Grade (optional)"
-            value={formData.grade}
-            onChange={handleChange}
-            onBlur={handleBlur}
             className="w-full border px-3 py-2 rounded"
           />
           {errors.grade && (
-            <p className="text-red-500 text-sm mt-1">{errors.grade}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.grade.message}</p>
           )}
         </div>
 
         <div>
           <input
             type="date"
-            name="startDate"
-            value={formData.startDate}
-            onChange={handleChange}
-            onBlur={handleBlur}
+            {...register("startDate")}
             className="w-full border px-3 py-2 rounded"
           />
           {errors.startDate && (
-            <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>
+            <p className="text-red-500 text-sm mt-1">
+              {errors.startDate.message}
+            </p>
           )}
         </div>
 
         <div>
           <input
             type="date"
-            name="endDate"
-            value={formData.endDate}
-            onChange={handleChange}
-            onBlur={handleBlur}
+            {...register("endDate")}
             className="w-full border px-3 py-2 rounded"
           />
           {errors.endDate && (
-            <p className="text-red-500 text-sm mt-1">{errors.endDate}</p>
+            <p className="text-red-500 text-sm mt-1">
+              {errors.endDate.message}
+            </p>
           )}
         </div>
 
         <div>
           <textarea
-            name="description"
+            {...register("description")}
             placeholder="Description (optional)"
-            value={formData.description}
-            onChange={handleChange}
-            onBlur={handleBlur}
             className="w-full border px-3 py-2 rounded"
             rows={4}
           />
           {errors.description && (
-            <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+            <p className="text-red-500 text-sm mt-1">
+              {errors.description.message}
+            </p>
           )}
         </div>
 

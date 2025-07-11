@@ -6,27 +6,25 @@ import {
 } from "../../services/ProfileService";
 import { useAppSelector } from "../../../../hooks/useAppSelector";
 import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
-
-interface Certificate {
-  _id: string;
-  title: string;
-  issuer: string;
-  issueDate: string;
-  expirationDate: string;
-  certificateUrl: string;
-  certificateImageUrl: string;
-  description?: string;
-}
+import toast from "react-hot-toast";
+import { CertificateResponseDTO } from "../../dto/certificateResponse.dto";
+import ConfirmDialog from "../../../../components/ConfirmDiolog";
 
 function CertificateSection() {
-  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [certificates, setCertificates] = useState<CertificateResponseDTO[]>(
+    []
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editIsModalOpen, setEditIsModalOpen] = useState(false);
-  const [editCertificate, setEditCertificate] = useState<Certificate | null>(
-    null
-  );
+  const [editCertificate, setEditCertificate] =
+    useState<CertificateResponseDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedCertificateId, setSelectedCertificateId] = useState<
+    string | null
+  >(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { id } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
@@ -51,19 +49,34 @@ function CertificateSection() {
     fetchCertificates();
   };
 
-  const handleEdit = (certificate: Certificate) => {
+  const handleEdit = (certificate: CertificateResponseDTO) => {
     setEditCertificate(certificate);
     setEditIsModalOpen(true);
   };
 
-  const handleDelete = async (certificateId: string) => {
-    if (confirm("Are you sure you want to delete this certificate?")) {
-      try {
-        await deleteCertificate(id, certificateId);
-        fetchCertificates();
-      } catch (error) {
-        console.error("Failed to delete certificate", error);
-      }
+  const handleDeleteClick = (projectId: string) => {
+    setSelectedCertificateId(projectId);
+    setIsConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedCertificateId) return;
+
+    setIsDeleting(true);
+
+    try {
+      await deleteCertificate(id, selectedCertificateId);
+      setCertificates((prev) =>
+        prev.filter((p) => p.id !== selectedCertificateId)
+      );
+      toast.success("Project deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete project");
+      console.error("Delete error:", error);
+    } finally {
+      setIsDeleting(false);
+      setIsConfirmOpen(false);
+      setSelectedCertificateId(null);
     }
   };
 
@@ -127,9 +140,9 @@ function CertificateSection() {
           </div>
         ) : certificates.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {certificates.map((cert: Certificate) => (
+            {certificates.map((cert: CertificateResponseDTO) => (
               <div
-                key={cert._id}
+                key={cert.id}
                 className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden"
               >
                 <div className="p-6">
@@ -142,14 +155,9 @@ function CertificateSection() {
                     </div>
                     {cert.certificateImageUrl && (
                       <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden border border-gray-200">
-                        {/* <img
+                        <img
                           src={cert.certificateImageUrl}
                           alt={`${cert.title} certificate`}
-                          className="w-full h-full object-cover"
-                        /> */}
-                        <SecureCloudinaryImage
-                          publicId={cert.certificateImageUrl}
-                          alt={`${cert.title} certificate `}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -194,12 +202,6 @@ function CertificateSection() {
                       </div>
                     )}
                   </div>
-
-                  {cert.description && (
-                    <p className="mt-4 text-gray-600 text-sm leading-relaxed">
-                      {cert.description}
-                    </p>
-                  )}
                 </div>
 
                 <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
@@ -243,7 +245,7 @@ function CertificateSection() {
                       </svg>
                     </button>
                     <button
-                      onClick={() => handleDelete(cert._id)}
+                      onClick={() => handleDeleteClick(cert.id)}
                       className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
                       title="Delete"
                     >
@@ -318,6 +320,19 @@ function CertificateSection() {
             setEditCertificate(null);
           }}
           onCertificateAdded={handleCertificateAdded}
+        />
+        <ConfirmDialog
+          isOpen={isConfirmOpen}
+          title="Delete Certificate?"
+          description="Are you sure you want to delete this Certificate? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          isLoading={isDeleting}
+          onConfirm={confirmDelete}
+          onCancel={() => {
+            setIsConfirmOpen(false);
+            setSelectedCertificateId(null);
+          }}
         />
       </div>
     </div>

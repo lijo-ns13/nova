@@ -3,22 +3,32 @@ import AddEducationModal from "./Forms/AddEducationModal";
 import { getEducations, deleteEducation } from "../../services/ProfileService";
 import { useAppSelector } from "../../../../hooks/useAppSelector";
 import EditEducationModal from "./Forms/EditEducationModal";
+import toast from "react-hot-toast";
+import ConfirmDialog from "../../../../components/ConfirmDiolog";
 
-interface Education {
+export interface EducationResponseDTO {
+  id: string;
+  userId: string;
   institutionName: string;
-  _id: string;
   degree: string;
-  fieldOfStudy: string;
-  grade: string;
+  fieldOfStudy?: string;
+  grade?: string;
   startDate: string;
-  endDate: string;
-  description: string;
+  endDate?: string;
+  description?: string;
 }
+
 function EducationSection() {
-  const [educations, setEducations] = useState<Education[]>([]);
+  const [educations, setEducations] = useState<EducationResponseDTO[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editEducation, setEditEducation] = useState<Education | null>(null);
+  const [editEducation, setEditEducation] =
+    useState<EducationResponseDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedEducationId, setSelectedEducationId] = useState<string | null>(
+    null
+  );
+  const [isDeleting, setIsDeleting] = useState(false);
   const { id } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
@@ -43,35 +53,40 @@ function EducationSection() {
     fetchEducations();
   };
 
-  const handleEdit = (education: Education) => {
+  const handleEdit = (education: EducationResponseDTO) => {
     setEditEducation(education);
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (educationId: string) => {
-    if (confirm("Are you sure you want to delete this education?")) {
-      try {
-        await deleteEducation(id, educationId);
-        fetchEducations();
-      } catch (error) {
-        console.error("Failed to delete education", error);
-      }
+  const handleDeleteClick = (projectId: string) => {
+    setSelectedEducationId(projectId);
+    setIsConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedEducationId) return;
+
+    setIsDeleting(true);
+
+    try {
+      await deleteEducation(id, selectedEducationId);
+      setEducations((prev) => prev.filter((p) => p.id !== selectedEducationId));
+      toast.success("Project deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete project");
+      console.error("Delete error:", error);
+    } finally {
+      setIsDeleting(false);
+      setIsConfirmOpen(false);
+      setSelectedEducationId(null);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "short",
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
-  const getDuration = (startDate: string, endDate?: string) => {
-    const start = formatDate(startDate);
-    const end = endDate ? formatDate(endDate) : "Present";
-    return `${start} - ${end}`;
-  };
+  // const getDuration = (startDate: string, endDate?: string) => {
+  //   const start = formatDate(startDate);
+  //   const end = endDate ? formatDate(endDate) : "Present";
+  //   return `${start} - ${end}`;
+  // };
 
   return (
     <div className="w-full py-8 bg-gray-50">
@@ -124,9 +139,9 @@ function EducationSection() {
           </div>
         ) : educations.length > 0 ? (
           <div className="space-y-6">
-            {educations.map((edu: Education) => (
+            {educations.map((edu: EducationResponseDTO) => (
               <div
-                key={edu._id}
+                key={edu.id}
                 className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 overflow-hidden"
               >
                 <div className="p-6">
@@ -154,7 +169,7 @@ function EducationSection() {
                               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                             />
                           </svg>
-                          {getDuration(edu.startDate, edu.endDate)}
+                          {/* {getDuration(edu.startDate, edu.endDate)} */}
                         </div>
                         {edu.fieldOfStudy && (
                           <div className="flex items-center text-gray-600">
@@ -207,7 +222,7 @@ function EducationSection() {
                     </svg>
                   </button>
                   <button
-                    onClick={() => handleDelete(edu._id)}
+                    onClick={() => handleDeleteClick(edu.id)}
                     className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
                     title="Delete"
                   >
@@ -295,6 +310,19 @@ function EducationSection() {
               onEducationAdded={handleEducationAdded}
             />
           ))}
+        <ConfirmDialog
+          isOpen={isConfirmOpen}
+          title="Delete Education?"
+          description="Are you sure you want to delete this Education? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          isLoading={isDeleting}
+          onConfirm={confirmDelete}
+          onCancel={() => {
+            setIsConfirmOpen(false);
+            setSelectedEducationId(null);
+          }}
+        />
       </div>
     </div>
   );
