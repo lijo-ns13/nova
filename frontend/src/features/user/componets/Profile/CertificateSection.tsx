@@ -9,6 +9,7 @@ import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryIm
 import toast from "react-hot-toast";
 import { CertificateResponseDTO } from "../../dto/certificateResponse.dto";
 import ConfirmDialog from "../../../../components/ConfirmDiolog";
+import EditCertificateModal from "./Forms/EditCertficateModal";
 
 function CertificateSection() {
   const [certificates, setCertificates] = useState<CertificateResponseDTO[]>(
@@ -321,6 +322,14 @@ function CertificateSection() {
           }}
           onCertificateAdded={handleCertificateAdded}
         />
+        {editCertificate && (
+          <EditCertificateModal
+            isOpen={editIsModalOpen}
+            onClose={() => setEditIsModalOpen(false)}
+            onCertificateUpdated={handleCertificateAdded}
+            certificate={editCertificate}
+          />
+        )}
         <ConfirmDialog
           isOpen={isConfirmOpen}
           title="Delete Certificate?"
