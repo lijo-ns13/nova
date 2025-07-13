@@ -28,19 +28,35 @@ export class UserJobController implements IUserJobController {
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Jobs fetched successfully",
-        data: result.jobs,
-        pagination: {
-          page: query.page,
-          limit: query.limit,
-          total: result.total,
-          totalPages: result.totalPages,
+        data: {
+          jobs: result.jobs,
+          pagination: {
+            page: query.page,
+            limit: query.limit,
+            total: result.total,
+            totalPages: result.totalPages,
+          },
         },
       });
     } catch (error) {
       handleControllerError(error, res, "UserJobController.getAllJobs");
     }
   };
+  getJob: RequestHandler = async (req: Request, res: Response) => {
+    try {
+      const { jobId } = req.params;
 
+      const job = await this.jobService.getJob(jobId);
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Job fetched successfully",
+        data: job, // already mapped via toResponseWithSkillDto
+      });
+    } catch (error) {
+      handleControllerError(error, res, "UserJobController.getJob");
+    }
+  };
   getAppliedJobs: RequestHandler = async (req: Request, res: Response) => {
     try {
       const user = req.user as UserPayload;
@@ -56,31 +72,17 @@ export class UserJobController implements IUserJobController {
     }
   };
 
-  getJob: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const { jobId } = req.params;
-
-      const job = await this.jobService.getJob(jobId);
-
-      res.status(HTTP_STATUS_CODES.OK).json({
-        success: true,
-        message: "Job fetched successfully",
-        data: job,
-      });
-    } catch (error) {
-      handleControllerError(error, res, "UserJobController.getJob");
-    }
-  };
   applyToJob: RequestHandler = async (req: Request, res: Response) => {
     try {
       const { jobId } = req.params;
-      const userId = (req.user as UserPayload)?.id;
-      const resumeFile = req.file as Express.Multer.File; // Changed from resumeUrl to file
+      const userId = (req.user as { id: string })?.id;
+      const resumeFile = req.file as Express.Multer.File;
 
       if (!userId) {
         res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
           success: false,
-          message: "User not authenticated or user ID missing",
+          message: "User not authenticated",
+          data: false,
         });
         return;
       }
@@ -89,35 +91,29 @@ export class UserJobController implements IUserJobController {
         res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
           success: false,
           message: "Resume file is required",
+          data: false,
         });
         return;
       }
 
-      // Optional: Validate file type
       if (resumeFile.mimetype !== "application/pdf") {
         res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
           success: false,
           message: "Only PDF files are accepted for resumes",
+          data: false,
         });
         return;
       }
 
-      const application = await this.jobService.applyToJob(
-        jobId,
-        userId,
-        resumeFile
-      );
+      await this.jobService.applyToJob(jobId, userId, resumeFile);
 
       res.status(HTTP_STATUS_CODES.CREATED).json({
         success: true,
-        data: application,
+        message: "Job application submitted successfully",
+        data: true,
       });
     } catch (error) {
-      console.error("Error in applyToJob:", error);
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: (error as Error).message,
-      });
+      handleControllerError(error, res, "JobApplicationController.applyToJob");
     }
   };
 
@@ -141,62 +137,11 @@ export class UserJobController implements IUserJobController {
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        data: { hasApplied },
+        message: "Application status retrieved successfully",
+        data: hasApplied,
       });
     } catch (error) {
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: (error as Error).message,
-      });
-    }
-  };
-  // ****
-  saveJob: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const { jobId } = req.params;
-      const user = req.user as UserPayload;
-      await this.jobService.addToSavedJobs(user.id, jobId);
-      res
-        .status(HTTP_STATUS_CODES.OK)
-        .json({ message: "Job saved successfully" });
-    } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
-    }
-  };
-
-  unsaveJob: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const { jobId } = req.params;
-      const user = req.user as UserPayload;
-      await this.jobService.removeFromSavedJobs(user.id, jobId);
-      res
-        .status(HTTP_STATUS_CODES.OK)
-        .json({ message: "Job removed from saved jobs" });
-    } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
-    }
-  };
-  getSavedJobs: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const user = req.user as UserPayload;
-      if (!user) {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, messge: "user id is not ofund" });
-        return;
-      }
-      const savedJobs = await this.jobService.getSavedJobs(user.id);
-      console.log("savedJobs", savedJobs);
-      res.status(HTTP_STATUS_CODES.OK).json(savedJobs);
-    } catch (error) {
-      console.log("errror in savedjbos get", error);
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
+      handleControllerError(error, res, "checkApplicationStatus");
     }
   };
 }

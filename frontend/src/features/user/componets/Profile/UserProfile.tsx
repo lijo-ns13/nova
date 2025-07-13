@@ -11,17 +11,23 @@ import { useAppDispatch } from "../../../../hooks/useAppDispatch";
 import toast from "react-hot-toast";
 import UserListModal from "../modals/UserListModal";
 import { getFollowers, getFollowing } from "../../services/FollowService";
+import { handleApiError } from "../../../../utils/apiError";
 
 function UserProfile() {
   const dispatch = useAppDispatch();
   const { id: userId } = useAppSelector((state) => state.auth);
   const [userData, setUserData] = useState({
+    id: "",
     name: "",
+    username: "",
+    email: "",
     headline: "",
     about: "",
     profilePicture: "",
-    username: "",
-    _id: "",
+    followersCount: "",
+    followingCount: "",
+    appliedJobCount: "",
+    createdPostCount: "",
   });
   const [updatingUserData, setUpdatingUserData] = useState(userData);
   const [isLoading, setIsLoading] = useState(false);
@@ -45,25 +51,37 @@ function UserProfile() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await getUserProfile(userId);
+      const response = await getUserProfile(userId);
+      const res = response.data;
+      console.log("ressslkdlkjsdfjlkdsf", res);
       if (res) {
-        setFollowersCount(res.followers.length || 0);
-        setFollowingCount(res.following.length || 0);
+        setFollowersCount(res.followersCount || 0);
+        setFollowingCount(res.followingCount || 0);
         setUserData({
-          name: res.name || "",
-          headline: res.headline || "",
-          about: res.about || "",
-          profilePicture: res.profilePicture || "",
+          id: res.id,
+          name: res.name,
           username: res.username,
-          _id: res._id,
+          email: res.email,
+          headline: res.headline,
+          about: res.about,
+          profilePicture: res.profilePicture,
+          followersCount: res.followersCount,
+          followingCount: res.followingCount,
+          appliedJobCount: res.appliedJobCount,
+          createdPostCount: res.createdPostCount,
         });
         setUpdatingUserData({
-          name: res.name || "",
-          headline: res.headline || "",
-          about: res.about || "",
-          profilePicture: res.profilePicture || "",
+          id: res.id,
+          name: res.name,
           username: res.username,
-          _id: res._id,
+          email: res.email,
+          headline: res.headline,
+          about: res.about,
+          profilePicture: res.profilePicture,
+          followersCount: res.followersCount,
+          followingCount: res.followingCount,
+          appliedJobCount: res.appliedJobCount,
+          createdPostCount: res.createdPostCount,
         });
       }
     } catch (error) {
@@ -92,7 +110,7 @@ function UserProfile() {
         );
       }
       toast.success("Profile updated successfully");
-    } catch (error: any) {
+    } catch (error) {
       toast.error(error.response.data.message);
       console.error("Failed to update profile:", error);
       setFormError(
@@ -107,16 +125,19 @@ function UserProfile() {
 
   const fetchUsers = async (type: "followers" | "following") => {
     setIsLoadingUsers(true);
+
     try {
       const response =
         type === "followers"
           ? await getFollowers(userId)
           : await getFollowing(userId);
-      setUsers(response.data);
-      setModalType(type);
+
+      setUsers(response); // you already typed this correctly
+      setModalType(type); // this controls UI modal switch
     } catch (error) {
-      console.error(`Error fetching ${type}:`, error);
-      toast.error(`Failed to load ${type}`);
+      const parsed = handleApiError(error, `Failed to load ${type}`);
+      toast.error(parsed.message || `Unable to fetch ${type}`);
+      // parsed.errors is ignored here since it's not a form
     } finally {
       setIsLoadingUsers(false);
     }
@@ -184,7 +205,13 @@ function UserProfile() {
   return (
     <div className="relative z-10">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-        <ProfileImage />
+        <ProfileImage
+          profilePicture={userData.profilePicture}
+          setProfilePicture={(url: string) => {
+            setUserData((prev) => ({ ...prev, profilePicture: url }));
+            dispatch(updateSlice({ profilePicture: url }));
+          }}
+        />
 
         {/* Profile Details */}
         <div className="flex-grow text-center md:text-left">

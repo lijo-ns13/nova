@@ -16,4 +16,9 @@ export interface IPostRepository extends IBaseRepository<IPost> {
   hardDelete(postId: string): Promise<IPost | null>;
   countUserPosts(userId: string): Promise<number>;
   findById(postId: string): Promise<IPost | null>;
+  createPost(input: {
+    creatorId: string;
+    description: string;
+    mediaIds: string[];
+  }): Promise<IPost>;
 }

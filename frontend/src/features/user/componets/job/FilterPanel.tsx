@@ -1,6 +1,11 @@
 import React from "react";
-import { FilterOptions } from "../../types/jobTypes";
-
+export interface FilterOptions {
+  jobType: string[]; // checkbox group
+  employmentType: string[]; // checkbox group
+  experienceLevel: string[]; // checkbox group
+  minSalary: string; // input type="number", stored as string
+  maxSalary: string;
+}
 interface FilterPanelProps {
   filters: FilterOptions;
   setFilters: React.Dispatch<React.SetStateAction<FilterOptions>>;

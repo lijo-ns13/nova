@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import BaseModal from "./BaseModal";
+import { toast } from "react-toastify";
 import {
   followUser,
-  NetworkUserGetUsers,
-  unFollowUser,
+  NetworkUser,
+  unfollowUser,
 } from "../../services/FollowService";
+import { handleApiError } from "../../../../utils/apiError";
 
 interface UserListModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  users: NetworkUserGetUsers[];
+  users: NetworkUser[];
   currentUserId: string;
   refetch: () => void;
 }
@@ -23,16 +25,24 @@ const UserListModal: React.FC<UserListModalProps> = ({
   currentUserId,
   refetch,
 }) => {
-  // (optional) keep local state so the UI feels snappy
   const [pending, setPending] = useState<string | null>(null);
-  console.log("users list", users);
+
   const handleFollowToggle = async (userId: string, isFollowing?: boolean) => {
     try {
       setPending(userId);
-      isFollowing ? await unFollowUser(userId) : await followUser(userId);
-      refetch(); // refresh data from the server
-    } catch (err) {
-      console.error("Error toggling follow status:", err);
+
+      if (isFollowing) {
+        await unfollowUser(userId);
+        toast.success("Unfollowed successfully");
+      } else {
+        await followUser(userId);
+        toast.success("Followed successfully");
+      }
+
+      refetch(); // refresh user list
+    } catch (error) {
+      const parsed = handleApiError(error, "Follow action failed");
+      toast.error(parsed.message || "Unable to toggle follow status");
     } finally {
       setPending(null);
     }
@@ -46,7 +56,7 @@ const UserListModal: React.FC<UserListModalProps> = ({
         ) : (
           <ul className="divide-y divide-gray-200">
             {users.map((user) => (
-              <li key={user.user._id} className="py-4">
+              <li key={user.user.id} className="py-4">
                 <div className="flex items-center justify-between">
                   {/* avatar + meta */}
                   <div className="flex items-center space-x-3">
@@ -78,12 +88,12 @@ const UserListModal: React.FC<UserListModalProps> = ({
                     </div>
                   </div>
 
-                  {/* follow / unfollow */}
-                  {user.user._id !== currentUserId && (
+                  {/* follow/unfollow button */}
+                  {user.user.id !== currentUserId && (
                     <button
-                      disabled={pending === user.user._id}
+                      disabled={pending === user.user.id}
                       onClick={() =>
-                        handleFollowToggle(user.user._id, user.isFollowing)
+                        handleFollowToggle(user.user.id, user.isFollowing)
                       }
                       className={`px-4 py-1 rounded-full text-sm font-medium transition-colors
                         ${
@@ -92,7 +102,7 @@ const UserListModal: React.FC<UserListModalProps> = ({
                             : "bg-blue-600 text-white hover:bg-blue-700"
                         }
                         ${
-                          pending === user.user._id &&
+                          pending === user.user.id &&
                           "opacity-60 cursor-not-allowed"
                         }
                       `}

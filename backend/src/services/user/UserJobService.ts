@@ -8,10 +8,11 @@ import { IApplicationRepository } from "../../interfaces/repositories/IApplicati
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { IApplication } from "../../models/application.modal";
 import { INotificationService } from "../../interfaces/services/INotificationService";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { NotificationType } from "../../models/notification.modal";
 import { GetAllJobsQueryInput } from "../../core/validations/user/user.jobschema";
 import { JobResponseDTO, UserJobMapper } from "../../mapping/user/jobmapper";
+import { JobMapper } from "../../mapping/job.mapper";
 
 export class UserJobService implements IUserJobService {
   constructor(
@@ -86,90 +87,68 @@ export class UserJobService implements IUserJobService {
 
     return result;
   }
+  async getJob(jobId: string): Promise<JobResponseDTO> {
+    const job = await this._jobRepository.getJob(jobId);
+
+    if (!job) {
+      throw new Error("Job not found");
+    }
+
+    return UserJobMapper.toGetJobResponse(job);
+  }
+
   async getAppliedJobs(userId: string): Promise<any> {
     const application = await this._applicationRepo.findAll({ user: userId });
   }
 
-  async getJob(jobId: string) {
-    return this._jobRepository.getJob(jobId);
-  }
   async applyToJob(
     jobId: string,
     userId: string,
     resumeFile: Express.Multer.File
-  ): Promise<IApplication> {
-    try {
-      // Validate file type again (redundant but safe)
-      if (resumeFile.mimetype !== "application/pdf") {
-        throw new Error("Only PDF files are allowed for resumes");
-      }
-      const user = await this._userRepository.findById(userId);
-      const maxFreeJobApplyCount = parseInt(
-        process.env.FREE_JOB_APPLY_COUNT ?? "5",
-        10
-      );
-      if (!user) {
-        throw new Error("User not found");
-      }
+  ): Promise<void> {
+    const user = await this._userRepository.findById(userId);
+    if (!user) throw new Error("user not found");
 
-      const hasValidSubscription =
-        user.isSubscriptionTaken &&
-        user.subscriptionExpiresAt &&
-        user.subscriptionExpiresAt > new Date();
+    const maxFree = parseInt(process.env.FREE_JOB_APPLY_COUNT || "5", 10);
+    const hasValidSubscription =
+      user.isSubscriptionTaken &&
+      user.subscriptionExpiresAt &&
+      user.subscriptionExpiresAt > new Date();
 
-      if (
-        !hasValidSubscription &&
-        user.appliedJobCount >= maxFreeJobApplyCount
-      ) {
-        throw new Error(
-          "Please take a subscription. Your free access has ended."
-        );
-      }
-
-      // Upload resume to S3
-      const [mediaId] = await this._mediaService.uploadMedia(
-        [resumeFile],
-        userId,
-        "User"
-      );
-
-      // Create application record
-      const application = await this._applicationRepo.create({
-        job: jobId,
-        user: userId,
-        resumeMediaId: mediaId,
-      });
-      if (!application) {
-        throw new Error("appliction can't creat");
-      }
-      // Add to user's applied jobs
-      await this._userRepository.addToAppliedJobs(userId, jobId);
-      await this._userRepository.updateUser(userId, {
-        appliedJobCount: user.appliedJobCount + 1,
-      });
-      // add notification
-      const job = await this._jobRepository.findById(jobId);
-      if (!job) {
-        throw new Error("job not found");
-      }
-      const companyId =
-        typeof job.company === "string"
-          ? job.company
-          : job.company instanceof Types.ObjectId
-          ? job.company.toString()
-          : job.company._id?.toString(); // when populated
-
-      await this.notificationService.sendNotification(
-        companyId.toString(),
-        `${user.name} applied job ${job.title} `,
-        NotificationType.JOB,
-        userId
-      );
-      return application;
-    } catch (error) {
-      console.error("Error in applyToJob service:", error);
-      throw new Error(`Failed to apply to job: ${(error as Error).message}`);
+    if (!hasValidSubscription && user.appliedJobCount >= maxFree) {
+      throw new Error("free tier limit ended");
     }
+
+    const [mediaId] = await this._mediaService.uploadMedia(
+      [resumeFile],
+      userId,
+      "User"
+    );
+
+    const application = await this._applicationRepo.CreateApplication({
+      jobId: jobId,
+      userId: userId,
+      resumeMediaId: mediaId,
+    });
+
+    if (!application) throw new Error("application not found");
+
+    await this._userRepository.addToAppliedJobs(userId, jobId);
+    await this._userRepository.updateUser(userId, {
+      appliedJobCount: user.appliedJobCount + 1,
+    });
+
+    const job = await this._jobRepository.findById(jobId);
+    if (!job) throw new Error("job not found");
+
+    const companyId = job.company;
+
+    await this.notificationService.sendNotification(
+      companyId.toString(),
+      `${user.name} applied for job ${job.title}`,
+      NotificationType.JOB,
+      userId
+    );
   }
 
   async hasApplied(jobId: string, userId: string): Promise<boolean> {

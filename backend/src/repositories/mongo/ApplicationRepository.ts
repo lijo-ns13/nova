@@ -20,7 +20,11 @@ import {
 } from "../../core/dtos/company/getapplications.dto";
 import jobModal from "../../models/job.modal";
 import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
-
+export interface ApplyToJobInput {
+  jobId: string;
+  userId: string;
+  resumeMediaId: string;
+}
 @injectable()
 export class ApplicationRepository
   extends BaseRepository<IApplication>
@@ -173,16 +177,16 @@ export class ApplicationRepository
     return ApplicationMapper.toUserAndJobDTO(doc);
   }
 
-  async create(entity: Partial<IApplication>): Promise<IApplication> {
+  async CreateApplication(input: ApplyToJobInput): Promise<IApplication> {
     try {
-      const { job, user, resumeMediaId } = entity;
+      const { jobId, userId, resumeMediaId } = input;
 
-      if (!job || !user || !resumeMediaId) {
-        throw new Error("Missing required fields: job, user, or resumeMediaId");
+      if (!jobId || !userId || !resumeMediaId) {
+        throw new Error("Missing jobId, userId or resumeMediaId");
       }
       const application = new this.model({
-        job: new Types.ObjectId(job),
-        user: new Types.ObjectId(user),
+        job: new Types.ObjectId(jobId),
+        user: new Types.ObjectId(userId),
         resumeMediaId: new Types.ObjectId(resumeMediaId),
         appliedAt: new Date(),
         status: ApplicationStatus.APPLIED,

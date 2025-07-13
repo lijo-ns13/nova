@@ -27,6 +27,8 @@ export interface GetJobResponseDTO {
   company: {
     id: string;
     companyName: string;
+    username: string;
+    foundedYear: string;
   };
 }
 
@@ -67,7 +69,7 @@ export interface IApplicationPopulated extends Omit<IApplication, "job"> {
 export interface IJobWithCompanyAndSkills
   extends Omit<IJob, "skillsRequired" | "company"> {
   skillsRequired: ISkill[];
-  company: Pick<ICompany, "_id" | "companyName">;
+  company: Pick<ICompany, "_id" | "companyName" | "username" | "foundedYear">;
 }
 export class UserJobMapper {
   static toJobResponse(job: IJobPopulated): JobResponseDTO {
@@ -131,6 +133,8 @@ export class UserJobMapper {
       company: {
         id: job.company._id.toString(),
         companyName: job.company.companyName,
+        username: job.company.username,
+        foundedYear: job.company.foundedYear.toString(),
       },
     };
   }

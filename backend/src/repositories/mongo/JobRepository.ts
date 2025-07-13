@@ -14,7 +14,11 @@ import { inject } from "inversify";
 import { TYPES } from "../../di/types";
 import { IJobWithSkills } from "../../mapping/job.mapper";
 import { ISkill } from "../../models/skill.modal";
-import { IJobPopulated } from "../../mapping/user/jobmapper";
+import {
+  IJobPopulated,
+  IJobWithCompanyAndSkills,
+} from "../../mapping/user/jobmapper";
+import { ICompany } from "../../models/company.modal";
 
 type PopulatedUser = {
   _id: Types.ObjectId;
@@ -97,10 +101,11 @@ export class JobRepository
     return { jobs, total };
   }
 
-  async getJob(jobId: string): Promise<IJobWithSkills | null> {
+  async getJob(jobId: string): Promise<IJobWithCompanyAndSkills | null> {
     return await jobModal
       .findById(jobId)
-      .populate<{ skillsRequired: ISkill[] }>("skillsRequired") // ✅ typed populate
+      .populate<{ skillsRequired: ISkill[] }>("skillsRequired")
+      .populate<{ company: Pick<ICompany, "_id" | "companyName"> }>("company")
       .exec();
   }
 

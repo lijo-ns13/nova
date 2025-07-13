@@ -4,19 +4,23 @@ import {
   IPostServiceResponse,
   IPostServiceResponsePaginated,
 } from "../../../core/entities/post";
+import { UpdatePostInput } from "../../../core/dtos/user/post/post";
+import { PostResponseDTO } from "../../../mapping/user/postmapper";
 
 export interface IPostService {
   createPost(
     creatorId: string,
     description: string,
     mediaFiles: Express.Multer.File[]
-  ): Promise<IPost>;
+  ): Promise<PostResponseDTO>;
+  deletePost(postId: string, userId: string): Promise<boolean>;
+  updatePostDescription(input: UpdatePostInput): Promise<PostResponseDTO>;
   getPost(postId: string): Promise<IPostServiceResponse>;
   getAllPost(
     page: number,
     limit: number
   ): Promise<IPostServiceResponsePaginated>;
-  deletePost(postId: string, userId: string): Promise<IPost | null>;
+
   getUsersPosts(
     userId: string,
     page: number,

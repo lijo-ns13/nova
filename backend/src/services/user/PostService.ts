@@ -11,6 +11,9 @@ import {
 } from "../../core/entities/post";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { IUser } from "../../models/user.modal";
+import { PostMapper, PostResponseDTO } from "../../mapping/user/postmapper";
+import { UpdatePostInput } from "../../core/dtos/user/post/post";
+import { UserData } from "aws-sdk/clients/ec2";
 export interface IPostPopulated extends Omit<IPost, "mediaIds" | "creatorId"> {
   creatorId: IUser; // populated user
   mediaIds: IMedia[]; // populated media list
@@ -239,7 +242,4 @@ export class PostService {
       throw new Error(`Failed to get user posts: ${(error as Error).message}`);
     }
   }
-}
-function alert(arg0: string) {
-  throw new Error("Function not implemented.");
 }

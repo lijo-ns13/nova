@@ -92,7 +92,7 @@ export class UserProfileController implements IUserProfileController {
       const s3Key = await this._mediaService.uploadSingleMedia(
         file,
         userId,
-        "USER"
+        "User"
       );
       const signedUrl = await this.userProfileService.updateProfileImage(
         userId,

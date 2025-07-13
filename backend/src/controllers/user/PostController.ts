@@ -9,6 +9,12 @@ import {
   ICommentServiceResponse,
 } from "../../interfaces/services/ICommentService";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
+import {
+  createPostSchema,
+  updatePostSchema,
+} from "../../core/validations/user/post.validator";
+import { handleControllerError } from "../../utils/errorHandler";
+import { UpdatePostInput } from "../../core/dtos/user/post/post";
 interface Userr {
   id: string;
   email: string;
@@ -23,7 +29,7 @@ export class PostController implements IPostController {
     @inject(TYPES.CommentService) private _commentService: ICommentService
   ) {}
 
-  async create(req: Request, res: Response) {
+  public async create(req: Request, res: Response) {
     try {
       const { description } = req.body;
       console.log("req.body in post contorler", req.body);
@@ -47,11 +53,11 @@ export class PostController implements IPostController {
     try {
       const { postId } = req.params;
       const post = await this._postService.getPost(postId);
-      return res
+       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, post: post });
     } catch (error) {
-      return res
+       res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
         .json({ error: (error as Error).message, how: "lksjfls" });
     }
@@ -61,7 +67,7 @@ export class PostController implements IPostController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const posts = await this._postService.getAllPost(page, limit);
-      return res.status(HTTP_STATUS_CODES.OK).json(posts);
+      return  res.status(HTTP_STATUS_CODES.OK).json(posts);
     } catch (error) {
       return res
         .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)

@@ -9,7 +9,7 @@ import {
 import {
   getNetworkUsers,
   followUser,
-  unFollowUser,
+  unfollowUser,
 } from "../services/FollowService";
 
 import NetworkCard from "../componets/network/NetworkCard";
@@ -47,8 +47,8 @@ const NetworkPage: React.FC = () => {
         setLoading(true);
         setError(null);
         const response = await getNetworkUsers();
-        setNetworkUsers(response);
-        setFilteredUsers(response);
+        // setNetworkUsers(response);
+        // setFilteredUsers(response);
         setCurrentPage(1); // Reset to first page when data changes
       } catch (err) {
         setError(
@@ -104,7 +104,7 @@ const NetworkPage: React.FC = () => {
 
   const handleUnfollow = async (userId: string) => {
     try {
-      await unFollowUser(userId);
+      await unfollowUser(userId);
       updateUserFollowingStatus(userId, false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to unfollow user");

@@ -1,9 +1,10 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
-import { IUser } from "./user.modal";
+
 import { ILike } from "./like.modal";
 
 export interface IPost extends Document {
-  creatorId: IUser | Types.ObjectId;
+  _id: Types.ObjectId;
+  creatorId: Types.ObjectId;
   mediaIds: Types.ObjectId[];
   description?: string;
   isDeleted: boolean;

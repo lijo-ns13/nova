@@ -38,7 +38,7 @@ export class PostRepository
       .skip(skip)
       .limit(limit)
       .populate("mediaIds")
-      .populate("creatorId", "name username profilePicture")
+      .populate("creatorId", "name username profilePicture headline")
       .populate({ path: "Likes" })
       .sort({ createdAt: -1 });
   }
@@ -73,5 +73,16 @@ export class PostRepository
 
   async findById(postId: string): Promise<IPost | null> {
     return this.model.findById(postId);
+  }
+  async createPost(input: {
+    creatorId: string;
+    description: string;
+    mediaIds: string[];
+  }): Promise<IPost> {
+    return this.model.create({
+      creatorId: new Types.ObjectId(input.creatorId),
+      description: input.description,
+      mediaIds: input.mediaIds.map((id) => new Types.ObjectId(id)),
+    });
   }
 }

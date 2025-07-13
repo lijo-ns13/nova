@@ -6,10 +6,10 @@ import { Link } from "react-router-dom";
 import {
   getFollowers,
   getFollowing,
-  checkIsFollowUser,
+  checkFollowStatus,
   followUser,
-  unFollowUser,
-  NetworkUserGetUsers,
+  unfollowUser,
+  NetworkUser,
 } from "../../services/FollowService";
 import UserListModal from "../modals/UserListModal";
 import toast from "react-hot-toast";
@@ -31,7 +31,7 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
     null
   );
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
-  const [users, setUsers] = useState<NetworkUserGetUsers[]>([]);
+  const [users, setUsers] = useState<NetworkUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [followersCount, setFollowersCount] = useState(
     userData.followers?.length || 0
@@ -41,7 +41,7 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
   );
 
   const checkStatus = async () => {
-    const res = await checkIsFollowUser(userData._id);
+    const res = await checkFollowStatus(userData._id);
     setIsFollowing(res.isFollowing || false);
   };
 
@@ -58,8 +58,8 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
         type === "followers"
           ? await getFollowers(userData._id)
           : await getFollowing(userData._id);
-      console.log(response.data, "bla");
-      setUsers(response.data);
+      // console.log(response.data, "bla");
+      // setUsers(response.data);
       setModalType(type);
     } catch (error) {
       console.error(`Error fetching ${type}:`, error);
@@ -101,7 +101,7 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
 
   const handleUnfollow = async () => {
     try {
-      const res: FollowResponse = await unFollowUser(userData._id);
+      const res: FollowResponse = await unfollowUser(userData._id);
       if (res.success) {
         setIsFollowing(false);
         // Decrement followers count when unfollowing

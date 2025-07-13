@@ -35,11 +35,23 @@ export class UserProfileService implements IUserProfileService {
     private _userRepository: IUserRepository,
     @inject(TYPES.MediaService) private _mediaService: IMediaService
   ) {}
+  // async getUserProfile(userId: string): Promise<GetUserProfileResponseDTO> {
+  //   const user = await this._userRepository.getUserProfile(userId);
+  //   if (!user) throw new Error("user not found");
+  //   const s3Key = user && user.profilePicture ? user.profilePicture : "";
+  //   const signedUrl = await this._mediaService.getMediaUrl(s3Key);
+  //   return UserProfileMapper.toProfileDTO(user, signedUrl);
+  // }
   async getUserProfile(userId: string): Promise<GetUserProfileResponseDTO> {
     const user = await this._userRepository.getUserProfile(userId);
-    if (!user) throw new Error("user not found");
-    const s3Key = user && user.profilePicture ? user.profilePicture : "";
-    const signedUrl = await this._mediaService.getMediaUrl(s3Key);
+    if (!user) {
+      throw new Error("User not found"); // Use your custom error class
+    }
+
+    const signedUrl = user.profilePicture
+      ? await this._mediaService.getMediaUrl(user.profilePicture)
+      : "";
+
     return UserProfileMapper.toProfileDTO(user, signedUrl);
   }
 

@@ -7,29 +7,27 @@ import {
 } from "../../services/ProfileService";
 import { useAppSelector } from "../../../../hooks/useAppSelector";
 import BaseModal from "../modals/BaseModal";
-import { uploadToCloudinary } from "../../../company/services/cloudinaryService";
+
 import ReactCrop, { Crop as ReactCropType } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { Crop, X } from "lucide-react";
 import { useAppDispatch } from "../../../../hooks/useAppDispatch";
 import toast from "react-hot-toast";
-import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
-import { cloudinaryService } from "../../../../services/cloudinaryService";
-
-function ProfileImage() {
-  const { id, profilePicture: userProfilePicture } = useAppSelector(
+type props = {
+  profilePicture: string;
+  setProfilePicture: (url: string) => void;
+};
+function ProfileImage({ profilePicture, setProfilePicture }: props) {
+  const { profilePicture: userProfilePicture } = useAppSelector(
     (state) => state.auth
   );
   const dispatch = useAppDispatch();
   const [isImageModalOpen, setIsImageModalOpen] = useState<boolean>(false);
-  const [profilePicture, setProfilePicture] =
-    useState<string>(userProfilePicture);
+
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [srcImage, setSrcImage] = useState<string | null>(null);
   const [isCropping, setIsCropping] = useState<boolean>(false);
-  const [imageKey, setImageKey] = useState<number>(Date.now());
-  const [isIt, setIsIt] = useState<boolean>(false);
-  const [signedUrl, setSignedUrl] = useState<string>("");
+
   const [crop, setCrop] = useState<ReactCropType>({
     unit: "%",
     width: 30,
@@ -46,52 +44,10 @@ function ProfileImage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (id) {
-      fetchUserData(id);
-    }
-  }, [id]);
-  useEffect(() => {
-    const fetchSignedUrl = async () => {
-      if (!profilePicture) {
-        setSignedUrl(""); // fallback later
-        return;
-      }
-      try {
-        const { url } = await cloudinaryService.getMediaUrl(profilePicture);
-        setSignedUrl(`${url}`); // ✅ cache-busting
-      } catch (err) {
-        console.error("Failed to get signed URL:", err);
-        setSignedUrl(""); // fallback later
-      }
-    };
-
-    fetchSignedUrl();
-  }, [profilePicture]);
-  useEffect(() => {
-    setImageKey(Date.now());
-    // This forces remount of SecureCloudinaryImage
-    setIsIt(!!isIt);
-  }, [profilePicture]);
-  useEffect(() => {
-    if (isImageModalOpen && profilePicture) {
-      setProfilePicture(userProfilePicture); // reset so `SecureCloudinaryImage` fetches again
-    }
-  }, [isImageModalOpen]);
-
-  useEffect(() => {
     if (completedCrop && imageRef.current && previewCanvasRef.current) {
       generateCroppedImage();
     }
   }, [completedCrop]);
-
-  async function fetchUserData(id: string) {
-    try {
-      const res = await getUserProfile(id);
-      setProfilePicture(res.profilePicture);
-    } catch (error) {
-      console.error("Failed to fetch user profile:", error);
-    }
-  }
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -148,7 +104,7 @@ function ProfileImage() {
   };
 
   const handleApplyCrop = async () => {
-    if (!completedCrop || !previewCanvasRef.current || !id) return;
+    if (!completedCrop || !previewCanvasRef.current) return;
 
     setIsUploading(true);
     try {
@@ -156,18 +112,17 @@ function ProfileImage() {
         async (blob) => {
           if (!blob) return;
 
-          const url = await uploadToCloudinary(blob);
-          const res = await updateProfileImage(id, url);
-
+          const res = await updateProfileImage(blob);
+          console.log("resprofileimage update", res);
           if (res) {
             dispatch(
               updateSlice({
-                profilePicture: res.profilePicture,
+                profilePicture: res,
               })
             );
           }
           toast.success("Profile Image updated");
-          setProfilePicture(url);
+          setProfilePicture(res);
           setIsCropping(false);
           setSrcImage(null);
           setIsImageModalOpen(false);
@@ -184,9 +139,8 @@ function ProfileImage() {
   };
 
   const handleDeleteImage = async () => {
-    if (!id) return;
     try {
-      await deleteProfileImage(id);
+      await deleteProfileImage();
       setProfilePicture("");
       setIsImageModalOpen(false);
 
@@ -205,24 +159,13 @@ function ProfileImage() {
       {/* Profile Image with click to open modal */}
       <div className="flex-shrink-0">
         <div className="relative">
-          {/* <img
-            src={profilePicture || "/api/placeholder/150/150"}
+          <img
+            src={profilePicture || "/default.png"}
             alt="Profile"
             className="w-32 h-32 rounded-full object-cover border-4 border-gray-100 cursor-pointer hover:border-gray-200 transition"
             onClick={() => setIsImageModalOpen(true)}
-          /> */}
-          {/* <img
-            src={userProfilePicture || "/default-avatar.png"}
-            alt="profile"
-            onClick={() => setIsImageModalOpen(true)}
-            className="rounded-full object-cover w-32 h-32 border-4 border-gray-100 cursor-pointer hover:border-gray-200 transition"
-          /> */}
-          <SecureCloudinaryImage
-            publicId={userProfilePicture}
-            alt="profile"
-            onClick={() => setIsImageModalOpen(true)}
-            className="rounded-full object-cover w-32 h-32 border-4 border-gray-100 cursor-pointer hover:border-gray-200 transition"
           />
+
           <div
             className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-20 rounded-full transition-opacity cursor-pointer"
             onClick={() => setIsImageModalOpen(true)}
@@ -316,14 +259,9 @@ function ProfileImage() {
           ) : (
             <>
               <div className="flex justify-center">
-                {/* <img
-                  src={profilePicture || "/api/placeholder/150/150"}
+                <img
+                  src={profilePicture || "/default.png"}
                   alt="Profile"
-                  className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
-                /> */}
-                <SecureCloudinaryImage
-                  publicId={profilePicture}
-                  alt={"profile"}
                   className="w-32 h-32 rounded-full object-cover border-4 border-gray-100"
                 />
               </div>

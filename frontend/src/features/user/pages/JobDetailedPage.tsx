@@ -1,83 +1,60 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { getJob, getJobAppliedStatus } from "../services/JobServices";
 import ApplyModal from "../componets/ApplyModal";
 import {
   Briefcase,
   MapPin,
   DollarSign,
-  Calendar,
   Clock,
   GraduationCap,
   Globe,
   Check,
-  Building2,
   Share2,
   Star,
-  Sparkles,
   ArrowLeft,
-  ExternalLink,
+  Building,
+  Calendar,
+  User,
 } from "lucide-react";
 import BaseModal from "../componets/modals/BaseModal";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 
-// Define TypeScript interfaces for better type safety
-interface Salary {
-  currency: string;
-  min: number;
-  max: number;
-  isVisibleToApplicants: boolean;
-}
-
-interface Skill {
-  _id: string;
-  title: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
-interface Company {
-  _id: string;
-  companyName: string;
-  about: string;
-  email: string;
-  industryType: string;
-  foundedYear: number;
-  location: string;
-  jobPosted?: any[];
-  isVerified: boolean;
-  isBlocked: boolean;
-  verificationStatus: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
-interface Job {
-  _id: string;
-  id?: string;
+export interface JobResponseDTO {
+  id: string;
   title: string;
   description: string;
   location: string;
   jobType: string;
   employmentType: string;
   experienceLevel: string;
-  skillsRequired: Skill[];
-  benefits: string[];
-  perks: string[];
+  skills: string[];
   applicationDeadline: string;
-  company: Company;
-  salary: Salary;
   status: string;
+}
+
+export interface GetJobResponseDTO extends JobResponseDTO {
+  salary: {
+    currency: string;
+    min: number;
+    max: number;
+    isVisibleToApplicants: boolean;
+  };
+  benefits: string[];
+  perks?: string[];
   createdAt: string;
   updatedAt: string;
-  __v: number;
+  company: {
+    id: string;
+    companyName: string;
+    foundedYear: string;
+    username: string;
+  };
 }
 
 function JobDetailedPage() {
   const { jobId } = useParams<{ jobId: string }>();
-  const [job, setJob] = useState<Job | null>(null);
+  const [job, setJob] = useState<GetJobResponseDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showApplyModal, setShowApplyModal] = useState(false);
@@ -86,30 +63,24 @@ function JobDetailedPage() {
   const [isApplied, setIsApplied] = useState<boolean>(false);
 
   const applyLimit = import.meta.env.VITE_FREE_JOB_APPLY_COUNT || 2;
-
-  // updated
   const { appliedJobCount, isSubscriptionTaken } = useAppSelector(
     (state) => state.auth
   );
   const [showSubscriptionModal, setShowSubscriptionModal] =
     useState<boolean>(false);
-  const handleCloseSubscriptionModal = () => {
-    setShowSubscriptionModal(false);
-  };
 
   const fetch = async () => {
     if (jobId) {
       await fetchJobDetails(jobId);
       const res = await getJobAppliedStatus(jobId);
-      console.log("status", res.data.hasApplied);
-      setIsApplied(res.data.hasApplied);
+      setIsApplied(res.data);
     }
   };
+
   useEffect(() => {
     fetch();
   }, [jobId]);
 
-  // Show success notification for 5 seconds
   useEffect(() => {
     if (applicationSuccess) {
       setShowSuccessNotification(true);
@@ -124,9 +95,7 @@ function JobDetailedPage() {
     setLoading(true);
     try {
       const res = await getJob(id);
-      // Access the first element of the array if response is an array
-      const jobData = Array.isArray(res) ? res[0] : res;
-      setJob(jobData);
+      setJob(res.data);
       setError("");
     } catch (err) {
       setError("Failed to load job details.");
@@ -137,7 +106,6 @@ function JobDetailedPage() {
   }
 
   const handleApply = () => {
-    // Check if user has subscription or if they haven't reached the application limit
     if (
       isSubscriptionTaken ||
       (appliedJobCount !== undefined && appliedJobCount < applyLimit)
@@ -149,40 +117,52 @@ function JobDetailedPage() {
     }
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
+    const shareData = {
+      title: job?.title || "Job Opportunity",
+      text: `Check out this job: ${job?.title} at ${job?.company?.companyName}`,
+      url: window.location.href,
+    };
+
     if (navigator.share) {
-      navigator
-        .share({
-          title: job?.title || "Job Opportunity",
-          text: `Check out this job: ${job?.title} at ${job?.company?.companyName}`,
-          url: window.location.href,
-        })
-        .catch((error) => console.log("Error sharing", error));
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log("Error sharing:", err);
+      }
     } else {
-      // Fallback - copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
-      alert("Link copied to clipboard!");
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        alert("Link copied to clipboard!");
+      } catch (err) {
+        console.log("Clipboard write failed:", err);
+      }
     }
   };
 
   const formatSalary = () => {
-    if (!job?.salary) return "Competitive Salary";
-
-    if (job.salary.isVisibleToApplicants) {
-      const currency = job.salary.currency || "IND";
-      const min = job.salary.min;
-      const max = job.salary.max;
-
-      return `${currency} ₹${min} LPA - ₹${max} LPA `;
+    if (!job?.salary || !job.salary.isVisibleToApplicants) {
+      return "Competitive Salary";
     }
 
-    return "Competitive Salary";
+    const currencySymbol = "₹"; // Since it's Indian Rupees
+    const minLPA = job.salary.min;
+    const maxLPA = job.salary.max;
+
+    return `${currencySymbol}${minLPA} LPA - ${currencySymbol}${maxLPA} LPA`;
   };
 
   const getApplyBtnClass = () => {
-    return job?.status === "open"
-      ? "w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-      : "w-full bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 cursor-not-allowed";
+    const baseClass =
+      "w-full font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2";
+
+    if (job?.status !== "open") {
+      return `${baseClass} bg-gray-300 text-gray-600 cursor-not-allowed`;
+    }
+    if (isApplied) {
+      return `${baseClass} bg-green-100 text-green-800 cursor-default`;
+    }
+    return `${baseClass} bg-black text-white hover:bg-gray-800`;
   };
 
   const getDaysRemaining = () => {
@@ -201,24 +181,30 @@ function JobDetailedPage() {
   const getExperienceLevelLabel = (level: string) => {
     switch (level?.toLowerCase()) {
       case "entry":
-        return "Entry Level";
+        return "Entry Level (0-2 years)";
       case "mid":
-        return "Mid Level";
+        return "Mid Level (2-5 years)";
       case "senior":
-        return "Senior Level";
-      case "lead":
-        return "Lead Level";
+        return "Senior Level (5+ years)";
       default:
         return level || "Not Specified";
     }
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   if (loading) {
     return (
-      <div className="flex h-96 items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          <p className="text-gray-500 animate-pulse">Loading job details...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+          <p className="text-gray-600">Loading job details...</p>
         </div>
       </div>
     );
@@ -226,400 +212,375 @@ function JobDetailedPage() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-8 rounded-lg text-center max-w-2xl mx-auto my-8">
-        <div className="text-xl font-semibold mb-2">Error Loading Job</div>
-        <p>{error}</p>
-        <button
-          onClick={() => fetchJobDetails(jobId || "")}
-          className="mt-4 bg-red-100 hover:bg-red-200 text-red-700 font-medium py-2 px-4 rounded-md transition-colors"
-        >
-          Try Again
-        </button>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="max-w-md mx-4 p-6 bg-white rounded-lg border border-gray-200 text-center">
+          <div className="text-xl font-semibold mb-2 text-gray-800">
+            Error Loading Job
+          </div>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => fetchJobDetails(jobId || "")}
+            className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
 
   if (!job) {
     return (
-      <div className="text-center py-16 max-w-2xl mx-auto">
-        <div className="text-gray-400 text-6xl mb-4">404</div>
-        <h2 className="text-2xl font-bold text-gray-700 mb-2">Job Not Found</h2>
-        <p className="text-gray-500">
-          The job posting you're looking for doesn't exist or has been removed.
-        </p>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="max-w-md mx-4 p-6 text-center">
+          <div className="text-6xl mb-4 text-gray-300">404</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            Job Not Found
+          </h2>
+          <p className="text-gray-600 mb-4">
+            The job posting you're looking for doesn't exist or has been
+            removed.
+          </p>
+          <Link
+            to="/jobs"
+            className="inline-flex items-center text-black hover:text-gray-600 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            <span>Browse all jobs</span>
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 bg-gray-50 min-h-screen">
-      {/* Back button */}
-      <div className="mb-4">
-        <button
-          onClick={() => window.history.back()}
-          className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          <span>Back to Jobs</span>
-        </button>
-      </div>
+    <div className="bg-white min-h-screen">
       {/* Success notification */}
       {showSuccessNotification && (
-        <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-md z-50 animate-fade-in">
-          <div className="flex items-center">
-            <Check className="h-5 w-5 mr-2 text-green-600" />
-            <span>Application submitted successfully!</span>
-          </div>
+        <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded-lg shadow-lg z-50 flex items-center animate-fade-in">
+          <Check className="h-5 w-5 mr-2" />
+          <span>Application submitted successfully!</span>
         </div>
       )}
-      {/* Header with actions */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 md:p-6 mb-6 transition-all hover:shadow-md">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          <div>
-            <div className="flex flex-wrap items-center gap-2 text-sm mb-2">
-              <span
-                className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                  job.status === "open"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-yellow-100 text-yellow-800"
-                }`}
-              >
-                {job.status === "open" ? "Actively Hiring" : "Closed"}
-              </span>
-              <span className="text-gray-500 text-xs">
-                Posted{" "}
-                {new Date(job.createdAt).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </span>
-            </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
-              {job.title}
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="font-medium text-gray-800">
-                {job.company?.companyName || "Company Name"}
-              </span>
-              {job.company?.isVerified && (
-                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full flex items-center">
-                  <Check className="h-3 w-3 mr-1" /> Verified
+
+      {/* Main content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back button */}
+        <div className="mb-6">
+          <Link
+            to="/jobs"
+            className="inline-flex items-center text-black hover:text-gray-600 transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            <span className="font-medium">Back to Jobs</span>
+          </Link>
+        </div>
+
+        {/* Job header */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-6">
+            <div className="flex-1">
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    job.status === "open"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  {job.status === "open" ? "Actively Hiring" : "Closed"}
                 </span>
+                <span className="text-gray-500 text-sm">
+                  Posted {formatDate(job.createdAt)}
+                </span>
+              </div>
+
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {job.title}
+              </h1>
+
+              <div className="flex items-center gap-2 mb-4">
+                <Link
+                  to={`/company/${job.company.username}`}
+                  className="font-medium text-gray-800 hover:text-black transition-colors"
+                >
+                  {job.company.companyName}
+                </Link>
+              </div>
+
+              <div className="flex flex-wrap gap-4">
+                <div className="flex items-center text-gray-600">
+                  <MapPin className="h-5 w-5 mr-1.5 text-gray-500" />
+                  <span>{job.location || "Remote"}</span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <Briefcase className="h-5 w-5 mr-1.5 text-gray-500" />
+                  <span className="capitalize">
+                    {job.employmentType.replace("-", " ")}
+                  </span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <span>{formatSalary()}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleShare}
+                className="p-2.5 rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+                aria-label="Share job"
+              >
+                <Share2 className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Deadline Banner */}
+          {job.applicationDeadline && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center mb-2 sm:mb-0">
+                <Clock className="h-5 w-5 text-amber-600 mr-2" />
+                <div>
+                  <span className="text-amber-800 font-medium">
+                    Application Deadline:{" "}
+                  </span>
+                  <span className="text-amber-700">
+                    {formatDate(job.applicationDeadline)}
+                  </span>
+                </div>
+              </div>
+              <div className="text-sm font-medium text-amber-700">
+                {getDaysRemaining()}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Job Description */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h2 className="text-2xl font-semibold mb-4 text-gray-900">
+                Job Description
+              </h2>
+              <div className="prose max-w-none text-gray-700 whitespace-pre-line">
+                {job.description || "No description provided."}
+              </div>
+            </div>
+
+            {/* Skills Required */}
+            {job.skills?.length > 0 && (
+              <div className="bg-white rounded-xl border border-gray-200 p-6">
+                <h2 className="text-2xl font-semibold mb-4 text-gray-900">
+                  Skills Required
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {job.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-sm font-medium"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Benefits & Perks */}
+            {(job.benefits?.length > 0 || job.perks?.length > 0) && (
+              <div className="bg-white rounded-xl border border-gray-200 p-6">
+                <h2 className="text-2xl font-semibold mb-4 text-gray-900">
+                  Benefits & Perks
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {job.benefits?.map((benefit, index) => (
+                    <div
+                      key={`benefit-${index}`}
+                      className="flex items-start p-3 bg-gray-50 rounded-lg"
+                    >
+                      <Check className="h-5 w-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">{benefit}</span>
+                    </div>
+                  ))}
+                  {job.perks?.map((perk, index) => (
+                    <div
+                      key={`perk-${index}`}
+                      className="flex items-start p-3 bg-gray-50 rounded-lg"
+                    >
+                      <Check className="h-5 w-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">{perk}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Company Info */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h2 className="text-xl font-semibold mb-4 text-gray-900">
+                About the Company
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Building className="h-5 w-5 text-gray-500" />
+                  <div>
+                    <h3 className="font-medium text-gray-900">
+                      {job.company.companyName}
+                    </h3>
+                    <Link
+                      to={`/company/${job.company.username}`}
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      View company profile
+                    </Link>
+                  </div>
+                </div>
+                {job.company.foundedYear && (
+                  <div className="flex items-center gap-3 text-gray-700">
+                    <Calendar className="h-5 w-5 text-gray-500" />
+                    <span>Founded in {job.company.foundedYear}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-3 text-gray-700">
+                  <User className="h-5 w-5 text-gray-500" />
+                  <span>@{job.company.username}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Job Details */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h2 className="text-xl font-semibold mb-4 text-gray-900">
+                Job Details
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">
+                    Experience Level
+                  </h3>
+                  <p className="text-gray-900">
+                    {getExperienceLevelLabel(job.experienceLevel)}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">
+                    Job Type
+                  </h3>
+                  <p className="text-gray-900 capitalize">
+                    {job.jobType?.replace("-", " ") || "Not specified"}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">
+                    Employment Type
+                  </h3>
+                  <p className="text-gray-900 capitalize">
+                    {job.employmentType?.replace("-", " ") || "Not specified"}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">Posted</h3>
+                  <p className="text-gray-900">{formatDate(job.createdAt)}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">
+                    Last Updated
+                  </h3>
+                  <p className="text-gray-900">{formatDate(job.updatedAt)}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Apply Section */}
+            <div className="sticky top-6 bg-white rounded-xl border border-gray-200 p-6">
+              {isApplied ? (
+                <button className={getApplyBtnClass()} disabled>
+                  <Check className="h-5 w-5" />
+                  <span>Application Submitted</span>
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  <button
+                    onClick={handleApply}
+                    disabled={job.status !== "open"}
+                    className={getApplyBtnClass()}
+                  >
+                    {job.status === "open"
+                      ? "Apply Now"
+                      : "Applications Closed"}
+                  </button>
+                  {!isSubscriptionTaken && job.status === "open" && (
+                    <p className="text-center text-sm text-gray-500">
+                      {appliedJobCount !== undefined ? (
+                        <>
+                          {applyLimit - appliedJobCount} free{" "}
+                          {applyLimit - appliedJobCount === 1
+                            ? "application"
+                            : "applications"}{" "}
+                          remaining
+                        </>
+                      ) : (
+                        "Loading application limit..."
+                      )}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {job.status === "open" && !isApplied && (
+                <p className="text-center text-sm text-gray-500 mt-3">
+                  Easy application process, takes only a few minutes
+                </p>
               )}
             </div>
           </div>
-          <div className="flex gap-2 md:justify-end">
-            <button
-              onClick={handleShare}
-              className="p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
-              aria-label="Share job"
-            >
-              <Share2 className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Key Details */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
-          <div className="bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
-            <div className="flex items-center text-gray-500 mb-1">
-              <Briefcase className="h-4 w-4 mr-1" />
-              <span className="text-xs">Type</span>
-            </div>
-            <div className="font-medium capitalize text-sm md:text-base">
-              {job.employmentType?.replace("-", " ") || "Not Specified"}
-            </div>
-          </div>
-          <div className="bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
-            <div className="flex items-center text-gray-500 mb-1">
-              <MapPin className="h-4 w-4 mr-1" />
-              <span className="text-xs">Location</span>
-            </div>
-            <div className="font-medium text-sm md:text-base">
-              {job.location || "Not Specified"}
-            </div>
-          </div>
-          <div className="bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
-            <div className="flex items-center text-gray-500 mb-1">
-              <DollarSign className="h-4 w-4 mr-1" />
-              <span className="text-xs">Salary</span>
-            </div>
-            <div className="font-medium text-sm md:text-base">
-              {formatSalary()}
-            </div>
-          </div>
-          <div className="bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
-            <div className="flex items-center text-gray-500 mb-1">
-              <GraduationCap className="h-4 w-4 mr-1" />
-              <span className="text-xs">Experience</span>
-            </div>
-            <div className="font-medium capitalize text-sm md:text-base">
-              {getExperienceLevelLabel(job.experienceLevel)}
-            </div>
-          </div>
-          <div className="bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
-            <div className="flex items-center text-gray-500 mb-1">
-              <Globe className="h-4 w-4 mr-1" />
-              <span className="text-xs">Work Mode</span>
-            </div>
-            <div className="font-medium capitalize text-sm md:text-base">
-              {job.jobType || "Not Specified"}
-            </div>
-          </div>
-        </div>
-
-        {/* Deadline Banner */}
-        {job.applicationDeadline && (
-          <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 md:p-4 mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center">
-              <Clock className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0" />
-              <div>
-                <span className="text-amber-800 font-medium">
-                  Application Deadline:{" "}
-                </span>
-                <span className="text-amber-700">
-                  {new Date(job.applicationDeadline).toLocaleDateString(
-                    "en-US",
-                    {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    }
-                  )}
-                </span>
-              </div>
-            </div>
-            <div className="text-sm font-medium text-amber-600 mt-2 sm:mt-0 sm:ml-4">
-              {getDaysRemaining()}
-            </div>
-          </div>
-        )}
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6 md:space-y-8">
-          {/* Job Description */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 md:p-6 transition-all hover:shadow-md">
-            <h2 className="text-xl md:text-2xl font-semibold mb-4 flex items-center">
-              <span className="bg-blue-100 p-1.5 rounded-lg mr-2">
-                <Briefcase className="h-5 w-5 text-blue-600" />
-              </span>
-              Job Description
-            </h2>
-            <div className="space-y-4 text-gray-700 prose prose-blue max-w-none whitespace-pre-line">
-              {job.description || "No description provided."}
-            </div>
-          </div>
-
-          {/* Skills Required */}
-          {job.skillsRequired?.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 md:p-6 transition-all hover:shadow-md">
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <span className="bg-purple-100 p-1.5 rounded-lg mr-2">
-                  <Sparkles className="h-5 w-5 text-purple-600" />
-                </span>
-                Required Skills
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {job.skillsRequired.map((skill: Skill) => (
-                  <span
-                    key={skill._id}
-                    className="px-3 py-1.5 bg-purple-50 text-purple-700 border border-purple-100 rounded-full text-sm font-medium flex items-center"
-                  >
-                    {skill.title}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Benefits & Perks */}
-          {(job.benefits?.length > 0 || job.perks?.length > 0) && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 md:p-6 transition-all hover:shadow-md">
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <span className="bg-green-100 p-1.5 rounded-lg mr-2">
-                  <Star className="h-5 w-5 text-green-600" />
-                </span>
-                Benefits & Perks
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                {job.benefits?.map((benefit: string, index: number) => (
-                  <div
-                    key={`benefit-${index}`}
-                    className="flex items-center bg-green-50 p-3 rounded-lg hover:bg-green-100 transition-colors"
-                  >
-                    <Check className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    <span className="text-gray-800">{benefit}</span>
-                  </div>
-                ))}
-                {job.perks?.map((perk: string, index: number) => (
-                  <div
-                    key={`perk-${index}`}
-                    className="flex items-center bg-green-50 p-3 rounded-lg hover:bg-green-100 transition-colors"
-                  >
-                    <Check className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    <span className="text-gray-800">{perk}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <div className="lg:col-span-1">
-          {/* Apply section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 md:p-6 sticky top-6 transition-all hover:shadow-md">
-            {isApplied ? (
-              <button
-                className="w-full bg-green-100 text-green-800 font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 cursor-default"
-                disabled
-              >
-                <Check className="h-5 w-5" />
-                Already Applied
-              </button>
-            ) : (
-              <div className="space-y-2">
-                <button
-                  onClick={handleApply}
-                  disabled={job.status !== "open"}
-                  className={getApplyBtnClass()}
-                >
-                  {job.status === "open" ? "Apply Now" : "Applications Closed"}
-                </button>
-                {!isSubscriptionTaken && job.status === "open" && (
-                  <p className="text-center text-xs text-gray-500">
-                    {appliedJobCount !== undefined ? (
-                      <>
-                        {applyLimit - appliedJobCount} free{" "}
-                        {applyLimit - appliedJobCount === 1
-                          ? "application"
-                          : "applications"}{" "}
-                        remaining
-                      </>
-                    ) : (
-                      "Loading application limit..."
-                    )}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {job.status === "open" && !isApplied && (
-              <p className="text-center text-sm text-gray-500 mt-2">
-                Easy application process, takes only a few minutes
-              </p>
-            )}
-
-            <div className="my-6 border-t border-gray-200 pt-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <Building2 className="h-5 w-5 mr-2 text-gray-600" />
-                About the Company
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <div className="h-14 w-14 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl mr-3">
-                    {job.company?.companyName?.charAt(0) || "C"}
-                  </div>
-                  <div>
-                    <p className="font-medium">
-                      {job.company?.companyName || "Company Name"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {job.company?.industryType || "Industry"}
-                    </p>
-                  </div>
-                </div>
-
-                <p className="text-gray-700 text-sm border-l-4 border-gray-200 pl-3">
-                  {job.company?.about || "No company description available."}
-                </p>
-
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="flex items-center text-gray-600">
-                    <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                    <span>Est. {job.company?.foundedYear || "N/A"}</span>
-                  </div>
-                  <div className="flex items-center text-gray-600">
-                    <MapPin className="h-4 w-4 mr-2 text-gray-500" />
-                    <span>{job.company?.location || "Location N/A"}</span>
-                  </div>
-
-                  <div className="flex items-center text-gray-600">
-                    <ExternalLink className="h-4 w-4 mr-2 text-gray-500" />
-                    <span className="text-blue-600 hover:underline cursor-pointer">
-                      Company website
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                Job ID:{" "}
-                <span className="font-normal text-gray-500">
-                  {job._id.slice(0, 8)}...
-                </span>
-              </h3>
-              <div className="text-xs text-gray-500">
-                <p>Posted on {new Date(job.createdAt).toLocaleDateString()}</p>
-                <p>
-                  Last updated on {new Date(job.updatedAt).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
+
       {/* Apply Modal */}
       {showApplyModal && (
         <ApplyModal
-          jobId={job._id}
+          jobId={job.id}
           onClose={() => setShowApplyModal(false)}
           onApplySuccess={() => {
             setApplicationSuccess(true);
             setShowApplyModal(false);
+            fetch(); // Refresh application status
           }}
         />
       )}
-      {applicationSuccess && (
-        <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-md z-50 animate-fade-in">
-          <div className="flex items-center">
-            <Check className="h-5 w-5 mr-2 text-green-600" />
-            <span>Application submitted successfully!</span>
-          </div>
-        </div>
-      )}
-      // Update the subscription modal to show job application specific message
+
+      {/* Subscription Modal */}
       <BaseModal
         isOpen={showSubscriptionModal}
-        onClose={handleCloseSubscriptionModal}
-        title="Free Application Limit Reached"
+        onClose={() => setShowSubscriptionModal(false)}
+        title="Upgrade Required"
       >
         <div className="space-y-4">
-          <p>
-            You've reached your free job application limit ({applyLimit}{" "}
-            applications). To continue applying for jobs, please subscribe to
-            our premium plan.
+          <p className="text-gray-700">
+            You've used all {applyLimit} free job applications. Upgrade to our
+            premium plan to continue applying for jobs.
           </p>
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-3 pt-4">
             <button
-              onClick={handleCloseSubscriptionModal}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              onClick={() => setShowSubscriptionModal(false)}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              Close
+              Cancel
             </button>
-            <button
-              onClick={() => {
-                // Here you would typically redirect to the subscription page
-                window.location.href = "/subscription";
-                handleCloseSubscriptionModal();
-              }}
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+            <Link
+              to="/subscription"
+              className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors text-center"
+              onClick={() => setShowSubscriptionModal(false)}
             >
-              Subscribe Now
-            </button>
+              View Plans
+            </Link>
           </div>
         </div>
       </BaseModal>

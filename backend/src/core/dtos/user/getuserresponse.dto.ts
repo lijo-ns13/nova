@@ -5,16 +5,9 @@ export interface GetUserProfileResponseDTO {
   email: string;
   headline: string;
   about: string;
-  profilePicture: string | null; // signed URL
-  skills: string[];
-  certifications: string[];
-  experiences: string[];
-  educations: string[];
-  projects: string[];
+  profilePicture?: string; // signed URL
   followersCount: number;
   followingCount: number;
-  appliedJobs: string[];
-  savedJobs: string[];
   appliedJobCount: number;
   createdPostCount: number;
 }

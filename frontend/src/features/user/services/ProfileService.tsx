@@ -28,28 +28,36 @@ const API_BASE_URL = `${BASE_URL}/user-profile`;
 
 // User Profile
 export const getUserProfile = async (userId: string) => {
-  const response = await userAxios.get(`${API_BASE_URL}/${userId}`);
+  const response = await userAxios.get(`${API_BASE_URL}`);
   return response.data;
 };
 
 export const updateUserProfile = async (userId: string, data: any) => {
-  const response = await userAxios.patch(`${API_BASE_URL}/${userId}`, data, {
+  const response = await userAxios.patch(`${API_BASE_URL}`, data, {
     withCredentials: true,
   });
   return response.data;
 };
 
-export const updateProfileImage = async (userId: string, imageUrl: string) => {
-  const response = await userAxios.put(
-    `${API_BASE_URL}/${userId}/profile-image`,
-    { imageUrl },
-    { withCredentials: true }
-  );
-  return response.data;
-};
+export const updateProfileImage = async (file: Blob) => {
+  const formData = new FormData();
+  formData.append("file", file);
 
-export const deleteProfileImage = async (userId: string): Promise<void> => {
-  await userAxios.delete(`${API_BASE_URL}/${userId}/profile-image`, {
+  const response = await userAxios.put(
+    `${API_BASE_URL}/profile-image`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    }
+  );
+
+  return response.data.data; // this will be your signed URL from backend
+};
+export const deleteProfileImage = async (): Promise<void> => {
+  await userAxios.delete(`${API_BASE_URL}/profile-image`, {
     withCredentials: true,
   });
 };
@@ -61,7 +69,7 @@ export const addEducation = async (
 ): Promise<EducationResponseDTO> => {
   try {
     const response = await userAxios.post<APIResponse<EducationResponseDTO>>(
-      `${API_BASE_URL}/${userId}/education`,
+      `${API_BASE_URL}/education`,
       input,
       { withCredentials: true }
     );
@@ -78,7 +86,7 @@ export const editEducation = async (
 ): Promise<EducationResponseDTO> => {
   try {
     const response = await userAxios.patch<APIResponse<EducationResponseDTO>>(
-      `${API_BASE_URL}/${userId}/education/${educationId}`,
+      `${API_BASE_URL}/education/${educationId}`,
       data,
       { withCredentials: true }
     );
@@ -94,7 +102,7 @@ export const deleteEducation = async (
 ): Promise<boolean> => {
   try {
     const response = await userAxios.delete<APIResponse<boolean>>(
-      `${API_BASE_URL}/${userId}/education/${educationId}`,
+      `${API_BASE_URL}/education/${educationId}`,
       {
         withCredentials: true,
       }
@@ -109,7 +117,7 @@ export const getEducations = async (
 ): Promise<EducationResponseDTO[]> => {
   try {
     const res = await userAxios.get<APIResponse<EducationResponseDTO[]>>(
-      `${API_BASE_URL}/${userId}/educations`
+      `${API_BASE_URL}/educations`
     );
     return res.data.data;
   } catch (error) {
@@ -124,7 +132,7 @@ export const addExperience = async (
 ): Promise<ExperienceResponseDTO> => {
   try {
     const response = await userAxios.post<APIResponse<ExperienceResponseDTO>>(
-      `${API_BASE_URL}/${userId}/experience`,
+      `${API_BASE_URL}/experience`,
       experience,
       { withCredentials: true }
     );
@@ -141,7 +149,7 @@ export const editExperience = async (
 ): Promise<ExperienceResponseDTO> => {
   try {
     const response = await userAxios.patch<APIResponse<ExperienceResponseDTO>>(
-      `${API_BASE_URL}/${userId}/experience/${experienceId}`,
+      `${API_BASE_URL}/experience/${experienceId}`,
       data,
       { withCredentials: true }
     );
@@ -157,7 +165,7 @@ export const deleteExperience = async (
 ): Promise<boolean> => {
   try {
     const res = await userAxios.delete<APIResponse<boolean>>(
-      `${API_BASE_URL}/${userId}/experience/${experienceId}`,
+      `${API_BASE_URL}/experience/${experienceId}`,
       { withCredentials: true }
     );
     return res.data.data;
@@ -170,7 +178,7 @@ export const getExperience = async (
 ): Promise<ExperienceResponseDTO[]> => {
   try {
     const res = await userAxios.get<APIResponse<ExperienceResponseDTO[]>>(
-      `${API_BASE_URL}/${userId}/experiences`
+      `${API_BASE_URL}/experiences`
     );
     return res.data.data;
   } catch (error) {
@@ -184,7 +192,7 @@ export const addProject = async (
 ): Promise<ProjectResponseDTO> => {
   try {
     const response = await userAxios.post<APIResponse<ProjectResponseDTO>>(
-      `${API_BASE_URL}/${userId}/project`,
+      `${API_BASE_URL}/project`,
       project,
       { withCredentials: true }
     );
@@ -201,7 +209,7 @@ export const editProject = async (
 ): Promise<ProjectResponseDTO> => {
   try {
     const response = await userAxios.patch<APIResponse<ProjectResponseDTO>>(
-      `${API_BASE_URL}/${userId}/project/${projectId}`,
+      `${API_BASE_URL}/project/${projectId}`,
       data,
       { withCredentials: true }
     );
@@ -217,7 +225,7 @@ export const deleteProject = async (
 ): Promise<boolean> => {
   try {
     const res = await userAxios.delete<APIResponse<boolean>>(
-      `${API_BASE_URL}/${userId}/project/${projectId}`,
+      `${API_BASE_URL}/project/${projectId}`,
       {
         withCredentials: true,
       }
@@ -232,7 +240,7 @@ export const getProjects = async (
 ): Promise<ProjectResponseDTO[]> => {
   try {
     const res = await userAxios.get<APIResponse<ProjectResponseDTO[]>>(
-      `${API_BASE_URL}/${userId}/projects`
+      `${API_BASE_URL}/projects`
     );
     return res.data.data;
   } catch (error) {
@@ -246,7 +254,7 @@ export const addCertificate = async (
 ): Promise<CertificateResponseDTO> => {
   try {
     const response = await userAxios.post<APIResponse<CertificateResponseDTO>>(
-      `${API_BASE_URL}/${userId}/certificate`,
+      `${API_BASE_URL}/certificate`,
       certificate,
       { withCredentials: true }
     );
@@ -263,7 +271,7 @@ export const editCertificate = async (
 ): Promise<CertificateResponseDTO> => {
   try {
     const response = await userAxios.patch<APIResponse<CertificateResponseDTO>>(
-      `${API_BASE_URL}/${userId}/certificate/${certificateId}`,
+      `${API_BASE_URL}/certificate/${certificateId}`,
       data,
       { withCredentials: true }
     );
@@ -279,7 +287,7 @@ export const deleteCertificate = async (
 ): Promise<boolean> => {
   try {
     const res = await userAxios.delete<APIResponse<boolean>>(
-      `${API_BASE_URL}/${userId}/certificate/${certificateId}`,
+      `${API_BASE_URL}/certificate/${certificateId}`,
       { withCredentials: true }
     );
     return res.data.data;
@@ -293,7 +301,7 @@ export const getCertificates = async (
 ): Promise<CertificateResponseDTO[]> => {
   try {
     const res = await userAxios.get<APIResponse<CertificateResponseDTO[]>>(
-      `${API_BASE_URL}/${userId}/certificates`
+      `${API_BASE_URL}/certificates`
     );
     return res.data.data;
   } catch (error) {

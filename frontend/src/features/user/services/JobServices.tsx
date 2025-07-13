@@ -1,75 +1,142 @@
+export interface JobResponseDTO {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  jobType: string;
+  employmentType: string;
+  experienceLevel: string;
+  skills: string[];
+  applicationDeadline: string;
+  status: string;
+}
+
+export interface GetJobResponseDTO extends JobResponseDTO {
+  salary: {
+    currency: string;
+    min: number;
+    max: number;
+    isVisibleToApplicants: boolean;
+  };
+  benefits: string[];
+  perks?: string[];
+  createdAt: string;
+  updatedAt: string;
+  company: {
+    id: string;
+    companyName: string;
+    foundedYear: string;
+    username: string;
+  };
+}
+
+export interface AppliedJobResponseDTO extends JobResponseDTO {
+  applicationId: string;
+  userId: string;
+  appliedAt: string;
+}
+export interface JobFilterParams {
+  page?: number;
+  limit?: number;
+  title?: string;
+  location?: string;
+  jobType?: string | string[];
+  employmentType?: string | string[];
+  experienceLevel?: string | string[];
+  skills?: string | string[];
+  minSalary?: number;
+  maxSalary?: number;
+  company?: string;
+}
+
+export interface PaginatedJobResponse {
+  jobs: JobResponseDTO[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+import { APIResponse } from "../../../types/api";
+import { handleApiError } from "../../../utils/apiError";
 import userAxios from "../../../utils/userAxios";
-import { JobFilterParams, PaginatedJobResponse } from "../types/jobTypes";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+// ✅ Get all jobs with filters + pagination
 export const getJobs = async (
   filters: JobFilterParams = {}
-): Promise<PaginatedJobResponse> => {
-  const params = new URLSearchParams();
+): Promise<APIResponse<PaginatedJobResponse>> => {
+  try {
+    const params = new URLSearchParams();
 
-  // Add pagination params
-  if (filters.page) params.append("page", filters.page.toString());
-  if (filters.limit) params.append("limit", filters.limit.toString());
+    if (filters.page) params.append("page", filters.page.toString());
+    if (filters.limit) params.append("limit", filters.limit.toString());
+    if (filters.title) params.append("title", filters.title);
+    if (filters.location) params.append("location", filters.location);
 
-  // Add filter params
-  if (filters.title) params.append("title", filters.title);
-  if (filters.location) params.append("location", filters.location);
-  if (filters.jobType) {
-    if (Array.isArray(filters.jobType)) {
-      filters.jobType.forEach((type) => params.append("jobType", type));
-    } else {
-      params.append("jobType", filters.jobType);
-    }
-  }
-  if (filters.employmentType) {
-    if (Array.isArray(filters.employmentType)) {
-      filters.employmentType.forEach((type) =>
-        params.append("employmentType", type)
-      );
-    } else {
-      params.append("employmentType", filters.employmentType);
-    }
-  }
-  if (filters.experienceLevel) {
-    if (Array.isArray(filters.experienceLevel)) {
-      filters.experienceLevel.forEach((level) =>
-        params.append("experienceLevel", level)
-      );
-    } else {
-      params.append("experienceLevel", filters.experienceLevel);
-    }
-  }
-  if (filters.skills) {
-    if (Array.isArray(filters.skills)) {
-      filters.skills.forEach((skill) => params.append("skills", skill));
-    } else {
-      params.append("skills", filters.skills);
-    }
-  }
-  if (filters.minSalary)
-    params.append("minSalary", filters.minSalary.toString());
-  if (filters.maxSalary)
-    params.append("maxSalary", filters.maxSalary.toString());
-  if (filters.company) params.append("company", filters.company);
+    const appendArrayParam = (key: string, value: string | string[]) => {
+      if (Array.isArray(value)) {
+        value.forEach((v) => params.append(key, v));
+      } else {
+        params.append(key, value);
+      }
+    };
 
-  const response = await userAxios.get(
-    `${API_BASE_URL}/jobs?${params.toString()}`
-  );
-  return response.data;
-};
-// Get one job by ID
-export const getJob = async (jobId: string) => {
-  const response = await userAxios.get(`${API_BASE_URL}/jobs/${jobId}`);
-  return response.data;
-};
-export const getJobAppliedStatus = async (jobId: string) => {
-  const response = await userAxios.get(
-    `${API_BASE_URL}/jobs/${jobId}/check-application`
-  );
-  return response.data;
+    if (filters.jobType) appendArrayParam("jobType", filters.jobType);
+    if (filters.employmentType)
+      appendArrayParam("employmentType", filters.employmentType);
+    if (filters.experienceLevel)
+      appendArrayParam("experienceLevel", filters.experienceLevel);
+    if (filters.skills) appendArrayParam("skills", filters.skills);
+    if (filters.minSalary)
+      params.append("minSalary", filters.minSalary.toString());
+    if (filters.maxSalary)
+      params.append("maxSalary", filters.maxSalary.toString());
+    if (filters.company) params.append("company", filters.company);
+
+    const res = await userAxios.get<APIResponse<PaginatedJobResponse>>(
+      `${API_BASE_URL}/jobs?${params.toString()}`
+    );
+
+    return res.data;
+  } catch (err) {
+    throw handleApiError(err, "Failed to fetch jobs");
+  }
 };
 
+// ✅ Get single job
+export const getJob = async (
+  jobId: string
+): Promise<APIResponse<GetJobResponseDTO>> => {
+  try {
+    const res = await userAxios.get<APIResponse<GetJobResponseDTO>>(
+      `${API_BASE_URL}/jobs/${jobId}`
+    );
+    return res.data;
+  } catch (err) {
+    throw handleApiError(err, "Failed to fetch job details");
+  }
+};
+
+// ✅ Check application status
+export const getJobAppliedStatus = async (
+  jobId: string
+): Promise<APIResponse<boolean>> => {
+  try {
+    const res = await userAxios.get<APIResponse<boolean>>(
+      `${API_BASE_URL}/jobs/${jobId}/check-application`,
+      { withCredentials: true }
+    );
+    return res.data;
+  } catch (err) {
+    throw handleApiError(err, "Failed to check application status");
+  }
+};
+
+// ✅ Apply to job
 interface ApplyJobParams {
   jobId: string;
   resumeFile: File;
@@ -80,73 +147,43 @@ export const applyJob = async ({
   jobId,
   resumeFile,
   coverLetter,
-}: ApplyJobParams) => {
-  const formData = new FormData();
-  formData.append("resume", resumeFile);
-  if (coverLetter) {
-    formData.append("coverLetter", coverLetter);
-  }
-
-  const response = await userAxios.post(
-    `${API_BASE_URL}/jobs/${jobId}/apply`,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      withCredentials: true,
+}: ApplyJobParams): Promise<APIResponse<boolean>> => {
+  try {
+    const formData = new FormData();
+    formData.append("resume", resumeFile);
+    if (coverLetter) {
+      formData.append("coverLetter", coverLetter);
     }
-  );
-  return response.data;
-};
 
-// Save a job
-export const saveJob = async (jobId: string) => {
-  const response = await userAxios.post(
-    `${API_BASE_URL}/jobs/${jobId}/save`,
-    {},
-    { withCredentials: true }
-  );
-  return response.data;
-};
-
-// Unsave a job
-export const unsaveJob = async (jobId: string) => {
-  const response = await userAxios.delete(
-    `${API_BASE_URL}/jobs/${jobId}/unsave`,
-    { withCredentials: true }
-  );
-  return response.data;
-};
-
-// Get all saved jobs
-export const getSavedJobs = async () => {
-  const response = await userAxios.get(
-    `${import.meta.env.VITE_API_BASE_URL}/jobs/saved-jobs`,
-    {
-      withCredentials: true,
-    }
-  );
-  console.log("responsedata in getSavedJobs", response.data);
-  return response.data;
-};
-
-// Get all applied jobs
-export const getAppliedJobs = async () => {
-  const response = await userAxios.get(`${API_BASE_URL}/jobs/applied-jobs/`, {
-    withCredentials: true,
-  });
-  return response.data;
-};
-
-export const updateInterviewStatus = async (
-  applicationId: string,
-  payload: {
-    status: "interview_accepted_by_user" | "interview_rejected_by_user";
+    const res = await userAxios.post<APIResponse<boolean>>(
+      `${API_BASE_URL}/jobs/${jobId}/apply`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      }
+    );
+    return res.data;
+  } catch (err) {
+    throw handleApiError(err, "Job application failed");
   }
-) => {
-  const response = await userAxios.patch(
-    `${API_BASE_URL}/interview/updatestatus/${applicationId}/${payload.status}`
-  );
-  return response.data;
+};
+
+// ✅ Get applied jobs
+export const getAppliedJobs = async (): Promise<
+  APIResponse<AppliedJobResponseDTO[]>
+> => {
+  try {
+    const res = await userAxios.get<APIResponse<AppliedJobResponseDTO[]>>(
+      `${API_BASE_URL}/jobs/applied-jobs/`,
+      {
+        withCredentials: true,
+      }
+    );
+    return res.data;
+  } catch (err) {
+    throw handleApiError(err, "Failed to fetch applied jobs");
+  }
 };

@@ -1,82 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { Briefcase, MapPin, Clock, Building, DollarSign } from "lucide-react";
-import { Job } from "../../types/jobTypes";
+import { JobResponseDTO } from "../../services/JobServices";
 import { getJobAppliedStatus } from "../../services/JobServices";
 
 interface JobCardProps {
-  job: Job;
+  job: JobResponseDTO;
 }
 
 const JobCard: React.FC<JobCardProps> = ({ job }) => {
   const [isApplied, setIsApplied] = useState<boolean>(false);
-  const fetch = async () => {
-    const res = await getJobAppliedStatus(job._id);
-    setIsApplied(res.data.hasApplied);
-  };
+
   useEffect(() => {
-    fetch();
-  }, [job]);
-  // Format salary range
-  const formatSalary = (salary: Job["salary"]) => {
-    if (!salary.isVisibleToApplicants) return "Salary not disclosed";
-    return `${
-      salary.currency
-    } ${salary.min.toLocaleString()} - ${salary.max.toLocaleString()}`;
-  };
+    const fetchStatus = async () => {
+      try {
+        const res = await getJobAppliedStatus(job.id);
+        setIsApplied(res.data); // `data` is boolean in APIResponse<boolean>
+      } catch (err) {
+        console.error("Failed to fetch application status", err);
+      }
+    };
 
-  // Get experience level badge color
-  const getExperienceLevelColor = (level: string) => {
-    switch (level) {
-      case "entry":
-        return "bg-green-100 text-green-800";
-      case "mid":
-        return "bg-blue-100 text-blue-800";
-      case "senior":
-        return "bg-purple-100 text-purple-800";
-      case "lead":
-        return "bg-orange-100 text-orange-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+    fetchStatus();
+  }, [job.id]);
 
-  // Get job type badge color
-  const getJobTypeColor = (type: string) => {
-    switch (type) {
-      case "remote":
-        return "bg-teal-100 text-teal-800";
-      case "onsite":
-        return "bg-amber-100 text-amber-800";
-      case "hybrid":
-        return "bg-indigo-100 text-indigo-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  // const formatSalary = (salary: JobResponseDTO["salary"]) => {
+  //   if (!salary.isVisibleToApplicants) return "Salary not disclosed";
+  //   return `${
+  //     salary.currency
+  //   } ${salary.min.toLocaleString()} - ${salary.max.toLocaleString()}`;
+  // };
 
-  // Get employment type badge color
-  const getEmploymentTypeColor = (type: string) => {
-    switch (type) {
-      case "full-time":
-        return "bg-blue-100 text-blue-800";
-      case "part-time":
-        return "bg-purple-100 text-purple-800";
-      case "contract":
-        return "bg-yellow-100 text-yellow-800";
-      case "internship":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  // Format date to relative time (e.g., "2 days ago")
   const getRelativeTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
     if (diffDays === 0) return "Today";
     if (diffDays === 1) return "Yesterday";
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -84,15 +42,40 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
     return `${Math.floor(diffDays / 30)} months ago`;
   };
 
+  const getBadgeClass = (
+    value: string,
+    type: "experience" | "jobType" | "employment"
+  ) => {
+    const map: Record<string, string> = {
+      // Experience
+      entry: "bg-green-100 text-green-800",
+      mid: "bg-blue-100 text-blue-800",
+      senior: "bg-purple-100 text-purple-800",
+      lead: "bg-orange-100 text-orange-800",
+
+      // Job Type
+      remote: "bg-teal-100 text-teal-800",
+      onsite: "bg-amber-100 text-amber-800",
+      hybrid: "bg-indigo-100 text-indigo-800",
+
+      // Employment Type
+      "full-time": "bg-blue-100 text-blue-800",
+      "part-time": "bg-purple-100 text-purple-800",
+      contract: "bg-yellow-100 text-yellow-800",
+      internship: "bg-green-100 text-green-800",
+    };
+
+    return map[value] || "bg-gray-100 text-gray-800";
+  };
+
   return (
     <a
-      href={`/jobs/${job._id}`}
+      href={`/jobs/${job.id}`}
       className="block bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
     >
       <div className="p-6">
         <div className="sm:flex sm:items-start sm:justify-between">
           <div className="sm:flex sm:items-start">
-            {/* Company logo placeholder */}
             <div className="flex-shrink-0 h-12 w-12 bg-gray-100 rounded-md flex items-center justify-center mr-4 hidden sm:flex">
               <Building className="h-6 w-6 text-gray-400" />
             </div>
@@ -101,7 +84,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
               <h2 className="text-xl font-semibold text-gray-900 mb-1">
                 {job.title}
               </h2>
-              <p className="text-gray-600 mb-2">{job.company.companyName}</p>
+              {/* <p className="text-gray-600 mb-2">{job.company.companyName}</p> */}
 
               <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-sm text-gray-500 mb-3">
                 <div className="flex items-center">
@@ -116,37 +99,40 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
                   </span>
                 </div>
 
-                <div className="flex items-center">
+                {/* <div className="flex items-center">
                   <DollarSign className="h-4 w-4 mr-1" />
                   <span>{formatSalary(job.salary)}</span>
-                </div>
+                </div> */}
 
-                <div className="flex items-center">
+                {/* <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-1" />
                   <span>{getRelativeTime(job.createdAt)}</span>
-                </div>
+                </div> */}
               </div>
 
               <div className="flex flex-wrap gap-2 mt-3">
                 <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getJobTypeColor(
-                    job.jobType
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBadgeClass(
+                    job.jobType,
+                    "jobType"
                   )}`}
                 >
                   {job.jobType}
                 </span>
 
                 <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getEmploymentTypeColor(
-                    job.employmentType
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBadgeClass(
+                    job.employmentType,
+                    "employment"
                   )}`}
                 >
                   {job.employmentType.replace("-", " ")}
                 </span>
 
                 <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExperienceLevelColor(
-                    job.experienceLevel
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getBadgeClass(
+                    job.experienceLevel,
+                    "experience"
                   )}`}
                 >
                   {job.experienceLevel} level
@@ -171,15 +157,15 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
           <p className="text-gray-600 line-clamp-2">{job.description}</p>
         </div>
 
-        {job.skillsRequired.length > 0 && (
+        {job.skills.length > 0 && (
           <div className="mt-4">
             <div className="flex flex-wrap gap-2">
-              {job.skillsRequired.map((skill) => (
+              {job.skills.map((skill) => (
                 <span
-                  key={skill._id}
+                  key={skill}
                   className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-800"
                 >
-                  {skill.title}
+                  {skill}
                 </span>
               ))}
             </div>

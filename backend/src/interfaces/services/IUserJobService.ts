@@ -9,15 +9,14 @@ export interface IUserJobService {
     query: GetAllJobsQueryInput
   ): Promise<{ jobs: JobResponseDTO[]; total: number; totalPages: number }>;
   // Get a single job by ID (only if open and not past deadline)
-  getJob(jobId: string): Promise<IJob | null>;
+  getJob(jobId: string): Promise<any>;
 
   // Apply to a job and record the application in the user's record
   applyToJob(
     jobId: string,
     userId: string,
-    resumeFile: Express.Multer.File,
-    coverLetter?: string
-  ): Promise<IApplication>;
+    resumeFile: Express.Multer.File
+  ): Promise<void>;
 
   getAppliedJobs(userId: string): Promise<any>;
   hasApplied(jobId: string, userId: string): Promise<boolean>;

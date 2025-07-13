@@ -10,6 +10,7 @@ import {
   GetApplicationsQuery,
 } from "../../core/dtos/company/getapplications.dto";
 import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
+import { ApplyToJobInput } from "../../repositories/mongo/ApplicationRepository";
 
 export interface IApplicationRepository extends IBaseRepository<IApplication> {
   findWithUserAndJobById(
@@ -34,7 +35,7 @@ export interface IApplicationRepository extends IBaseRepository<IApplication> {
   findByJobIdAndPop(userId: string): Promise<IApplication[]>;
   // findByJobIdAndPop(userId: string): Promise<IApplicationWithPopulatedJob[]>;
 
-  create(entity: Partial<IApplication>): Promise<IApplication>;
+  CreateApplication(input: ApplyToJobInput): Promise<IApplication>;
   rejectApplication(applicationId: string, reason?: string): Promise<boolean>;
   shortlistApplication(applicationId: string): Promise<boolean>;
   hasUserApplied(jobId: string, userId: string): Promise<boolean>;

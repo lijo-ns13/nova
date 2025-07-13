@@ -3,11 +3,19 @@ import { Search, Filter } from "lucide-react";
 import JobCard from "../componets/job/JobCard";
 import FilterPanel from "../componets/job/FilterPanel";
 import Pagination from "../componets/job/Pagination";
-import { getJobs, getJobAppliedStatus } from "../services/JobServices";
-import { Job, FilterOptions, PaginationState } from "../types/jobTypes";
+import { getJobs, JobResponseDTO } from "../services/JobServices";
+import { PaginationState } from "../types/jobTypes";
+
+interface FilterOptions {
+  jobType: string[];
+  employmentType: string[];
+  experienceLevel: string[];
+  minSalary: string;
+  maxSalary: string;
+}
 
 function JobPage() {
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<JobResponseDTO[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [locationTerm, setLocationTerm] = useState("");
@@ -28,20 +36,31 @@ function JobPage() {
 
   useEffect(() => {
     fetchJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.page, filters]);
+
+  const convertToJobFilterParams = () => {
+    return {
+      jobType: filters.jobType,
+      employmentType: filters.employmentType,
+      experienceLevel: filters.experienceLevel,
+      minSalary: filters.minSalary ? Number(filters.minSalary) : undefined,
+      maxSalary: filters.maxSalary ? Number(filters.maxSalary) : undefined,
+      title: searchTerm,
+      location: locationTerm,
+      page: pagination.page,
+      limit: pagination.limit,
+    };
+  };
 
   async function fetchJobs() {
     setIsLoading(true);
     try {
-      const res = await getJobs({
-        ...filters,
-        title: searchTerm,
-        location: locationTerm,
-        page: pagination.page,
-        limit: pagination.limit,
-      });
-      setJobs(res.data);
-      setPagination(res.pagination);
+      const queryParams = convertToJobFilterParams();
+      const res = await getJobs(queryParams);
+      console.log("all jobs in user side", res);
+      setJobs(res.data.jobs);
+      setPagination(res.data.pagination);
     } catch (err) {
       console.error("Error fetching jobs", err);
     } finally {
@@ -69,6 +88,7 @@ function JobPage() {
       maxSalary: "",
     });
     setSearchTerm("");
+    setLocationTerm("");
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
@@ -97,7 +117,6 @@ function JobPage() {
             />
           </div>
 
-          {/* Location Search */}
           <div className="relative flex-grow">
             <input
               type="text"
@@ -120,7 +139,6 @@ function JobPage() {
           </button>
         </div>
 
-        {/* Filter panel */}
         {showFilters && (
           <FilterPanel
             filters={filters}
@@ -131,6 +149,7 @@ function JobPage() {
         )}
       </div>
 
+      {/* Job listing */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-pulse flex space-x-4">
@@ -153,12 +172,11 @@ function JobPage() {
       ) : (
         <div className="space-y-4">
           {jobs.map((job) => (
-            <JobCard key={job._id} job={job} />
+            <JobCard key={job.id} job={job} />
           ))}
         </div>
       )}
 
-      {/* Pagination controls */}
       {jobs.length > 0 && (
         <Pagination
           pagination={pagination}

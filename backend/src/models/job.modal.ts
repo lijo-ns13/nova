@@ -69,7 +69,7 @@ export interface IJob extends Document {
   jobType: JobType;
   employmentType: EmploymentType;
   experienceLevel: ExperienceLevel;
-  company: Types.ObjectId | ICompany;
+  company: Types.ObjectId;
   skillsRequired: Types.ObjectId[];
   salary: SalaryRange;
   benefits: string[];
