@@ -1,27 +1,16 @@
-// src/core/interfaces/repositories/ICommentRepository.ts
-import { Types } from "mongoose";
+import {
+  CreateCommentDTO,
+  UpdateCommentDTO,
+} from "../../core/dtos/user/post/comment.dto";
 import { IComment } from "../../models/comment.modal";
 
 export interface ICommentRepository {
-  create(comment: Partial<IComment>): Promise<IComment>;
-  findById(commentId: string): Promise<IComment | null>;
-  findByPostId(
+  createComment(input: CreateCommentDTO): Promise<IComment>;
+  updateComment(input: UpdateCommentDTO): Promise<IComment>;
+  softDeleteComment(commentId: string, userId: string): Promise<void>;
+  getCommentsByPostId(
     postId: string,
-    page?: number,
-    limit?: number
+    page: number,
+    limit: number
   ): Promise<IComment[]>;
-  findByParentId(
-    parentId: string,
-    page?: number,
-    limit?: number
-  ): Promise<IComment[]>;
-  update(
-    commentId: string,
-    updates: Partial<IComment>
-  ): Promise<IComment | null>;
-  delete(commentId: string): Promise<boolean>;
-  addLike(commentId: string, userId: string): Promise<IComment | null>;
-  removeLike(commentId: string, userId: string): Promise<IComment | null>;
-  countByPostId(postId: string): Promise<number>;
-  hasUserLiked(commentId: string, userId: string): Promise<boolean>;
 }

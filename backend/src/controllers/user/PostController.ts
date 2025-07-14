@@ -4,13 +4,15 @@ import { TYPES } from "../../di/types";
 import { IPostService } from "../../interfaces/services/Post/IPostService";
 import { IPostController } from "../../interfaces/controllers/post/IPostController";
 import { ILikeService } from "../../interfaces/services/Post/ILikeService";
-import {
-  ICommentService,
-  ICommentServiceResponse,
-} from "../../interfaces/services/ICommentService";
+
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { handleControllerError } from "../../utils/errorHandler";
 import { CreatePostInputSchema } from "../../core/dtos/user/post/post";
+import { ICommentService } from "../../interfaces/services/Post/ICommentService";
+import {
+  CreateCommentSchema,
+  UpdateCommentSchema,
+} from "../../core/validations/user/comment.schema";
 interface Userr {
   id: string;
   email: string;
@@ -138,115 +140,109 @@ export class PostController implements IPostController {
     }
   }
 
-  // comment related
   async createComment(req: Request, res: Response): Promise<void> {
     try {
-      const { postId, content, parentId, authorName } = req.body;
-      const authorId = (req.user as Userr)?.id; // Assuming user is authenticated
-      // Assuming user has name property
+      const { postId, content, parentId, authorName } =
+        CreateCommentSchema.parse(req.body);
+      const authorId = (req.user as Userr).id;
 
-      const comment = await this._commentService.createComment(
+      const comment = await this._commentService.createComment({
         postId,
+        content,
         authorId,
         authorName,
-        content,
-        parentId
-      );
+        parentId,
+      });
 
-      res.status(HTTP_STATUS_CODES.CREATED).json(comment);
+      res.status(HTTP_STATUS_CODES.CREATED).json({
+        success: true,
+        message: "Comment created successfully.",
+        data: comment,
+      });
     } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: (error as Error).message });
+      handleControllerError(error, res, "Failed to create comment");
     }
   }
+
   async updateComment(req: Request, res: Response): Promise<void> {
     try {
       const { commentId } = req.params;
-      const { content } = req.body;
-      const userId = (req.user as Userr)?.id;
+      const { content } = UpdateCommentSchema.parse(req.body);
+      const userId = (req.user as Userr).id;
 
-      const updatedComment: ICommentServiceResponse =
-        await this._commentService.updateComment(commentId, content, userId);
+      const updatedComment = await this._commentService.updateComment({
+        commentId,
+        content,
+        userId,
+      });
 
-      res.status(HTTP_STATUS_CODES.OK).json(updatedComment);
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Comment updated successfully.",
+        data: updatedComment,
+      });
     } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
+      handleControllerError(error, res, "Failed to update comment");
     }
   }
 
   async deleteComment(req: Request, res: Response): Promise<void> {
     try {
       const { commentId } = req.params;
-      const userId = (req.user as Userr)?.id;
+      const userId = (req.user as Userr).id;
 
       await this._commentService.deleteComment(commentId, userId);
-      res
-        .status(HTTP_STATUS_CODES.OK)
-        .json({ message: "Comment deleted successfully." });
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Comment deleted successfully.",
+      });
     } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
+      handleControllerError(error, res, "Failed to delete comment");
     }
   }
 
-  async toggleLikeComment(req: Request, res: Response): Promise<void> {
-    try {
-      const { commentId } = req.params;
-      const userId = (req.user as Userr)?.id;
-
-      const result: ICommentServiceResponse =
-        await this._commentService.toggleLikeComment(commentId, userId);
-
-      res.status(HTTP_STATUS_CODES.OK).json(result);
-    } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ message: (error as Error).message });
-    }
-  }
   async getPostComments(req: Request, res: Response): Promise<void> {
     try {
       const { postId } = req.params;
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
 
-      const result = await this._commentService.getCommentsByPostId(
+      const comments = await this._commentService.getCommentsByPostId(
         postId,
         page,
         limit
       );
 
-      res.status(HTTP_STATUS_CODES.OK).json(result);
-    } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.BAD_REQUEST)
-        .json({ message: (error as Error).message });
-    }
-  }
-  // upodated getuserposts,delete post
-  async deletePost(req: Request, res: Response): Promise<void> {
-    try {
-      const { postId } = req.params;
-      const userId = (req.user as Userr)?.id;
-
-      // Delete the post
-      const deletedPost = await this._postService.deletePost(postId, userId);
-
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Post deleted successfully",
-        post: deletedPost,
+        message: "Fetched comments successfully.",
+        data: comments,
       });
-    } catch (err) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ error: (err as Error).message });
+    } catch (error) {
+      handleControllerError(error, res, "Failed to get post comments");
     }
   }
+  // // upodated getuserposts,delete post
+  // async deletePost(req: Request, res: Response): Promise<void> {
+  //   try {
+  //     const { postId } = req.params;
+  //     const userId = (req.user as Userr)?.id;
+
+  //     // Delete the post
+  //     const deletedPost = await this._postService.deletePost(postId, userId);
+
+  //     res.status(HTTP_STATUS_CODES.OK).json({
+  //       success: true,
+  //       message: "Post deleted successfully",
+  //       post: deletedPost,
+  //     });
+  //   } catch (err) {
+  //     res
+  //       .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+  //       .json({ error: (err as Error).message });
+  //   }
+  // }
 
   async getUsersPosts(req: Request, res: Response): Promise<void> {
     try {

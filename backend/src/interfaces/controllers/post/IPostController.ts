@@ -13,12 +13,11 @@ export interface IPostController {
 
   getUsersPosts(req: Request, res: Response): Promise<void>;
   // **like
-  likeOrUnlikePost(req: Request, res: Response): Promise<Response>;
-  getLikesForPost(req: Request, res: Response): Promise<Response>;
+  likeOrUnlikePost(req: Request, res: Response): Promise<void>;
+  getLikesForPost(req: Request, res: Response): Promise<void>;
   // comment
   createComment(req: Request, res: Response): Promise<void>;
-  getPostComments(req: Request, res: Response): Promise<void>;
   updateComment(req: Request, res: Response): Promise<void>;
   deleteComment(req: Request, res: Response): Promise<void>;
-  toggleLikeComment(req: Request, res: Response): Promise<void>;
+  getPostComments(req: Request, res: Response): Promise<void>;
 }

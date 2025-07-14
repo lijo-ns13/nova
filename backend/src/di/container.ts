@@ -97,7 +97,7 @@ import postModal, { IPost } from "../models/post.modal";
 import { LikeService } from "../services/user/LikeService";
 import { ILikeService } from "../interfaces/services/Post/ILikeService";
 import likeModal, { ILike } from "../models/like.modal";
-import { ICommentService } from "../interfaces/services/ICommentService";
+
 import { CommentService } from "../services/user/CommentService";
 import { IProfileViewService } from "../interfaces/services/IProfileViewService";
 import { ProfileViewService } from "../services/user/ProfileViewService";
@@ -181,8 +181,9 @@ import {
 } from "../controllers/CloudinaryController";
 import skillModal, { ISkill } from "../models/skill.modal";
 import { IMediaController } from "../interfaces/controllers/IMediaController";
-import { MediaController } from "../controllers/MediaController";
+// import { MediaController } from "../controllers/MediaController";
 import mediaModal, { IMedia } from "../models/media.modal";
+import { ICommentService } from "../interfaces/services/Post/ICommentService";
 // import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
@@ -465,5 +466,5 @@ container
   .to(CloudinaryController);
 
 // media
-container.bind<IMediaController>(TYPES.MediaController).to(MediaController);
+// container.bind<IMediaController>(TYPES.MediaController).to(MediaController);
 export default container;

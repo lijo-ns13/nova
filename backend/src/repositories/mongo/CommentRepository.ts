@@ -4,6 +4,10 @@ import { BaseRepository } from "./BaseRepository"; // wherever your base repo li
 import commentModal, { IComment } from "../../models/comment.modal";
 import { ICommentRepository } from "../../interfaces/repositories/ICommentRepository";
 import { TYPES } from "../../di/types";
+import {
+  CreateCommentDTO,
+  UpdateCommentDTO,
+} from "../../core/dtos/user/post/comment.dto";
 
 @injectable()
 export class CommentRepository
@@ -16,83 +20,66 @@ export class CommentRepository
     super(commentModal);
   }
 
-  // Override if you need to customize
-  async create(comment: Partial<IComment>): Promise<IComment> {
-    const newComment = await this.model.create(comment);
-    return await (
-      await newComment.populate("authorId", "name profilePicture")
-    ).populate("postId");
+  async createComment(input: CreateCommentDTO): Promise<IComment> {
+    const { postId, content, parentId, authorId, authorName } = input;
+
+    const path = parentId
+      ? [
+          ...(await commentModal
+            .findById(parentId)
+            ?.then((c) => c?.path || [])),
+          new Types.ObjectId(parentId),
+        ]
+      : [];
+
+    return commentModal.create({
+      postId: new Types.ObjectId(postId),
+      content,
+      parentId: parentId ? new Types.ObjectId(parentId) : null,
+      authorId: new Types.ObjectId(authorId),
+      authorName,
+      path,
+    });
   }
 
-  async findByPostId(
+  async updateComment({
+    commentId,
+    content,
+    userId,
+  }: UpdateCommentDTO): Promise<IComment> {
+    const comment = await commentModal.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(commentId),
+        authorId: new Types.ObjectId(userId),
+      },
+      { content },
+      { new: true }
+    );
+
+    if (!comment) throw new Error("Unauthorized or comment not found");
+
+    return comment;
+  }
+
+  async softDeleteComment(commentId: string, userId: string): Promise<void> {
+    const result = await commentModal.deleteOne({
+      _id: new Types.ObjectId(commentId),
+      authorId: new Types.ObjectId(userId),
+    });
+
+    if (result.deletedCount === 0)
+      throw new Error("Unauthorized or comment not found");
+  }
+
+  async getCommentsByPostId(
     postId: string,
-    page: number = 1,
-    limit: number = 10
+    page: number,
+    limit: number
   ): Promise<IComment[]> {
-    const skip = (page - 1) * limit;
-    return this.model
+    return commentModal
       .find({ postId: new Types.ObjectId(postId) })
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .populate("authorId", "name profilePicture username")
-      .exec();
-  }
-
-  async findByParentId(
-    parentId: string,
-    page: number = 1,
-    limit: number = 10
-  ): Promise<IComment[]> {
-    const skip = (page - 1) * limit;
-    return this.model
-      .find({ parentId: new Types.ObjectId(parentId) })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .exec();
-  }
-
-  async addLike(commentId: string, userId: string): Promise<IComment | null> {
-    return this.model
-      .findByIdAndUpdate(
-        commentId,
-        {
-          $addToSet: { likes: { userId: new Types.ObjectId(userId) } },
-          $inc: { likeCount: 1 },
-        },
-        { new: true }
-      )
-      .exec();
-  }
-
-  async removeLike(
-    commentId: string,
-    userId: string
-  ): Promise<IComment | null> {
-    return this.model
-      .findByIdAndUpdate(
-        commentId,
-        {
-          $pull: { likes: { userId: new Types.ObjectId(userId) } },
-          $inc: { likeCount: -1 },
-        },
-        { new: true }
-      )
-      .exec();
-  }
-
-  async hasUserLiked(commentId: string, userId: string): Promise<boolean> {
-    const comment = await this.model.findOne({
-      _id: commentId,
-      "likes.userId": new Types.ObjectId(userId),
-    });
-    return !!comment;
-  }
-
-  async countByPostId(postId: string): Promise<number> {
-    return this.model
-      .countDocuments({ postId: new Types.ObjectId(postId) })
-      .exec();
+      .skip((page - 1) * limit)
+      .limit(limit);
   }
 }
