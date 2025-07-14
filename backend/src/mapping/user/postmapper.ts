@@ -12,6 +12,7 @@ export interface CreatorDTO {
   name: string;
   profilePicture: string;
   headline: string;
+  username: string;
 }
 export interface MediaUrlDTO {
   url: string;

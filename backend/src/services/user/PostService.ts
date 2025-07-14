@@ -45,6 +45,7 @@ export class PostService {
       name: user.name,
       profilePicture: profilePictureUrl ?? "",
       headline: user.headline ?? "",
+      username: user.username ?? "",
     };
   }
 

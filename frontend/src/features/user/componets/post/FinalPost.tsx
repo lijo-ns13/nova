@@ -12,79 +12,49 @@ import Button from "../ui/Button";
 import CommentSection from "./CommentSection/CommentSection";
 import { Link } from "react-router-dom";
 import LikesButton from "./PostLikes/LikesButton";
-import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
-
-interface Media {
-  mediaUrl: string;
-  mimeType: string;
-}
-
-interface User {
-  _id: string;
-  name: string;
-  profilePicture: string;
-  username?: string;
-}
-
-interface ILike {
-  _id: string;
-  postId: string;
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
-interface Post {
-  _id: string;
-  creatorId: User;
-  description: string;
-  mediaUrls: Media[];
-  createdAt: string;
-  Likes: ILike[];
-}
+import { PostResponseDTO } from "../../types/post";
 
 interface PostProps {
-  post: Post;
+  post: PostResponseDTO;
   currentUserId: string;
   onLike?: (postId: string) => Promise<void>;
 }
 
 const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
-  const [likeCount, setLikeCount] = useState<number>(post.Likes.length);
+  const [likeCount, setLikeCount] = useState<number>(post.likes.length);
   const [liked, setLiked] = useState<boolean>(
-    post.Likes.some((like) => like.userId === currentUserId)
+    post.likes.some((like) => like.userId === currentUserId)
   );
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
-  const [showComments, setShowComments] = useState<boolean>(false);
+  // const [showComments, setShowComments] = useState<boolean>(false);
   const [isLikeAnimating, setIsLikeAnimating] = useState<boolean>(false);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
 
   // Preload next and previous images
   useEffect(() => {
-    if (post.mediaUrls.length <= 1) return;
+    if (post.media.length <= 1) return;
 
-    const nextIndex = (currentMediaIndex + 1) % post.mediaUrls.length;
+    const nextIndex = (currentMediaIndex + 1) % post.media.length;
     const prevIndex =
-      (currentMediaIndex - 1 + post.mediaUrls.length) % post.mediaUrls.length;
+      (currentMediaIndex - 1 + post.media.length) % post.media.length;
     const imagesToPreload = [nextIndex, prevIndex]
-      .map((index) => post.mediaUrls[index])
+      .map((index) => post.media[index])
       .filter((media) => media.mimeType.startsWith("image"));
 
     imagesToPreload.forEach((media) => {
       const img = new Image();
-      img.src = media.mediaUrl;
+      img.src = media.url;
       img.onload = () => {
-        setLoadedImages((prev) => new Set(prev).add(media.mediaUrl));
+        setLoadedImages((prev) => new Set(prev).add(media.url));
       };
     });
-  }, [currentMediaIndex, post.mediaUrls]);
+  }, [currentMediaIndex, post.media]);
 
   const handleLike = async () => {
     try {
       if (onLike) {
-        await onLike(post._id);
+        await onLike(post.id);
       }
 
       setIsLikeAnimating(true);
@@ -98,21 +68,18 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
   };
 
   const handleNextMedia = () => {
-    if (post.mediaUrls.length > 1 && !isTransitioning) {
+    if (post.media.length > 1 && !isTransitioning) {
       setIsTransitioning(true);
-      setCurrentMediaIndex(
-        (prevIndex) => (prevIndex + 1) % post.mediaUrls.length
-      );
+      setCurrentMediaIndex((prevIndex) => (prevIndex + 1) % post.media.length);
       setTimeout(() => setIsTransitioning(false), 300);
     }
   };
 
   const handlePrevMedia = () => {
-    if (post.mediaUrls.length > 1 && !isTransitioning) {
+    if (post.media.length > 1 && !isTransitioning) {
       setIsTransitioning(true);
       setCurrentMediaIndex(
-        (prevIndex) =>
-          (prevIndex - 1 + post.mediaUrls.length) % post.mediaUrls.length
+        (prevIndex) => (prevIndex - 1 + post.media.length) % post.media.length
       );
       setTimeout(() => setIsTransitioning(false), 300);
     }
@@ -128,9 +95,9 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
-  const toggleComments = () => {
-    setShowComments(!showComments);
-  };
+  // const toggleComments = () => {
+  //   setShowComments(!showComments);
+  // };
 
   const handleImageLoad = (mediaUrl: string) => {
     setLoadedImages((prev) => new Set(prev).add(mediaUrl));
@@ -142,16 +109,13 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
     <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 my-6 border border-gray-200 dark:border-gray-700 transform hover:translate-y-[-2px]">
       {/* Post Header */}
       <div className="flex items-center p-4 border-b border-gray-100 dark:border-gray-700">
-        {/* <Avatar
+        <Avatar
           src={post.creatorId.profilePicture}
           alt={post.creatorId.name}
           size="md"
           bordered
-        /> */}
-        <SecureCloudinaryImage
-          publicId={post.creatorId.profilePicture}
-          className="rounded-full w-10 h-10 object-cover"
         />
+
         <div className="ml-3 flex-1">
           <Link to={`/in/${post.creatorId.username}`}>
             <h3 className="text-base font-semibold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer">
@@ -175,9 +139,9 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
       </div>
 
       {/* Media Content */}
-      {post.mediaUrls.length > 0 && (
+      {post.media.length > 0 && (
         <div className="relative bg-gray-100 dark:bg-gray-900 group">
-          {post.mediaUrls.length > 1 && (
+          {post.media.length > 1 && (
             <button
               onClick={handlePrevMedia}
               className="absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
@@ -189,7 +153,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
           )}
 
           <div className="flex justify-center items-center overflow-hidden">
-            {post.mediaUrls.map((media, index) => (
+            {post.media.map((media, index) => (
               <div
                 key={index}
                 className={`w-full transition-opacity duration-300 ${
@@ -200,20 +164,18 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
               >
                 {media.mimeType.startsWith("image") ? (
                   <div className="relative group/image aspect-[4/3] bg-gray-200 dark:bg-gray-800">
-                    {!isImageLoaded(media.mediaUrl) && (
+                    {!isImageLoaded(media.url) && (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <Loader className="w-8 h-8 animate-spin text-gray-400" />
                       </div>
                     )}
                     <img
-                      src={media.mediaUrl}
+                      src={media.url}
                       alt={`Media ${index + 1}`}
                       className={`w-full h-full object-contain transition-opacity duration-300 ${
-                        isImageLoaded(media.mediaUrl)
-                          ? "opacity-100"
-                          : "opacity-0"
+                        isImageLoaded(media.url) ? "opacity-100" : "opacity-0"
                       }`}
-                      onLoad={() => handleImageLoad(media.mediaUrl)}
+                      onLoad={() => handleImageLoad(media.url)}
                       loading={index === currentMediaIndex ? "eager" : "lazy"}
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300"></div>
@@ -246,7 +208,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
                       <Button
                         variant="primary"
                         icon={<Download size={16} />}
-                        onClick={() => window.open(media.mediaUrl, "_blank")}
+                        onClick={() => window.open(media.url, "_blank")}
                       >
                         View PDF
                       </Button>
@@ -257,7 +219,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
             ))}
           </div>
 
-          {post.mediaUrls.length > 1 && (
+          {post.media.length > 1 && (
             <>
               <button
                 onClick={handleNextMedia}
@@ -269,7 +231,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
               </button>
 
               <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1.5 z-10">
-                {post.mediaUrls.map((_, index) => (
+                {post.media.map((_, index) => (
                   <button
                     key={index}
                     className={`w-2 h-2 rounded-full transition-all ${
@@ -295,11 +257,11 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
       )}
 
       {/* Post Actions */}
-      <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
+      {/* <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-5">
             <LikesButton
-              postId={post._id}
+              postId={post.id}
               likeCount={likeCount}
               liked={liked}
               isLikeAnimating={isLikeAnimating}
@@ -316,12 +278,12 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Comments Section */}
-      {showComments && (
-        <CommentSection postId={post._id} currentUserId={currentUserId} />
-      )}
+      {/* {showComments && (
+        <CommentSection postId={post.id} currentUserId={currentUserId} />
+      )} */}
     </div>
   );
 };
