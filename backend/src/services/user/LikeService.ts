@@ -7,6 +7,11 @@ import { INotificationService } from "../../interfaces/services/INotificationSer
 import { IPostRepository } from "../../interfaces/repositories/IPostRepository";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { NotificationType } from "../../models/notification.modal";
+import {
+  LikeMapper,
+  LikeResponseDTO,
+} from "../../mapping/user/post/likemapper";
+import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 
 @injectable()
 export class LikeService implements ILikeService {
@@ -15,7 +20,8 @@ export class LikeService implements ILikeService {
     @inject(TYPES.NotificationService)
     private notificationService: INotificationService,
     @inject(TYPES.PostRepository) private _postRepo: IPostRepository,
-    @inject(TYPES.UserRepository) private _userRepo: IUserRepository
+    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
+    @inject(TYPES.MediaService) private _mediaService: IMediaService
   ) {}
 
   async likeOrUnlikePost(
@@ -55,7 +61,21 @@ export class LikeService implements ILikeService {
     }
   }
 
-  async getLikesForPost(postId: string) {
-    return this._likeRepo.findLikesByPostId(postId);
+  async getLikesForPost(postId: string): Promise<LikeResponseDTO[]> {
+    const likes = await this._likeRepo.findLikesByPostId(postId);
+
+    return Promise.all(
+      likes.map(async (like) => {
+        let profilePictureUrl: string | null = null;
+
+        if (like.userId.profilePicture) {
+          profilePictureUrl = await this._mediaService.getMediaUrl(
+            like.userId.profilePicture
+          );
+        }
+
+        return LikeMapper.toDTO(like, profilePictureUrl);
+      })
+    );
   }
 }

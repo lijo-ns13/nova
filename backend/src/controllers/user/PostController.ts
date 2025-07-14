@@ -130,13 +130,14 @@ export class PostController implements IPostController {
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "successfuly fetched post likes",
+        message: "Successfully fetched post likes",
         data: likes,
       });
     } catch (error) {
-      handleControllerError(error, res, "failed to get post likes");
+      handleControllerError(error, res, "Failed to get post likes");
     }
   }
+
   // comment related
   async createComment(req: Request, res: Response): Promise<void> {
     try {

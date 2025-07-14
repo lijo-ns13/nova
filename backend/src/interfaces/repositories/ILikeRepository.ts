@@ -1,4 +1,6 @@
 import { ILike } from "../../models/like.modal";
+import { ILikePopulated } from "../../repositories/mongo/LikeRepository";
+
 import { IBaseRepository } from "./IBaseRepository";
 
 export interface ILikeRepository extends IBaseRepository<ILike> {
@@ -9,5 +11,5 @@ export interface ILikeRepository extends IBaseRepository<ILike> {
   deleteByPostIdAndUserId(postId: string, userId: string): Promise<boolean>;
 
   // Find all likes for a given postId
-  findLikesByPostId(postId: string): Promise<ILike[]>;
+  findLikesByPostId(postId: string): Promise<ILikePopulated[]>;
 }

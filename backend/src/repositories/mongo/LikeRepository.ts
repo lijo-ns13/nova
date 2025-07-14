@@ -3,9 +3,20 @@ import { inject, injectable } from "inversify";
 import { BaseRepository } from "./BaseRepository"; // Import BaseRepository
 
 import { Model, Types } from "mongoose";
-import likeModal, { ILike } from "../../models/like.modal";
+import { ILike } from "../../models/like.modal";
 import { ILikeRepository } from "../../interfaces/repositories/ILikeRepository";
 import { TYPES } from "../../di/types";
+export interface ILikePopulated {
+  _id: Types.ObjectId;
+  postId: Types.ObjectId;
+  userId: {
+    _id: Types.ObjectId;
+    name: string;
+    username: string;
+    profilePicture?: string;
+  };
+  createdAt: Date;
+}
 
 @injectable()
 export class LikeRepository
@@ -39,9 +50,13 @@ export class LikeRepository
   }
 
   // Custom method: Find all likes for a given postId
-  async findLikesByPostId(postId: string): Promise<ILike[]> {
-    return this.model
+  async findLikesByPostId(postId: string): Promise<ILikePopulated[]> {
+    const likes = await this.model
       .find({ postId: new Types.ObjectId(postId) })
-      .populate("userId", "name profilePicture username");
+      .populate("userId", "name username profilePicture")
+      .lean()
+      .exec(); // ✅ always call exec for async safety
+
+    return likes as unknown as ILikePopulated[];
   }
 }
