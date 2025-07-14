@@ -42,7 +42,7 @@ export const createPost = async (
   try {
     const formData = new FormData();
     formData.append("description", description);
-    files.forEach((file) => formData.append("files", file));
+    files.forEach((file) => formData.append("media", file));
 
     const response = await userAxios.post(`/post`, formData, {
       headers: {

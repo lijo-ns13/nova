@@ -8,9 +8,11 @@ import { useAppDispatch } from "../../../../hooks/useAppDispatch";
 import { updateCreatePostCount } from "../../../auth/auth.slice";
 import BaseModal from "../modals/BaseModal";
 import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { createPost } from "../../services/PostService";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { PostResponseDTO } from "../../types/post";
 const postLimit = import.meta.env.VITE_POST_CREATION_COUNT || 2;
-const BASE_URL = `${API_BASE_URL}`;
 interface CreatePostSectionProps {
   onPostSubmit?: () => void;
 }
@@ -28,6 +30,7 @@ interface PostData {
 const CreatePostSection: React.FC<CreatePostSectionProps> = ({
   onPostSubmit,
 }) => {
+  const queryClient = useQueryClient();
   const dispath = useAppDispatch();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const { profilePicture, name, isSubscriptionTaken, createdPostCount } =
@@ -54,48 +57,40 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
     setOpenModal(false);
   };
 
-  const handlePostSubmit = async (data: PostData) => {
-    try {
-      if (
-        !isSubscriptionTaken &&
-        createdPostCount &&
-        createdPostCount >= postLimit
-      ) {
-        setShowSubscriptionModal(true); // Show modal if limit reached
-        handleCloseModal(); // Close post modal if it's open
-        return; // Prevent post creation
-      }
-      // Create form data for backend submission
-      const formData = new FormData();
-      formData.append("description", data.description);
-
-      data.media.forEach((item) => {
-        formData.append(`media`, item.file);
-      });
-
-      // Example API call - replace with your actual API endpoint
-      const response = await fetch(`${BASE_URL}/post`, {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error("Failed to create post");
-
-      // Call the onPostSubmit callback if provided
-      if (onPostSubmit) {
-        if (createdPostCount) {
-          dispath(updateCreatePostCount((createdPostCount || 0) + 1));
+  const { mutate: createPostMutation, isPending: isCreating } = useMutation({
+    mutationFn: async (data: PostData) => {
+      const files: File[] = data.media.map((item) => item.file);
+      return await createPost(data.description, files);
+    },
+    onSuccess: (newPost) => {
+      toast.success("Post created successfully");
+      queryClient.setQueryData<PostResponseDTO[]>(
+        ["posts"],
+        (oldPosts = []) => {
+          return [newPost.data, ...oldPosts];
         }
-
-        onPostSubmit();
+      );
+      if (!createdPostCount != null) {
+        dispath(updateCreatePostCount(createdPostCount + 1));
       }
-
-      // Close the modal
+      if (onPostSubmit) onPostSubmit();
       handleCloseModal();
-    } catch (error) {
-      console.error("Error creating post:", error);
+    },
+    onError: () => {
+      toast.error("error occured in create post");
+    },
+  });
+  const handlePostSubmit = async (data: PostData) => {
+    if (
+      !isSubscriptionTaken &&
+      createdPostCount &&
+      createdPostCount >= postLimit
+    ) {
+      setShowSubscriptionModal(true); // Show modal if limit reached
+      handleCloseModal(); // Close post modal if it's open
+      return; // Prevent post creation
     }
+    createPostMutation(data);
   };
 
   return (

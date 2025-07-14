@@ -22,7 +22,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           </ToastProvider>
         </PersistGate>
       </Provider>
-      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+      <ReactQueryDevtools />
     </QueryClientProvider>
   </React.StrictMode>
 );
