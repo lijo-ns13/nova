@@ -3,12 +3,11 @@
 import { Request, Response } from "express";
 
 export interface IPostController {
-  createPost(req: Request, res: Response): Promise<void>;
-  updatePost(req: Request, res: Response): Promise<void>;
-  deletePost(req: Request, res: Response): Promise<void>;
+  create(req: Request, res: Response): Promise<void>;
   getPost(req: Request, res: Response): Promise<void>;
-
-  getAllPost(req: Request, res: Response): Promise<Response>;
+  delete(req: Request, res: Response): Promise<void>;
+  update(req: Request, res: Response): Promise<void>;
+  getAllPost(req: Request, res: Response): Promise<void>;
   // You can add more methods here, like:
   // getPostById(req: Request, res: Response): Promise<Response>;
 

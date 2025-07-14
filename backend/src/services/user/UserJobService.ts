@@ -6,13 +6,37 @@ import { IJob } from "../../models/job.modal";
 import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
-import { IApplication } from "../../models/application.modal";
+import {
+  ApplicationStatus,
+  IApplication,
+} from "../../models/application.modal";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import mongoose, { Types } from "mongoose";
 import { NotificationType } from "../../models/notification.modal";
 import { GetAllJobsQueryInput } from "../../core/validations/user/user.jobschema";
 import { JobResponseDTO, UserJobMapper } from "../../mapping/user/jobmapper";
 import { JobMapper } from "../../mapping/job.mapper";
+import { IAppliedJob } from "../../repositories/mongo/ApplicationRepository";
+export interface AppliedJobDTO {
+  _id: string;
+  job: {
+    _id: string;
+    title: string;
+    description: string;
+    location: string;
+    jobType: string;
+  };
+  appliedAt: string;
+  status: ApplicationStatus;
+  resumeUrl: string;
+  statusHistory: {
+    status: ApplicationStatus;
+    changedAt: string;
+    reason?: string;
+  }[];
+  rejectionReason?: string;
+  scheduledAt?: string;
+}
 
 export class UserJobService implements IUserJobService {
   constructor(
@@ -97,8 +121,9 @@ export class UserJobService implements IUserJobService {
     return UserJobMapper.toGetJobResponse(job);
   }
 
-  async getAppliedJobs(userId: string): Promise<any> {
-    const application = await this._applicationRepo.findAll({ user: userId });
+  async getAppliedJobs(userId: string): Promise<IAppliedJob[]> {
+    const applications = await this._applicationRepo.findAppliedJobs(userId);
+    return applications;
   }
 
   async applyToJob(

@@ -12,7 +12,16 @@ import { v4 as uuidv4 } from "uuid";
 import { Types } from "mongoose";
 import { TYPES } from "../../di/types";
 import { IMediaRepository } from "../../interfaces/repositories/IMediaRepository";
-
+export interface MediaUrlDTO {
+  url: string;
+  mimeType:
+    | "image/jpeg"
+    | "image/png"
+    | "image/webp"
+    | "video/mp4"
+    | "video/quicktime"
+    | "application/pdf";
+}
 const s3 = new S3Client({
   region: process.env.AWS_REGION!,
   credentials: {
@@ -206,5 +215,19 @@ export class MediaService implements IMediaService {
   }
   async getMediaDataByS3KEY(s3Key: string): Promise<IMedia | null> {
     return this._mediaRepo.findOne({ s3Key: s3Key });
+  }
+  async getMediaUrlById(mediaId: string): Promise<MediaUrlDTO> {
+    const media = await this._mediaRepo.findById(mediaId);
+
+    if (!media) {
+      throw new Error(`Media not found with ID: ${mediaId}`);
+    }
+
+    const signedUrl = await this.getMediaUrl(media.s3Key);
+
+    return {
+      url: signedUrl,
+      mimeType: media.mimeType,
+    };
   }
 }

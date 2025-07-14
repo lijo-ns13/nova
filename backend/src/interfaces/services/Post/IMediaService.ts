@@ -1,6 +1,7 @@
 // core/interfaces/services/IMediaService.ts
 import { Express } from "express";
 import { IMedia } from "../../../models/media.modal";
+import { MediaUrlDTO } from "../../../services/user/MediaService";
 
 export interface IMediaService {
   uploadMedia(
@@ -17,4 +18,5 @@ export interface IMediaService {
   deleteMedia(mediaIds: string[]): Promise<void>;
   getMediaById(mediaId: string): Promise<IMedia | null>;
   getMediaDataByS3KEY(s3Key: string): Promise<IMedia | null>;
+  getMediaUrlById(mediaId: string): Promise<MediaUrlDTO>;
 }

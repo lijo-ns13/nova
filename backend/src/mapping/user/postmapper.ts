@@ -1,51 +1,63 @@
-// PostMapper.ts
-
 import { IPost } from "../../models/post.modal";
 import { IUser } from "../../models/user.modal";
+// src/dtos/post/PostResponseDTO.ts
 
-// postResponse.dto.ts
-export interface PostResponseDTO {
-  id: string;
-  description: string;
+export interface LikeDTO {
+  _id: string;
   userId: string;
-  username: string;
+  createdAt: string;
+}
+export interface CreatorDTO {
+  id: string;
+  name: string;
   profilePicture: string;
   headline: string;
-  media: {
-    url: string;
-    mimeType: string;
-  }[];
+}
+export interface MediaUrlDTO {
+  url: string;
+  mimeType:
+    | "image/jpeg"
+    | "image/png"
+    | "image/webp"
+    | "video/mp4"
+    | "video/quicktime"
+    | "application/pdf";
+}
+
+export interface PostResponseDTO {
+  id: string;
+  description?: string;
+  creatorId: CreatorDTO;
+  media: MediaUrlDTO[];
+  likes: LikeDTO[];
   createdAt: string;
   updatedAt: string;
 }
-
-interface MediaDTO {
-  url: string;
-  mimeType: string;
-}
-
-interface ToDTOParams {
-  post: IPost;
-  user: IUser;
-  profilePictureUrl: string;
-  mediaUrls: MediaDTO[];
-}
-
 export class PostMapper {
-  static toDTO({
-    post,
-    user,
-    profilePictureUrl,
-    mediaUrls,
-  }: ToDTOParams): PostResponseDTO {
+  static toDTO(
+    post: IPost,
+    media: MediaUrlDTO[],
+    creator: IUser
+  ): PostResponseDTO {
+    const likes: LikeDTO[] = Array.isArray(post.Likes)
+      ? post.Likes.map((like) => ({
+          _id: like._id.toString(),
+          userId: like.userId.toString(),
+          createdAt: like.createdAt.toISOString(),
+        }))
+      : [];
+
     return {
       id: post._id.toString(),
-      description: post.description || "",
-      userId: user._id.toString(),
-      username: user.username,
-      profilePicture: profilePictureUrl,
-      headline: user.headline || "",
-      media: mediaUrls,
+      description: post.description,
+      creatorId: {
+        id: creator._id.toString(),
+        name: creator.name,
+        profilePicture: creator.profilePicture || "",
+        headline: creator.headline || "",
+      },
+      media,
+      likes,
       createdAt: post.createdAt.toISOString(),
       updatedAt: post.updatedAt.toISOString(),
     };

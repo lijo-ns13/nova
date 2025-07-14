@@ -14,6 +14,44 @@ export class PostRepository
   constructor(@inject(TYPES.postModal) postModal: Model<IPost>) {
     super(postModal);
   }
+  async createPost(
+    creatorId: string,
+    description: string | undefined,
+    mediaIds: string[]
+  ): Promise<IPost> {
+    const post = await postModal.create({
+      creatorId: new Types.ObjectId(creatorId),
+      description,
+      mediaIds: mediaIds.map((id) => new Types.ObjectId(id)),
+    });
+
+    return await post.populate({ path: "Likes" }); // ✅ populate after create
+  }
+  async updatePost(postId: string, description: string): Promise<IPost | null> {
+    const post = await postModal.findByIdAndUpdate(
+      postId,
+      { description },
+      { new: true }
+    );
+
+    return post ? await post.populate({ path: "Likes" }) : null; // ✅ populate if found
+  }
+  async getPostById(postId: string): Promise<IPost | null> {
+    return await postModal.findById(postId).populate({ path: "Likes" });
+  }
+
+  async getAllPosts(page: number, limit: number): Promise<IPost[]> {
+    return await postModal
+      .find({ isDeleted: false })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .populate({ path: "Likes" });
+  }
+
+  async deletePost(postId: string): Promise<void> {
+    await postModal.findByIdAndUpdate(postId, { isDeleted: true });
+  }
 
   async findByCreator(
     skip: number,
@@ -74,15 +112,15 @@ export class PostRepository
   async findById(postId: string): Promise<IPost | null> {
     return this.model.findById(postId);
   }
-  async createPost(input: {
-    creatorId: string;
-    description: string;
-    mediaIds: string[];
-  }): Promise<IPost> {
-    return this.model.create({
-      creatorId: new Types.ObjectId(input.creatorId),
-      description: input.description,
-      mediaIds: input.mediaIds.map((id) => new Types.ObjectId(id)),
-    });
-  }
+  // async createPost(input: {
+  //   creatorId: string;
+  //   description: string;
+  //   mediaIds: string[];
+  // }): Promise<IPost> {
+  //   return this.model.create({
+  //     creatorId: new Types.ObjectId(input.creatorId),
+  //     description: input.description,
+  //     mediaIds: input.mediaIds.map((id) => new Types.ObjectId(id)),
+  //   });
+  // }
 }

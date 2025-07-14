@@ -25,6 +25,7 @@ interface User {
   _id: string;
   name: string;
   profilePicture: string;
+  headline: string;
 }
 
 interface Media {

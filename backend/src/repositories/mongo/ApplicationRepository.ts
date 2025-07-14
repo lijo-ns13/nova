@@ -3,6 +3,7 @@ import { inject, injectable } from "inversify";
 import applicationModel, {
   IApplication,
   ApplicationStatus,
+  IStatusHistory,
 } from "../../models/application.modal";
 import { BaseRepository } from "./BaseRepository";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
@@ -18,13 +19,25 @@ import {
   ApplicantRawData,
   GetApplicationsQuery,
 } from "../../core/dtos/company/getapplications.dto";
-import jobModal from "../../models/job.modal";
+import jobModal, { IJob } from "../../models/job.modal";
 import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
 export interface ApplyToJobInput {
   jobId: string;
   userId: string;
   resumeMediaId: string;
 }
+export type IAppliedJob = {
+  _id: Types.ObjectId;
+  job: Pick<IJob, "_id" | "title" | "description" | "location" | "jobType">;
+  appliedAt: Date;
+  status: ApplicationStatus;
+  resumeMediaId: Types.ObjectId;
+  statusHistory: IStatusHistory[];
+  scheduledAt?: Date;
+  coverLetter?: string;
+  notes?: string;
+};
+
 @injectable()
 export class ApplicationRepository
   extends BaseRepository<IApplication>
@@ -35,12 +48,35 @@ export class ApplicationRepository
   ) {
     super(applicationModel);
   }
+  async findAppliedJobs(userId: string): Promise<IAppliedJob[]> {
+    const applications = await this.model
+      .find({ user: new mongoose.Types.ObjectId(userId) })
+      .populate<{ job: IAppliedJob["job"] }>(
+        "job",
+        "_id title description location jobType"
+      )
+      .lean();
+
+    return applications.map((a) => ({
+      _id: a._id,
+      job: a.job,
+      appliedAt: a.appliedAt,
+      status: a.status,
+      resumeMediaId: a.resumeMediaId,
+      statusHistory: a.statusHistory,
+      scheduledAt: a.scheduledAt,
+      coverLetter: a.coverLetter,
+      notes: a.notes,
+    }));
+  }
+
   async findByJobIdAndPop(userId: string): Promise<IApplication[]> {
     return this.model
       .find({ user: userId })
       .populate("job", "title description location jobType skillsRequired")
       .exec();
   }
+
   async findApplicationsByFilter(
     filter: GetApplicationsQuery,
     page: number,

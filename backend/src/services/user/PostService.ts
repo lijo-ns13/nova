@@ -1,23 +1,12 @@
-import { injectable, inject } from "inversify";
-import { IPostRepository } from "../../interfaces/repositories/IPostRepository";
-import { Types } from "mongoose";
+import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
+import { IPostRepository } from "../../interfaces/repositories/IPostRepository";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
-import postModal, { IPost } from "../../models/post.modal";
-import { IMedia } from "../../models/media.modal";
-import {
-  IPostServiceResponse,
-  IPostServiceResponsePaginated,
-} from "../../core/entities/post";
-import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
-import { IUser } from "../../models/user.modal";
+import { CreatePostInput } from "../../core/dtos/user/post/post";
 import { PostMapper, PostResponseDTO } from "../../mapping/user/postmapper";
-import { UpdatePostInput } from "../../core/dtos/user/post/post";
-import { UserData } from "aws-sdk/clients/ec2";
-export interface IPostPopulated extends Omit<IPost, "mediaIds" | "creatorId"> {
-  creatorId: IUser; // populated user
-  mediaIds: IMedia[]; // populated media list
-}
+import { IMedia } from "../../models/media.modal";
+import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
+
 @injectable()
 export class PostService {
   constructor(
@@ -28,218 +17,80 @@ export class PostService {
 
   async createPost(
     creatorId: string,
-    description: string,
-    mediaFiles: Express.Multer.File[]
-  ): Promise<IPost> {
-    let mediaIds: string[] = [];
+    input: CreatePostInput,
+    files: Express.Multer.File[]
+  ): Promise<PostResponseDTO> {
+    const mediaIds = await this._mediaService.uploadMedia(
+      files,
+      creatorId,
+      "User"
+    );
 
-    try {
-      const user = await this._userRepo.findById(creatorId);
-      console.log("usercreator", user);
-      if (!user) {
-        throw new Error("User not found");
-      }
-      const maxFreePostCreateCount = parseInt(
-        process.env.FREE_POST_CREATION_COUNT ?? "5",
-        10
-      );
-      const hasValidSubscription =
-        user.isSubscriptionTaken &&
-        user.subscriptionExpiresAt &&
-        user.subscriptionExpiresAt > new Date();
-      console.log("hasValidSubscription", hasValidSubscription);
-      if (
-        !hasValidSubscription &&
-        user.createdPostCount >= maxFreePostCreateCount
-      ) {
-        throw new Error(
-          "Please take a subscription. Your free access has ended."
+    const post = await this._postRepo.createPost(
+      creatorId,
+      input.description,
+      mediaIds
+    );
+    const user = await this._userRepo.findById(post.creatorId.toString());
+    if (!user) throw new Error("user not found");
+    const mediaUrls = await Promise.all(
+      mediaIds.map((id) => this._mediaService.getMediaUrlById(id))
+    );
+
+    return PostMapper.toDTO(post, mediaUrls, user);
+  }
+
+  async editPost(
+    postId: string,
+    description: string
+  ): Promise<PostResponseDTO | null> {
+    const post = await this._postRepo.updatePost(postId, description);
+    if (!post) return null;
+
+    const mediaUrls = await Promise.all(
+      post.mediaIds.map((id) =>
+        this._mediaService.getMediaUrlById(id.toString())
+      )
+    );
+    const user = await this._userRepo.findById(post.creatorId.toString());
+    if (!user) throw new Error("user not found");
+
+    return PostMapper.toDTO(post, mediaUrls, user);
+  }
+
+  async getPost(postId: string): Promise<PostResponseDTO | null> {
+    const post = await this._postRepo.getPostById(postId);
+    if (!post) throw new Error("post not found");
+    if (!post.mediaIds) throw new Error("media not found");
+    const user = await this._userRepo.findById(post.creatorId.toString());
+    if (!user) throw new Error("user not found");
+    const media = await Promise.all(
+      post.mediaIds.map((id) =>
+        this._mediaService.getMediaUrlById(id.toString())
+      )
+    );
+
+    return PostMapper.toDTO(post, media, user);
+  }
+
+  async getAllPost(page: number, limit: number): Promise<PostResponseDTO[]> {
+    const posts = await this._postRepo.getAllPosts(page, limit);
+
+    return await Promise.all(
+      posts.map(async (post) => {
+        const media = await Promise.all(
+          post.mediaIds.map((id) =>
+            this._mediaService.getMediaUrlById(id.toString())
+          )
         );
-      }
-      mediaIds = await this._mediaService.uploadMedia(
-        mediaFiles,
-        creatorId,
-        "User"
-      );
-      console.log("mediaIds", mediaIds);
-      if (!mediaIds)
-        throw new Error("media uploading failed,check media service");
-      const post = await this._postRepo.create({
-        creatorId: new Types.ObjectId(creatorId),
-        description,
-        mediaIds: mediaIds.map((id) => new Types.ObjectId(id)),
-      });
-      await this._userRepo.updateUser(creatorId, {
-        createdPostCount: user.createdPostCount + 1,
-      });
-      return post;
-    } catch (error) {
-      // Cleanup uploaded media if post creation fails
-      if (mediaIds.length > 0) {
-        await this._mediaService.deleteMedia(mediaIds).catch(console.error);
-      }
-      throw new Error(`Post creation failed:${(error as Error).message} `);
-    }
-  }
-  // Get a single post by its ID, including media URLs
-  async getPost(postId: string): Promise<IPostServiceResponse> {
-    try {
-      // Fetch post by ID, populating mediaIds and userId fields
-      const post = await this._postRepo.getPost(postId);
-      if (!post) throw new Error("Post not found");
-      console.log("post in postservice", post);
-      // Map media IDs to signed URLs
-      const mediaUrls = await Promise.all(
-        post.mediaIds.map(async (media: any) => {
-          const mediaUrl = await this._mediaService.getMediaUrl(media.s3Key);
-          return {
-            mediaUrl: mediaUrl,
-            mimeType: media.mimeType,
-          };
-        })
-      );
-      const postData: IPostServiceResponse = {
-        _id: postId,
-        creatorId: post.creatorId,
-        description: post.description,
-        mediaUrls: mediaUrls,
-        createdAt: new Date(post.createdAt).toISOString(),
-        Likes: post.Likes,
-      };
-      // Include media URLs and user data in the post data
-
-      return { ...postData };
-    } catch (error) {
-      throw new Error(`Failed to get post: ${(error as Error).message}`);
-    }
-  }
-  async getAllPost(
-    page: number = 1,
-    limit: number = 10
-  ): Promise<IPostServiceResponsePaginated> {
-    try {
-      // Calculate skip value
-      const skip = (page - 1) * limit;
-      const posts = await this._postRepo.findAllWithMediaAndCreator(
-        skip,
-        limit
-      );
-      // Map media URLs
-      const postsWithMediaUrls: IPostServiceResponse[] = await Promise.all(
-        posts.map(async (post: any) => {
-          const mediaUrls = await Promise.all(
-            post.mediaIds.map(async (media: any) => {
-              const mediaUrl = await this._mediaService.getMediaUrl(
-                media.s3Key
-              );
-              return {
-                mediaUrl: mediaUrl,
-                mimeType: media.mimeType,
-              };
-            })
-          );
-
-          return {
-            _id: post._id,
-            creatorId: post.creatorId,
-            description: post.description,
-            mediaUrls: mediaUrls,
-            createdAt: new Date(post.createdAt).toISOString(),
-            Likes: post.Likes,
-          };
-        })
-      );
-
-      // Get the total number of posts for pagination
-      const totalPosts = await this._postRepo.totalPosts();
-
-      // Return paginated posts with total count
-      return {
-        posts: postsWithMediaUrls,
-        totalPosts,
-        totalPages: Math.ceil(totalPosts / limit),
-        currentPage: page,
-      };
-    } catch (error) {
-      throw new Error(`Failed to get posts: ${(error as Error).message}`);
-    }
-  }
-  // updaeted delete,getuserspostss
-  async deletePost(postId: string, userId: string): Promise<IPost | null> {
-    try {
-      // First get the post to check ownership and get media IDs
-      const post = await this._postRepo.findById(postId);
-      if (!post) throw new Error("Post not found");
-      if (post.creatorId.toString() !== userId)
-        throw new Error("Unauthorized - You can only delete your own posts");
-
-      // Delete associated media
-      if (post.mediaIds && post.mediaIds.length > 0) {
-        const mediaIds = post.mediaIds.map((id) => id.toString());
-        await this._mediaService.deleteMedia(mediaIds);
-      }
-
-      // Soft delete the post (or hard delete if you prefer)
-      const deletedPost = await this._postRepo.softDelete(postId);
-      // OR for hard delete:
-      // const deletedPost = await this._postRepo.hardDelete(postId);
-
-      return deletedPost;
-    } catch (error) {
-      throw new Error(`Failed to delete post: ${(error as Error).message}`);
-    }
+        const user = await this._userRepo.findById(post.creatorId.toString());
+        if (!user) throw new Error("user not found");
+        return PostMapper.toDTO(post, media, user);
+      })
+    );
   }
 
-  async getUsersPosts(
-    userId: string,
-    page: number = 1,
-    limit: number = 10
-  ): Promise<IPostServiceResponsePaginated> {
-    try {
-      // Calculate skip value
-      const skip = (page - 1) * limit;
-
-      // Get posts for this user
-      const posts = await this._postRepo.findByCreator(skip, limit, userId);
-
-      // Map media URLs
-      const postsWithMediaUrls: IPostServiceResponse[] = await Promise.all(
-        posts.map(async (post: any) => {
-          const mediaUrls = await Promise.all(
-            post.mediaIds.map(async (media: any) => {
-              const mediaUrl = await this._mediaService.getMediaUrl(
-                media.s3Key
-              );
-              return {
-                mediaUrl: mediaUrl,
-                mimeType: media.mimeType,
-              };
-            })
-          );
-
-          return {
-            _id: post._id,
-            creatorId: post.creatorId,
-            description: post.description,
-            mediaUrls: mediaUrls,
-            createdAt: new Date(post.createdAt).toISOString(),
-            Likes: post.Likes,
-          };
-        })
-      );
-
-      // Get the total number of posts for this user
-      const totalPosts = await this._postRepo.countUserPosts(userId);
-      console.log("Posttotalpsts", postsWithMediaUrls, "total.......");
-      // Return paginated posts with total count
-      return {
-        posts: postsWithMediaUrls,
-        totalPosts,
-        totalPages: Math.ceil(totalPosts / limit),
-        currentPage: page,
-      };
-    } catch (error) {
-      throw new Error(`Failed to get user posts: ${(error as Error).message}`);
-    }
+  async deletePost(postId: string): Promise<void> {
+    await this._postRepo.deletePost(postId);
   }
 }

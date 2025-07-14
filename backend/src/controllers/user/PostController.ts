@@ -9,12 +9,8 @@ import {
   ICommentServiceResponse,
 } from "../../interfaces/services/ICommentService";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
-import {
-  createPostSchema,
-  updatePostSchema,
-} from "../../core/validations/user/post.validator";
 import { handleControllerError } from "../../utils/errorHandler";
-import { UpdatePostInput } from "../../core/dtos/user/post/post";
+import { CreatePostInputSchema } from "../../core/dtos/user/post/post";
 interface Userr {
   id: string;
   email: string;
@@ -29,49 +25,87 @@ export class PostController implements IPostController {
     @inject(TYPES.CommentService) private _commentService: ICommentService
   ) {}
 
-  public async create(req: Request, res: Response) {
+  async create(req: Request, res: Response) {
     try {
-      const { description } = req.body;
-      console.log("req.body in post contorler", req.body);
-      const creatorId = (req.user as Userr)?.id;
-      const mediaFiles = req.files as Express.Multer.File[];
-      console.log("Media files in post contorller", mediaFiles, creatorId);
-      const post = await this._postService.createPost(
-        creatorId,
-        description,
-        mediaFiles
-      );
+      const input = CreatePostInputSchema.parse(req.body);
+      const files = req.files as Express.Multer.File[];
+      const creatorId = (req.user as { id: string }).id;
 
-      return res.status(HTTP_STATUS_CODES.CREATED).json(post);
+      const post = await this._postService.createPost(creatorId, input, files);
+
+      res.status(HTTP_STATUS_CODES.CREATED).json({
+        success: true,
+        message: "Post created successfully",
+        data: post,
+      });
     } catch (err) {
-      return res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ error: (err as Error).message });
+      handleControllerError(err, res, "Failed to create post");
     }
   }
+
   async getPost(req: Request, res: Response) {
     try {
       const { postId } = req.params;
       const post = await this._postService.getPost(postId);
-       res
-        .status(HTTP_STATUS_CODES.OK)
-        .json({ success: true, post: post });
-    } catch (error) {
-       res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ error: (error as Error).message, how: "lksjfls" });
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Post fetched successfully",
+        data: post,
+      });
+    } catch (err) {
+      handleControllerError(err, res, "Failed to get post");
     }
   }
+
   async getAllPost(req: Request, res: Response) {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
+
       const posts = await this._postService.getAllPost(page, limit);
-      return  res.status(HTTP_STATUS_CODES.OK).json(posts);
-    } catch (error) {
-      return res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ error: (error as Error).message, how: "lksjfls" });
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Posts fetched successfully",
+        data: posts,
+      });
+    } catch (err) {
+      handleControllerError(err, res, "Failed to get posts");
+    }
+  }
+
+  async delete(req: Request, res: Response) {
+    try {
+      const { postId } = req.params;
+      await this._postService.deletePost(postId);
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Post deleted successfully",
+        data: true,
+      });
+    } catch (err) {
+      handleControllerError(err, res, "Failed to delete post");
+    }
+  }
+
+  async update(req: Request, res: Response) {
+    try {
+      const { postId } = req.params;
+      const parsed = CreatePostInputSchema.parse(req.body);
+      const updated = await this._postService.editPost(
+        postId,
+        parsed.description
+      );
+
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Post updated successfully",
+        data: updated,
+      });
+    } catch (err) {
+      handleControllerError(err, res, "Failed to update post");
     }
   }
   async likeOrUnlikePost(req: Request, res: Response) {
@@ -80,14 +114,12 @@ export class PostController implements IPostController {
       const userId = (req.user as Userr)?.id;
 
       const result = await this._likeService.likeOrUnlikePost(postId, userId);
-
-      return res.status(HTTP_STATUS_CODES.OK).json({
-        message: result.liked ? "Post liked" : "Post unliked",
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: `${result.liked}? "post liked":"post unliked`,
       });
     } catch (error) {
-      return res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ error: (error as Error).message });
+      handleControllerError(error, res, "failed to like or unlike post");
     }
   }
 
@@ -96,11 +128,13 @@ export class PostController implements IPostController {
       const { postId } = req.params;
       const likes = await this._likeService.getLikesForPost(postId);
 
-      return res.status(HTTP_STATUS_CODES.OK).json({ likes });
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "successfuly fetched post likes",
+        data: likes,
+      });
     } catch (error) {
-      return res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ error: (error as Error).message });
+      handleControllerError(error, res, "failed to get post likes");
     }
   }
   // comment related

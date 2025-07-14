@@ -14,7 +14,7 @@ import Protected from "./Protected";
 import OAuthSuccessPage from "../features/user/pages/OAuthSuccess";
 
 import JobDetailedPage from "../features/user/pages/JobDetailedPage";
-// import AppliedJobsPage from "../features/user/pages/AppliedJobsPage";
+import AppliedJobsPage from "../features/user/pages/AppliedJobsPage";
 
 import ChatPage from "../features/user/pages/ChatPage";
 import NetworkPage from "../features/user/pages/NetworkPage";
@@ -55,7 +55,7 @@ const UserRoutes = () => {
 
         <Route path="feed" element={<FeedPage />} />
         <Route path="jobs" element={<JobPage />} />
-        {/* <Route path="applied-jobs" element={<AppliedJobsPage />} /> */}
+        <Route path="applied-jobs" element={<AppliedJobsPage />} />
         <Route path="jobs/:jobId" element={<JobDetailedPage />} />
         <Route path="message/:otherUserId" element={<ChatPage />} />
 
