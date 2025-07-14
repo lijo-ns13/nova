@@ -223,26 +223,6 @@ export class PostController implements IPostController {
       handleControllerError(error, res, "Failed to get post comments");
     }
   }
-  // // upodated getuserposts,delete post
-  // async deletePost(req: Request, res: Response): Promise<void> {
-  //   try {
-  //     const { postId } = req.params;
-  //     const userId = (req.user as Userr)?.id;
-
-  //     // Delete the post
-  //     const deletedPost = await this._postService.deletePost(postId, userId);
-
-  //     res.status(HTTP_STATUS_CODES.OK).json({
-  //       success: true,
-  //       message: "Post deleted successfully",
-  //       post: deletedPost,
-  //     });
-  //   } catch (err) {
-  //     res
-  //       .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-  //       .json({ error: (err as Error).message });
-  //   }
-  // }
 
   async getUsersPosts(req: Request, res: Response): Promise<void> {
     try {

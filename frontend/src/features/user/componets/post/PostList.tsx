@@ -19,7 +19,7 @@ function PostList() {
       const res = await getAllPosts();
       return res;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 10 * 60 * 1000, // 5 minutes
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });

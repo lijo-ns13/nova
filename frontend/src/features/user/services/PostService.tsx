@@ -3,6 +3,11 @@ import { APIResponse } from "../../../types/api";
 
 import { handleApiError } from "../../../utils/apiError";
 import { PostResponseDTO } from "../types/post";
+import {
+  CommentResponseDTO,
+  CreateCommentInput,
+  LikeResponseDTO,
+} from "../types/commentlike";
 
 // Fetch paginated posts
 export const getAllPosts = async (
@@ -84,5 +89,85 @@ export const deletePost = async (
     return response.data;
   } catch (error) {
     throw handleApiError(error, "failed to delete post");
+  }
+};
+export const likeOrUnlikePost = async (
+  postId: string
+): Promise<APIResponse<{ liked: boolean }>> => {
+  try {
+    const response = await userAxios.post(`/post/${postId}/like`, null, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, "failed to like or unlike post");
+  }
+};
+export const getPostLikes = async (
+  postId: string
+): Promise<LikeResponseDTO[]> => {
+  try {
+    const response = await userAxios.get(`/post/${postId}/likes`, {
+      withCredentials: true,
+    });
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error, "failed to get likes for post");
+  }
+};
+export const createComment = async (
+  data: CreateCommentInput
+): Promise<APIResponse<CommentResponseDTO>> => {
+  try {
+    const response = await userAxios.post("/post/comment", data, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, "failed to create comment");
+  }
+};
+export const updateComment = async (
+  commentId: string,
+  content: string
+): Promise<APIResponse<CommentResponseDTO>> => {
+  try {
+    const response = await userAxios.put(
+      `/post/comment/${commentId}`,
+      { content },
+      {
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, "failed to update comment");
+  }
+};
+export const deleteComment = async (
+  commentId: string
+): Promise<APIResponse<true>> => {
+  try {
+    const response = await userAxios.delete(`/post/comment/${commentId}`, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error, "failed to delete comment");
+  }
+};
+export const getPostComments = async (
+  postId: string,
+  page = 1,
+  limit = 10
+): Promise<CommentResponseDTO[]> => {
+  try {
+    const response = await userAxios.get(`/post/${postId}/comments`, {
+      params: { page, limit },
+      withCredentials: true,
+    });
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error, "failed to fetch post comments");
   }
 };
