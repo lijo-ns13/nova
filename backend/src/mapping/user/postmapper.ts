@@ -37,7 +37,7 @@ export class PostMapper {
   static toDTO(
     post: IPost,
     media: MediaUrlDTO[],
-    creator: IUser
+    creator: CreatorDTO
   ): PostResponseDTO {
     const likes: LikeDTO[] = Array.isArray(post.Likes)
       ? post.Likes.map((like) => ({
@@ -50,12 +50,7 @@ export class PostMapper {
     return {
       id: post._id.toString(),
       description: post.description,
-      creatorId: {
-        id: creator._id.toString(),
-        name: creator.name,
-        profilePicture: creator.profilePicture || "",
-        headline: creator.headline || "",
-      },
+      creatorId: creator,
       media,
       likes,
       createdAt: post.createdAt.toISOString(),
