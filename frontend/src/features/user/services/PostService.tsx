@@ -8,15 +8,15 @@ import { PostResponseDTO } from "../types/post";
 export const getAllPosts = async (
   page = 1,
   limit = 10
-): Promise<APIResponse<PostResponseDTO[]>> => {
+): Promise<PostResponseDTO[]> => {
   try {
-    const response = await userAxios.get(`/post`, {
+    const response = await userAxios.get(`/post?page=${page}&limit=${limit}`, {
       params: { page, limit },
       withCredentials: true,
     });
-    return response.data;
+    return response.data.data;
   } catch (error) {
-    throw handleApiError(error,"failed to get all posts");
+    throw handleApiError(error, "failed to get all posts");
   }
 };
 
@@ -26,11 +26,11 @@ export const getPostById = async (
 ): Promise<APIResponse<PostResponseDTO>> => {
   try {
     const response = await userAxios.get(`/post/${postId}`, {
-    withCredentials: true,
-  });
-  return response.data;
+      withCredentials: true,
+    });
+    return response.data;
   } catch (error) {
-    throw handleApiError(error,"failed to get post by id ")
+    throw handleApiError(error, "failed to get post by id ");
   }
 };
 
@@ -41,18 +41,18 @@ export const createPost = async (
 ): Promise<APIResponse<PostResponseDTO>> => {
   try {
     const formData = new FormData();
-  formData.append("description", description);
-  files.forEach((file) => formData.append("files", file));
+    formData.append("description", description);
+    files.forEach((file) => formData.append("files", file));
 
-  const response = await userAxios.post(`/post`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    withCredentials: true,
-  });
-  return response.data;
+    const response = await userAxios.post(`/post`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    });
+    return response.data;
   } catch (error) {
-    throw handleApiError(error,"failed ot create post")
+    throw handleApiError(error, "failed ot create post");
   }
 };
 
@@ -63,13 +63,13 @@ export const updatePost = async (
 ): Promise<APIResponse<PostResponseDTO>> => {
   try {
     const response = await userAxios.put(
-    `/post/${postId}`,
-    { description },
-    { withCredentials: true }
-  );
-  return response.data;
+      `/post/${postId}`,
+      { description },
+      { withCredentials: true }
+    );
+    return response.data;
   } catch (error) {
-    throw handleApiError("failed to update post")
+    throw handleApiError("failed to update post");
   }
 };
 
@@ -79,10 +79,10 @@ export const deletePost = async (
 ): Promise<APIResponse<true>> => {
   try {
     const response = await userAxios.delete(`/post/${postId}`, {
-    withCredentials: true,
-  });
-  return response.data;
+      withCredentials: true,
+    });
+    return response.data;
   } catch (error) {
-    throw handleApiError(error,"failed to delete post")
+    throw handleApiError(error, "failed to delete post");
   }
 };

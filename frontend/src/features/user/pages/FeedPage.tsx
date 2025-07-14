@@ -5,18 +5,14 @@ import { PostResponseDTO } from "../types/post";
 import FinalPost from "../componets/post/FinalPost";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import toast from "react-hot-toast";
-// interface PostProps {
-//   post: PostResponseDTO;
-//   currentUserId: string;
-//   onLike?: (postId: string) => Promise<void>;
-// }
+
 function FeedPage() {
   const [posts, setPost] = useState<PostResponseDTO[]>([]);
   const { id } = useAppSelector((state) => state.auth);
-  const fetchPosts = async () => {
-    const res = await getAllPosts();
+  const fetchPosts = async (page = 1) => {
+    const res = await getAllPosts(page);
     console.log("postsdata", res);
-    setPost(res.data);
+    setPost(res);
   };
   useEffect(() => {
     fetchPosts();
