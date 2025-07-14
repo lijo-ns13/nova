@@ -2,11 +2,7 @@
 import { injectable, inject } from "inversify";
 import { Types } from "mongoose";
 import { TYPES } from "../../di/types";
-import {
-  ICommentService,
-  ICommentServiceResponse,
-  ICommentServiceResponsePaginated,
-} from "../../interfaces/services/ICommentService";
+
 import { ICommentRepository } from "../../interfaces/repositories/ICommentRepository";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { IPost } from "../../models/post.modal";
@@ -17,6 +13,7 @@ import {
   CreateCommentDTO,
   UpdateCommentDTO,
 } from "../../core/dtos/user/post/comment.dto";
+import { ICommentService } from "../../interfaces/services/Post/ICommentService";
 
 @injectable()
 export class CommentService implements ICommentService {

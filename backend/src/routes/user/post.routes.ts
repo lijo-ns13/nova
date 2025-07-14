@@ -61,8 +61,4 @@ router.delete("/post/comment/:commentId", (req, res) =>
   postController.deleteComment(req, res)
 );
 
-// Toggle Like a comment
-router.post("/post/comment/:commentId/like", (req, res) =>
-  postController.toggleLikeComment(req, res)
-);
 export default router;
