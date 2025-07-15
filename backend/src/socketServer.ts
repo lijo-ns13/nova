@@ -11,6 +11,7 @@ import container from "./di/container";
 import { NotificationService } from "./services/notificationService";
 import { TYPES } from "./di/types";
 import { NotificationType } from "./models/notification.modal";
+import { registerLikeEvents } from "./likeEventsListener";
 const notificationService = container.get<NotificationService>(
   TYPES.NotificationService
 );
@@ -32,7 +33,7 @@ export const initSocketServer = (server: Server) => {
     string,
     Map<string, { video: boolean; audio: boolean; screenSharing?: boolean }>
   >();
-
+  registerLikeEvents(io);
   io.on("connection", (socket) => {
     console.log("Socket connected:", socket.id);
 
@@ -95,7 +96,13 @@ export const initSocketServer = (server: Server) => {
         }
       }
     );
+    socket.on("joinPostRoom", (postId: string) => {
+      if (typeof postId === "string") socket.join(`post:${postId}`);
+    });
 
+    socket.on("leavePostRoom", (postId: string) => {
+      if (typeof postId === "string") socket.leave(`post:${postId}`);
+    });
     // Video call logic
     socket.on("join-video-room", (roomId: string, userId: string) => {
       socket.join(roomId);

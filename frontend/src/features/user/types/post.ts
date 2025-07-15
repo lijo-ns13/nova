@@ -19,9 +19,7 @@ export interface PostResponseDTO {
       | "application/pdf";
   }[];
   likes: {
-    _id: string;
     userId: string;
-    createdAt: string;
   }[];
   createdAt: string;
   updatedAt: string;

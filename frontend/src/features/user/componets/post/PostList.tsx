@@ -5,7 +5,8 @@ import LoadingSpinner from "../viewableProfile/LoadingSpinner";
 import { useAppSelector } from "../../../../hooks/useAppSelector";
 import { getAllPosts } from "../../services/PostService";
 import FinalPost from "./FinalPost";
-
+const page = 1;
+const limit = 10;
 function PostList() {
   const queryClient = useQueryClient();
   const {
@@ -16,7 +17,7 @@ function PostList() {
   } = useQuery<PostResponseDTO[]>({
     queryKey: ["posts"],
     queryFn: async () => {
-      const res = await getAllPosts();
+      const res = await getAllPosts({ page, limit });
       return res;
     },
     staleTime: 10 * 60 * 1000, // 5 minutes

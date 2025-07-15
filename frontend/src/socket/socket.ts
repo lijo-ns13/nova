@@ -17,6 +17,14 @@ interface VideoParticipant {
 }
 // Define types for better TypeScript support
 interface VideoCallSocketEvents {
+  "post:like": (data: {
+    postId: string;
+    liked: boolean;
+    userId: string;
+  }) => void;
+  "join-post-room": (postId: string) => void;
+  "leave-post-room": (postId: string) => void;
+
   "join-video-room": (roomId: string, userId: string) => void;
   "leave-video-room": (roomId: string, userId: string) => void;
   "webrtc-signal": (data: {
@@ -111,4 +119,13 @@ export const toggleScreenShare = (
 ) => {
   socket.emit("screen-share-toggle", { roomId, userId, sharing });
 };
+export const joinPostRoom = (postId: string) => {
+  connectSocket();
+  socket.emit("join-post-room", postId);
+};
+
+export const leavePostRoom = (postId: string) => {
+  socket.emit("leave-post-room", postId);
+};
+
 export default socket;

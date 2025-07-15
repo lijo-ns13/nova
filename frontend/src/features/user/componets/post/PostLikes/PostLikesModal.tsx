@@ -3,25 +3,21 @@ import { X } from "lucide-react";
 import Avatar from "../../ui/Avatar";
 import { Link } from "react-router-dom";
 import { SecureCloudinaryImage } from "../../../../../components/SecureCloudinaryImage";
+import { LikeResponseDTO } from "../../../types/commentlike";
+// interface LikeResponseDTO {
+//     _id: string;
+//     createdAt: string;
+//     user: {
+//         id: string;
+//         name: string;
+//         username: string;
+//         profilePicture: string;
+//     };
+// }
 
-interface User {
-  _id: string;
-  name: string;
-  username: string;
-  profilePicture: string;
-}
-
-interface Like {
-  _id: string;
-  postId: string;
-  userId: User | null;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
 
 interface PostLikesModalProps {
-  likes: Like[];
+  likes: LikeResponseDTO[];
   isOpen: boolean;
   onClose: () => void;
 }
@@ -34,7 +30,7 @@ const PostLikesModal: React.FC<PostLikesModalProps> = ({
   if (!isOpen) return null;
 
   // Filter out likes with null userId
-  const validLikes = likes.filter((like) => like.userId !== null);
+  const validLikes = likes.filter((like) => like.user.id !== null);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
@@ -69,24 +65,21 @@ const PostLikesModal: React.FC<PostLikesModalProps> = ({
                   className="p-3 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
                 >
                   <Link
-                    to={`/in/${like.userId?.username}`}
+                    to={`/in/${like.user?.username}`}
                     className="flex items-center space-x-3"
                   >
-                    {/* <Avatar
-                      src={like.userId?.profilePicture}
-                      alt={like.userId?.name || "User"}
+                    <Avatar
+                      src={like.user?.profilePicture}
+                      alt={like.user?.name || "User"}
                       size="sm"
-                    /> */}
-                    <SecureCloudinaryImage
-                      publicId={like.userId?.profilePicture}
-                      className="rounded-full w-10 h-10 object-cover"
                     />
+                    
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {like.userId?.name || "Unknown User"}
+                        {like.user?.name || "Unknown User"}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        @{like.userId?.username || "deleted-user"}
+                        @{like.user?.username || "deleted-user"}
                       </p>
                     </div>
                   </Link>

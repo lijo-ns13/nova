@@ -3,8 +3,6 @@ import { IUser } from "../../../models/user.modal";
 import { ILikePopulated } from "../../../repositories/mongo/LikeRepository";
 
 export interface LikeResponseDTO {
-  _id: string;
-  createdAt: string;
   user: {
     id: string;
     name: string;
@@ -18,8 +16,6 @@ export class LikeMapper {
     profilePictureUrl: string | null
   ): LikeResponseDTO {
     return {
-      _id: like._id.toString(),
-      createdAt: like.createdAt.toISOString(),
       user: {
         id: like.userId._id.toString(),
         name: like.userId.name,

@@ -3,22 +3,6 @@ import { Heart, Loader } from "lucide-react";
 import PostLikesModal from "./PostLikesModal";
 import useFetchLikes from "./useFetchLikes";
 
-interface User {
-  _id: string;
-  name: string;
-  username: string;
-  profilePicture: string;
-}
-
-interface Like {
-  _id: string;
-  postId: string;
-  userId: User | null;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
 interface LikesButtonProps {
   postId: string;
   likeCount: number;

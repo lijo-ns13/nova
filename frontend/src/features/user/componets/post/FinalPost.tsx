@@ -9,10 +9,14 @@ import {
 } from "lucide-react";
 import Avatar from "../ui/Avatar";
 import Button from "../ui/Button";
-import CommentSection from "./CommentSection/CommentSection";
+
 import { Link } from "react-router-dom";
 import LikesButton from "./PostLikes/LikesButton";
 import { PostResponseDTO } from "../../types/post";
+import { getPostComments, likeOrUnlikePost } from "../../services/PostService";
+import socket, { connectSocket } from "../../../../socket/socket";
+import { useQueryClient } from "@tanstack/react-query";
+import { CommentResponseDTO } from "../../types/commentlike";
 
 interface PostProps {
   post: PostResponseDTO;
@@ -26,10 +30,40 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
     post.likes.some((like) => like.userId === currentUserId)
   );
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
-  // const [showComments, setShowComments] = useState<boolean>(false);
+  const [showComments, setShowComments] = useState<boolean>(false);
+  const [comments, setComments] = useState<CommentResponseDTO[]>([]);
+  const fetchComments = async () => {
+    setIsLoadingComments(true);
+    try {
+      const commentsData = await getPostComments(post.id);
+      setComments(commentsData);
+    } catch (error) {
+      console.error("Failed to fetch comments:", error);
+    } finally {
+      setIsLoadingComments(false);
+    }
+  };
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [isLikeAnimating, setIsLikeAnimating] = useState<boolean>(false);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    connectSocket(); // make sure socket is connected
+    socket.emit("join-post-room", post.id); // join this post room
+
+    socket.on("post:like", ({ postId: likedPostId, liked, userId }) => {
+      if (likedPostId !== post.id || userId === currentUserId) return;
+
+      setLikeCount((prev) => prev + (liked ? 1 : -1));
+    });
+
+    return () => {
+      socket.emit("leave-post-room", post.id);
+      socket.off("post:like");
+    };
+  }, [post.id, currentUserId]);
 
   // Preload next and previous images
   useEffect(() => {
@@ -51,22 +85,58 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
     });
   }, [currentMediaIndex, post.media]);
 
-  const handleLike = async () => {
+  const handleLike = async (userId: string, postId: string) => {
     try {
-      if (onLike) {
-        await onLike(post.id);
-      }
+      const likedNow = await likeOrUnlikePost(postId);
 
+      queryClient.setQueryData(
+        ["posts"],
+        (oldData: PostResponseDTO[] | PostResponseDTO | undefined) => {
+          if (!oldData) return oldData;
+
+          // Function to update a single post
+          const updatePost = (post: PostResponseDTO) => {
+            if (post.id === postId) {
+              let updatedLikes = [...post.likes];
+
+              if (likedNow) {
+                // Add like if not already present
+                if (!updatedLikes.some((like) => like.userId === userId)) {
+                  updatedLikes.push({ userId });
+                }
+              } else {
+                // Remove like if present
+                updatedLikes = updatedLikes.filter(
+                  (like) => like.userId !== userId
+                );
+              }
+
+              return {
+                ...post,
+                likes: updatedLikes,
+              };
+            }
+            return post;
+          };
+
+          // Handle both array of posts and single post cases
+          if (Array.isArray(oldData)) {
+            return oldData.map(updatePost);
+          } else {
+            return updatePost(oldData);
+          }
+        }
+      );
+
+      // Animation and state updates
       setIsLikeAnimating(true);
       setTimeout(() => setIsLikeAnimating(false), 1000);
-
       setLiked(!liked);
       setLikeCount((prev) => prev + (liked ? -1 : 1));
     } catch (error) {
       console.error("Error liking post:", error);
     }
   };
-
   const handleNextMedia = () => {
     if (post.media.length > 1 && !isTransitioning) {
       setIsTransitioning(true);
@@ -95,9 +165,12 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
-  // const toggleComments = () => {
-  //   setShowComments(!showComments);
-  // };
+  const toggleComments = async () => {
+    if (!showComments) {
+      await fetchComments();
+    }
+    setShowComments(!showComments);
+  };
 
   const handleImageLoad = (mediaUrl: string) => {
     setLoadedImages((prev) => new Set(prev).add(mediaUrl));
@@ -257,7 +330,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
       )}
 
       {/* Post Actions */}
-      {/* <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
+      <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-5">
             <LikesButton
@@ -265,7 +338,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
               likeCount={likeCount}
               liked={liked}
               isLikeAnimating={isLikeAnimating}
-              onLike={handleLike}
+              onLike={() => handleLike(currentUserId, post.id)}
             />
 
             <button
@@ -278,12 +351,64 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
             </button>
           </div>
         </div>
-      </div> */}
+      </div>
 
       {/* Comments Section */}
-      {/* {showComments && (
-        <CommentSection postId={post.id} currentUserId={currentUserId} />
-      )} */}
+      {showComments && (
+        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
+          {isLoadingComments ? (
+            <div className="flex justify-center py-4">
+              <Loader className="animate-spin text-gray-500" />
+            </div>
+          ) : comments.length === 0 ? (
+            <p className="text-center text-gray-500 dark:text-gray-400 py-4">
+              No comments yet. Be the first to comment!
+            </p>
+          ) : (
+            <div className="space-y-4 max-h-[300px] overflow-y-auto">
+              {comments.map((comment) => (
+                <div key={comment.id} className="flex gap-3">
+                  <Avatar
+                    src={"/defualt.png"} // Add this to your CommentResponseDTO if needed
+                    alt={comment.authorName}
+                    size="sm"
+                  />
+                  <div className="flex-1">
+                    <div className="bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-sm text-gray-800 dark:text-white">
+                          {comment.authorName}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {new Date(comment.createdAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        {comment.content}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Comment input */}
+          <div className="mt-4 flex gap-2">
+            <input
+              type="text"
+              placeholder="Add a comment..."
+              className="flex-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            />
+            <Button variant="primary" size="sm">
+              Post
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

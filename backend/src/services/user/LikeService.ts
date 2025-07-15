@@ -12,7 +12,7 @@ import {
   LikeResponseDTO,
 } from "../../mapping/user/post/likemapper";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
-
+import { AppEventEmitter } from "../../event/AppEventEmitter";
 @injectable()
 export class LikeService implements ILikeService {
   constructor(
@@ -35,6 +35,7 @@ export class LikeService implements ILikeService {
 
     if (existingLike) {
       await this._likeRepo.deleteByPostIdAndUserId(postId, userId);
+      AppEventEmitter.emit("post:like", { postId, userId, liked: false });
       return { liked: false }; // unliked
     } else {
       const like = await this._likeRepo.create({
@@ -56,7 +57,7 @@ export class LikeService implements ILikeService {
           userId
         );
       }
-
+      AppEventEmitter.emit("post:like", { postId, userId, liked: true });
       return { liked: true }; // liked
     }
   }

@@ -1,9 +1,3 @@
-export interface CreateCommentInput {
-  postId: string;
-  content: string;
-  parentId?: string;
-  authorName: string;
-}
 export interface LikeResponseDTO {
   _id: string;
   createdAt: string;
@@ -13,6 +7,12 @@ export interface LikeResponseDTO {
     username: string;
     profilePicture: string | null;
   };
+}
+export interface CreateCommentInput {
+  postId: string;
+  content: string;
+  parentId?: string;
+  authorName: string;
 }
 export interface CommentResponseDTO {
   id: string;

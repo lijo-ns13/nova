@@ -118,7 +118,8 @@ export class PostController implements IPostController {
       const result = await this._likeService.likeOrUnlikePost(postId, userId);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: `${result.liked}? "post liked":"post unliked`,
+        message: result.liked ? "post liked" : "post unliked",
+        data: result.liked,
       });
     } catch (error) {
       handleControllerError(error, res, "failed to like or unlike post");

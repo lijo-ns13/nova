@@ -1,28 +1,9 @@
 import { useState, useEffect } from "react";
 import { getPostLikes } from "../../../services/PostService";
-
-interface User {
-  _id: string;
-  name: string;
-  username: string;
-  profilePicture: string;
-}
-
-interface Like {
-  _id: string;
-  postId: string;
-  userId: User | null;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
-interface LikesResponse {
-  likes: Like[];
-}
+import { LikeResponseDTO } from "../../../types/commentlike";
 
 const useFetchLikes = (postId: string) => {
-  const [likes, setLikes] = useState<Like[]>([]);
+  const [likes, setLikes] = useState<LikeResponseDTO[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,13 +15,13 @@ const useFetchLikes = (postId: string) => {
 
     try {
       const response = await getPostLikes(postId);
-
+      console.log("likesmodal", response);
       if (!response) {
         throw new Error(`Failed to fetch likes: `);
       }
 
       //   const data = (await response.json()) as LikesResponse;
-      const data = response.likes;
+      const data = response;
       setLikes(data || []);
     } catch (err) {
       console.error("Error fetching likes:", err);
