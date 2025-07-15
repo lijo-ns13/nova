@@ -9,6 +9,7 @@ import {
 import { updateSubscriptionStatus } from "../../auth/auth.slice";
 import toast from "react-hot-toast";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
+
 const RefundPage: React.FC = () => {
   const [sessionData, setSessionData] = useState<RefundSessionData | null>(
     null
@@ -17,25 +18,27 @@ const RefundPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState("");
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { id: userId, isSubscriptionTaken } = useAppSelector(
     (state) => state.auth
   );
 
-  useEffect(() => {
-    if (!isSubscriptionTaken) {
-      navigate("/feed");
-    }
-  }, [isSubscriptionTaken, navigate]);
+  // useEffect(() => {
+  //   if (!isSubscriptionTaken) {
+  //     navigate("/feed");
+  //   }
+  // }, [isSubscriptionTaken, navigate]);
+
   useEffect(() => {
     if (!loading && sessionData === null) {
-      // Add a small delay if you want to show the error briefly
       setTimeout(() => {
         navigate("/feed");
-      }, 1500); // Optional: 1.5s delay to show the message
+      }, 1500);
     }
   }, [loading, sessionData, navigate]);
+
   useEffect(() => {
     const fetchSession = async () => {
       try {
@@ -43,7 +46,9 @@ const RefundPage: React.FC = () => {
         setSessionData(data);
       } catch (err: any) {
         console.error("Error fetching session:", err);
-        setSubmitStatus(err.message || "❌ Failed to fetch session");
+        setSubmitStatus(
+          err?.response?.data?.message || "❌ Failed to fetch session"
+        );
       } finally {
         setLoading(false);
       }
@@ -63,9 +68,15 @@ const RefundPage: React.FC = () => {
       return;
     }
 
+    const confirm = window.confirm(
+      "⚠️ Are you sure? You will not be able to subscribe again this month after requesting a refund."
+    );
+    if (!confirm) return;
+
     try {
       setIsSubmitting(true);
       setSubmitStatus("🔄 Processing refund...");
+
       await requestRefund({
         stripeSessionId: sessionData.stripeSessionId,
         reason,
@@ -74,18 +85,20 @@ const RefundPage: React.FC = () => {
       setSubmitStatus("✅ Refund request submitted successfully.");
       toast.success("Refund requested successfully.");
 
-      // ⬇️ Update subscription status in Redux store
       dispatch(updateSubscriptionStatus({ isSubscriptionTaken: false }));
-
       setReason("");
 
-      // Redirect after 3 seconds
       setTimeout(() => {
         navigate("/feed");
       }, 2000);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Refund request error:", err);
-      setSubmitStatus(err.message || "❌ Refund request failed.");
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "❌ Refund request failed.";
+      setSubmitStatus(`❌ ${message}`);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -112,6 +125,9 @@ const RefundPage: React.FC = () => {
         <p>
           <strong>Purchased At:</strong>{" "}
           {new Date(sessionData.createdAt).toLocaleString()}
+        </p>
+        <p className="text-red-600 mt-2 text-sm">
+          ⚠️ Once refunded, you won’t be able to subscribe again this month.
         </p>
       </div>
 

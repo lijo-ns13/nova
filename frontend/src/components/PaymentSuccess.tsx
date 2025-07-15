@@ -1,138 +1,144 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { CheckCircle, Home } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useAppDispatch } from "../hooks/useAppDispatch";
-import { updateSubscriptionStatus } from "../features/auth/auth.slice";
-import { useAppSelector } from "../hooks/useAppSelector";
-import axios from "axios";
+import { useSearchParams } from "react-router-dom";
+import userAxios from "../utils/userAxios";
+import { CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
+
+interface PaymentInfo {
+  orderId: string;
+  amount: number;
+  currency: string;
+  planName: string;
+  sessionId: string;
+  expiresAt: string;
+  receiptUrl?: string;
+}
+
+type Status = "loading" | "success" | "already-confirmed" | "error";
 
 const PaymentSuccess = () => {
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
-  const dispatch = useAppDispatch();
-  const location = useLocation();
-  const [orderDetails, setOrderDetails] = useState({
-    orderNumber: "",
-    amount: 0,
-    currency: "inr",
-    planName: "",
-  });
-  const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get("session_id");
+
+  const [status, setStatus] = useState<Status>("loading");
+  const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | null>(null);
 
   useEffect(() => {
-    const fetchOrderDetails = async () => {
-      const queryParams = new URLSearchParams(location.search);
-      const sessionId = queryParams.get("session_id");
-      if (sessionId) {
-        try {
-          const response = await axios.get(
-            `${
-              import.meta.env.VITE_API_BASE_URL
-            }/api/stripe/session-details/${sessionId}`
-          );
-          console.log("response stripe", response);
-          setOrderDetails({
-            orderNumber: response.data.transaction.stripeSessionId,
-            amount: response.data.transaction.amount,
-            currency: response.data.transaction.currency,
-            planName: response.data.transaction.planName,
-          });
-        } catch (error) {
-          console.error("Failed to fetch order details:", error);
-        } finally {
-          setLoading(false);
+    if (!sessionId) {
+      setStatus("error");
+      return;
+    }
+
+    const confirmPayment = async () => {
+      try {
+        const res = await userAxios.get(
+          `/api/stripe/confirm-session/${sessionId}`
+        );
+        const { message, data } = res.data;
+        console.log("res", res);
+        if (message === "Payment already confirmed") {
+          setStatus("already-confirmed");
+          setPaymentInfo(data);
+        } else if (message === "Subscription activated successfully") {
+          setStatus("success");
+          setPaymentInfo(data);
+        } else {
+          setStatus("error");
         }
+      } catch (err) {
+        console.error("❌ Payment confirmation failed:", err);
+        setStatus("error");
       }
     };
 
-    if (isAuthenticated) {
-      dispatch(
-        updateSubscriptionStatus({
-          isSubscriptionTaken: true,
-        })
-      );
-      fetchOrderDetails();
-    }
-  }, [isAuthenticated, dispatch, location.search]);
+    confirmPayment();
+  }, [sessionId]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
-          <p className="mt-4 text-lg text-gray-600">
-            Loading your order details...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const renderMessage = () => {
+    switch (status) {
+      case "loading":
+        return (
+          <div className="flex items-center justify-center text-gray-600">
+            <Clock className="w-5 h-5 mr-2" />
+            Confirming your payment...
+          </div>
+        );
+      case "success":
+      case "already-confirmed":
+        return (
+          <div className="text-green-600 flex items-center justify-center font-semibold text-lg">
+            <CheckCircle className="w-6 h-6 mr-2" />
+            Subscription activated successfully!
+          </div>
+        );
+      case "error":
+      default:
+        return (
+          <div className="text-red-600 flex items-center justify-center font-semibold text-lg">
+            <XCircle className="w-6 h-6 mr-2" />
+            Failed to confirm your payment.
+          </div>
+        );
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-            <CheckCircle className="h-6 w-6 text-green-600" />
+    <div className="max-w-xl mx-auto mt-12 p-6 bg-white rounded-2xl shadow-lg border">
+      <h1 className="text-3xl font-bold mb-6 text-center">Payment Status</h1>
+
+      {process.env.NODE_ENV !== "production" && (
+        <div className="mb-4 text-center text-xs text-orange-500 flex justify-center items-center gap-1">
+          <AlertCircle className="w-4 h-4" />
+          Test mode (Sandbox)
+        </div>
+      )}
+
+      <div className="mb-6">{renderMessage()}</div>
+
+      {paymentInfo && (
+        <div className="text-sm space-y-2 text-gray-800">
+          <div>
+            <span className="font-medium text-gray-600">Plan Name:</span>{" "}
+            {paymentInfo.planName}
           </div>
-          <h2 className="mt-3 text-3xl font-extrabold text-gray-900">
-            Payment Successful!
-          </h2>
-          <p className="mt-2 text-lg text-gray-600">
-            Thank you for subscribing to {orderDetails.planName}.
-          </p>
-          <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900">
-                Order Details
-              </h3>
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-between">
-                  {/* <span className="text-gray-600">Order Number</span> */}
-                  {/* <span className="font-medium">
-                    {orderDetails.orderNumber.substring(0, 8)}
-                  </span> */}
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Date</span>
-                  <span className="font-medium">
-                    {new Date().toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Plan</span>
-                  <span className="font-medium">{orderDetails.planName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Total Amount</span>
-                  <span className="font-medium">
-                    {orderDetails.currency.toUpperCase()} {orderDetails.amount}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <h3 className="text-lg font-medium text-gray-900">
-                What's next?
-              </h3>
-              <p className="mt-2 text-gray-600">
-                Your subscription is now active. You'll receive an email
-                confirmation shortly.
-              </p>
-            </div>
-
-            <div className="mt-8 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-              <Link
-                to="/feed"
-                className="w-full flex items-center justify-center px-4 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                <Home className="mr-2 h-4 w-4" /> Back to Home
-              </Link>
-            </div>
+          <div>
+            <span className="font-medium text-gray-600">Amount Paid:</span> ₹
+            {paymentInfo.amount} {paymentInfo.currency.toUpperCase()}
+          </div>
+          <div>
+            <span className="font-medium text-gray-600">
+              Subscription Expires:
+            </span>{" "}
+          </div>
+          <div className="break-all">
+            <span className="font-medium text-gray-600">Order ID:</span>{" "}
+            {paymentInfo.orderId}
           </div>
         </div>
-      </div>
+      )}
+
+      {paymentInfo?.receiptUrl && (
+        <div className="mt-6 text-center">
+          <a
+            href={paymentInfo.receiptUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-6 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-100 transition"
+          >
+            Download Receipt
+          </a>
+        </div>
+      )}
+
+      {status !== "loading" && (
+        <div className="mt-6 text-center">
+          <a
+            href="/feed"
+            className="inline-block px-6 py-2 bg-blue-600 text-white font-medium rounded hover:bg-blue-700 transition"
+          >
+            Go to Dashboard
+          </a>
+        </div>
+      )}
     </div>
   );
 };

@@ -28,11 +28,14 @@ export interface IUser extends Document {
   savedJobs: mongoose.Types.ObjectId[] | [];
   socketId?: string;
   online?: boolean;
-  isSubscriptionTaken: boolean;
-  subscriptionExpiresAt: Date;
-  subscription?: mongoose.Types.ObjectId;
-  activePaymentSession?: string; // Store Stripe session ID
-  activePaymentSessionExpiresAt?: Date; // Session expiry time
+  // Subscription
+  isSubscriptionActive: boolean;
+  subscriptionStartDate: Date | null;
+  subscriptionEndDate: Date | null;
+  subscriptionCancelled: boolean;
+  subscription?: Types.ObjectId | null;
+  activePaymentSession?: string | null;
+  activePaymentSessionExpiresAt?: Date | null;
   // job,post count
   appliedJobCount: number;
   createdPostCount: number;
@@ -155,25 +158,35 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
-    // subscription ralted
-    isSubscriptionTaken: {
+    subscription: {
+      type: Schema.Types.ObjectId,
+      ref: "Subscription",
+      default: null,
+    },
+    isSubscriptionActive: {
       type: Boolean,
       default: false,
+      index: true, // Optimizes subscription checks
     },
-    subscriptionExpiresAt: {
+    subscriptionStartDate: {
       type: Date,
       default: null,
     },
-    subscription: {
-      type: mongoose.Types.ObjectId,
-      ref: "Subscription",
+    subscriptionEndDate: {
+      type: Date,
+      default: null,
+    },
+    subscriptionCancelled: {
+      type: Boolean,
+      default: false,
     },
     activePaymentSession: {
       type: String,
+      default: null,
     },
     activePaymentSessionExpiresAt: {
       type: Date,
-      required: false,
+      default: null,
     },
     appliedJobCount: {
       type: Number,

@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { JobService, UpdateJobInput } from "../services/jobServices";
 import { JobFormState } from "./useJobForm";
 import { handleApiError } from "../../../utils/apiError";
+import { ParsedAPIError } from "../../../types/api";
 
 interface UseUpdateJobFormProps {
   jobId: string;
@@ -63,8 +64,9 @@ export function useUpdateJobForm({ jobId, onSuccess }: UseUpdateJobFormProps) {
         },
       });
     } catch (err: unknown) {
-      const parsed = handleApiError(err, "Failed to load job data");
-      toast.error(parsed.message);
+      const parsed = err as ParsedAPIError;
+      console.log("Parsed error is", parsed.errors);
+
       setErrors(parsed.errors ?? {});
     } finally {
       setIsLoading(false);
@@ -177,8 +179,8 @@ export function useUpdateJobForm({ jobId, onSuccess }: UseUpdateJobFormProps) {
       toast.success("Job updated successfully!");
       onSuccess?.();
     } catch (err: unknown) {
-      const parsed = handleApiError(err, "Failed to update job");
-      toast.error(parsed.message);
+      const parsed = err as ParsedAPIError;
+      toast.error(parsed.message || "Failed to update job");
       setErrors(parsed.errors ?? {});
     } finally {
       setIsSubmitting(false);

@@ -1,25 +1,61 @@
-// // routes/stripeRoutes.ts
-// import express from "express";
+// routes/stripe.routes.ts
+import express from "express";
 
-// import { TYPES } from "../di/types";
-// import { IStripeController } from "../interfaces/controllers/IStripeController";
-// import container from "../di/container";
-// import { IAuthMiddleware } from "../interfaces/middlewares/IAuthMiddleware";
-// const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
-// const router = express.Router();
+import tranasctionModal from "../models/tranasction.modal";
+import {
+  confirmPaymentSession,
+  createCheckoutSession,
+  handleRefund,
+} from "../controllers/StripeController";
 
-// const stripeController = container.get<IStripeController>(
-//   TYPES.StripeController
-// );
-// router.use(authMiddleware.authenticate("user"));
-// router.post("/create-checkout-session", (req, res) =>
-//   stripeController.createCheckoutSession(req, res)
-// );
+const router = express.Router();
 
-// router.post("/refund", (req, res) => stripeController.handleRefund(req, res));
+router.post("/create-checkout-session", createCheckoutSession);
+router.post("/refund", handleRefund);
+router.get("/confirm-session/:sessionId", confirmPaymentSession);
 
-// router.get("/session/:userId", (req, res) =>
-//   stripeController.getLatestTransactionSession(req, res)
-// );
+// (optional) fetch last session by userId
+router.get("/session/:userId", async (req, res) => {
+  const { userId } = req.params;
 
-// export default router;
+  try {
+    const latestTransaction = await tranasctionModal
+      .findOne({ userId, status: "completed" })
+      .sort({ createdAt: -1 });
+
+    if (!latestTransaction) {
+      res.status(404).json({ message: "No completed transaction found" });
+      return;
+    }
+
+    res.status(200).json({
+      stripeSessionId: latestTransaction.stripeSessionId,
+      planName: latestTransaction.planName,
+      amount: latestTransaction.amount,
+      currency: latestTransaction.currency,
+      createdAt: latestTransaction.createdAt,
+    });
+  } catch (err) {
+    console.error("Error fetching session ID:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/session-details/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    const transaction = await tranasctionModal.findOne({
+      stripeSessionId: sessionId,
+    });
+    if (!transaction) {
+      throw new Error("transaction not found");
+    }
+    res.status(200).json({ success: true, transaction });
+  } catch (err) {
+    console.error("Error fetching session details:", err);
+    res.status(500).json({ message: "Failed to fetch session details" });
+  }
+});
+
+export default router;

@@ -1,22 +1,26 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface ITransaction extends Document {
-  userId: mongoose.Types.ObjectId;
+  _id: Types.ObjectId;
+  userId: Types.ObjectId;
+  orderId: string;
   amount: number;
   currency: string;
   status: "pending" | "completed" | "failed" | "refunded";
   paymentMethod: string;
   stripeSessionId: string;
+  stripeRefundId?: string | null;
   planName: string;
-  createdAt: Date;
-  refundReason?: string;
-  refundDate?: Date;
-  stripeRefundId?: string;
+  refundReason?: string | null;
+  refundDate?: Date | null;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const TransactionSchema = new Schema<ITransaction>({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   amount: { type: Number, required: true },
+  orderId: { type: String, required: true },
   currency: { type: String, default: "inr" },
   status: {
     type: String,

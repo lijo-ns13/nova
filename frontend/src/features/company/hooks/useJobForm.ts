@@ -2,6 +2,7 @@ import { useState, FormEvent } from "react";
 import toast from "react-hot-toast";
 import { CreateJobInput, JobService } from "../services/jobServices";
 import { handleApiError } from "../../../utils/apiError";
+import { ParsedAPIError } from "../../../types/api";
 
 export type JobFormState = Omit<
   CreateJobInput,
@@ -156,8 +157,10 @@ export function useJobForm() {
       toast.success("Job created successfully!");
       onSuccess?.();
     } catch (err: unknown) {
-      const parsed = handleApiError(err, "Failed to create job");
-      toast.error(parsed.message);
+      const parsed = err as ParsedAPIError;
+
+      console.log("Parsed error is", parsed.errors);
+
       setErrors(parsed.errors ?? {});
     } finally {
       setIsSubmitting(false);

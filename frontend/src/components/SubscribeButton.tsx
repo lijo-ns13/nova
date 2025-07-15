@@ -1,6 +1,7 @@
 import { loadStripe } from "@stripe/stripe-js";
 import { useAppSelector } from "../hooks/useAppSelector";
 import { createCheckoutSession } from "../services/stripeapi";
+import toast from "react-hot-toast";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
 
@@ -10,47 +11,38 @@ interface Props {
 }
 
 const SubscribeButton: React.FC<Props> = ({ planName, price }) => {
-  const { id } = useAppSelector((state) => state.auth);
+  const { id: userId } = useAppSelector((state) => state.auth);
 
   const handleCheckout = async () => {
-    console.log("Button clicked");
-    console.log("User ID:", id);
-
-    if (!id) {
-      alert("Please log in");
+    if (!userId) {
+      toast.error("Please login to subscribe.");
       return;
     }
 
     try {
-      console.log("Creating checkout session...");
-      const { url, error } = await createCheckoutSession(id, price, planName);
-
-      if (error) {
-        alert(error); // Show error message from backend
+      const response = await createCheckoutSession(userId, price, planName);
+      console.log("reskfjslkfjslkfjsl,bykkjalkj", response);
+      if ("error" in response) {
+        toast.error(response.error);
         return;
       }
 
-      if (!url) {
-        alert("Something went wrong. No URL returned.");
-        return;
-      }
-
-      const stripe = await stripePromise;
-      if (stripe) {
-        window.location.href = url;
+      // ✅ Manually redirect to the URL returned by backend
+      if (response.url) {
+        window.location.href = response.url;
       } else {
-        alert("Stripe initialization failed.");
+        toast.error("Missing Stripe URL");
       }
     } catch (err) {
-      console.error("Checkout error:", err);
-      alert("Payment failed. Try again.");
+      console.error("Stripe error", err);
+      toast.error("Something went wrong during checkout");
     }
   };
 
   return (
     <button
-      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
       onClick={handleCheckout}
+      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
     >
       Subscribe to {planName}
     </button>
