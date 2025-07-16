@@ -12,10 +12,12 @@ interface AuthState {
   profilePicture: string;
   isVerified: boolean;
   isBlocked: boolean;
-  isSubscriptionTaken: boolean;
-  subscriptionExpiresAt?: Date;
-  appliedJobCount?: number;
-  createdPostCount?: number;
+  isSubscriptionActive: boolean;
+  subscriptionStartDate: Date | null;
+  subscriptionEndDate: Date | null;
+  subscriptionCancelled: boolean;
+  appliedJobCount: number;
+  createdPostCount: number;
 }
 
 const initialState: AuthState = {
@@ -29,8 +31,12 @@ const initialState: AuthState = {
   headline: "",
   isVerified: false,
   isBlocked: false,
-  isSubscriptionTaken: false,
-  subscriptionExpiresAt: undefined,
+  isSubscriptionActive: false,
+  subscriptionStartDate: null,
+  subscriptionEndDate: null,
+  subscriptionCancelled: false,
+  appliedJobCount: 0,
+  createdPostCount: 0,
 };
 
 const authSlice = createSlice({
@@ -49,8 +55,10 @@ const authSlice = createSlice({
         headline?: string;
         isVerified: boolean;
         isBlocked: boolean;
-        isSubscriptionTaken?: boolean;
-        subscriptionExpiresAt?: string | Date;
+        isSubscriptionActive?: boolean;
+        subscriptionStartDate?: string | Date | null;
+        subscriptionEndDate?: string | Date | null;
+        subscriptionCancelled?: boolean;
         appliedJobCount?: number;
         createdPostCount?: number;
       }>
@@ -65,28 +73,23 @@ const authSlice = createSlice({
       state.headline = action.payload.headline ?? ""; // fallback if undefined
       state.isVerified = action.payload.isVerified;
       state.isBlocked = action.payload.isBlocked;
-      state.isSubscriptionTaken = action.payload.isSubscriptionTaken ?? false;
-      state.subscriptionExpiresAt = action.payload.subscriptionExpiresAt
-        ? new Date(action.payload.subscriptionExpiresAt)
-        : undefined;
+      state.isSubscriptionActive = action.payload.isSubscriptionActive ?? false;
+      state.subscriptionStartDate = action.payload.subscriptionStartDate
+        ? new Date(action.payload.subscriptionStartDate)
+        : null;
+      state.subscriptionEndDate = action.payload.subscriptionEndDate
+        ? new Date(action.payload.subscriptionEndDate)
+        : null;
+      state.subscriptionCancelled =
+        action.payload.subscriptionCancelled ?? false;
       state.appliedJobCount = action.payload.appliedJobCount;
       state.createdPostCount = action.payload.createdPostCount;
     },
     logout: (state) => {
-      state.isAuthenticated = false;
-      state.id = "";
-      state.name = "";
-      state.username = "";
-      state.email = "";
-      state.role = "";
-      state.profilePicture = "";
-      state.headline = "";
-      state.isBlocked = false;
-      state.isVerified = false;
-      state.isSubscriptionTaken = false;
-      state.subscriptionExpiresAt = undefined;
-      state.appliedJobCount = undefined;
-      state.createdPostCount = undefined;
+      Object.assign(state, {
+        ...initialState,
+        isAuthenticated: false,
+      });
     },
     updateProfile: (
       state,
@@ -107,18 +110,26 @@ const authSlice = createSlice({
     updateSubscriptionStatus: (
       state,
       action: PayloadAction<{
-        isSubscriptionTaken: boolean;
-        subscriptionExpiresAt?: string | Date;
+        isSubscriptionActive: boolean;
+        subscriptionStartDate?: string | Date | null;
+        subscriptionEndDate?: string | Date | null;
+        subscriptionCancelled?: boolean;
       }>
     ) => {
-      state.isSubscriptionTaken = action.payload.isSubscriptionTaken;
-      state.subscriptionExpiresAt = action.payload.subscriptionExpiresAt
-        ? new Date(action.payload.subscriptionExpiresAt)
-        : undefined;
+      state.isSubscriptionActive = action.payload.isSubscriptionActive;
+      state.subscriptionStartDate = action.payload.subscriptionStartDate
+        ? new Date(action.payload.subscriptionStartDate)
+        : null;
+      state.subscriptionEndDate = action.payload.subscriptionEndDate
+        ? new Date(action.payload.subscriptionEndDate)
+        : null;
+      state.subscriptionCancelled =
+        action.payload.subscriptionCancelled ?? false;
     },
     updateAppliedJobCount: (state, action: PayloadAction<number>) => {
       state.appliedJobCount = action.payload;
     },
+
     updateCreatePostCount: (state, action: PayloadAction<number>) => {
       state.createdPostCount = action.payload;
     },

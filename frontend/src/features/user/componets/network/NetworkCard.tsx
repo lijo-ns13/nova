@@ -1,9 +1,20 @@
 import React from "react";
 import { User as UserIcon, UserPlus, UserMinus } from "lucide-react";
-
 import { Link } from "react-router-dom";
-import { NetworkUser } from "../../pages/NetworkPage";
-import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
+
+export interface User {
+  id: string;
+  name: string;
+  username: string;
+  profilePicture?: string | null;
+  headline?: string;
+}
+
+export interface NetworkUser {
+  user: User;
+  isFollowing: boolean;
+  isCurrentUser?: boolean;
+}
 
 interface NetworkCardProps {
   networkUser: NetworkUser;
@@ -21,19 +32,17 @@ const NetworkCard: React.FC<NetworkCardProps> = ({
   const handleFollowClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onFollow(user._id);
+    onFollow(user.id);
   };
 
   const handleUnfollowClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onUnfollow(user._id);
+    onUnfollow(user.id);
   };
 
   return (
     <div className="h-full flex">
-      {" "}
-      {/* Flex container for consistent height */}
       <Link
         to={`/in/${user.username}`}
         className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500 flex flex-col w-full"
@@ -42,21 +51,16 @@ const NetworkCard: React.FC<NetworkCardProps> = ({
         {/* Card Header with banner */}
         <div className="h-12 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
 
-        {/* Card Content - flex column with fixed button position */}
+        {/* Card Content */}
         <div className="p-6 flex flex-col flex-1">
           {/* Profile Info Section */}
           <div className="flex items-start space-x-4 mb-4">
             <div className="relative -mt-10 flex-shrink-0">
               {user.profilePicture ? (
-                // <img
-                //   className="h-16 w-16 rounded-full object-cover border-4 border-white shadow-md"
-                //   src={user.profilePicture}
-                //   alt={user.name}
-                // />
-                <SecureCloudinaryImage
-                  publicId={user.profilePicture}
+                <img
+                  className="h-16 w-16 rounded-full object-cover border-4 border-white shadow-md"
+                  src={user.profilePicture}
                   alt={user.name}
-                  className="w-12 h-12 rounded-full object-cover"
                 />
               ) : (
                 <div className="h-16 w-16 rounded-full bg-gradient-to-br from-gray-100 to-gray-300 flex items-center justify-center border-4 border-white shadow-md">
@@ -80,7 +84,7 @@ const NetworkCard: React.FC<NetworkCardProps> = ({
             )}
           </div>
 
-          {/* Action Button - fixed height and position */}
+          {/* Action Button */}
           <div className="mt-auto h-10 flex justify-end items-center">
             {isFollowing ? (
               <button

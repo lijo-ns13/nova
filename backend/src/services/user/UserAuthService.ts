@@ -108,8 +108,11 @@ export class UserAuthService implements IUserAuthService {
         profilePicture: user.profilePicture,
         headline: user.headline,
         username: user.username,
-        isSubscriptionTaken: user.isSubscriptionTaken,
-        subscriptionExpiresAt: user.subscriptionExpiresAt,
+
+        isSubscriptionActive: user.isSubscriptionActive,
+        subscriptionStartDate: user.subscriptionStartDate,
+        subscriptionEndDate: user.subscriptionEndDate,
+        subscriptionCancelled: user.subscriptionCancelled,
         appliedJobCount: user.appliedJobCount,
         createdPostCount: user.createdPostCount,
       },

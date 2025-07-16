@@ -24,5 +24,11 @@ export interface IUserFollowService {
 
   isFollowing(followerId: string, followingId: string): Promise<boolean>;
 
-  getNetworkUsers(currentUserId: string): Promise<NetworkUserDTO[]>;
+  // getNetworkUsers(currentUserId: string): Promise<NetworkUserDTO[]>;
+  getNetworkUsers(
+    currentUserId: string,
+    page: number,
+    limit: number,
+    search: string
+  ): Promise<{ users: NetworkUserDTO[]; total: number }>;
 }

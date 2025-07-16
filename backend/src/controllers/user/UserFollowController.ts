@@ -106,11 +106,29 @@ export class UserFollowController implements IUserFollowController {
   async getNetworkUsers(req: Request, res: Response): Promise<void> {
     try {
       const currentUserId = (req.user as UserPayload).id;
-      const users = await this._userFollowService.getNetworkUsers(
-        currentUserId
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const search = (req.query.search as string) || "";
+      const { users, total } = await this._userFollowService.getNetworkUsers(
+        currentUserId,
+        page,
+        limit,
+        search
       );
 
-      res.status(HTTP_STATUS_CODES.OK).json({ success: true, data: users });
+      res.status(200).json({
+        success: true,
+        message: "Network users fetched",
+        data: {
+          users,
+          pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          },
+        },
+      });
     } catch (error) {
       handleControllerError(error, res, "UserFollowController.getNetworkUsers");
     }

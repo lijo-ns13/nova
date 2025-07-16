@@ -79,8 +79,10 @@ function SignInPage() {
           headline: user.headline,
           isBlocked: isBlocked,
           isVerified: isVerified,
-          isSubscriptionTaken: user.isSubscriptionTaken,
-          subscriptionExpiresAt: user.subscriptionExpiresAt,
+          isSubscriptionActive: user.isSubscriptionActive,
+          subscriptionStartDate: user.subscriptionStartDate,
+          subscriptionEndDate: user.subscriptionEndDate,
+          subscriptionCancelled: user.subscriptionCancelled,
           appliedJobCount: user.appliedJobCount,
           createdPostCount: user.createdPostCount,
         })

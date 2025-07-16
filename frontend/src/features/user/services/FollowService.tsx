@@ -32,11 +32,29 @@ export interface BasicResponse {
   success: boolean;
   message: string;
 }
+export interface PaginationInfo {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
-export const getNetworkUsers = async (): Promise<NetworkUser[]> => {
+export interface NetworkUserResponse {
+  users: NetworkUser[];
+  pagination: PaginationInfo;
+}
+
+export const getNetworkUsers = async (
+  page = 1,
+  limit = 10,
+  search = ""
+): Promise<NetworkUserResponse> => {
   try {
-    const res = await userAxios.get<APIResponse<NetworkUser[]>>(
-      `${BASE_URL}/network-users`
+    const res = await userAxios.get<APIResponse<NetworkUserResponse>>(
+      `${BASE_URL}/network-users`,
+      {
+        params: { page, limit, search },
+      }
     );
     return res.data.data;
   } catch (error) {

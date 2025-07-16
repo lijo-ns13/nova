@@ -147,4 +147,10 @@ export interface IUserRepository extends IBaseRepository<IUser> {
     targetUserId: string,
     currentUserId: string
   ): Promise<IUserWithStatus[]>;
+  getPaginatedUsersExcept(
+    userId: string,
+    page: number,
+    limit: number,
+    search: string
+  ): Promise<{ users: IUser[]; total: number }>;
 }

@@ -44,13 +44,17 @@ export const UserFollowMapper = {
     };
   },
 
-  toNetworkUserDTO(user: IUser, isFollowing: boolean): NetworkUserDTO {
+  toNetworkUserDTO(
+    user: IUser,
+    signedProfilePic: string,
+    isFollowing: boolean
+  ): NetworkUserDTO {
     return {
       user: {
         id: user._id.toString(),
         name: user.name,
         username: user.username,
-        profilePicture: user.profilePicture,
+        profilePicture: signedProfilePic,
         headline: user.headline,
       },
       isFollowing,

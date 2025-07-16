@@ -14,6 +14,7 @@ import {
   UserFollowMapper,
   UserWithStatusDTO,
 } from "../../mapping/user/UserFollowMapper";
+import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 
 @injectable()
 export class UserFollowService implements IUserFollowService {
@@ -21,7 +22,8 @@ export class UserFollowService implements IUserFollowService {
     @inject(TYPES.UserRepository)
     private userRepository: IUserRepository,
     @inject(TYPES.NotificationService)
-    private notificationService: INotificationService
+    private notificationService: INotificationService,
+    @inject(TYPES.MediaService) private _mediaService: IMediaService
   ) {}
 
   async followUser(
@@ -117,23 +119,42 @@ export class UserFollowService implements IUserFollowService {
   async isFollowing(followerId: string, followingId: string): Promise<boolean> {
     return this.userRepository.isFollowing(followerId, followingId);
   }
+  async getNetworkUsers(
+    currentUserId: string,
+    page: number,
+    limit: number,
+    search: string
+  ): Promise<{ users: NetworkUserDTO[]; total: number }> {
+    const [{ users: allUsers, total }, followingUsers] = await Promise.all([
+      this.userRepository.getPaginatedUsersExcept(
+        currentUserId,
+        page,
+        limit,
+        search
+      ),
+      this.userRepository.getFollowing(currentUserId),
+    ]);
 
-  async getNetworkUsers(currentUserId: string): Promise<NetworkUserDTO[]> {
-    const allUsers = await this.userRepository.getAllUsersExcept(currentUserId);
-    const followingUsers = await this.userRepository.getFollowing(
-      currentUserId
-    );
     const followingIds = new Set(followingUsers.map((u) => u._id.toString()));
 
-    return allUsers
-      .map((user) =>
-        UserFollowMapper.toNetworkUserDTO(
+    const mappedUsers = await Promise.all(
+      allUsers.map(async (user) => {
+        const signedProfilePic = user.profilePicture
+          ? await this._mediaService.getMediaUrl(user.profilePicture)
+          : "";
+
+        return UserFollowMapper.toNetworkUserDTO(
           user,
+          signedProfilePic,
           followingIds.has(user._id.toString())
-        )
-      )
-      .sort((a, b) =>
-        a.isFollowing === b.isFollowing ? 0 : a.isFollowing ? 1 : -1
-      );
+        );
+      })
+    );
+
+    mappedUsers.sort((a, b) =>
+      a.isFollowing === b.isFollowing ? 0 : a.isFollowing ? -1 : 1
+    );
+
+    return { users: mappedUsers, total };
   }
 }

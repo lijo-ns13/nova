@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { Model, Types } from "mongoose";
+import { FilterQuery, Model, Types } from "mongoose";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import userModal, { IUser } from "../../models/user.modal";
 import { BaseRepository } from "./BaseRepository";
@@ -562,5 +562,42 @@ export class UserRepository
         { name: 1, username: 1, profilePicture: 1, headline: 1 }
       )
       .lean();
+  }
+  async getPaginatedUsersExcept(
+    userId: string,
+    page: number,
+    limit: number,
+    search: string
+  ): Promise<{ users: IUser[]; total: number }> {
+    const baseFilter: FilterQuery<IUser> = {
+      _id: { $ne: new Types.ObjectId(userId) },
+    };
+
+    if (search.trim()) {
+      const regex = new RegExp(search.trim(), "i");
+      baseFilter.$or = [
+        { name: regex },
+        { username: regex },
+        { headline: regex },
+      ];
+    }
+
+    const projection: Partial<Record<keyof IUser, 1>> = {
+      name: 1,
+      username: 1,
+      profilePicture: 1,
+      headline: 1,
+    };
+
+    const [users, total] = await Promise.all([
+      this.model
+        .find(baseFilter, projection)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean<IUser[]>(),
+      this.model.countDocuments(baseFilter),
+    ]);
+
+    return { users, total };
   }
 }
