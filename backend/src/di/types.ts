@@ -1,3 +1,5 @@
+import { TransactionRepository } from "../repositories/mongo/TransactionRepository";
+
 export const TYPES = {
   // Repositories
   UserModal: Symbol.for("UserModal"),
@@ -29,6 +31,8 @@ export const TYPES = {
   skillModal: Symbol.for("skillModal"),
   postModal: Symbol.for("postModal"),
   mediaModal: Symbol.for("mediaModal"),
+  tranasctionModal: Symbol.for("tranasctionModal"),
+  TransactionRepository: Symbol.for("TransactionRepository"),
   // services**************************************
   // user
   UserAuthService: Symbol.for("UserAuthService"),
@@ -139,7 +143,7 @@ export const TYPES = {
   // admin dashb
   AdminDashboardController: Symbol.for("AdminDashboardController"),
   AdminDashboardService: Symbol.for("AdminDashboardService"),
-  TransactionRepository: Symbol.for("TransactionRepository"),
+  // TransactionRepository: Symbol.for("TransactionRepository"),
   // SubscriptionPlanRepository: Symbol.for("SubscriptionPlanRepository"),
   StripeService: Symbol.for("StripeService"),
   StripeController: Symbol.for("StripeController"),

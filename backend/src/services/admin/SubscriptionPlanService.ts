@@ -10,6 +10,12 @@ import {
 
 import logger from "../../utils/logger";
 import { SubscriptionPlanMapper } from "../../mapping/admin/admin.subscription.mapper";
+import {
+  TransactionFilterInput,
+  TransactionResponseDTO,
+} from "../../core/dtos/admin/admin.sub.dto";
+import { ITransactionRepository } from "../../interfaces/repositories/ITransactionRepository";
+import { mapTransactionToDTO } from "../../mapping/admin/admin.sub.mapper";
 
 @injectable()
 export class SubscriptionPlanService implements ISubscriptionPlanService {
@@ -17,9 +23,16 @@ export class SubscriptionPlanService implements ISubscriptionPlanService {
 
   constructor(
     @inject(TYPES.SubscriptionPlanRepository)
-    private _subscriptionPlanRepository: ISubscriptionPlanRepository
+    private _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    @inject(TYPES.TransactionRepository)
+    private _transactionRepo: ITransactionRepository
   ) {}
-
+  async getFilteredTransactions(
+    filter: TransactionFilterInput
+  ): Promise<TransactionResponseDTO[]> {
+    const txns = await this._transactionRepo.findByFilter(filter);
+    return txns.map(mapTransactionToDTO);
+  }
   async createPlan(
     input: SubscriptionPlanInput
   ): Promise<SubscriptionPlanResponse> {

@@ -1,12 +1,19 @@
 // src/interfaces/services/ISubscriptionPlanService.ts
 
 import {
+  TransactionFilterInput,
+  TransactionResponseDTO,
+} from "../../core/dtos/admin/admin.sub.dto";
+import {
   SubscriptionPlanInput,
   SubscriptionPlanResponse,
   SubscriptionPlanUpdateInput,
 } from "../../core/dtos/admin/subscription.dto";
 
 export interface ISubscriptionPlanService {
+  getFilteredTransactions(
+    filter: TransactionFilterInput
+  ): Promise<TransactionResponseDTO[]>;
   createPlan(input: SubscriptionPlanInput): Promise<SubscriptionPlanResponse>;
   updatePlan(
     id: string,

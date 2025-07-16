@@ -14,7 +14,8 @@ export type ApplicationDetailDTO = {
   jobTitle?: string;
   companyName?: string;
   userId: string;
-  userName?: string;
+  name?: string;
+  username?: string;
   userProfilePicture?: string;
   status: ApplicationStatus;
   resumeUrl?: string;
@@ -25,7 +26,7 @@ export type ApplicationDetailDTO = {
   statusHistory?: {
     status: ApplicationStatus;
     reason?: string;
-    changedAt: string; // ISO string from Date
+    updatedAt: string; // ISO string from Date
   }[];
 };
 

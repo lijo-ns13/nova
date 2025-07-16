@@ -38,9 +38,14 @@ export class JobApplicantManagementService
     const doc = await this._applicationRepo.findByIdWithUserAndJob(
       applicationId
     );
+    const newProfilePictureSignedUrl = doc?.user.profilePicture
+      ? await this._mediaService.getMediaUrl(doc?.user.profilePicture)
+      : "";
+    
+    console.log("docky dock", doc);
     if (!doc) return null;
 
-    const dto = ApplicationMapper.toUserAndJobDTO(doc);
+    const dto = ApplicationMapper.toUserAndJobDTO(doc,newProfilePictureSignedUrl);
 
     if (doc.resumeMediaId) {
       const media = await this._mediaService.getMediaById(

@@ -184,6 +184,10 @@ import { IMediaController } from "../interfaces/controllers/IMediaController";
 // import { MediaController } from "../controllers/MediaController";
 import mediaModal, { IMedia } from "../models/media.modal";
 import { ICommentService } from "../interfaces/services/Post/ICommentService";
+import tranasctionModal, { ITransaction } from "../models/tranasction.modal";
+import { ITransactionRepository } from "../interfaces/repositories/ITransactionRepository";
+import { Types } from "aws-sdk/clients/acm";
+import { TransactionRepository } from "../repositories/mongo/TransactionRepository";
 // import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
@@ -228,10 +232,15 @@ container
   .bind<IPasswordResetTokenRepository>(TYPES.PasswordResetTokenRepository)
   .to(PasswordResetTokenRepository);
 container.bind<ISkillRepository>(TYPES.SkillRepository).to(SkillRepository);
-
+container
+  .bind<ITransactionRepository>(TYPES.TransactionRepository)
+  .to(TransactionRepository);
 // job
 container.bind<IJobRepository>(TYPES.JobRepository).to(JobRepository);
 container.bind<Model<IJob>>(TYPES.jobModal).toConstantValue(jobModal);
+container
+  .bind<Model<ITransaction>>(TYPES.tranasctionModal)
+  .toConstantValue(tranasctionModal);
 container.bind<IUserJobService>(TYPES.UserJobService).to(UserJobService);
 container
   .bind<IUserJobController>(TYPES.UserJobController)

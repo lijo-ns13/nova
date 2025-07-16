@@ -15,7 +15,7 @@ import {
 
 interface StatusHistoryItem {
   status: string;
-  changedAt: string;
+  updatedAt: string;
   reason?: string;
 }
 
@@ -28,7 +28,7 @@ const ApplicationTimeline: React.FC<ApplicationTimelineProps> = ({
 }) => {
   // Sort history by date (newest first)
   const sortedHistory = [...statusHistory].sort(
-    (a, b) => new Date(b.changedAt).getTime() - new Date(a.changedAt).getTime()
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   );
 
   // Get icon based on status
@@ -98,7 +98,7 @@ const ApplicationTimeline: React.FC<ApplicationTimelineProps> = ({
                     </span>
                     <span className="mx-2 text-slate-400">•</span>
                     <time className="text-slate-500">
-                      {new Date(item.changedAt).toLocaleString()}
+                      {new Date(item.updatedAt).toLocaleString()}
                     </time>
                   </div>
 

@@ -14,9 +14,9 @@ const ExperienceSection = React.lazy(
 const ProjectSection = React.lazy(
   () => import("../componets/Profile/ProjectSection")
 );
-const CertificateSection = React.lazy(
-  () => import("../componets/Profile/CertificateSection")
-);
+// const CertificateSection = React.lazy(
+//   () => import("../componets/Profile/CertificateSection")
+// );
 const EducationSection = React.lazy(
   () => import("../componets/Profile/EducationSection")
 );
@@ -44,7 +44,7 @@ function ProfilePage() {
     { id: "Experience", label: "Experience" },
     { id: "Education", label: "Education" },
     { id: "Projects", label: "Projects" },
-    { id: "Certificates", label: "Certificates" },
+    // { id: "Certificates", label: "Certificates" },
     { id: "Posts", label: "Posts" },
     { id: "Skills", label: "Skills" },
   ];
@@ -134,11 +134,11 @@ function ProfilePage() {
                 </Suspense>
               )}
 
-              {activeTab === "Certificates" && (
+              {/* {activeTab === "Certificates" && (
                 <Suspense fallback={<SectionLoader />}>
                   <CertificateSection />
                 </Suspense>
-              )}
+              )} */}
 
               {activeTab === "Projects" && (
                 <Suspense fallback={<SectionLoader />}>

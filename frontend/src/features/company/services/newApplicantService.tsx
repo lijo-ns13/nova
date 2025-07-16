@@ -40,7 +40,7 @@ export interface ApplicantData {
     statusHistory: {
       status: string;
       reason?: string;
-      changedAt: string;
+      updatedAt: string;
     }[];
     createdAt?: string;
   };

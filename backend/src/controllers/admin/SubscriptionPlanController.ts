@@ -10,6 +10,8 @@ import {
 import { IdSchema } from "../../core/validations/id.schema";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { handleControllerError } from "../../utils/errorHandler";
+import { transactionFilterSchema } from "../../core/dtos/admin/admin.sub.dto";
+import { SubscriptionPlanService } from "../../services/admin/SubscriptionPlanService";
 
 @injectable()
 export class SubscriptionPlanController implements ISubscriptionPlanController {
@@ -17,7 +19,19 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
     @inject(TYPES.SubscriptionPlanService)
     private subscriptionPlanService: ISubscriptionPlanService
   ) {}
-
+  async getFilteredTransactions(req: Request, res: Response): Promise<void> {
+    try {
+      const filter = transactionFilterSchema.parse(req.query);
+      const result = await this.subscriptionPlanService.getFilteredTransactions(
+        filter
+      );
+      res
+        .status(200)
+        .json({ success: true, message: "Transactions fetched", data: result });
+    } catch (error) {
+      handleControllerError(error, res, "getFilteredTransactions");
+    }
+  }
   async createPlan(req: Request, res: Response): Promise<void> {
     try {
       const parsed = SubscriptionPlanCreateSchema.parse(req.body);

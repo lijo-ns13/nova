@@ -17,7 +17,8 @@ export interface ApplicationResponseDTO {
   jobTitle?: string;
   companyName?: string;
   userId: string;
-  userName?: string;
+  username?: string;
+  name?: string;
   userProfilePicture?: string;
   status: ApplicationStatus;
   resumeUrl?: string;
@@ -36,6 +37,7 @@ export type PopulatedApplication = Omit<IApplication, "user" | "job"> & {
     _id: string | Types.ObjectId;
     name: string;
     profilePicture?: string;
+    username?: string;
   };
   job: {
     _id: string | Types.ObjectId;
@@ -60,7 +62,8 @@ export class ApplicationMapper {
   }
 
   static toUserAndJobDTO(
-    application: PopulatedApplication
+    application: PopulatedApplication,
+    newProfilePictureSignedUrl: string
   ): ApplicationResponseDTO {
     return {
       id: application._id.toString(),
@@ -68,8 +71,9 @@ export class ApplicationMapper {
       jobTitle: application.job.title,
       companyName: application.job.company,
       userId: application.user._id.toString(),
-      userName: application.user.name,
-      userProfilePicture: application.user.profilePicture,
+      username: application.user.username,
+      name: application.user.name,
+      userProfilePicture: newProfilePictureSignedUrl,
       status: application.status,
       appliedAt: application.appliedAt,
       scheduledAt: application.scheduledAt,

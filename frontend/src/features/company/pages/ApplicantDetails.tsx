@@ -1,39 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { FileText, MapPin, Briefcase, Award } from "lucide-react";
-
-import { useParams } from "react-router-dom";
-import { Applicant } from "../types/applicant";
-import { getApplicantById } from "../services/newApplicantService";
+import { Link, useParams } from "react-router-dom";
 import { toast } from "../components/ui/Toast";
+
 import LoadingState from "../components/ui/LoadingState";
 import ErrorState from "../components/ui/ErrorState";
-import ApplicantHeader from "../components/applicant/ApplicantHeader";
+import SecureDocViewer from "../../../components/SecureDocViewer";
+
 import StatusManager from "../components/applicant/StatusManager";
 import ApplicationTimeline from "../components/applicant/ApplicationTimeline";
 import ScheduleInterviewModal from "../components/interview/ScheduleInterviewModal";
 import RescheduleInterviewModal from "../components/interview/RescheduleInterviewModal";
 
-import SecureDocViewer from "../../../components/SecureDocViewer";
 import {
   ApplicantService,
   ApplicationDetailDTO,
 } from "../services/applicantService";
 
 function ApplicantDetails() {
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [applicant, setApplicant] = useState<ApplicationDetailDTO | null>(null);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState("");
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
   const { applicationId } = useParams();
 
   const fetchApplicantData = async () => {
     if (!applicationId) return;
-
     setLoading(true);
     try {
       const res = await ApplicantService.getApplicationDetails(applicationId);
-      console.log("resss", res);
       setApplicant(res);
     } catch (error) {
       console.error(error);
@@ -42,29 +37,9 @@ function ApplicantDetails() {
       setLoading(false);
     }
   };
-  const handleInterviewRescheduled = () => {
-    toast({
-      title: "Reschedule Request Sent",
-      description: "Your reschedule request has been sent to the candidate",
-      variant: "success",
-    });
-    fetchApplicantData();
-  };
-  const handleStatusUpdateSuccess = () => {
-    toast({
-      title: "Status Updated",
-      description: "Application status has been successfully updated",
-      variant: "success",
-    });
-    fetchApplicantData();
-  };
 
-  const handleInterviewScheduled = () => {
-    toast({
-      title: "Interview Scheduled",
-      description: "Interview has been scheduled successfully",
-      variant: "success",
-    });
+  const refreshAndToast = (title: string, description: string) => {
+    toast({ title, description, variant: "success" });
     fetchApplicantData();
   };
 
@@ -84,136 +59,103 @@ function ApplicantDetails() {
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="space-y-6">
-          {/* Header Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            {/* <ApplicantHeader applicant={applicant} /> */}
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <section className="bg-white rounded-xl shadow border border-slate-200 p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+          <img
+            src={applicant.userProfilePicture || "/default.png"}
+            alt={applicant.name || "Applicant Profile"}
+            className="w-24 h-24 rounded-full object-cover border border-slate-200 shadow-sm"
+          />
+          <div className="flex-1 text-center sm:text-left">
+            <h1 className="text-2xl font-semibold text-slate-800">
+              {applicant.name || "Unnamed User"}
+            </h1>
+            {applicant.username && (
+              <Link
+                to={`/in/${applicant.username}`}
+                className="text-blue-600 hover:underline text-sm"
+              >
+                View Public Profile
+              </Link>
+            )}
+            {applicant.jobTitle && (
+              <p className="text-slate-600 mt-1 text-sm">
+                Applying for:{" "}
+                <span className="font-medium">{applicant.jobTitle}</span>
+              </p>
+            )}
+            {applicant.companyName && (
+              <p className="text-slate-500 text-sm">{applicant.companyName}</p>
+            )}
           </div>
+        </section>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left Sidebar */}
-            <div className="lg:col-span-4">
-              <div className="sticky top-6 space-y-6">
-                {/* Job Details Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                  {/* <div className="px-4 py-5 sm:px-6 border-b border-slate-200 bg-slate-50">
-                    <h2 className="text-lg font-semibold text-slate-800">
-                      Job Details
-                    </h2>
-                  </div>
-                  <div className="p-4 sm:p-6 space-y-4">
-                    <h3 className="text-lg font-medium text-slate-900">
-                      {applicant.job.title}
-                    </h3>
-
-                    <div className="space-y-3">
-                      <div className="flex items-center text-slate-600">
-                        <MapPin
-                          size={18}
-                          className="mr-2 text-slate-400 flex-shrink-0"
-                        />
-                        <span className="text-sm">
-                          {applicant.job.location}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center text-slate-600">
-                        <Briefcase
-                          size={18}
-                          className="mr-2 text-slate-400 flex-shrink-0"
-                        />
-                        <span className="text-sm">{applicant.job.jobType}</span>
-                      </div>
-
-                      <div className="flex items-center text-slate-600">
-                        <Award
-                          size={18}
-                          className="mr-2 text-slate-400 flex-shrink-0"
-                        />
-                        <span className="text-sm">
-                          {applicant.job.experienceLevel}
-                        </span>
-                      </div>
-                    </div> */}
-
-                  {/* {applicant.job.salary.isVisibleToApplicants && (
-                      <div className="mt-4 p-3 bg-slate-50 rounded-lg">
-                        <div className="text-sm font-medium text-slate-700">
-                          Salary Range
-                        </div>
-                        <div className="text-lg font-semibold text-slate-900 mt-1">
-                          {applicant.job.salary.currency}{" "}
-                          {applicant.job.salary.min.toLocaleString()} -{" "}
-                          {applicant.job.salary.max.toLocaleString()}
-                        </div>
-                      </div>
-                    )} */}
-
-                  {/* <div className="pt-4"> */}
-                  {/* <a
-                        href={applicant.resumeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition duration-150 ease-in-out text-sm"
-                      >
-                        <FileText size={16} className="mr-2" />
-                        View Resume
-                      </a> */}
-                  {/* <SecureDocumentViewer mediaId={applicant.resumeMediaId} />
-                   */}
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left: Resume Viewer */}
+          <aside className="lg:col-span-4 space-y-6">
+            <div className="bg-white rounded-xl shadow border border-slate-200 overflow-hidden">
+              <div className="p-4">
+                <h2 className="text-lg font-semibold text-slate-800 mb-2">
+                  Resume
+                </h2>
+                {applicant.resumeUrl ? (
                   <SecureDocViewer resumeUrl={applicant.resumeUrl} />
-                  {/* </div>
-                  </div> */}
-                </div>
+                ) : (
+                  <p className="text-slate-500 text-sm">No resume available</p>
+                )}
               </div>
             </div>
+          </aside>
 
-            {/* Main Content Area */}
-            <div className="lg:col-span-8 space-y-6">
-              {/* Status Section */}
-              {/* Status Section */}
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="px-4 py-5 sm:px-6 border-b border-slate-200 bg-slate-50">
-                  <h2 className="text-lg font-semibold text-slate-800">
-                    Application Status
-                  </h2>
-                </div>
-                <div className="p-4 sm:p-6">
-                  {applicationId && applicant && (
-                    <StatusManager
-                      applicant={applicant}
-                      applicationId={applicationId}
-                      onStatusUpdate={handleStatusUpdateSuccess}
-                      onScheduleInterview={() => setIsInterviewModalOpen(true)}
-                      onRescheduleInterview={() =>
-                        setIsRescheduleModalOpen(true)
-                      }
-                    />
-                  )}
-                </div>
+          {/* Right: Application Info */}
+          <main className="lg:col-span-8 space-y-6">
+            {/* Application Status */}
+            <section className="bg-white rounded-xl shadow border border-slate-200">
+              <div className="px-4 py-5 border-b bg-slate-50">
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Application Status
+                </h2>
               </div>
+              <div className="p-4">
+                <StatusManager
+                  applicant={applicant}
+                  applicationId={applicationId!}
+                  onStatusUpdate={() =>
+                    refreshAndToast(
+                      "Status Updated",
+                      "Application status successfully updated."
+                    )
+                  }
+                  onScheduleInterview={() => setIsInterviewModalOpen(true)}
+                  onRescheduleInterview={() => setIsRescheduleModalOpen(true)}
+                />
+              </div>
+            </section>
 
-              {/* Timeline Section */}
-              {/* <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="px-4 py-5 sm:px-6 border-b border-slate-200 bg-slate-50">
-                  <h2 className="text-lg font-semibold text-slate-800">
-                    Application History
-                  </h2>
-                </div>
-                <div className="p-4 sm:p-6">
+            {/* Timeline */}
+            <section className="bg-white rounded-xl shadow border border-slate-200">
+              <div className="px-4 py-5 border-b bg-slate-50">
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Application History
+                </h2>
+              </div>
+              <div className="p-4">
+                {applicant.statusHistory?.length ? (
                   <ApplicationTimeline
                     statusHistory={applicant.statusHistory}
                   />
-                </div>
-              </div> */}
-            </div>
-          </div>
+                ) : (
+                  <p className="text-slate-500 text-sm">No history available</p>
+                )}
+              </div>
+            </section>
+          </main>
         </div>
       </div>
 
-      {/* Interview Modal */}
+      {/* Modals */}
       {applicationId && (
         <>
           <ScheduleInterviewModal
@@ -222,7 +164,12 @@ function ApplicantDetails() {
             applicationId={applicationId}
             userId={applicant.userId}
             jobId={applicant.jobId}
-            onInterviewScheduled={handleInterviewScheduled}
+            onInterviewScheduled={() =>
+              refreshAndToast(
+                "Interview Scheduled",
+                "Interview scheduled successfully."
+              )
+            }
           />
           <RescheduleInterviewModal
             isOpen={isRescheduleModalOpen}
@@ -231,7 +178,12 @@ function ApplicantDetails() {
             userId={applicant.userId}
             jobId={applicant.jobId}
             currentInterviewTime={applicant.scheduledAt}
-            onInterviewRescheduled={handleInterviewRescheduled}
+            onInterviewRescheduled={() =>
+              refreshAndToast(
+                "Reschedule Requested",
+                "Candidate has been notified."
+              )
+            }
           />
         </>
       )}
