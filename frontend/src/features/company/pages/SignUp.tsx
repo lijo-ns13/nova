@@ -4,7 +4,7 @@ import { signUpCompanyRequestSchema } from "../util/validators";
 import { CompanyAuthService } from "../services/AuthServices";
 import { useNavigate } from "react-router-dom";
 import SiteInfoNav from "../../../components/SiteInfoNav";
-import { uploadToCloudinary } from "../services/CloudinaryNormalService";
+
 import { handleApiError } from "../../../utils/apiError";
 import { FiUpload, FiX, FiChevronDown } from "react-icons/fi";
 import { ToastContainer, toast } from "react-toastify";
@@ -40,6 +40,8 @@ function SignUp() {
   const [documents, setDocuments] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -57,14 +59,12 @@ function SignUp() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const filesArray = Array.from(event.target.files);
-      // Validate file types and size
       const validFiles = filesArray.filter((file) => {
-        if (!file.type.match("image.*")) {
-          toast.error(`File ${file.name} is not an image`);
+        if (file.type !== "application/pdf") {
+          toast.error(`File ${file.name} is not a PDF`);
           return false;
         }
         if (file.size > 5 * 1024 * 1024) {
-          // 5MB limit
           toast.error(`File ${file.name} is too large (max 5MB)`);
           return false;
         }
@@ -85,40 +85,23 @@ function SignUp() {
     setServerError("");
 
     try {
-      // Upload documents first
-      const uploadedUrls = await Promise.all(
-        documents.map(async (file) => {
-          try {
-            const url = await uploadToCloudinary(file);
-            return url;
-          } catch (error) {
-            toast.error(`Failed to upload ${file.name}`);
-            throw error;
-          }
-        })
-      );
+      const formPayload = new FormData();
+      formPayload.append("companyName", formData.companyName);
+      formPayload.append("email", formData.email);
+      formPayload.append("about", formData.about);
+      formPayload.append("foundedYear", String(formData.foundedYear));
+      formPayload.append("businessNumber", String(formData.businessNumber));
+      formPayload.append("industryType", formData.industryType);
+      formPayload.append("location", formData.location);
+      formPayload.append("password", formData.password);
+      formPayload.append("confirmPassword", formData.confirmPassword);
 
-      const completeFormData = {
-        ...formData,
-        documents: uploadedUrls,
-      };
+      documents.forEach((file) => {
+        formPayload.append("media", file); // backend expects "media"
+      });
 
-      // Client-side validation
-      const result = signUpCompanyRequestSchema.safeParse(completeFormData);
-      if (!result.success) {
-        const formattedErrors: Record<string, string> = {};
-        result.error.errors.forEach((err) => {
-          if (err.path[0]) {
-            const fieldName = err.path[0] as keyof SignUpErrors;
-            formattedErrors[fieldName] = err.message;
-          }
-        });
-        setErrors(formattedErrors);
-        return;
-      }
-
-      // Server submission
-      const response = await CompanyAuthService.signUp(completeFormData);
+      // Server request (no Zod here unless you rewrite the validation logic for FormData)
+      const response = await CompanyAuthService.signUp(formPayload);
 
       toast.success(
         "Registration successful! Please check your email for verification."
@@ -353,42 +336,36 @@ function SignUp() {
                 </div>
 
                 {/* Password */}
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Password <span className="text-red-500">*</span>
-                  </label>
+                <div className="relative">
                   <input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={handleChange}
                     className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                       errors.password ? "border-red-500" : "border-gray-300"
                     }`}
                   />
-                  {errors.password && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.password}
-                    </p>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-3 flex items-center text-sm text-gray-500"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
                 </div>
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                )}
 
                 {/* Confirm Password */}
-                <div>
-                  <label
-                    htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Confirm Password <span className="text-red-500">*</span>
-                  </label>
+                <div className="relative">
                   <input
                     id="confirmPassword"
                     name="confirmPassword"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
@@ -397,12 +374,20 @@ function SignUp() {
                         : "border-gray-300"
                     }`}
                   />
-                  {errors.confirmPassword && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.confirmPassword}
-                    </p>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-3 flex items-center text-sm text-gray-500"
+                    tabIndex={-1}
+                  >
+                    {showConfirmPassword ? "Hide" : "Show"}
+                  </button>
                 </div>
+                {errors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.confirmPassword}
+                  </p>
+                )}
 
                 {/* Documents */}
                 <div className="sm:col-span-2">
@@ -422,16 +407,14 @@ function SignUp() {
                             name="file-upload"
                             type="file"
                             multiple
-                            accept="image/*"
+                            accept="application/pdf"
                             onChange={handleFileChange}
                             className="sr-only"
                           />
                         </label>
                         <p className="pl-1">or drag and drop</p>
                       </div>
-                      <p className="text-xs text-gray-500">
-                        PNG, JPG, GIF up to 5MB
-                      </p>
+                      <p className="text-xs text-gray-500">pdf only</p>
                     </div>
                   </div>
                   {errors.documents && (

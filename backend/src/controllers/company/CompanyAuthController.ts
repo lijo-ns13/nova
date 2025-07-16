@@ -17,8 +17,15 @@ export class CompanyAuthController implements ICompanyAuthController {
 
   async signUp(req: Request, res: Response): Promise<void> {
     try {
-      const parsed = signUpCompanyRequestSchema.parse(req.body);
-      const result = await this.authService.signUp(parsed);
+      console.log("reqbodyauth", req.body);
+      console.log("req.files", req.files);
+      const files = req.files as Express.Multer.File[];
+      const parsed = signUpCompanyRequestSchema.parse({
+        ...req.body,
+        businessNumber: parseInt(req.body.businessNumber),
+        foundedYear: parseInt(req.body.foundedYear),
+      });
+      const result = await this.authService.signUp(parsed, files);
       res.status(HTTP_STATUS_CODES.CREATED).json({
         success: true,
         message: "OTP sent to email successfully",

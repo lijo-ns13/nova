@@ -99,22 +99,12 @@ export const signUpCompanyRequestSchema = z
       .max(new Date().getFullYear(), {
         message: "Founded year cannot be in the future",
       }),
-
-    documents: z
-      .array(
-        z
-          .string()
-          .regex(/^https?:\/\/\S+$/, { message: "Invalid document URL" })
-      )
-      .min(1, { message: "At least one document is required" })
-      .max(10, { message: "You can upload a maximum of 10 documents" }),
-
     location: z
-      .string()
-      .min(3, { message: "Location must be at least 3 characters long" })
-      .optional(),
+      .string({ invalid_type_error: "location required" })
+      .trim()
+      .min(4, { message: "minimum 4 char" }),
   })
-  .refine((data) => data.password !== data.confirmPassword, {
+  .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
     message: "Passwords do not match",
   });

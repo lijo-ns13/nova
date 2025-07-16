@@ -12,7 +12,11 @@ import {
 import { TempCompanyResponseDTO } from "../../mapping/company/auth/TempCompany.mapper";
 
 export interface ICompanyAuthService {
-  signUp(payload: SignUpCompanyRequestDTO): Promise<TempCompanyResponseDTO>;
+  signUp(
+    payload: SignUpCompanyRequestDTO,
+    documents: Express.Multer.File[]
+  ): Promise<TempCompanyResponseDTO>;
+  // signUp(payload: SignUpCompanyRequestDTO): Promise<TempCompanyResponseDTO>;
   signIn(payload: SignInCompanyRequestDTO): Promise<SignInCompanyResponseDTO>;
   verifyOTP(email: string, otp: string): Promise<CompanyResponseDTO>;
   resendOTP(email: string): Promise<ResendOtpResponseDTO>;

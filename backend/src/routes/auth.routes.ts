@@ -4,6 +4,13 @@ import { IAuthController } from "../interfaces/controllers/IUserAuthController";
 import container from "../di/container";
 import { TYPES } from "../di/types";
 import { Router } from "express";
+import multer from "multer";
+
+const storage = multer.memoryStorage(); // Suitable for cloud uploads like S3
+const upload = multer({ storage });
+
+export const uploadMedia = upload.array("media"); // 'media' should match your form field name
+
 const authController = container.get<IAuthController>(TYPES.AuthController);
 const companyAuthController = container.get<ICompanyAuthController>(
   TYPES.CompanyAuthController
@@ -30,7 +37,7 @@ router.post("/reset-password", (req, res) =>
 router.post("/company/signin", (req, res) =>
   companyAuthController.signIn(req, res)
 );
-router.post("/company/signup", (req, res) =>
+router.post("/company/signup", uploadMedia, (req, res) =>
   companyAuthController.signUp(req, res)
 );
 router.post("/company/verify", (req, res) =>

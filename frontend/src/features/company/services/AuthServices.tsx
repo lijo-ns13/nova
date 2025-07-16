@@ -16,12 +16,17 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const BASE_URL = `${API_BASE_URL}/auth/company`;
 
 export const CompanyAuthService = {
-  async signUp(data: CompanySignUpInput): Promise<CompanySignUpResponse> {
+  async signUp(formData: FormData): Promise<CompanySignUpResponse> {
     try {
       const response = await axios.post<CompanySignUpResponse>(
         `${BASE_URL}/signup`,
-        data,
-        { withCredentials: true }
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       return response.data;
     } catch (error) {

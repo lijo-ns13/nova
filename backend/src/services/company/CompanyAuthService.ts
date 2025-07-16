@@ -34,6 +34,7 @@ import {
   ResendOtpResponseDTO,
   ResetPasswordInputDTO,
 } from "../../mapping/company/auth/company.auth.mapper";
+import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 
 @injectable()
 export class CompanyAuthService implements ICompanyAuthService {
@@ -50,11 +51,13 @@ export class CompanyAuthService implements ICompanyAuthService {
     private _passwordResetTokenRepository: IPasswordResetTokenRepository,
     @inject(TYPES.NotificationService)
     private notificationService: INotificationService,
-    @inject(TYPES.AdminRepository) private _adminRepo: IAdminRepository
+    @inject(TYPES.AdminRepository) private _adminRepo: IAdminRepository,
+    @inject(TYPES.MediaService) private _mediaService: IMediaService
   ) {}
 
   async signUp(
-    payload: SignUpCompanyRequestDTO
+    payload: SignUpCompanyRequestDTO,
+    documents: Express.Multer.File[]
   ): Promise<TempCompanyResponseDTO> {
     const existing = await this._companyRepository.findByEmail(payload.email);
     if (existing) throw new Error("Email already exists");
@@ -64,7 +67,14 @@ export class CompanyAuthService implements ICompanyAuthService {
     );
     if (existingTemp) throw new Error("Too many tries. Try again later.");
 
-    const createdTemp = await this._tempCompanyRepository.create(payload);
+    const s3Keys = await Promise.all(
+      documents.map((file) => this._mediaService.uploadSingleMedia(file))
+    );
+
+    const createdTemp = await this._tempCompanyRepository.create({
+      ...payload,
+      documents: s3Keys,
+    });
 
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 60 * 1000);
@@ -79,7 +89,6 @@ export class CompanyAuthService implements ICompanyAuthService {
 
     return TempCompanyMapper.toDTO(createdTemp);
   }
-
   async signIn(
     payload: SignInCompanyRequestDTO
   ): Promise<SignInCompanyResponseDTO> {

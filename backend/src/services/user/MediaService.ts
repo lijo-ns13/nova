@@ -96,8 +96,8 @@ export class MediaService implements IMediaService {
   }
   async uploadSingleMedia(
     file: Express.Multer.File,
-    ownerId: string,
-    ownerModel: string
+    ownerId?: string,
+    ownerModel?: string
   ): Promise<string> {
     try {
       // Validate file type
@@ -129,12 +129,12 @@ export class MediaService implements IMediaService {
       );
 
       // Optional: Save in MongoDB
-      await mediaModal.create({
-        s3Key: fileKey,
-        mimeType: file.mimetype,
-        ownerId,
-        ownerModel,
-      });
+      // await mediaModal.create({
+      //   s3Key: fileKey,
+      //   mimeType: file.mimetype,
+      //   ownerId,
+      //   ownerModel,
+      // });
 
       // Return S3 key directly
       return fileKey;
