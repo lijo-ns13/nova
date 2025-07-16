@@ -4,7 +4,7 @@ import {
   blockCompany,
   unblockCompany,
 } from "../../services/companyServices";
-import { ApiResponse, Company, Pagination } from "../../types/types";
+
 import { useDebounce } from "../../../../hooks/useDebounce"; // Import your custom hook
 
 // Component imports
@@ -12,11 +12,31 @@ import SearchBar from "../UserManagement/SearchBar";
 import PaginationComponent from "../UserManagement/Pagination";
 import CompanyTable from "./CompanyTable";
 import CompanyCard from "./CompanyCard";
-import LoadingIndicator from "../UserManagement/LoadingIndicator";
-import ConfirmSoftDeleteModal from "../../../user/componets/modals/ConfirmSoftDeleteModal";
 
+import ConfirmSoftDeleteModal from "../../../user/componets/modals/ConfirmSoftDeleteModal";
+export interface CompanyResponse {
+  id: string;
+  companyName: string;
+  email: string;
+  isBlocked: boolean;
+  profilePicture: string | null;
+}
+
+export interface Pagination {
+  totalCompanies: number;
+  totalPages: number;
+  currentPage: number;
+  companiesPerPage: number;
+}
+
+export interface PaginatedCompanyResponse {
+  companies: CompanyResponse[];
+  total: number;
+  page: number;
+  limit: number;
+}
 const CompanyManagement: React.FC = () => {
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [companies, setCompanies] = useState<CompanyResponse[]>([]);
   const [pagination, setPagination] = useState<Pagination>({
     totalCompanies: 0,
     totalPages: 1,
@@ -29,24 +49,28 @@ const CompanyManagement: React.FC = () => {
   const debouncedSearchQuery = useDebounce(searchQuery, 500); // Using your debounce hook
   const [showModal, setShowModal] = useState(false);
   const [modalAction, setModalAction] = useState<"block" | "unblock">("block");
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [selectedCompany, setSelectedCompany] =
+    useState<CompanyResponse | null>(null);
 
   const fetchCompanies = useCallback(
     async (query: string, pageNum: number, isInitial = false) => {
       try {
-        const response: ApiResponse = await getCompanies(
+        const response = await getCompanies(
           pageNum,
           pagination.companiesPerPage,
           query
         );
+        console.log(response, "resy");
 
-        if (response.success) {
-          setCompanies(response.data.companies);
-          setPagination(response.data.pagination);
-          setError(null);
-        } else {
-          throw new Error(response.message || "Failed to fetch companies");
-        }
+        setCompanies(response.companies);
+        setPagination({
+          totalCompanies: response.total,
+          totalPages: Math.ceil(response.total / response.limit),
+          currentPage: response.page,
+          companiesPerPage: response.limit,
+        });
+
+        setError(null);
       } catch (err) {
         console.error("Error fetching companies:", err);
         setError("Failed to fetch companies");
@@ -66,7 +90,7 @@ const CompanyManagement: React.FC = () => {
     fetchCompanies(debouncedSearchQuery, pagination.currentPage, false);
   }, [debouncedSearchQuery, fetchCompanies, pagination.currentPage]);
 
-  const handleBlock = (company: Company) => {
+  const handleBlock = (company: CompanyResponse) => {
     setSelectedCompany(company);
     setModalAction(company.isBlocked ? "unblock" : "block");
     setShowModal(true);
@@ -77,17 +101,17 @@ const CompanyManagement: React.FC = () => {
 
     try {
       if (selectedCompany.isBlocked) {
-        await unblockCompany(selectedCompany._id);
+        await unblockCompany(selectedCompany.id);
         setCompanies((prev) =>
           prev.map((c) =>
-            c._id === selectedCompany._id ? { ...c, isBlocked: false } : c
+            c.id === selectedCompany.id ? { ...c, isBlocked: false } : c
           )
         );
       } else {
-        await blockCompany(selectedCompany._id);
+        await blockCompany(selectedCompany.id);
         setCompanies((prev) =>
           prev.map((c) =>
-            c._id === selectedCompany._id ? { ...c, isBlocked: true } : c
+            c.id === selectedCompany.id ? { ...c, isBlocked: true } : c
           )
         );
       }
@@ -156,7 +180,7 @@ const CompanyManagement: React.FC = () => {
                 ) : (
                   companies.map((company) => (
                     <CompanyCard
-                      key={company._id}
+                      key={company.id}
                       company={company}
                       onBlock={handleBlock}
                     />

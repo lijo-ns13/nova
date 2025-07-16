@@ -1,11 +1,10 @@
 import React from "react";
-import { Company } from "../../types/types";
 import StatusBadge from "../UserManagement/StatusBadge";
-import UserAvatar from "../UserManagement/UserAvatar";
+import { CompanyResponse } from "../../types/company";
 
 interface CompanyCardProps {
-  company: Company;
-  onBlock: (company: Company) => void;
+  company: CompanyResponse;
+  onBlock: (company: CompanyResponse) => void;
 }
 
 const CompanyCard: React.FC<CompanyCardProps> = ({ company, onBlock }) => {
@@ -13,14 +12,6 @@ const CompanyCard: React.FC<CompanyCardProps> = ({ company, onBlock }) => {
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-3 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between space-x-3">
         <div className="flex items-center space-x-3 min-w-0">
-          <div className="flex-shrink-0">
-            <UserAvatar
-              name={company.companyName}
-              imageSrc={company.profilePicture || company.documents?.[0]}
-              size="sm"
-            />
-          </div>
-
           <div className="min-w-0">
             <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
               {company.companyName}
@@ -30,15 +21,6 @@ const CompanyCard: React.FC<CompanyCardProps> = ({ company, onBlock }) => {
             </p>
             <div className="mt-1 flex items-center space-x-2">
               <StatusBadge isBlocked={company.isBlocked} />
-              <span
-                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                  company.isVerified
-                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                }`}
-              >
-                {company.isVerified ? "Verified" : "Pending"}
-              </span>
             </div>
           </div>
         </div>
