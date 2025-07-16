@@ -30,11 +30,28 @@ export interface GetJobResponseDTO extends JobResponseDTO {
   };
 }
 
-export interface AppliedJobResponseDTO extends JobResponseDTO {
-  applicationId: string;
-  userId: string;
+export interface AppliedJobResponseDTO {
+  _id: string; // from root "_id"
   appliedAt: string;
+  status: string;
+  scheduledAt?: string;
+  resumeMediaId: string;
+
+  job: {
+    id: string;
+    title: string;
+    description: string;
+    location: string;
+    jobType: string;
+  };
+
+  statusHistory: {
+    status: string;
+    changedAt: string;
+    reason?: string;
+  }[];
 }
+
 export interface JobFilterParams {
   page?: number;
   limit?: number;

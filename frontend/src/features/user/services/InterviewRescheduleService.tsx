@@ -2,7 +2,6 @@ import { APIResponse } from "../../../types/api";
 import { handleApiError } from "../../../utils/apiError";
 import userAxios from "../../../utils/userAxios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export interface ApplicationStatusResponseDTO {
   id: string;
   user: string;
@@ -15,6 +14,7 @@ export interface ApplicationStatusResponseDTO {
     reason?: string;
   }[];
 }
+
 export const acceptReschedule = async (
   applicationId: string,
   status: "interview_reschedule_accepted" | "interview_reschedule_rejected",
@@ -44,14 +44,15 @@ export const getRescheduleSlots = async (
     throw handleApiError(error, "Failed to fetch reschedule slots");
   }
 };
+// /interview/updatestatus/:applicationId/:status
 export const updateInterviewStatus = async (
   applicationId: string,
   status: string
 ): Promise<APIResponse<ApplicationStatusResponseDTO>> => {
   try {
-    const response = await userAxios.put<
+    const response = await userAxios.patch<
       APIResponse<ApplicationStatusResponseDTO>
-    >(`/application/${applicationId}/interview-status/${status}`);
+    >(`/interview/updatestatus/${applicationId}/${status}`);
 
     return response.data;
   } catch (error) {
