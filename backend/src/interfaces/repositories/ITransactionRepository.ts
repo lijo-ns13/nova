@@ -13,7 +13,8 @@ export interface ITransactionRepository {
     status: string,
     refundData?: any
   ): Promise<ITransaction | null>;
-  findByFilter(
-    filter: TransactionFilterInput
-  ): Promise<ITransactionPopulated[]>;
+  findByFilter(filter: TransactionFilterInput): Promise<{
+      transactions: ITransactionPopulated[];
+      total: number;
+    }>
 }

@@ -1,15 +1,78 @@
 import adminAxios from "../../../utils/adminAxios";
-import { APIResponse, HTTPErrorResponse } from "../../../types/api";
+import { APIResponse } from "../../../types/api";
 import {
   CreatePlanInput,
   SubscriptionPlanResponse,
   UpdatePlanInput,
 } from "../types/subscription";
 import { handleApiError } from "../../../utils/apiError";
+import z from "zod";
+export const TRANSACTION_STATUSES = [
+  "pending",
+  "completed",
+  "failed",
+  "refunded",
+] as const;
+
+export type TransactionStatus = (typeof TRANSACTION_STATUSES)[number];
+export const transactionFilterSchema = z
+  .object({
+    status: z.enum(TRANSACTION_STATUSES).optional(),
+    planName: z.string().min(1).optional(),
+    from: z.string().datetime().optional(),
+    to: z.string().datetime().optional(),
+    userId: z.string().length(24).optional(),
+    isActiveOnly: z.enum(["true", "false"]).optional(),
+    page: z.string().regex(/^\d+$/).optional(),
+    limit: z.string().regex(/^\d+$/).optional(),
+  })
+  .strict(); // Disallow extra unexpected query fields
+
+export type TransactionFilterInput = z.infer<typeof transactionFilterSchema>;
+
+export interface TransactionResponseDTO {
+  id: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  amount: number;
+  currency: string;
+  status: TransactionStatus;
+  paymentMethod: string;
+  stripeSessionId: string;
+  stripeRefundId: string | null;
+  planName: string;
+  refundReason: string | null;
+  refundDate: string | null;
+  createdAt: string;
+}
+
+export interface TransactionListWithPagination {
+  transactions: TransactionResponseDTO[];
+  total: number;
+  page: number;
+  limit: number;
+}
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const BASE_URL = `${API_BASE_URL}/admin/subscription`;
-
+export const GetFilteredTransactions = async (
+  filters: TransactionFilterInput
+): Promise<TransactionListWithPagination> => {
+  try {
+    const result = await adminAxios.get<
+      APIResponse<TransactionListWithPagination>
+    >(`${BASE_URL}/transactions`, {
+      params: filters,
+      withCredentials: true,
+    });
+    return result.data.data;
+  } catch (error) {
+    throw handleApiError(error, "Failed to fetch transactions");
+  }
+};
 // Create a new subscription plan
 export const CreateSubscriptionPlan = async (
   data: CreatePlanInput

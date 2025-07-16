@@ -8,4 +8,5 @@ export interface ISubscriptionPlanController {
   getAllPlans(req: Request, res: Response): Promise<void>;
   getPlanById(req: Request, res: Response): Promise<void>;
   togglePlanStatus(req: Request, res: Response): Promise<void>;
+  getFilteredTransactions(req: Request, res: Response): Promise<void>;
 }

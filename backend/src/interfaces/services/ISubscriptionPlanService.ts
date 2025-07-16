@@ -9,11 +9,12 @@ import {
   SubscriptionPlanResponse,
   SubscriptionPlanUpdateInput,
 } from "../../core/dtos/admin/subscription.dto";
+import { TransactionListWithPagination } from "../../mapping/admin/admin.sub.mapper";
 
 export interface ISubscriptionPlanService {
   getFilteredTransactions(
-    filter: TransactionFilterInput
-  ): Promise<TransactionResponseDTO[]>;
+      filter: TransactionFilterInput
+    ): Promise<TransactionListWithPagination>;
   createPlan(input: SubscriptionPlanInput): Promise<SubscriptionPlanResponse>;
   updatePlan(
     id: string,

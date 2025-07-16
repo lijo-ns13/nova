@@ -19,7 +19,9 @@ router.post("/", (req, res) => subscriptionPlanController.createPlan(req, res));
 
 // Get all subscription plans
 router.get("/", (req, res) => subscriptionPlanController.getAllPlans(req, res));
-
+router.get("/transactions", (req, res) =>
+  subscriptionPlanController.getFilteredTransactions(req, res)
+);
 // Get a specific subscription plan
 router.get("/:id", (req, res) =>
   subscriptionPlanController.getPlanById(req, res)

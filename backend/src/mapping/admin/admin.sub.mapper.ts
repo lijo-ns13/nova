@@ -2,12 +2,18 @@ import { Types } from "mongoose";
 import { TransactionResponseDTO } from "../../core/dtos/admin/admin.sub.dto";
 import { ITransaction } from "../../models/tranasction.modal";
 export interface PopulatedUser {
-  _id: string | Types.ObjectId;
+  _id: Types.ObjectId;
   name: string;
   email: string;
 }
 export interface ITransactionPopulated extends Omit<ITransaction, "userId"> {
   userId: PopulatedUser;
+}
+export interface TransactionListWithPagination {
+  transactions: TransactionResponseDTO[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 export const mapTransactionToDTO = (

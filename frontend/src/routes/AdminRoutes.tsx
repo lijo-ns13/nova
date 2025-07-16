@@ -17,6 +17,7 @@ import SkillList from "../features/admin/pages/SkillList";
 import NotFoundPage from "../components/PageNotFound";
 import NotificationPage from "../features/user/pages/NotificationPage";
 import AdminDashboard from "../features/admin/pages/AdminDashboard";
+import SubHistory from "../features/admin/pages/SubHistory";
 const AdminRoutes = () => {
   return (
     <Routes>
@@ -34,6 +35,7 @@ const AdminRoutes = () => {
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/company-management" element={<CompanyMangement />} />
         <Route path="/subscription-management" element={<SubFeatPage />} />
+        <Route path="/subscription-history" element={<SubHistory />} />
         <Route
           path="/company-verification"
           element={<CompanyVerificationPage />}

@@ -15,7 +15,10 @@ import {
   TransactionResponseDTO,
 } from "../../core/dtos/admin/admin.sub.dto";
 import { ITransactionRepository } from "../../interfaces/repositories/ITransactionRepository";
-import { mapTransactionToDTO } from "../../mapping/admin/admin.sub.mapper";
+import {
+  mapTransactionToDTO,
+  TransactionListWithPagination,
+} from "../../mapping/admin/admin.sub.mapper";
 
 @injectable()
 export class SubscriptionPlanService implements ISubscriptionPlanService {
@@ -29,9 +32,17 @@ export class SubscriptionPlanService implements ISubscriptionPlanService {
   ) {}
   async getFilteredTransactions(
     filter: TransactionFilterInput
-  ): Promise<TransactionResponseDTO[]> {
-    const txns = await this._transactionRepo.findByFilter(filter);
-    return txns.map(mapTransactionToDTO);
+  ): Promise<TransactionListWithPagination> {
+    const { transactions, total } = await this._transactionRepo.findByFilter(
+      filter
+    );
+
+    return {
+      transactions: transactions.map(mapTransactionToDTO),
+      total,
+      page: parseInt(filter.page ?? "1", 10),
+      limit: parseInt(filter.limit ?? "10", 10),
+    };
   }
   async createPlan(
     input: SubscriptionPlanInput

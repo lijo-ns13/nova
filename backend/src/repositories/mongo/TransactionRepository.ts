@@ -79,7 +79,8 @@ export class TransactionRepository
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .exec(),
+        .lean()
+        .exec() as unknown as Promise<ITransactionPopulated[]>, // 👈 FIX
       tranasctionModal.countDocuments(query),
     ]);
 

@@ -6,6 +6,7 @@ import tranasctionModal from "../models/tranasction.modal";
 import subscriptionModal from "../models/subscription.modal";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
+import { HTTP_STATUS_CODES } from "../core/enums/httpStatusCode";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-05-28.basil",
@@ -17,7 +18,9 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
   try {
     const user = await userModal.findById(userId);
     if (!user) {
-      res.status(400).json({ message: "User not found" });
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ message: "User not found" });
       return;
     }
 
@@ -30,7 +33,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       user.isSubscriptionActive
     ) {
       res
-        .status(400)
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
         .json({ message: "You already have an active subscription" });
       return;
     }
@@ -46,11 +49,17 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       );
 
       if (existingSession?.metadata?.planName === metadata.planName) {
-        res.status(200).json({ url: existingSession.url });
+        res.status(HTTP_STATUS_CODES.OK).json({ url: existingSession.url });
         return;
       }
-
-      res.status(409).json({
+      if (user.subscriptionCancelled === true) {
+        res.status(HTTP_STATUS_CODES.FORBIDDEN).json({
+          message:
+            "You already subscribed and cancelled once this month. Please try again next month.",
+        });
+        return;
+      }
+      res.status(HTTP_STATUS_CODES.CONFLICT).json({
         message:
           "You already have a pending payment session for a different plan.",
         url: existingSession.url,
@@ -89,10 +98,12 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       activePaymentSessionExpiresAt: new Date(session.expires_at! * 1000),
     });
 
-    res.status(200).json({ url: session.url });
+    res.status(HTTP_STATUS_CODES.OK).json({ url: session.url });
   } catch (err) {
     console.error("❌ Stripe checkout session creation failed:", err);
-    res.status(500).json({ message: "Payment session creation failed" });
+    res
+      .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+      .json({ message: "Payment session creation failed" });
   }
 };
 
@@ -105,7 +116,9 @@ export const confirmPaymentSession = async (req: Request, res: Response) => {
     });
 
     if (!session || session.payment_status !== "paid") {
-      res.status(400).json({ message: "Payment not completed yet" });
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ message: "Payment not completed yet" });
       return;
     }
 
@@ -114,7 +127,9 @@ export const confirmPaymentSession = async (req: Request, res: Response) => {
     const orderId = session.metadata?.orderId || uuidv4();
 
     if (!userId) {
-      res.status(400).json({ message: "User ID missing in session metadata" });
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ message: "User ID missing in session metadata" });
       return;
     }
 
@@ -130,7 +145,7 @@ export const confirmPaymentSession = async (req: Request, res: Response) => {
     const receiptUrl = paymentIntent?.charges?.data?.[0]?.receipt_url || null;
 
     if (existingTxn) {
-      res.status(200).json({
+      res.status(HTTP_STATUS_CODES.OK).json({
         message: "Payment already confirmed",
         data: {
           orderId: existingTxn.orderId,
@@ -146,7 +161,9 @@ export const confirmPaymentSession = async (req: Request, res: Response) => {
 
     const subscription = await subscriptionModal.findOne({ name: planName });
     if (!subscription) {
-      res.status(400).json({ message: "Subscription plan not found" });
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ message: "Subscription plan not found" });
       return;
     }
 
@@ -181,7 +198,7 @@ export const confirmPaymentSession = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(200).json({
+    res.status(HTTP_STATUS_CODES.OK).json({
       message: "Subscription activated successfully",
       data: {
         orderId,
@@ -195,7 +212,9 @@ export const confirmPaymentSession = async (req: Request, res: Response) => {
     });
   } catch (err) {
     console.error("❌ Error confirming payment session:", err);
-    res.status(500).json({ message: "Failed to confirm payment session" });
+    res
+      .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+      .json({ message: "Failed to confirm payment session" });
   }
 };
 
@@ -210,14 +229,16 @@ export const handleRefund = async (req: Request, res: Response) => {
     const transaction = await tranasctionModal.findOne({ stripeSessionId });
     if (!transaction || transaction.status !== "completed") {
       res
-        .status(400)
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
         .json({ message: "Invalid or already refunded transaction." });
       return;
     }
 
     const user = await userModal.findById(transaction.userId);
     if (!user) {
-      res.status(404).json({ message: "User not found." });
+      res
+        .status(HTTP_STATUS_CODES.NOT_FOUND)
+        .json({ message: "User not found." });
       return;
     }
 
@@ -235,7 +256,9 @@ export const handleRefund = async (req: Request, res: Response) => {
 
     // 🔒 Check: Purchase date within 15 days
     if (!user.subscriptionStartDate) {
-      res.status(400).json({ message: "No active subscription found." });
+      res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST)
+        .json({ message: "No active subscription found." });
       return;
     }
 
@@ -244,7 +267,7 @@ export const handleRefund = async (req: Request, res: Response) => {
     const daysSincePurchase = moment(now).diff(purchasedAt, "days");
 
     if (daysSincePurchase > REFUND_WINDOW_DAYS) {
-      res.status(403).json({
+      res.status(HTTP_STATUS_CODES.FORBIDDEN).json({
         message: `Refund only allowed within ${REFUND_WINDOW_DAYS} days of purchase.`,
       });
       return;
@@ -277,9 +300,13 @@ export const handleRefund = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(200).json({ message: "Refund successful", refund });
+    res
+      .status(HTTP_STATUS_CODES.OK)
+      .json({ message: "Refund successful", refund });
   } catch (err) {
     console.error("❌ Refund failed:", err);
-    res.status(500).json({ message: "Refund processing failed" });
+    res
+      .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
+      .json({ message: "Refund processing failed" });
   }
 };
