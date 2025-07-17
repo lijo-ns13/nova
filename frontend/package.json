@@ -56,6 +56,7 @@
     "react-icons": "^5.5.0",
     "react-image-crop": "^11.0.7",
     "react-intersection-observer": "^9.16.0",
+    "react-intl": "^7.1.11",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.2",
     "react-toastify": "^11.0.5",

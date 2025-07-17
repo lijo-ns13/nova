@@ -6,7 +6,9 @@ export const UpdateInterviewStatusParamsSchema = z.object({
   applicationId: z.string().min(1, "applicationId is required"),
   status: z.nativeEnum(ApplicationStatus),
 });
-
+export const UpdateInterviewStatusRescheduleParamsSchema=z.object({
+  applicationId:z.string().min(1,"application is required")
+})
 export const UpdateInterviewStatusRescheduledSchema = z.object({
   applicationId: z.string().min(1, "applicationId is required"),
   status: z.nativeEnum(ApplicationStatus),

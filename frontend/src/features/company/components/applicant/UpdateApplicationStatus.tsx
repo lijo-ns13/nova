@@ -65,6 +65,7 @@ const allowedTransitions: Record<ApplicationStatus, ApplicationStatus[]> = {
   ],
   [ApplicationStatus.INTERVIEW_PASSED]: [ApplicationStatus.OFFERED],
   [ApplicationStatus.OFFERED]: [
+    ApplicationStatus.SELECTED,
     ApplicationStatus.WITHDRAWN,
     ApplicationStatus.HIRED,
   ],

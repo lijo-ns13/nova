@@ -10,6 +10,7 @@ import { handleControllerError } from "../../utils/errorHandler";
 import {
   UpdateInterviewStatusParamsSchema,
   UpdateInterviewStatusRescheduledSchema,
+  UpdateInterviewStatusRescheduleParamsSchema,
 } from "../../core/validations/user/userinterview.schema";
 interface UserPayload {
   id: string;
@@ -86,9 +87,8 @@ export class UserInterviewController {
 
   async getRescheduleSlots(req: Request, res: Response): Promise<void> {
     try {
-      const { applicationId } = UpdateInterviewStatusParamsSchema.parse(
-        req.params
-      );
+      const { applicationId } =
+        UpdateInterviewStatusRescheduleParamsSchema.parse(req.params);
       const user = req.user as UserPayload;
 
       const slots = await this.userInterviewService.getRescheduleProposedSlots(

@@ -71,8 +71,10 @@ const StatusManager: React.FC<StatusManagerProps> = ({
       ApplicationStatus.REJECTED, // In case they change their mind
     ],
     [ApplicationStatus.OFFERED]: [
+      ApplicationStatus.SELECTED,
+      ApplicationStatus.HIRED,
       ApplicationStatus.WITHDRAWN,
-      ApplicationStatus.HIRED, // Hired is typically a separate process
+      // Hired is typically a separate process
     ],
     [ApplicationStatus.REJECTED]: [], // Final state
     [ApplicationStatus.WITHDRAWN]: [], // Final state

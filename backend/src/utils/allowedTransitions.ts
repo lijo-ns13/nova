@@ -30,6 +30,8 @@ export const allowedTransitions: Record<
     ApplicationStatus.INTERVIEW_RESCHEDULE_REJECTED,
   ],
   [ApplicationStatus.INTERVIEW_RESCHEDULE_ACCEPTED]: [
+    ApplicationStatus.INTERVIEW_PASSED,
+    ApplicationStatus.INTERVIEW_FAILED,
     ApplicationStatus.INTERVIEW_COMPLETED,
     ApplicationStatus.INTERVIEW_CANCELLED,
   ],
@@ -44,6 +46,7 @@ export const allowedTransitions: Record<
   ],
   [ApplicationStatus.INTERVIEW_PASSED]: [ApplicationStatus.OFFERED],
   [ApplicationStatus.OFFERED]: [
+    ApplicationStatus.SELECTED,
     ApplicationStatus.HIRED,
     ApplicationStatus.WITHDRAWN,
   ],
