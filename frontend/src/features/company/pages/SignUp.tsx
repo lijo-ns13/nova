@@ -80,19 +80,66 @@ function SignUp() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setLoading(true);
     setErrors({});
     setServerError("");
 
+    // Frontend validation
+    const newErrors: SignUpErrors = {};
+
+    if (!formData.companyName.trim())
+      newErrors.companyName = "Company name is required";
+    else if (!/^[A-Za-z\s]+$/.test(formData.companyName.trim()))
+      newErrors.companyName = "Only letters and spaces allowed";
+
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim()))
+      newErrors.email = "Invalid email format";
+
+    if (!formData.about.trim()) newErrors.about = "About is required";
+    else if (formData.about.trim().length < 10)
+      newErrors.about = "About must be at least 10 characters long";
+
+    if (!formData.foundedYear)
+      newErrors.foundedYear = "Founded year is required";
+
+    if (!formData.businessNumber || formData.businessNumber <= 0)
+      newErrors.businessNumber = "Business number must be a positive number";
+
+    if (!formData.industryType.trim())
+      newErrors.industryType = "Industry type is required";
+
+    if (!formData.location.trim()) newErrors.location = "Location is required";
+    else if (formData.location.trim().length < 4)
+      newErrors.location = "Location must be at least 4 characters";
+
+    if (!formData.password.trim()) newErrors.password = "Password is required";
+    else if (!/\d/.test(formData.password))
+      newErrors.password = "Password must contain at least one number";
+
+    if (!formData.confirmPassword.trim())
+      newErrors.confirmPassword = "Confirm your password";
+    else if (formData.password !== formData.confirmPassword)
+      newErrors.confirmPassword = "Passwords do not match";
+
+    if (documents.length === 0)
+      newErrors.documents = "At least one document (PDF) is required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return; // stop submission
+    }
+
+    setLoading(true);
+
     try {
       const formPayload = new FormData();
-      formPayload.append("companyName", formData.companyName);
-      formPayload.append("email", formData.email);
-      formPayload.append("about", formData.about);
+      formPayload.append("companyName", formData.companyName.trim());
+      formPayload.append("email", formData.email.trim());
+      formPayload.append("about", formData.about.trim());
       formPayload.append("foundedYear", String(formData.foundedYear));
       formPayload.append("businessNumber", String(formData.businessNumber));
-      formPayload.append("industryType", formData.industryType);
-      formPayload.append("location", formData.location);
+      formPayload.append("industryType", formData.industryType.trim());
+      formPayload.append("location", formData.location.trim());
       formPayload.append("password", formData.password);
       formPayload.append("confirmPassword", formData.confirmPassword);
 
@@ -100,7 +147,6 @@ function SignUp() {
         formPayload.append("media", file); // backend expects "media"
       });
 
-      // Server request (no Zod here unless you rewrite the validation logic for FormData)
       const response = await CompanyAuthService.signUp(formPayload);
 
       toast.success(
@@ -110,7 +156,7 @@ function SignUp() {
         navigate(`/company/verify?email=${response.data.email}`);
       }, 2000);
     } catch (error) {
-      const parsedError = handleApiError(error, "Failed to sign up");
+      const parsedError = handleApiError(error);
       if (parsedError.errors) {
         setErrors(parsedError.errors);
       } else {
