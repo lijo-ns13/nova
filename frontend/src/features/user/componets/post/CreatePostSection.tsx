@@ -33,7 +33,7 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
   const queryClient = useQueryClient();
   const dispath = useAppDispatch();
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const { profilePicture, name, isSubscriptionTaken, createdPostCount } =
+  const { profilePicture, name, isSubscriptionActive, createdPostCount } =
     useAppSelector((state) => state.auth);
 
   const [showSubscriptionModal, setShowSubscriptionModal] =
@@ -43,7 +43,7 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
   };
   const handleOpenModal = () => {
     if (
-      !isSubscriptionTaken &&
+      !isSubscriptionActive &&
       createdPostCount &&
       createdPostCount >= postLimit
     ) {
@@ -82,7 +82,7 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
   });
   const handlePostSubmit = async (data: PostData) => {
     if (
-      !isSubscriptionTaken &&
+      !isSubscriptionActive &&
       createdPostCount &&
       createdPostCount >= postLimit
     ) {
