@@ -19,8 +19,12 @@ export interface IAdminCompanyManagementService {
     limit: number,
     searchQuery?: string
   ): Promise<CompanyPaginatedResponse>;
+  // getUnverifiedCompanies(
+  //   page: number,
+  //   limit: number
+  // ): Promise<CompanyPaginatedResponse>;
   getUnverifiedCompanies(
     page: number,
     limit: number
-  ): Promise<CompanyPaginatedResponse>;
+  ): Promise<CompanyPaginatedResponse>
 }

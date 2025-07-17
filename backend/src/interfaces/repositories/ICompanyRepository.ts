@@ -18,14 +18,18 @@ export interface ICompanyRepository extends IBaseRepository<ICompany> {
     searchQuery?: string
   ): Promise<{ companies: ICompany[]; totalCompanies: number }>;
 
-  findCompaniesByFilter(
-    filter: Record<string, any>,
+  // findCompaniesByFilter(
+  //   filter: Record<string, any>,
+  //   page?: number,
+  //   limit?: number
+  // ): Promise<{
+  //   companies: ICompany[];
+  //   totalCompanies: number;
+  // }>;
+  getPendingVerificationCompanies(
     page?: number,
     limit?: number
-  ): Promise<{
-    companies: ICompany[];
-    totalCompanies: number;
-  }>;
+  ): Promise<{ companies: ICompany[]; totalCompanies: number }>;
   getCompanyProfile(companyId: string): Promise<ICompany | null>;
   getCompanyProfileWithDetails(companyId: string): Promise<ICompany | null>;
   updateCompanyProfile(

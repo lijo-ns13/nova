@@ -58,7 +58,7 @@ export interface ICompany extends Document {
   isVerified: boolean;
   verificationStatus: "pending" | "accepted" | "rejected";
   isBlocked: boolean;
-  profilePicture: string;
+  profilePicture?: string;
   socketId?: string;
   online?: boolean;
   createdAt: Date;

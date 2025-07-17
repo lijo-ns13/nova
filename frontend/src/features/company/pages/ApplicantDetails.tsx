@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "../components/ui/Toast";
 
 import LoadingState from "../components/ui/LoadingState";
@@ -23,7 +23,7 @@ function ApplicantDetails() {
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
   const { applicationId } = useParams();
-
+  const navigate = useNavigate();
   const fetchApplicantData = async () => {
     if (!applicationId) return;
     setLoading(true);
@@ -61,6 +61,13 @@ function ApplicantDetails() {
     <div className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 text-sm text-blue-600 hover:underline hover:text-blue-700 transition"
+        >
+          ← Back
+        </button>
+
         <section className="bg-white rounded-xl shadow border border-slate-200 p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6">
           <img
             src={applicant.userProfilePicture || "/default.png"}

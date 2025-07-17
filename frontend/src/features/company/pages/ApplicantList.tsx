@@ -5,9 +5,11 @@ import { Filter, Search, X } from "lucide-react";
 
 import { ApplicantSummaryDTO, JobService } from "../services/jobServices";
 import Spinner from "../components/Spinner";
-import { SecureCloudinaryImage } from "../../../components/SecureCloudinaryImage";
+
 import SearchBar from "../../admin/components/UserManagement/SearchBar";
 import Pagination from "../../admin/components/UserManagement/Pagination";
+import ApplicantCard from "../components/ApplicantCard";
+import ApplicantCardCompany from "../components/applicant/ApplicantCardCompany";
 
 export default function ApplicantList() {
   const { jobId } = useParams();
@@ -97,6 +99,13 @@ export default function ApplicantList() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <button
+        onClick={() => navigate(-1)}
+        className="inline-flex items-center gap-2 text-sm text-blue-600 hover:underline hover:text-blue-700 transition"
+      >
+        ← Back
+      </button>
+
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
           Job Applicants
@@ -222,81 +231,11 @@ export default function ApplicantList() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {applicants.map((applicant) => (
-              <div
+              <ApplicantCardCompany
                 key={applicant.applicationId}
-                className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-              >
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="flex-shrink-0">
-                    <SecureCloudinaryImage
-                      publicId={applicant.profilePicture}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-gray-700 shadow-sm"
-                    />
-                  </div>
-
-                  <div className="flex-grow">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <div>
-                        <h3 className="font-medium text-gray-900 dark:text-white">
-                          {applicant.name}
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {applicant.email}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`px-2.5 py-0.5 text-xs font-medium rounded-full capitalize ${
-                            applicant.status === "applied"
-                              ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                              : applicant.status === "shortlisted"
-                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                              : applicant.status === "rejected"
-                              ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                              : "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-                          }`}
-                        >
-                          {applicant.status.replace(/_/g, " ")}
-                        </span>
-
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(applicant.appliedAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-
-                    {applicant.status === "applied" && (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <button
-                          onClick={() =>
-                            handleShortlist(applicant.applicationId)
-                          }
-                          className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center gap-1"
-                        >
-                          Shortlist
-                        </button>
-                        <button
-                          onClick={() => handleReject(applicant.applicationId)}
-                          className="px-3 py-1.5 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center gap-1"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    )}
-                    <button
-                      onClick={() =>
-                        navigate(
-                          `/company/job/application/${applicant.applicationId}`
-                        )
-                      }
-                      className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-1"
-                    >
-                      View
-                    </button>
-                  </div>
-                </div>
-              </div>
+                applicant={applicant}
+                onStatusChange={fetchApplicants}
+              />
             ))}
           </div>
 

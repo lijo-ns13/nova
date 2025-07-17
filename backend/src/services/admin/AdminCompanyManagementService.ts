@@ -10,6 +10,10 @@ import {
 import { CompanyMapper } from "../../mapping/admin/admin.company.mapper";
 import { sendVerificationCompanyEmail } from "../../shared/util/email.verification.company";
 import { buildCompanyVerificationEmail } from "../../shared/email/verificationEmailBuilder";
+import { IMediaService } from "../../interfaces/services/Post/IMediaService";
+
+import { CompanyUnVerifiedMapper } from "../../mapping/admin/admin.comp.unveri.mapping";
+import { CompanyWithSignedDocsDTO } from "../../core/dtos/admin/company.unveri.dto";
 @injectable()
 export class AdminCompanyManagementService
   implements IAdminCompanyManagementService
@@ -17,14 +21,12 @@ export class AdminCompanyManagementService
   private logger = logger.child({ service: "AdminCompanyManagementService" });
   constructor(
     @inject(TYPES.CompanyRepository)
-    private _companyRepository: ICompanyRepository
+    private _companyRepository: ICompanyRepository,
+    @inject(TYPES.MediaService) private _mediaService: IMediaService
   ) {}
   async deleteCompany(companyId: string) {
     return this._companyRepository.delete(companyId);
   }
-  // async findCompanyById(companyId: string) {
-  //   return this.getCompanyById(companyId);
-  // }
   async getCompanyById(companyId: string): Promise<CompanySummaryDTO> {
     const company = await this._companyRepository.findById(companyId);
     if (!company) {
@@ -110,7 +112,6 @@ export class AdminCompanyManagementService
       },
     };
   }
-
   async getUnverifiedCompanies(
     page: number,
     limit: number
@@ -119,28 +120,40 @@ export class AdminCompanyManagementService
       `Fetching unverified companies: page=${page}, limit=${limit}`
     );
 
-    const filter = { isVerified: false };
     if (page <= 0 || limit <= 0) {
       this.logger.warn(
-        `Invalid pagination input: page=${page}, limit=${limit}`
+        `Invalid pagination values: page=${page}, limit=${limit}`
       );
-      throw new Error("Invalid pagination values");
+      throw new Error("Invalid pagination input");
     }
 
     const { companies, totalCompanies } =
-      await this._companyRepository.findCompaniesByFilter(filter, page, limit);
+      await this._companyRepository.getPendingVerificationCompanies(
+        page,
+        limit
+      );
 
-    if (companies.length === 0) {
-      this.logger.info("No unverified companies found.");
-    }
+    const updatedCompanies: CompanyWithSignedDocsDTO[] = await Promise.all(
+      companies.map(async (company) => {
+        const signedDocUrls = await Promise.all(
+          company.documents.map((s3Key) =>
+            this._mediaService.getMediaUrl(s3Key)
+          )
+        );
 
-    const summary = companies.map(CompanyMapper.toSummaryDTO);
+        const baseDTO = CompanyUnVerifiedMapper.toBase(company); // no signed URLs
+
+        return {
+          ...baseDTO,
+          documents: signedDocUrls,
+        };
+      })
+    );
+
     const totalPages = Math.ceil(totalCompanies / limit);
 
-    this.logger.info(`Fetched ${summary.length} companies`);
-
     return {
-      companies: summary,
+      companies: updatedCompanies,
       pagination: {
         totalCompanies,
         totalPages,

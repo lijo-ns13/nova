@@ -5,12 +5,16 @@ import ApplicationCard from "../componets/application/ApplicationCard";
 function AppliedJobsPage() {
   const [appliedJobs, setAppliedJobs] = useState<AppliedJobResponseDTO[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchAppliedJobs = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
       const res = await getAppliedJobs();
       setAppliedJobs(res.data);
+    } catch (err) {
+      setError("Failed to fetch applied jobs. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -21,16 +25,26 @@ function AppliedJobsPage() {
   }, []);
 
   return (
-    <div>
-      {loading && <p>Loading...</p>}
-      {!loading && appliedJobs.length === 0 && <p>No applications found.</p>}
-      {appliedJobs.map((job) => (
-        <ApplicationCard
-          key={job._id}
-          appliedJob={job}
-          onStatusUpdate={fetchAppliedJobs}
-        />
-      ))}
+    <div className="p-4 space-y-4">
+      {loading && (
+        <div className="text-center text-gray-600">Loading applied jobs...</div>
+      )}
+
+      {error && <div className="text-center text-red-500">{error}</div>}
+
+      {!loading && !error && appliedJobs.length === 0 && (
+        <div className="text-center text-gray-500">No applications found.</div>
+      )}
+
+      <div className="grid gap-4">
+        {appliedJobs.map((job) => (
+          <ApplicationCard
+            key={job._id}
+            appliedJob={job}
+            onStatusChange={fetchAppliedJobs}
+          />
+        ))}
+      </div>
     </div>
   );
 }

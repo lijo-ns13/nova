@@ -8,7 +8,6 @@ export class CompanyMapper {
       companyName: company.companyName,
       email: company.email,
       isBlocked: company.isBlocked,
-      profilePicture: company.profilePicture,
     };
   }
 }

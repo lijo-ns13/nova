@@ -1,38 +1,69 @@
 import React, { useEffect, useState } from "react";
 import adminAxios from "../../../utils/adminAxios";
-import { CompanyVerification } from "../types/types";
+import { getUnverifiedCompanies } from "../services/companyServices";
+import {
+  CompanyDocumentDTO,
+  UnverifiedCompaniesResponse,
+} from "../types/company";
+import SecureDocViewer from "../../../components/SecureDocViewer";
+import { toast } from "react-toastify";
 
-// Types
+import "react-toastify/dist/ReactToastify.css";
+export const predefinedRejectionReasons = [
+  "Incomplete documentation provided",
+  "Documents are not clear or legible",
+  "Information provided is invalid or inaccurate",
+  "Documents appear to be tampered with or fake",
+  "Mismatched information across documents",
+  "Expired or outdated documentation",
+  "Business registration details are missing or incorrect",
+  "Unable to verify company identity",
+  "Insufficient proof of address or ownership",
+  "Supporting documents do not meet the required criteria",
+  "Company appears to be inactive or dissolved",
+  "Industry type does not align with submitted documents",
+  "Duplicate registration attempt detected",
+  "Failed to meet minimum compliance requirements",
+  "Suspicious activity or potential fraud detected",
+  "Contact details are invalid or unreachable",
+
+  "Mismatch between uploaded documents and form entries",
+  "Unauthorized representative submitted the application",
+  "Unverified or unverifiable tax/business registration numbers",
+];
 
 const CompanyVerificationPage: React.FC = () => {
-  const [companies, setCompanies] = useState<CompanyVerification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCompany, setSelectedCompany] =
-    useState<CompanyVerification | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [rejectionReason, setRejectionReason] = useState("");
-  const [showRejectReasonInput, setShowRejectReasonInput] = useState(false);
+  const [customReason, setCustomReason] = useState("");
+  const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
+  const [companies, setCompanies] = useState<CompanyDocumentDTO[]>([]);
+  const [pagination, setPagination] = useState<
+    UnverifiedCompaniesResponse["pagination"] | null
+  >(null);
+  const [selectedCompany, setSelectedCompany] =
+    useState<CompanyDocumentDTO | null>(null);
 
   useEffect(() => {
     fetchUnverifiedCompanies();
   }, []);
 
-  const fetchUnverifiedCompanies = async () => {
+  const fetchUnverifiedCompanies = async (page = 1) => {
+    setLoading(true);
     try {
-      const res = await adminAxios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/companies/unverified`
-      );
-      setCompanies(res.data?.data || []);
+      const res = await getUnverifiedCompanies(page, 10);
+      setCompanies(res.companies);
+      setPagination(res.pagination);
     } catch (err) {
-      console.error("Failed to fetch unverified companies:", err);
+      console.error("Fetch error:", err);
+      toast.error("Failed to fetch unverified companies.");
     } finally {
       setLoading(false);
     }
   };
 
-  const openModal = (company: CompanyVerification) => {
+  const openModal = (company: CompanyDocumentDTO) => {
     setSelectedCompany(company);
     setModalOpen(true);
   };
@@ -40,37 +71,58 @@ const CompanyVerificationPage: React.FC = () => {
   const closeModal = () => {
     setModalOpen(false);
     setSelectedCompany(null);
+    setSelectedReasons([]);
+    setCustomReason("");
   };
 
-  const handleVerification = async (
-    status: "accepted" | "rejected",
-    reason?: string
-  ) => {
-    if (!selectedCompany) return;
-    setActionLoading(true);
+  const handleReasonToggle = (reason: string) => {
+    setSelectedReasons((prev) =>
+      prev.includes(reason)
+        ? prev.filter((r) => r !== reason)
+        : [...prev, reason]
+    );
+  };
 
+  const handleVerification = async (status: "accepted" | "rejected") => {
+    if (!selectedCompany) return;
+
+    const finalReason =
+      status === "rejected"
+        ? [...selectedReasons, customReason.trim()].filter(Boolean).join(", ")
+        : undefined;
+
+    if (status === "rejected" && !finalReason) {
+      toast.error("Please select or enter at least one rejection reason.");
+      return;
+    }
+
+    setActionLoading(true);
     try {
       await adminAxios.patch(
         `${import.meta.env.VITE_API_BASE_URL}/admin/companies/verify/${
-          selectedCompany._id
+          selectedCompany.id
         }`,
-        { status, rejectionReason: reason }
+        { status, rejectionReason: finalReason }
       );
 
-      fetchUnverifiedCompanies();
+      toast.success(
+        `Company ${
+          status === "accepted" ? "verified" : "rejected"
+        } successfully.`
+      );
+      await fetchUnverifiedCompanies(pagination?.currentPage || 1);
       closeModal();
     } catch (err) {
-      console.error(`Failed to ${status} company:`, err);
+      console.error(err);
+      toast.error(`Failed to ${status} company.`);
     } finally {
       setActionLoading(false);
-      setRejectionReason("");
-      setShowRejectReasonInput(false);
     }
   };
 
   return (
-    <div className="p-4 sm:p-8 max-w-6xl mx-auto">
-      <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">
+    <div className="p-6 max-w-6xl mx-auto">
+      <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
         Unverified Companies
       </h2>
 
@@ -84,22 +136,21 @@ const CompanyVerificationPage: React.FC = () => {
         <div className="grid gap-4">
           {companies.map((company) => (
             <div
-              key={company._id}
-              className="bg-white border border-gray-200 rounded-lg shadow-md p-6 flex flex-col sm:flex-row sm:items-center justify-between transition hover:shadow-lg"
+              key={company.id}
+              className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between hover:shadow-md"
             >
-              <div className="mb-4 sm:mb-0">
-                <h3 className="text-xl font-semibold text-gray-800">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
                   {company.companyName}
                 </h3>
-                <p className="text-sm text-gray-500">{company.email}</p>
+                <p className="text-sm text-gray-600">{company.email}</p>
                 <p className="text-sm text-gray-600">
                   Industry: {company.industryType}
                 </p>
               </div>
-
               <button
                 onClick={() => openModal(company)}
-                className="px-5 py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                className="mt-4 sm:mt-0 px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
               >
                 Review & Verify
               </button>
@@ -108,186 +159,134 @@ const CompanyVerificationPage: React.FC = () => {
         </div>
       )}
 
-      {/* Review Modal */}
       {modalOpen && selectedCompany && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center px-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto relative animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
+          <div className="bg-white w-full max-w-3xl rounded-lg overflow-y-auto max-h-[90vh] relative shadow-xl">
             <button
+              className="absolute top-3 right-4 text-gray-500 hover:text-gray-800"
               onClick={closeModal}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl"
             >
-              ✖
+              &#10005;
             </button>
-
             <div className="p-6">
-              <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">
+              <h3 className="text-2xl font-bold text-center text-gray-800 mb-4">
                 Review Company: {selectedCompany.companyName}
-              </h2>
+              </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
-                <div className="space-y-2">
+                <div>
                   <p>
-                    <span className="font-medium">Email:</span>{" "}
-                    {selectedCompany.email}
+                    <strong>Email:</strong> {selectedCompany.email}
                   </p>
                   <p>
-                    <span className="font-medium">Industry:</span>{" "}
-                    {selectedCompany.industryType}
+                    <strong>Industry:</strong> {selectedCompany.industryType}
                   </p>
                   <p>
-                    <span className="font-medium">Founded Year:</span>{" "}
-                    {selectedCompany.foundedYear}
-                  </p>
-                  <p>
-                    <span className="font-medium">Location:</span>{" "}
-                    {selectedCompany.location}
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <p>
-                    <span className="font-medium">Verification Status:</span>{" "}
+                    <strong>Status:</strong>{" "}
                     {selectedCompany.verificationStatus}
                   </p>
                   <p>
-                    <span className="font-medium">Is Verified:</span>{" "}
+                    <strong>Verified:</strong>{" "}
                     {selectedCompany.isVerified ? "Yes" : "No"}
                   </p>
+                </div>
+                <div>
                   <p>
-                    <span className="font-medium">Blocked:</span>{" "}
+                    <strong>Blocked:</strong>{" "}
                     {selectedCompany.isBlocked ? "Yes" : "No"}
                   </p>
                   <p>
-                    <span className="font-medium">Created At:</span>{" "}
-                    {new Date(selectedCompany.createdAt).toLocaleDateString()}
+                    <strong>ID:</strong> {selectedCompany.id}
                   </p>
                 </div>
               </div>
 
-              {/* About */}
-              <div className="mt-6">
-                <h3 className="font-medium text-gray-800 mb-2">
-                  About Company
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {selectedCompany.about || "No description provided."}
-                </p>
-              </div>
-
-              {/* Documents */}
-              <div className="mt-6">
-                <h3 className="font-medium text-gray-800 mb-2">
+              <div className="mt-4">
+                <h4 className="font-semibold text-gray-800 mb-2">
                   Submitted Documents
-                </h3>
+                </h4>
                 {selectedCompany.documents.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {selectedCompany.documents.map((docUrl, index) => (
-                      <div
-                        key={index}
-                        className="border rounded-md bg-gray-50 p-2 flex flex-col items-center justify-center"
-                      >
-                        {docUrl.match(/\.(jpeg|jpg|png|gif)$/i) ? (
-                          <img
-                            src={docUrl}
-                            alt={`Document ${index + 1}`}
-                            className="h-40 w-full object-cover cursor-pointer rounded hover:opacity-80 transition"
-                            onClick={() => setPreviewImage(docUrl)}
-                          />
-                        ) : (
-                          <a
-                            href={docUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 underline text-sm"
-                          >
-                            View Document {index + 1}
-                          </a>
-                        )}
-                      </div>
+                    {selectedCompany.documents.map((doc, idx) => (
+                      <SecureDocViewer resumeUrl={doc} />
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-600">
-                    No documents uploaded.
+                  <p className="text-sm text-gray-500">
+                    No documents submitted.
                   </p>
                 )}
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex justify-end gap-4 mt-8">
-                {!showRejectReasonInput ? (
-                  <>
-                    <button
-                      onClick={() => setShowRejectReasonInput(true)}
-                      disabled={actionLoading}
-                      className="px-5 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700 transition disabled:opacity-50"
-                    >
-                      Reject
-                    </button>
-                    <button
-                      onClick={() => handleVerification("accepted")}
-                      disabled={actionLoading}
-                      className="px-5 py-2 text-sm font-medium bg-green-600 text-white rounded-md hover:bg-green-700 transition disabled:opacity-50"
-                    >
-                      {actionLoading ? "Processing..." : "Verify"}
-                    </button>
-                  </>
-                ) : (
-                  <div className="flex flex-col gap-4 w-full">
-                    <textarea
-                      value={rejectionReason}
-                      onChange={(e) => setRejectionReason(e.target.value)}
-                      placeholder="Enter rejection reason..."
-                      className="p-2 border rounded-md text-sm"
-                      rows={3}
-                    />
-                    <div className="flex justify-end gap-4">
-                      <button
-                        onClick={() => {
-                          setShowRejectReasonInput(false);
-                          setRejectionReason("");
-                        }}
-                        className="px-4 py-2 text-sm font-medium bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
+              <div className="mt-6 border-t pt-4">
+                <div className="flex flex-col gap-2">
+                  <span className="font-medium text-gray-800">
+                    Rejection Reasons
+                  </span>
+                  <div className="grid grid-cols-2 gap-2">
+                    {predefinedRejectionReasons.map((reason) => (
+                      <label
+                        key={reason}
+                        className="flex items-center gap-2 text-sm"
                       >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleVerification("rejected", rejectionReason)
-                        }
-                        disabled={actionLoading || !rejectionReason.trim()}
-                        className="px-5 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700 transition disabled:opacity-50"
-                      >
-                        {actionLoading ? "Processing..." : "Confirm Rejection"}
-                      </button>
-                    </div>
+                        <input
+                          type="checkbox"
+                          checked={selectedReasons.includes(reason)}
+                          onChange={() => handleReasonToggle(reason)}
+                        />
+                        {reason}
+                      </label>
+                    ))}
                   </div>
-                )}
+                  <input
+                    className="border mt-2 p-2 rounded text-sm"
+                    placeholder="Add custom reason (optional)"
+                    value={customReason}
+                    onChange={(e) => setCustomReason(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-4">
+                <button
+                  onClick={() => handleVerification("rejected")}
+                  disabled={actionLoading}
+                  className="px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:opacity-50"
+                >
+                  {actionLoading ? "Rejecting..." : "Reject"}
+                </button>
+                <button
+                  onClick={() => handleVerification("accepted")}
+                  disabled={actionLoading}
+                  className="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50"
+                >
+                  {actionLoading ? "Verifying..." : "Verify"}
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Image Preview Modal */}
-      {previewImage && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 animate-fadeIn"
-          onClick={() => setPreviewImage(null)}
-        >
-          <div className="relative max-w-3xl w-full px-4">
-            <img
-              src={previewImage}
-              alt="Preview"
-              className="w-full max-h-[80vh] object-contain rounded-lg"
-            />
-            <button
-              onClick={() => setPreviewImage(null)}
-              className="absolute top-4 right-4 text-white text-2xl hover:text-gray-300"
-            >
-              ✖
-            </button>
-          </div>
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex justify-center mt-8 gap-4">
+          <button
+            onClick={() => fetchUnverifiedCompanies(pagination.currentPage - 1)}
+            disabled={pagination.currentPage === 1}
+            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            Prev
+          </button>
+          <span className="text-sm text-gray-700">
+            Page {pagination.currentPage} of {pagination.totalPages}
+          </span>
+          <button
+            onClick={() => fetchUnverifiedCompanies(pagination.currentPage + 1)}
+            disabled={pagination.currentPage === pagination.totalPages}
+            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            Next
+          </button>
         </div>
       )}
     </div>

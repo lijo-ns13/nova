@@ -12,9 +12,10 @@ const AdminCompanyManagerController =
   );
 
 const router = Router();
-router.get("/companies", (req, res) =>
-  AdminCompanyManagerController.getCompanies(req, res)
-);
+// router.get("/companies", (req, res) =>
+//   AdminCompanyManagerController.getCompanies
+// );
+router.get("/companies", AdminCompanyManagerController.getCompanies);
 router.get(
   "/companies/unverified",
   AdminCompanyManagerController.getUnverifiedCompaniesHandler

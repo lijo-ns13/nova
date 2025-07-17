@@ -63,20 +63,35 @@ export class CompanyRepository
     return { companies, totalCompanies };
   }
 
-  async findCompaniesByFilter(
-    filter: Record<string, any>,
+  // async findCompaniesByFilter(
+  //   filter: Record<string, any>,
+  //   page: number = 1,
+  //   limit: number = 10
+  // ) {
+  //   const skip = (page - 1) * limit;
+
+  //   const companies = await companyModal
+  //     .find({ isVerified: false, verificationStatus: "pending" })
+  //     .skip(skip)
+  //     .limit(limit)
+  //     .exec();
+
+  //   const totalCompanies = await companyModal.countDocuments(filter);
+
+  //   return { companies, totalCompanies };
+  // }
+  async getPendingVerificationCompanies(
     page: number = 1,
     limit: number = 10
-  ) {
+  ): Promise<{ companies: ICompany[]; totalCompanies: number }> {
     const skip = (page - 1) * limit;
 
-    const companies = await companyModal
-      .find({ isVerified: false, verificationStatus: "pending" })
-      .skip(skip)
-      .limit(limit)
-      .exec();
+    const filter = { verificationStatus: "pending" as const };
 
-    const totalCompanies = await companyModal.countDocuments(filter);
+    const [companies, totalCompanies] = await Promise.all([
+      companyModal.find(filter).skip(skip).limit(limit).exec(),
+      companyModal.countDocuments(filter),
+    ]);
 
     return { companies, totalCompanies };
   }

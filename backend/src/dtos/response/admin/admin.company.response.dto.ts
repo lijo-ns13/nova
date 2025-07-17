@@ -3,7 +3,6 @@ export interface CompanySummaryDTO {
   companyName: string;
   email: string;
   isBlocked: boolean;
-  profilePicture: string;
 }
 
 export interface CompanyPaginatedResponse {
