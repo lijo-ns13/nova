@@ -6,7 +6,6 @@ import {
   TransactionStatus,
 } from "../services/SubscriptionService";
 
-// Constants
 const TRANSACTION_STATUSES: TransactionStatus[] = [
   "pending",
   "completed",
@@ -21,7 +20,7 @@ function SubHistory() {
   );
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const [limit] = useState(3);
   const [loading, setLoading] = useState(false);
 
   const [filters, setFilters] = useState<Partial<TransactionFilterInput>>({});
@@ -61,22 +60,17 @@ function SubHistory() {
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div>
-      <h2>Subscription History</h2>
+    <div className="p-6 bg-white rounded-lg shadow-sm">
+      <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+        Subscription History
+      </h2>
 
       {/* Filters */}
-      <div
-        style={{
-          marginBottom: "1rem",
-          display: "flex",
-          gap: "10px",
-          flexWrap: "wrap",
-        }}
-      >
-        {/* Status Filter */}
+      <div className="flex flex-wrap gap-4 mb-6">
         <select
           value={filters.status || ""}
           onChange={(e) => handleFilterChange("status", e.target.value)}
+          className="border px-3 py-2 rounded-md text-sm"
         >
           <option value="">All Statuses</option>
           {TRANSACTION_STATUSES.map((status) => (
@@ -86,10 +80,10 @@ function SubHistory() {
           ))}
         </select>
 
-        {/* Plan Name Filter */}
         <select
           value={filters.planName || ""}
           onChange={(e) => handleFilterChange("planName", e.target.value)}
+          className="border px-3 py-2 rounded-md text-sm"
         >
           <option value="">All Plans</option>
           {PLAN_TYPES.map((plan) => (
@@ -99,16 +93,15 @@ function SubHistory() {
           ))}
         </select>
 
-        {/* Active Users Filter */}
         <select
           value={filters.isActiveOnly ?? ""}
           onChange={(e) => handleFilterChange("isActiveOnly", e.target.value)}
+          className="border px-3 py-2 rounded-md text-sm"
         >
           <option value="">All Users</option>
           <option value="true">Active Only</option>
         </select>
 
-        {/* From Date */}
         <input
           type="date"
           value={filters.from?.split("T")[0] || ""}
@@ -118,9 +111,9 @@ function SubHistory() {
               e.target.value ? new Date(e.target.value).toISOString() : ""
             )
           }
+          className="border px-3 py-2 rounded-md text-sm"
         />
 
-        {/* To Date */}
         <input
           type="date"
           value={filters.to?.split("T")[0] || ""}
@@ -130,89 +123,88 @@ function SubHistory() {
               e.target.value ? new Date(e.target.value).toISOString() : ""
             )
           }
+          className="border px-3 py-2 rounded-md text-sm"
         />
       </div>
 
       {/* Table */}
       {loading ? (
-        <p>Loading...</p>
+        <div className="text-center text-gray-600">Loading...</div>
       ) : transactions.length === 0 ? (
-        <p>No transactions found.</p>
+        <div className="text-center text-gray-500">No transactions found.</div>
       ) : (
         <>
-          <p>
+          <p className="mb-4 text-sm text-gray-600">
             Showing {transactions.length} of {total} transactions
           </p>
 
-          <table
-            border={1}
-            cellPadding={6}
-            cellSpacing={0}
-            style={{ width: "100%", textAlign: "left" }}
-          >
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Email</th>
-                <th>Plan</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Method</th>
-                <th>Refund Reason</th>
-                <th>Refund Date</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((txn) => (
-                <tr key={txn.id}>
-                  <td>{txn.user.name}</td>
-                  <td>{txn.user.email}</td>
-                  <td>{txn.planName}</td>
-                  <td>
-                    ₹{txn.amount} {txn.currency.toUpperCase()}
-                  </td>
-                  <td>{txn.status}</td>
-                  <td>{txn.paymentMethod}</td>
-                  <td>
-                    {txn.status === "refunded" ? txn.refundReason ?? "-" : "-"}
-                  </td>
-                  <td>
-                    {txn.status === "refunded" && txn.refundDate
-                      ? new Date(txn.refundDate).toLocaleString()
-                      : "-"}
-                  </td>
-                  <td>{new Date(txn.createdAt).toLocaleString()}</td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+              <thead className="bg-gray-100 text-sm text-gray-700">
+                <tr>
+                  <th className="p-3 text-left">User</th>
+                  <th className="p-3 text-left">Email</th>
+                  <th className="p-3 text-left">Plan</th>
+                  <th className="p-3 text-left">Amount</th>
+                  <th className="p-3 text-left">Status</th>
+                  <th className="p-3 text-left">Method</th>
+                  <th className="p-3 text-left">Refund Reason</th>
+                  <th className="p-3 text-left">Refund Date</th>
+                  <th className="p-3 text-left">Created</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="text-sm text-gray-800">
+                {transactions.map((txn, idx) => (
+                  <tr
+                    key={txn.id}
+                    className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                  >
+                    <td className="p-3">{txn.user.name}</td>
+                    <td className="p-3">{txn.user.email}</td>
+                    <td className="p-3">{txn.planName}</td>
+                    <td className="p-3">
+                      ₹{txn.amount} {txn.currency.toUpperCase()}
+                    </td>
+                    <td className="p-3 capitalize">{txn.status}</td>
+                    <td className="p-3">{txn.paymentMethod}</td>
+                    <td className="p-3">
+                      {txn.status === "refunded"
+                        ? txn.refundReason ?? "-"
+                        : "-"}
+                    </td>
+                    <td className="p-3">
+                      {txn.status === "refunded" && txn.refundDate
+                        ? new Date(txn.refundDate).toLocaleString()
+                        : "-"}
+                    </td>
+                    <td className="p-3">
+                      {new Date(txn.createdAt).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Pagination */}
           {total > limit && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: "1rem",
-                gap: "1rem",
-              }}
-            >
+            <div className="flex items-center justify-center mt-6 gap-4">
               <button
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
+                className="px-4 py-2 text-sm rounded-md border bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
               >
-                ⬅️ Prev
+                ⬅ Prev
               </button>
-              <span>
+              <span className="text-sm text-gray-700">
                 Page <strong>{page}</strong> of <strong>{totalPages}</strong>
               </span>
               <button
                 disabled={page === totalPages}
                 onClick={() => setPage((p) => p + 1)}
+                className="px-4 py-2 text-sm rounded-md border bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
               >
-                Next ➡️
+                Next ➡
               </button>
             </div>
           )}

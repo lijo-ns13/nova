@@ -7,6 +7,7 @@ import adminAxios from "../../../utils/adminAxios";
 import socket from "../../../socket/socket";
 import toast from "react-hot-toast";
 import { FiMenu, FiX } from "react-icons/fi";
+import path from "path";
 interface NotificationPayload {
   _id: string;
   userId: string;
@@ -109,6 +110,11 @@ const Sidebar = () => {
       icon: "👥",
     },
     { name: "Skill Management", path: "/admin/skill-management", icon: "📋" },
+    {
+      name: "Subcription History",
+      path: "/admin/subscription-history",
+      icon: "📜",
+    },
     {
       name: "Subscription Management",
       path: "/admin/subscription-management",

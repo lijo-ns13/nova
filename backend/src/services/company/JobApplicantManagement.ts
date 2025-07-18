@@ -17,6 +17,8 @@ import {
   ApplicationMapper,
   ApplicationResponseDTO,
 } from "../../mapping/company/applicant/aplicationtwo.mapper";
+import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
+import { NotificationType } from "../../models/notification.modal";
 
 @injectable()
 export class JobApplicantManagementService
@@ -29,7 +31,8 @@ export class JobApplicantManagementService
     @inject(TYPES.MediaService)
     private _mediaService: IMediaService,
     @inject(TYPES.NotificationService)
-    private _notificationService: INotificationService
+    private _notificationService: INotificationService,
+    @inject(TYPES.JobRepository) private _jobRepo: IJobRepository
   ) {}
 
   async getApplicationWithDetails(
@@ -41,11 +44,14 @@ export class JobApplicantManagementService
     const newProfilePictureSignedUrl = doc?.user.profilePicture
       ? await this._mediaService.getMediaUrl(doc?.user.profilePicture)
       : "";
-    
+
     console.log("docky dock", doc);
     if (!doc) return null;
 
-    const dto = ApplicationMapper.toUserAndJobDTO(doc,newProfilePictureSignedUrl);
+    const dto = ApplicationMapper.toUserAndJobDTO(
+      doc,
+      newProfilePictureSignedUrl
+    );
 
     if (doc.resumeMediaId) {
       const media = await this._mediaService.getMediaById(
@@ -67,7 +73,12 @@ export class JobApplicantManagementService
   ): Promise<IApplication | null> {
     const application = await this._applicationRepo.findById(applicationId);
     if (!application) return null;
+    const { user, job } = application;
+    const jobData = await this._jobRepo.findById(job.toString());
 
+    if (!jobData) {
+      throw new Error("job not found");
+    }
     const currentStatus = application.status;
     const allowed = allowedTransitions[currentStatus];
     if (!allowed.includes(newStatus)) {
@@ -86,6 +97,12 @@ export class JobApplicantManagementService
     if (statusesRequiringReason.includes(newStatus) && !reason) {
       throw new Error(`Reason is required for status: ${newStatus}`);
     }
+    await this._notificationService.sendNotification(
+      jobData.company.toString(),
+      `application status updated for ${jobData.title} and status is ${newStatus}`,
+      NotificationType.JOB,
+      user.toString()
+    );
 
     return this._applicationRepo.updateStatus(applicationId, newStatus, reason);
   }
