@@ -11,8 +11,8 @@ export interface UserInfo {
   profilePicture?: string;
   headline?: string;
   username?: string;
-  isSubscriptionTaken?: boolean;
-  subscriptionExpiresAt?: Date | string | null;
+  isSubscriptionActive?: boolean;
+  subscriptionEndDate?: Date | string | null;
   appliedJobCount?: number;
   createdPostCount?: number;
 }

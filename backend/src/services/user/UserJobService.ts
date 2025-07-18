@@ -136,9 +136,9 @@ export class UserJobService implements IUserJobService {
 
     const maxFree = parseInt(process.env.FREE_JOB_APPLY_COUNT || "5", 10);
     const hasValidSubscription =
-      user.isSubscriptionTaken &&
-      user.subscriptionExpiresAt &&
-      user.subscriptionExpiresAt > new Date();
+      user.isSubscriptionActive &&
+      user.subscriptionEndDate &&
+      user.subscriptionEndDate > new Date();
 
     if (!hasValidSubscription && user.appliedJobCount >= maxFree) {
       throw new Error("free tier limit ended");

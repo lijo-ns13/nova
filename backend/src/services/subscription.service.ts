@@ -11,7 +11,11 @@ export const updateUserSubscription = async (
 ) => {
   // Check if user already has an active subscription
   const user = await userModal.findById(userId);
-  if (user?.isSubscriptionTaken && user.subscriptionExpiresAt > new Date()) {
+  if (
+    user?.isSubscriptionActive &&
+    user.subscriptionEndDate &&
+    user.subscriptionEndDate > new Date()
+  ) {
     throw new Error("User already has an active subscription");
   }
 
@@ -27,9 +31,9 @@ export const updateUserSubscription = async (
 
   // Update user subscription
   await userModal.findByIdAndUpdate(userId, {
-    isSubscriptionTaken: true,
+    isSubscriptionActive: true,
     subscription: subscription._id,
-    subscriptionExpiresAt: expiresAt,
+    subscriptionEndDate: expiresAt,
   });
 
   // Create transaction record

@@ -29,6 +29,7 @@ export class SubscriptionWithFeaturesController
     try {
       const userId = (req.user as userPayload)?.id;
       const user = await this._userRepo.findById(userId);
+
       if (!user) {
         res
           .status(HTTP_STATUS_CODES.BAD_REQUEST)
@@ -40,6 +41,11 @@ export class SubscriptionWithFeaturesController
           .status(HTTP_STATUS_CODES.BAD_REQUEST)
           .json({ success: false, message: "user not taken subscriptoin" });
         return;
+      }
+      if (!user.subscriptionStartDate || !user.subscriptionEndDate) {
+        res
+          .status(HTTP_STATUS_CODES.BAD_REQUEST)
+          .json({ success: false, message: "sub data not found" });
       }
       const subData = await this._subRepo.findById(
         user?.subscription?.toString()
@@ -54,7 +60,12 @@ export class SubscriptionWithFeaturesController
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "succesfully retrived user sub data",
-        data: { subcription: subData, features: featName },
+        data: {
+          subcription: subData,
+          features: featName,
+          subStartDate: user.subscriptionStartDate,
+          subEndDate: user.subscriptionEndDate,
+        },
       });
     } catch (error) {
       res

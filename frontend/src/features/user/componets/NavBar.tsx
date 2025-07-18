@@ -29,7 +29,7 @@ const Navbar = () => {
   const { unreadCount } = useAppSelector((state) => state.notification);
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const { name, profilePicture, username, isSubscriptionTaken } =
+  const { name, profilePicture, username, isSubscriptionActive } =
     useAppSelector((state) => state.auth);
   const navRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -262,7 +262,7 @@ const Navbar = () => {
                   >
                     Subscription
                   </Link>
-                  {isSubscriptionTaken && (
+                  {isSubscriptionActive && (
                     <Link
                       to="/refund"
                       className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"

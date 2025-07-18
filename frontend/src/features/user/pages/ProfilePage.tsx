@@ -3,6 +3,8 @@ import React, { Suspense, useState } from "react";
 import Navbar from "../componets/NavBar";
 import SkillsManager from "../componets/skill/SkillsManager";
 import UserPostsSection from "../componets/Profile/post/UserPostSection";
+import SubscriptionCard from "../../admin/components/Subscription/SubscriptionCard";
+import CurrentSubscriptionCard from "../componets/SubcriptionCard";
 
 // Lazy-loaded components
 const UserProfile = React.lazy(
@@ -157,6 +159,10 @@ function ProfilePage() {
             </div>
           </div>
         </div>
+      </div>
+      {/* Current Subscription Info */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-4">
+        <CurrentSubscriptionCard />
       </div>
 
       {/* Footer */}

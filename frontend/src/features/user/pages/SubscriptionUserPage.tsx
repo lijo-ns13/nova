@@ -3,6 +3,7 @@ import { useSubscriptionWithFeatures } from "../hooks/useSubscriptionWithFeature
 import SubscribeButton from "../../../components/SubscribeButton";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import { Button } from "antd";
+import Navbar from "../componets/NavBar";
 
 interface SubscriptionWithFeat {
   subscription: {
@@ -21,7 +22,7 @@ function SubscriptionUserPage() {
   const { data, loading, error } = useSubscriptionWithFeatures();
   const [sub, setSub] = useState<SubscriptionWithFeat[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const { isSubscriptionTaken } = useAppSelector((state) => state.auth);
+  const { isSubscriptionActive } = useAppSelector((state) => state.auth);
   useEffect(() => {
     if (data) {
       setSub(data.data);
@@ -104,6 +105,7 @@ function SubscriptionUserPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Header Section */}
+      <Navbar />
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-10"></div>
         <div className="relative container mx-auto px-4 py-16 sm:py-20">
@@ -215,7 +217,7 @@ function SubscriptionUserPage() {
                     {/* i want to add this button */}
 
                     {/* CTA Button */}
-                    {isSubscriptionTaken ? (
+                    {isSubscriptionActive ? (
                       <Button>Already have an Subscription</Button>
                     ) : (
                       <SubscribeButton

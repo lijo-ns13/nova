@@ -63,7 +63,7 @@ function JobDetailedPage() {
   const [isApplied, setIsApplied] = useState<boolean>(false);
 
   const applyLimit = import.meta.env.VITE_FREE_JOB_APPLY_COUNT || 2;
-  const { appliedJobCount, isSubscriptionTaken } = useAppSelector(
+  const { appliedJobCount, isSubscriptionActive } = useAppSelector(
     (state) => state.auth
   );
   const [showSubscriptionModal, setShowSubscriptionModal] =
@@ -107,7 +107,7 @@ function JobDetailedPage() {
 
   const handleApply = () => {
     if (
-      isSubscriptionTaken ||
+      isSubscriptionActive ||
       (appliedJobCount !== undefined && appliedJobCount < applyLimit)
     ) {
       setShowApplyModal(true);
@@ -515,7 +515,7 @@ function JobDetailedPage() {
                       ? "Apply Now"
                       : "Applications Closed"}
                   </button>
-                  {!isSubscriptionTaken && job.status === "open" && (
+                  {!isSubscriptionActive && job.status === "open" && (
                     <p className="text-center text-sm text-gray-500">
                       {appliedJobCount !== undefined ? (
                         <>

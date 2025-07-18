@@ -25,7 +25,13 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
     }
 
     const now = new Date();
-
+    if (user.subscriptionCancelled === true) {
+      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
+        message:
+          "You already subscribed and cancelled once this month. Please try again next month.",
+      });
+      return;
+    }
     // Check existing subscription
     if (
       user.subscriptionEndDate &&
@@ -52,13 +58,13 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
         res.status(HTTP_STATUS_CODES.OK).json({ url: existingSession.url });
         return;
       }
-      if (user.subscriptionCancelled === true) {
-        res.status(HTTP_STATUS_CODES.FORBIDDEN).json({
-          message:
-            "You already subscribed and cancelled once this month. Please try again next month.",
-        });
-        return;
-      }
+      // if (user.subscriptionCancelled === true) {
+      //   res.status(HTTP_STATUS_CODES.FORBIDDEN).json({
+      //     message:
+      //       "You already subscribed and cancelled once this month. Please try again next month.",
+      //   });
+      //   return;
+      // }
       res.status(HTTP_STATUS_CODES.CONFLICT).json({
         message:
           "You already have a pending payment session for a different plan.",
@@ -247,7 +253,7 @@ export const handleRefund = async (req: Request, res: Response) => {
       user.appliedJobCount >= MAX_JOB_LIMIT ||
       user.createdPostCount >= MAX_POST_LIMIT
     ) {
-      res.status(403).json({
+      res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
         message:
           "Refund not allowed after significant usage (5+ job applies or posts).",
       });
