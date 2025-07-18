@@ -4,7 +4,7 @@ export const TYPES = {
   // Repositories
   UserModal: Symbol.for("UserModal"),
   UserRepository: Symbol.for("UserRepository"),
-
+  UserMapper: Symbol.for("UserMapper"),
   TempUserModal: Symbol.for("TempUserModal"),
   TempUserRepository: Symbol.for("TempUserRepository"),
   PasswordResetTokenModal: Symbol.for("PasswordResetTokenModal"),

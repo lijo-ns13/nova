@@ -8,7 +8,12 @@ import cloudinaryRouter from "./common/cloudinary.routes";
 
 import userModal from "../models/user.modal";
 import mongoose from "mongoose";
+import { MediaService } from "../services/user/MediaService";
+import mediaModal from "../models/media.modal";
+import { MediaRepository } from "../repositories/mongo/MediaRepository";
 const router = Router();
+const mediaRepo = new MediaRepository(mediaModal);
+const mediaService = new MediaService(mediaRepo);
 
 router.use("/skill", skillRouter);
 router.use("/api", ProfileViewRouter);
@@ -18,7 +23,7 @@ router.use("/cloudinary", cloudinaryRouter);
 
 router.get("/api/chat/users/:userId", async (req: Request, res: Response) => {
   const { userId } = req.params;
-  const timeWindowInDays = 30; // Customize the range, e.g., last 30 days
+  const timeWindowInDays = 30;
   const now = new Date();
   const pastDate = new Date(
     now.getTime() - timeWindowInDays * 24 * 60 * 60 * 1000
@@ -36,7 +41,6 @@ router.get("/api/chat/users/:userId", async (req: Request, res: Response) => {
 
     const followingIds = currentUser.following.map((id) => id.toString());
 
-    // Get unique userIds that had a conversation with current user in the time window
     const messagedUserDocs = await messageModal.aggregate([
       {
         $match: {
@@ -60,9 +64,7 @@ router.get("/api/chat/users/:userId", async (req: Request, res: Response) => {
           content: 1,
         },
       },
-      {
-        $sort: { createdAt: -1 },
-      },
+      { $sort: { createdAt: -1 } },
       {
         $group: {
           _id: "$otherUser",
@@ -73,7 +75,6 @@ router.get("/api/chat/users/:userId", async (req: Request, res: Response) => {
 
     const messagedUserIds = messagedUserDocs.map((doc) => doc._id.toString());
 
-    // Combine messaged users + followed users (remove duplicates)
     const uniqueUserIds = Array.from(
       new Set([...followingIds, ...messagedUserIds])
     );
@@ -83,24 +84,39 @@ router.get("/api/chat/users/:userId", async (req: Request, res: Response) => {
       .select("_id name profilePicture online")
       .lean();
 
-    // Attach lastMessage info to each user
-    const usersWithLastMessages = users.map((user) => {
-      const messageDoc = messagedUserDocs.find(
-        (doc) => doc._id.toString() === user._id.toString()
-      );
-      return {
-        ...user,
-        lastMessage: messageDoc
-          ? {
-              content: messageDoc.lastMessage.content,
-              createdAt: messageDoc.lastMessage.createdAt,
-            }
-          : null,
-      };
-    });
+    // ✅ Generate signed URLs for profile pictures
+    const usersWithSignedProfilePics = await Promise.all(
+      users.map(async (user) => {
+        let profilePictureUrl = null;
+        if (user.profilePicture) {
+          try {
+            profilePictureUrl = await mediaService.getMediaUrl(
+              user.profilePicture
+            );
+          } catch (err) {
+            console.warn(`Failed to get signed URL for user ${user._id}:`, err);
+          }
+        }
 
-    // Sort by message time, fallback to alphabetical name sort for users with no messages
-    const sortedUsers = usersWithLastMessages.sort((a, b) => {
+        const messageDoc = messagedUserDocs.find(
+          (doc) => doc._id.toString() === user._id.toString()
+        );
+
+        return {
+          ...user,
+          profilePicture: profilePictureUrl, // ✅ replace s3Key with signed URL
+          lastMessage: messageDoc
+            ? {
+                content: messageDoc.lastMessage.content,
+                createdAt: messageDoc.lastMessage.createdAt,
+              }
+            : null,
+        };
+      })
+    );
+
+    // Sort by message time, fallback to alphabetical name sort
+    const sortedUsers = usersWithSignedProfilePics.sort((a, b) => {
       const aTime = a.lastMessage?.createdAt
         ? new Date(a.lastMessage.createdAt).getTime()
         : 0;
@@ -116,6 +132,7 @@ router.get("/api/chat/users/:userId", async (req: Request, res: Response) => {
     res.status(500).json({ message: "Failed to get users" });
   }
 });
+
 router.get("/api/username/:otherUserId", async (req, res) => {
   const { otherUserId } = req.params;
   try {

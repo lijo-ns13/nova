@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { TYPES } from "../../di/types";
 import { IAdminUserManagementService } from "../../interfaces/services/IAdminUserManagementService";
-import { UserMapper } from "../../mapping/admin/admin.user.mapper";
+import { IUserMapper, UserMapper } from "../../mapping/admin/admin.user.mapper";
 import {
   UserPaginatedResponse,
   UserSummaryDTO,
@@ -15,7 +15,8 @@ export class AdminUserManagementService implements IAdminUserManagementService {
 
   constructor(
     @inject(TYPES.UserRepository)
-    private _userRepository: IUserRepository
+    private _userRepository: IUserRepository,
+    @inject(TYPES.UserMapper) private _userMapper: IUserMapper
   ) {}
 
   async blockUser(userId: string): Promise<UserSummaryDTO> {
@@ -37,7 +38,7 @@ export class AdminUserManagementService implements IAdminUserManagementService {
       this.logger.warn("user not updated");
       throw new Error("user not updated");
     }
-    return UserMapper.toSummaryDTO(updatedUser);
+    return this._userMapper.toSummaryDTO(updatedUser);
   }
 
   async unblockUser(userId: string): Promise<UserSummaryDTO> {
@@ -61,7 +62,7 @@ export class AdminUserManagementService implements IAdminUserManagementService {
       throw new Error("User not updated for unblock");
     }
 
-    return UserMapper.toSummaryDTO(updatedUser);
+    return this._userMapper.toSummaryDTO(updatedUser);
   }
 
   async getUsers(
@@ -85,7 +86,10 @@ export class AdminUserManagementService implements IAdminUserManagementService {
       search
     );
 
-    const summary = users.map(UserMapper.toSummaryDTO);
+    const summary = await Promise.all(
+      users.map((user) => this._userMapper.toSummaryDTO(user))
+    );
+
     const totalPages = Math.ceil(totalUsers / limit);
 
     return {

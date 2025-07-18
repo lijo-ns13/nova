@@ -42,7 +42,7 @@ export default function CurrentSubscriptionCard() {
         }
       } catch (err) {
         console.error(err);
-        toast.error("Failed to fetch subscription data.");
+        // toast.error("Failed to fetch subscription data.");
         setData(null);
       } finally {
         setLoading(false);

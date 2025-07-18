@@ -11,7 +11,6 @@ import {
   FileText,
   Activity,
 } from "lucide-react";
-import { SecureCloudinaryImage } from "../../../components/SecureCloudinaryImage";
 
 const ProfileCard: React.FC = () => {
   const { name, profilePicture, headline, username } = useAppSelector(
@@ -45,12 +44,16 @@ const ProfileCard: React.FC = () => {
       {/* Profile Photo - Centered above name */}
       <div className="flex justify-center mt-10">
         {profilePicture ? (
-          <SecureCloudinaryImage
-            publicId={profilePicture}
-            alt={"profilecardimage"}
+          <img
+            src={profilePicture || "/default.png"}
             className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-white dark:border-gray-800"
           />
         ) : (
+          // <SecureCloudinaryImage
+          //   publicId={profilePicture}
+          //   alt={"profilecardimage"}
+          //   className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover border-4 border-white dark:border-gray-800"
+          // />
           <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 dark:from-gray-600 dark:to-gray-800 flex items-center justify-center text-white text-2xl font-bold border-4 border-white dark:border-gray-800">
             {getInitials(name || "")}
           </div>

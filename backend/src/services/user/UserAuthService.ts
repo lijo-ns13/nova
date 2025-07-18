@@ -20,6 +20,7 @@ import { TYPES } from "../../di/types";
 import { IUserAuthService } from "../../interfaces/services/IUserAuthService";
 import { IJWTService } from "../../interfaces/services/IJwtService";
 import { generateUsername } from "../../shared/util/GenerateUserName";
+import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 
 @injectable()
 export class UserAuthService implements IUserAuthService {
@@ -32,7 +33,8 @@ export class UserAuthService implements IUserAuthService {
     @inject(TYPES.PasswordResetTokenRepository)
     private _passwordResetTokenRepository: IPasswordResetTokenRepository,
     @inject(TYPES.JWTService)
-    private _jwtService: IJWTService
+    private _jwtService: IJWTService,
+    @inject(TYPES.MediaService) private _mediaService: IMediaService
   ) {}
 
   async signUp(payload: SignupRequestDTO): Promise<SignUpResponseDTO> {
@@ -98,6 +100,9 @@ export class UserAuthService implements IUserAuthService {
       role: "user",
     });
 
+    const signedProfilePicture = user.profilePicture
+      ? await this._mediaService.getMediaUrl(user.profilePicture)
+      : "";
     return {
       accessToken: userAccessToken,
       refreshToken: userRefreshToken,
@@ -105,7 +110,7 @@ export class UserAuthService implements IUserAuthService {
         name: user.name,
         email: user.email,
         id: user._id,
-        profilePicture: user.profilePicture,
+        profilePicture: signedProfilePicture,
         headline: user.headline,
         username: user.username,
 

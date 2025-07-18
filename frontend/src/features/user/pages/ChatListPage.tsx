@@ -5,7 +5,6 @@ import userAxios from "../../../utils/userAxios";
 import { formatDistanceToNow } from "date-fns";
 import Navbar from "../componets/NavBar";
 import { Search, MoreVertical, MessageSquare, ArrowLeft } from "lucide-react";
-import { SecureCloudinaryImage } from "../../../components/SecureCloudinaryImage";
 
 const ChatListPage = () => {
   const { id: userId } = useAppSelector((state) => state.auth);
@@ -40,15 +39,15 @@ const ChatListPage = () => {
   const getAvatarContent = (user: any) => {
     if (user.profilePicture) {
       return (
-        // <img
-        //   src={user.profilePicture}
-        //   alt={user.name}
-        //   className="w-12 h-12 rounded-full object-cover"
-        // />
-        <SecureCloudinaryImage
-          publicId={user.profilePicture}
+        <img
+          src={user.profilePicture || "default.png"}
+          alt={user.name}
           className="w-12 h-12 rounded-full object-cover"
         />
+        // <SecureCloudinaryImage
+        //   publicId={user.profilePicture}
+        //   className="w-12 h-12 rounded-full object-cover"
+        // />
       );
     }
     return (

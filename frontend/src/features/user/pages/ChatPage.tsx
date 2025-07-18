@@ -7,7 +7,6 @@ import { PaperPlaneRight, Spinner } from "@phosphor-icons/react";
 import userAxios from "../../../utils/userAxios";
 import debounce from "lodash.debounce";
 import Avatar from "../componets/ui/Avatar";
-import { SecureCloudinaryImage } from "../../../components/SecureCloudinaryImage";
 
 const ChatPage = () => {
   const { otherUserId } = useParams();
@@ -188,10 +187,10 @@ const ChatPage = () => {
           Chat with {otherUserName || "unknown"}
         </h1>
         {/* <Avatar src={otherUserProfilePicture} alt={otherUserName} /> */}
-        <SecureCloudinaryImage
+        {/* <SecureCloudinaryImage
           publicId={otherUserProfilePicture}
           className="rounded-full w-10 h-10 object-cover"
-        />
+        /> */}
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">

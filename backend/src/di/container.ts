@@ -188,6 +188,7 @@ import tranasctionModal, { ITransaction } from "../models/tranasction.modal";
 import { ITransactionRepository } from "../interfaces/repositories/ITransactionRepository";
 import { Types } from "aws-sdk/clients/acm";
 import { TransactionRepository } from "../repositories/mongo/TransactionRepository";
+import { IUserMapper, UserMapper } from "../mapping/admin/admin.user.mapper";
 // import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
@@ -473,6 +474,9 @@ container
 container
   .bind<ICloudinaryController>(TYPES.CloudinaryController)
   .to(CloudinaryController);
+// di/container.ts
+// container.bind<IUserMapper>(TYPES.UserMapper).to(UserMapper);
+container.bind<IUserMapper>(TYPES.UserMapper).to(UserMapper)
 
 // media
 // container.bind<IMediaController>(TYPES.MediaController).to(MediaController);

@@ -535,7 +535,7 @@ const AdminDashboard: React.FC = () => {
           <Divider />
 
           {/* Transaction History */}
-          <Card
+          {/* <Card
             title={`Transaction History (${timeRange}${
               timeRange === "custom" ? `: ${customRange.join(" to ")}` : ""
             })`}
@@ -549,7 +549,7 @@ const AdminDashboard: React.FC = () => {
               scroll={{ x: true }}
               rowKey="_id"
             />
-          </Card>
+          </Card> */}
 
           {/* Export Section */}
           <div className="flex justify-end space-x-4 mt-6">
