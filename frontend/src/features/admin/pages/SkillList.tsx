@@ -11,8 +11,9 @@ import {
   ChevronRight,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { ParsedAPIError } from "../../../utils/apiError";
+
 import { ISkill } from "../types/skills";
+import { ParsedAPIError } from "../../../types/api";
 
 export default function SkillList() {
   const [skills, setSkills] = useState<ISkill[]>([]);

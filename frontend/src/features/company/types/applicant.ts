@@ -57,3 +57,11 @@ export interface Applicant {
   createdAt?: string;
   scheduledAt?: string;
 }
+export interface ApplicantListResponse {
+   applicationId: string,
+   status: string,
+   appliedAt: string,
+   name: string,
+   profilePicture: string,
+   email: string
+}

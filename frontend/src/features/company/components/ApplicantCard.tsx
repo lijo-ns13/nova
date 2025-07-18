@@ -14,31 +14,11 @@ import {
 } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import UserAvatar from "../../admin/components/UserManagement/UserAvatar";
-import { SecureCloudinaryImage } from "../../../components/SecureCloudinaryImage";
-
-interface Application {
-  _id: string;
-  user: {
-    name: string;
-    email: string;
-    avatar?: string;
-  };
-  job: {
-    title: string;
-  };
-  status: "applied" | "shortlisted" | "rejected";
-  appliedAt: string;
-  resumeUrl: string;
-  coverLetter?: string;
-  statusHistory?: Array<{
-    status: string;
-    date: string;
-    note?: string;
-  }>;
-}
+import { ApplicantListResponse } from "../types/applicant";
+import { ApplicationStatus } from "../../../constants/applicationStatus";
 
 interface ApplicantCardProps {
-  applicant: Application;
+  applicant: ApplicantListResponse;
   onStatusChange: (
     id: string,
     status: "applied" | "shortlisted" | "rejected",
@@ -62,9 +42,17 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
   ) => {
     return format(new Date(dateString), formatString);
   };
+  // export interface ApplicantListResponse {
+  //    applicationId: String,
+  //    status: String,
+  //    appliedAt: String,
+  //    name: String,
+  //    profilePicture: String,
+  //    email: String
+  // }
 
   const handleReject = () => {
-    onStatusChange(applicant._id, "rejected", rejectionReason);
+    onStatusChange(applicant.applicationId, "rejected", rejectionReason);
     setIsRejectModalOpen(false);
     setRejectionReason("");
   };
@@ -95,15 +83,16 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
             <div className="relative group">
               {/* <UserAvatar
-                name={applicant.user.name}
-                imageSrc={applicant.user.avatar}
+                name={applicant.name || "/default.png"}
+                imageSrc={applicant.profilePicture || "/default.png"}
                 size="lg"
               /> */}
-              <SecureCloudinaryImage
+              {/* <img src={applicant.profilePicture || "/default.png"} /> */}
+              {/* <SecureCloudinaryImage
                 publicId={applicant.user.avatar}
                 alt={applicant.user.name}
                 className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover"
-              />
+              /> */}
 
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-full transition-all duration-200" />
             </div>
@@ -111,10 +100,10 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
             <div className="flex-1 min-w-0 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
                 <h2 className="text-xl font-bold text-gray-900">
-                  {applicant.user.name}
+                  {applicant.name}
                 </h2>
                 <a
-                  href={`/company/job/application/${applicant._id}`}
+                  href={`/company/job/application/${applicant.applicationId}`}
                   className="inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700 transition-colors"
                 >
                   <ExternalLink size={14} />
@@ -126,10 +115,10 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                 <div className="flex items-center gap-2 text-gray-600">
                   <Mail size={16} className="flex-shrink-0" />
                   <a
-                    href={`mailto:${applicant.user.email}`}
+                    href={`mailto:${applicant.email}`}
                     className="hover:text-indigo-600 transition-colors"
                   >
-                    {applicant.user.email}
+                    {applicant.email}
                   </a>
                 </div>
 
@@ -145,20 +134,20 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                 </div>
               </div>
 
-              <div className="mt-3">
+              {/* <div className="mt-3">
                 <p className="text-sm text-gray-500">
                   Applied for:{" "}
                   <span className="font-medium text-gray-700">
                     {applicant.job.title}
                   </span>
                 </p>
-              </div>
+              </div> */}
             </div>
           </div>
 
           {/* Status and Actions */}
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-between border-t border-gray-100 pt-4">
-            <StatusBadge status={applicant.status} />
+            <StatusBadge status={applicant.status as ApplicationStatus} />
 
             <div className="flex gap-2 w-full sm:w-auto justify-center sm:justify-end">
               {/* <a
@@ -174,7 +163,9 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
               {applicant.status === "applied" && (
                 <div className="hidden sm:flex gap-2">
                   <button
-                    onClick={() => onStatusChange(applicant._id, "shortlisted")}
+                    onClick={() =>
+                      onStatusChange(applicant.applicationId, "shortlisted")
+                    }
                     className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium shadow-sm"
                   >
                     <CheckSquare size={16} className="flex-shrink-0" />
@@ -205,7 +196,10 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                     {applicant.status === "applied" && (
                       <button
                         onClick={() => {
-                          onStatusChange(applicant._id, "shortlisted");
+                          onStatusChange(
+                            applicant.applicationId,
+                            "shortlisted"
+                          );
                           setIsMenuOpen(false);
                         }}
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
@@ -234,7 +228,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
           </div>
 
           {/* Cover Letter Section */}
-          {applicant.coverLetter && (
+          {/* {applicant.coverLetter && (
             <div className="pt-4 border-t border-gray-100">
               <div className="flex items-center gap-2 mb-2">
                 <h3 className="text-sm font-semibold text-gray-700">
@@ -262,10 +256,10 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                 </div>
               )}
             </div>
-          )}
+          )} */}
 
           {/* Status History Section */}
-          {showFullDetails &&
+          {/* {showFullDetails &&
             applicant.statusHistory &&
             applicant.statusHistory.length > 0 && (
               <div className="pt-4 border-t border-gray-100">
@@ -295,9 +289,9 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                   ))}
                 </div>
               </div>
-            )}
+            )} */}
 
-          {!applicant.statusHistory && !applicant.coverLetter && (
+          {/* {!applicant.statusHistory && !applicant.coverLetter && (
             <button
               onClick={() => setShowFullDetails(!showFullDetails)}
               className="mt-4 text-sm text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-1"
@@ -312,7 +306,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                 </>
               )}
             </button>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -337,8 +331,8 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
 
             <p className="text-sm text-gray-600 mb-4">
               You are about to reject the application from{" "}
-              <span className="font-medium">{applicant.user.name}</span>. You
-              can provide an optional reason below.
+              <span className="font-medium">{applicant.name}</span>. You can
+              provide an optional reason below.
             </p>
 
             <textarea

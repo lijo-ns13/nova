@@ -1,4 +1,4 @@
-import { ApplicationStatus } from "../types/applicationTypes";
+import { ApplicationStatus } from "../types/applicant";
 
 interface StatusConfig {
   label: string;

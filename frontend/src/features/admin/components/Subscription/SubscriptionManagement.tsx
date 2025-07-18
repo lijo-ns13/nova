@@ -18,7 +18,7 @@ import {
 import Button from "../../../../components/ui/Button";
 import BaseModal from "../../../user/componets/modals/BaseModal";
 import ConfirmationModal from "../../../../components/ui/ConfirmationModal";
-import { ParsedAPIError } from "../../../../utils/apiError";
+import { ParsedAPIError } from "../../../../types/api";
 
 const SubscriptionManagement: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<

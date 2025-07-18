@@ -4,7 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import SignIn from "../features/company/pages/SignIn";
 import SignUp from "../features/company/pages/SignUp";
 
-import CompanyResetPassword from "../features/company/pages/CompanyResetPassword";
+// import CompanyResetPassword from "../features/company/pages/CompanyResetPassword";
 import VerifyEmail from "../features/company/pages/VerifyEmail";
 import CompanyProfilePage from "../features/company/pages/CompanyProfilePage";
 // protected pages
@@ -15,7 +15,7 @@ import Protected from "./Protected";
 import ManageJobsPage from "../features/company/pages/ManageJobsPage";
 import JobDetailedPage from "../features/company/pages/JobDetailedPage";
 // import JobApplicantsPage from "../features/company/pages/JobApplicantsPage";
-import CompanyApplicantsPage from "../features/company/pages/CompanyApplicantsPage";
+// import CompanyApplicantsPage from "../features/company/pages/CompanyApplicantsPage";
 import InterviewCompanyPage from "../features/company/pages/InterviewCompanyPage";
 import ApplicationDetailPage from "../features/company/pages/ApplicantDetails";
 import NotFoundPage from "../components/PageNotFound";

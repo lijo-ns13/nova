@@ -23,10 +23,15 @@ interface StatusBadgeProps {
     | "interview_cancelled"
     | "interview_accepted_by_user"
     | "interview_rejected_by_user"
-    | "interview_failed"
+    | "interview_reschedule_proposed"
+    | "interview_reschedule_accepted"
+    | "interview_reschedule_rejected"
+    | "interview_completed"
     | "interview_passed"
+    | "interview_failed"
     | "offered"
     | "selected"
+    | "hired"
     | "withdrawn";
 }
 

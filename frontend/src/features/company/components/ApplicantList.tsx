@@ -1,9 +1,9 @@
 import React from "react";
 import ApplicantCard from "./ApplicantCard";
-import { Application } from "../services/applicantService";
+import { ApplicantListResponse } from "../types/applicant";
 
 interface ApplicantListProps {
-  applications: Application[];
+  applications: ApplicantListResponse[];
   onStatusChange: (
     id: string,
     status: "applied" | "shortlisted" | "rejected",
@@ -19,7 +19,7 @@ const ApplicantList: React.FC<ApplicantListProps> = ({
     <div className="space-y-4">
       {applications.map((application) => (
         <ApplicantCard
-          key={application._id}
+          key={application.applicationId}
           applicant={application}
           onStatusChange={onStatusChange}
         />

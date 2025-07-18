@@ -84,10 +84,10 @@ function ApplicantCardCompany({ applicant, onStatusChange }: Props) {
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-4 transition hover:shadow-md">
       <div className="flex items-center gap-4 mb-4">
-        <img
+        {/* <img
           src={applicant.profilePicture || "/default.png"}
           className="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-gray-700 shadow-sm"
-        />
+        /> */}
         <div>
           <h3 className="font-medium text-gray-900 dark:text-white">
             {applicant.name}

@@ -7,7 +7,7 @@ import { PlusCircle, AlertTriangle, Loader2 } from "lucide-react";
 import Button from "../../../../components/ui/Button";
 import BaseModal from "../../../company/components/profile/BaseModal";
 import ConfirmationModal from "../../../../components/ui/ConfirmationModal";
-import { ParsedAPIError } from "../../../../utils/apiError";
+import { ParsedAPIError } from "../../../../types/api";
 
 const FeatureManagement: React.FC = () => {
   const [features, setFeatures] = useState<Feature[]>([]);

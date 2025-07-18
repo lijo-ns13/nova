@@ -1,25 +1,25 @@
-import React from "react";
-import { ApplicationStatus } from "../../types/applicationTypes";
-import { getStatusConfig } from "../../util/StatusUtils";
+// import React from "react";
+// import { ApplicationStatus } from "../../types/applicationTypes";
+// import { getStatusConfig } from "../../util/StatusUtils";
 
-interface StatusBadgeProps {
-  status: ApplicationStatus;
-  className?: string;
-}
+// interface StatusBadgeProps {
+//   status: ApplicationStatus;
+//   className?: string;
+// }
 
-const StatusBadge: React.FC<StatusBadgeProps> = ({
-  status,
-  className = "",
-}) => {
-  const config = getStatusConfig(status);
+// const StatusBadge: React.FC<StatusBadgeProps> = ({
+//   status,
+//   className = "",
+// }) => {
+//   const config = getStatusConfig(status);
 
-  return (
-    <div
-      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.bgColor} ${config.color} ${className}`}
-    >
-      <span>{config.label}</span>
-    </div>
-  );
-};
+//   return (
+//     <div
+//       className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.bgColor} ${config.color} ${className}`}
+//     >
+//       <span>{config.label}</span>
+//     </div>
+//   );
+// };
 
-export default StatusBadge;
+// export default StatusBadge;
