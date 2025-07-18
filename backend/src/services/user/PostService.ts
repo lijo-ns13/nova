@@ -157,4 +157,47 @@ export class PostService {
   async deletePost(postId: string): Promise<void> {
     await this._postRepo.deletePost(postId);
   }
+  async getUsersPosts(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<PostResponseDTO[]> {
+    const skip = (page - 1) * limit;
+    const posts = await this._postRepo.findByCreator(skip, limit, userId);
+
+    const mediaCache = new Map<string, MediaUrlDTO>();
+
+    return await Promise.all(
+      posts.map(async (post) => {
+        console.log("posts=>", post);
+        const mediaUrls: MediaUrlDTO[] = await Promise.all(
+          post.mediaIds.map(async (id) => {
+            console.log("Post mediaID", post.mediaIds);
+            const key = id.toString();
+            if (mediaCache.has(key)) return mediaCache.get(key)!;
+
+            try {
+              const media = await this._mediaService.getMediaUrlById(
+                id._id.toString()
+              );
+              mediaCache.set(key, media);
+              return media;
+            } catch (err) {
+              this.logger.warn("Failed to fetch media URL", {
+                postId: post._id,
+              });
+              return {
+                url: "",
+                mimeType: "image/jpeg" as MediaUrlDTO["mimeType"],
+              };
+            }
+          })
+        );
+        console.log("Media=>", mediaUrls);
+        const creator = post.creatorId as unknown as CreatorDTO;
+
+        return PostMapper.toDTO(post, mediaUrls, creator);
+      })
+    );
+  }
 }

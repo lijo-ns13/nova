@@ -20,5 +20,8 @@ router.use(authMiddleware.check());
 router.get("/", (req, res) =>
   subWithFeatController.getActiveSubscriptionsWithFeatures(req, res)
 );
+router.get("/usersub", (req, res) =>
+  subWithFeatController.userCurrentSubscription(req, res)
+);
 
 export default router;

@@ -15,13 +15,27 @@ export const getAllPosts = async ({
   limit = 10,
 }): Promise<PostResponseDTO[]> => {
   try {
-    const response = await userAxios.get(`/post?page=${page}&limit=${limit}`, {
+    const response = await userAxios.get(`/post`, {
       params: { page, limit },
       withCredentials: true,
     });
     return response.data.data;
   } catch (error) {
     throw handleApiError(error, "failed to get all posts");
+  }
+};
+export const getAllUserPosts = async ({
+  page = 1,
+  limit = 10,
+}): Promise<PostResponseDTO[]> => {
+  try {
+    const response = await userAxios.get("/post/user", {
+      params: { page, limit },
+      withCredentials: true,
+    });
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error, "failed to get all user posts");
   }
 };
 

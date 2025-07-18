@@ -228,16 +228,30 @@ export class PostController implements IPostController {
   async getUsersPosts(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req.user as Userr)?.id;
+      if (!userId) {
+        res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
+          success: false,
+          message: "Unauthorized: User ID missing from token",
+        });
+        return;
+      }
+
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
 
       const posts = await this._postService.getUsersPosts(userId, page, limit);
 
-      res.status(HTTP_STATUS_CODES.OK).json(posts);
+      res.status(HTTP_STATUS_CODES.OK).json({
+        success: true,
+        message: "Successfully fetched user posts",
+        data: posts,
+      });
     } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ error: (error as Error).message });
+      console.log("error", error);
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: "Failed to fetch user posts",
+      });
     }
   }
 }

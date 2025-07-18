@@ -18,4 +18,9 @@ export interface IPostService {
     postId: string,
     description: string
   ): Promise<PostResponseDTO | null>;
+  getUsersPosts(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<PostResponseDTO[]>;
 }

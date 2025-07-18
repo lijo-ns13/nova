@@ -13,11 +13,17 @@ import Button from "../ui/Button";
 import { Link } from "react-router-dom";
 import LikesButton from "./PostLikes/LikesButton";
 import { PostResponseDTO } from "../../types/post";
-import { getPostComments, likeOrUnlikePost } from "../../services/PostService";
+import {
+  deletePost,
+  getPostComments,
+  likeOrUnlikePost,
+} from "../../services/PostService";
 import socket, { connectSocket } from "../../../../socket/socket";
 import { useQueryClient } from "@tanstack/react-query";
 import { CommentResponseDTO } from "../../types/commentlike";
 import CommentSection from "./CommentSection";
+import ConfirmDeleteModal from "../../../../components/ConfirmDeleteModal";
+import toast from "react-hot-toast";
 
 interface PostProps {
   post: PostResponseDTO;
@@ -30,6 +36,9 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
   const [liked, setLiked] = useState<boolean>(
     post.likes.some((like) => like.userId === currentUserId)
   );
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
   const [showComments, setShowComments] = useState<boolean>(false);
   const [comments, setComments] = useState<CommentResponseDTO[]>([]);
@@ -44,6 +53,22 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
       setIsLoadingComments(false);
     }
   };
+  const confirmDelete = async () => {
+    if (!selectedPostId) return;
+
+    try {
+      await deletePost(selectedPostId);
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      toast.success("Post deleted");
+    } catch (error) {
+      console.error("Failed to delete post:", error);
+      toast.error("Failed to delete post");
+    } finally {
+      setShowDeleteModal(false);
+      setSelectedPostId(null);
+    }
+  };
+
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [isLikeAnimating, setIsLikeAnimating] = useState<boolean>(false);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
@@ -176,6 +201,10 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
   const handleImageLoad = (mediaUrl: string) => {
     setLoadedImages((prev) => new Set(prev).add(mediaUrl));
   };
+  const handleDeleteClick = (postId: string) => {
+    setSelectedPostId(postId);
+    setShowDeleteModal(true);
+  };
 
   const isImageLoaded = (mediaUrl: string) => loadedImages.has(mediaUrl);
 
@@ -200,9 +229,15 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
             {formatDate(post.createdAt)}
           </p>
         </div>
-        <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-full p-2 transition-colors">
-          <MoreHorizontal size={18} />
-        </button>
+        {currentUserId === post.creatorId.id && (
+          <button
+            onClick={() => handleDeleteClick(post.id)}
+            className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors ml-2"
+            title="Delete Post"
+          >
+            Delete
+          </button>
+        )}
       </div>
 
       {/* Post Content */}
@@ -408,6 +443,11 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
           {/* )} */}
         </div>
       )}
+      <ConfirmDeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };

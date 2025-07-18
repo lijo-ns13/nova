@@ -6,4 +6,5 @@ export interface ISubscriptionWithFeaturesController {
     req: Request,
     res: Response
   ): Promise<void>;
+  userCurrentSubscription(req: Request, res: Response): Promise<void>;
 }

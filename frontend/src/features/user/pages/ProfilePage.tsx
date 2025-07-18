@@ -2,6 +2,7 @@ import React, { Suspense, useState } from "react";
 
 import Navbar from "../componets/NavBar";
 import SkillsManager from "../componets/skill/SkillsManager";
+import UserPostsSection from "../componets/Profile/post/UserPostSection";
 
 // Lazy-loaded components
 const UserProfile = React.lazy(
@@ -19,9 +20,6 @@ const ProjectSection = React.lazy(
 // );
 const EducationSection = React.lazy(
   () => import("../componets/Profile/EducationSection")
-);
-const UserPostsSection = React.lazy(
-  () => import("../componets/Profile/post/UserPostSection")
 );
 
 // Loading component for suspense fallback

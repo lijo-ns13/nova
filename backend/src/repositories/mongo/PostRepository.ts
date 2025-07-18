@@ -52,7 +52,6 @@ export class PostRepository
   async deletePost(postId: string): Promise<void> {
     await postModal.findByIdAndUpdate(postId, { isDeleted: true });
   }
-
   async findByCreator(
     skip: number,
     limit: number,
@@ -60,13 +59,15 @@ export class PostRepository
   ): Promise<IPost[]> {
     return this.model
       .find({ isDeleted: false, creatorId })
+      .select("-__v") // optional: hide internal Mongoose fields
       .skip(skip)
       .limit(limit)
-      .populate("mediaIds")
+      .sort({ createdAt: -1 })
+      .populate("mediaIds") // assuming media is preloaded here, but not used in DTO
       .populate("creatorId", "name username profilePicture")
-      .populate({ path: "Likes" })
-      .sort({ createdAt: -1 });
+      .populate("Likes");
   }
+
   async findAllWithMediaAndCreator(
     skip: number,
     limit: number
