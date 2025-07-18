@@ -12,6 +12,7 @@ import { IMedia } from "../../models/media.modal";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import logger from "../../utils/logger";
 import { MediaUrlDTO } from "./MediaService";
+import { IUser } from "../../models/user.modal";
 
 @injectable()
 export class PostService {
@@ -82,7 +83,13 @@ export class PostService {
     );
     const media = await this.resolveMedia(mediaIds.map((id) => id.toString()));
     const creator = await this.resolveCreatorDTO(creatorId);
+    // ✅ Fetch user to get current post count
+    const user = await this._userRepo.findById(creatorId);
+    const createdPostCount = user?.createdPostCount ?? 0;
 
+    await this._userRepo.update(creatorId, {
+      createdPostCount: createdPostCount + 1,
+    });
     return PostMapper.toDTO(post, media, creator);
   }
 
@@ -164,7 +171,10 @@ export class PostService {
   ): Promise<PostResponseDTO[]> {
     const skip = (page - 1) * limit;
     const posts = await this._postRepo.findByCreator(skip, limit, userId);
-
+    const user = await this._userRepo.findById(userId);
+    if (!user) {
+      throw new Error("user not found");
+    }
     const mediaCache = new Map<string, MediaUrlDTO>();
 
     return await Promise.all(
@@ -193,9 +203,16 @@ export class PostService {
             }
           })
         );
-        console.log("Media=>", mediaUrls);
-        const creator = post.creatorId as unknown as CreatorDTO;
 
+        const creator: CreatorDTO = {
+          id: user._id.toString(),
+          name: user.name,
+          profilePicture: user.profilePicture || "",
+          headline: user.headline || "",
+          username: user.username,
+        };
+
+        console.log("creatory", creator);
         return PostMapper.toDTO(post, mediaUrls, creator);
       })
     );

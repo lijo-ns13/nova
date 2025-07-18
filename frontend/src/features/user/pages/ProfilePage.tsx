@@ -5,6 +5,7 @@ import SkillsManager from "../componets/skill/SkillsManager";
 import UserPostsSection from "../componets/Profile/post/UserPostSection";
 import SubscriptionCard from "../../admin/components/Subscription/SubscriptionCard";
 import CurrentSubscriptionCard from "../componets/SubcriptionCard";
+import { useAppSelector } from "../../../hooks/useAppSelector";
 
 // Lazy-loaded components
 const UserProfile = React.lazy(
@@ -35,11 +36,10 @@ const SectionLoader = () => (
 );
 
 // Mock user ID for demonstration - should be replaced with actual user ID from auth
-const CURRENT_USER_ID = "6819e4b63420abc944d45209";
 
 function ProfilePage() {
   const [activeTab, setActiveTab] = useState("Experience");
-
+  const { id: CURRENT_USER_ID } = useAppSelector((state) => state.auth);
   const tabs = [
     { id: "Experience", label: "Experience" },
     { id: "Education", label: "Education" },

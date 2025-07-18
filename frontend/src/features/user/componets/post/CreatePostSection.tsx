@@ -70,9 +70,10 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
           return [newPost.data, ...oldPosts];
         }
       );
-      if (!createdPostCount != null) {
+      if (createdPostCount != null) {
         dispath(updateCreatePostCount(createdPostCount + 1));
       }
+
       if (onPostSubmit) onPostSubmit();
       handleCloseModal();
     },

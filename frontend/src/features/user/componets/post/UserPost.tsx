@@ -12,7 +12,7 @@ import Button from "../ui/Button";
 
 import { Link } from "react-router-dom";
 import LikesButton from "./PostLikes/LikesButton";
-import { PostResponseDTO } from "../../types/post";
+
 import {
   deletePost,
   getPostComments,
@@ -24,14 +24,40 @@ import { CommentResponseDTO } from "../../types/commentlike";
 import CommentSection from "./CommentSection";
 import ConfirmDeleteModal from "../../../../components/ConfirmDeleteModal";
 import toast from "react-hot-toast";
+export interface PostResponseDTOozy {
+  id: string;
+  description?: string;
+  creatorId: {
+    _id: string;
+    name: string;
+    profilePicture: string;
+    headline: string;
+    username: string;
+  };
+  media: {
+    url: string;
+    mimeType:
+      | "image/jpeg"
+      | "image/png"
+      | "image/webp"
+      | "video/mp4"
+      | "video/quicktime"
+      | "application/pdf";
+  }[];
+  likes: {
+    userId: string;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface PostProps {
-  post: PostResponseDTO;
+  post: PostResponseDTOozy;
   currentUserId: string;
   onLike?: (postId: string) => Promise<void>;
 }
 
-const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
+const UserPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
   const [likeCount, setLikeCount] = useState<number>(post.likes.length);
   const [liked, setLiked] = useState<boolean>(
     post.likes.some((like) => like.userId === currentUserId)
@@ -58,13 +84,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
 
     try {
       await deletePost(selectedPostId);
-      queryClient.setQueryData<PostResponseDTO[] | undefined>(
-        ["posts"],
-        (oldData) => {
-          if (!oldData) return oldData;
-          return oldData.filter((post) => post.id !== selectedPostId);
-        }
-      );
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
       toast.success("Post deleted");
     } catch (error) {
       console.error("Failed to delete post:", error);
@@ -123,11 +143,11 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
 
       queryClient.setQueryData(
         ["posts"],
-        (oldData: PostResponseDTO[] | PostResponseDTO | undefined) => {
+        (oldData: PostResponseDTOozy[] | PostResponseDTOozy | undefined) => {
           if (!oldData) return oldData;
 
           // Function to update a single post
-          const updatePost = (post: PostResponseDTO) => {
+          const updatePost = (post: PostResponseDTOozy) => {
             if (post.id === postId) {
               let updatedLikes = [...post.likes];
 
@@ -210,25 +230,18 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
   const handleDeleteClick = (postId: string) => {
     setSelectedPostId(postId);
     setShowDeleteModal(true);
-    queryClient.setQueryData<PostResponseDTO[] | undefined>(
-      ["posts"],
-      (oldData) => {
-        if (!oldData) return oldData;
-        return oldData.filter((post) => post.id !== selectedPostId);
-      }
-    );
   };
 
   const isImageLoaded = (mediaUrl: string) => loadedImages.has(mediaUrl);
   console.log(
     "currentUserId === post.creatorId.id",
-    currentUserId === post.creatorId.id
+    currentUserId === post.creatorId._id
   );
   console.log(
     "currentuserid",
     currentUserId,
     "post.creatorId.id",
-    post.creatorId.id
+    post.creatorId._id
   );
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 my-6 border border-gray-200 dark:border-gray-700 transform hover:translate-y-[-2px]">
@@ -251,7 +264,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
             {formatDate(post.createdAt)}
           </p>
         </div>
-        {currentUserId === post.creatorId.id && (
+        {currentUserId === post.creatorId._id && (
           <button
             onClick={() => handleDeleteClick(post.id)}
             className="text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors ml-2"
@@ -474,4 +487,4 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
   );
 };
 
-export default FinalPost;
+export default UserPost;
