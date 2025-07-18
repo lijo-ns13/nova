@@ -3,10 +3,6 @@ import { TYPES } from "../../di/types";
 import { inject, injectable } from "inversify";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { IUserProfileService } from "../../interfaces/services/IUserProfileService";
-import { IUserEducation } from "../../models/userEducation.model";
-import { IUserExperience } from "../../models/userExperience.model";
-import { IUserProject } from "../../models/userProject.model";
-import { IUserCertificate } from "../../models/userCertificate.model";
 import { IUserProfileController } from "../../interfaces/controllers/IUserProfileController";
 import { handleControllerError } from "../../utils/errorHandler";
 import {
@@ -290,9 +286,9 @@ export class UserProfileController implements IUserProfileController {
   // Get all projects
   async getAllProjects(req: Request, res: Response) {
     try {
-      const projects = await this.userProfileService.getAllProjects(
-        req.params.userId
-      );
+      const UserId = (req.user as UserPayload)?.id;
+      const projects = await this.userProfileService.getAllProjects(UserId);
+
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "fetch projects successfully",

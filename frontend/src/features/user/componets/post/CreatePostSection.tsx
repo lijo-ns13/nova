@@ -7,7 +7,7 @@ import { useAppSelector } from "../../../../hooks/useAppSelector";
 import { useAppDispatch } from "../../../../hooks/useAppDispatch";
 import { updateCreatePostCount } from "../../../auth/auth.slice";
 import BaseModal from "../modals/BaseModal";
-import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
+// import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
 import { createPost } from "../../services/PostService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -99,15 +99,15 @@ const CreatePostSection: React.FC<CreatePostSectionProps> = ({
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="p-4">
           <div className="flex items-center gap-3">
-            {/* <Avatar
-              src={profilePicture}
+            <Avatar
+              src={profilePicture || "/default.png"}
               alt={name || "Your profile"}
               size="md"
-            /> */}
-            <SecureCloudinaryImage
+            />
+            {/* <SecureCloudinaryImage
               publicId={profilePicture}
               className="rounded-full w-10 h-10 object-cover"
-            />
+            /> */}
             <div
               onClick={handleOpenModal}
               className="flex-grow bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-full px-4 py-2.5 cursor-pointer transition-all"

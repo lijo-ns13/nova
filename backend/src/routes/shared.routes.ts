@@ -4,7 +4,6 @@ import ProfileViewRouter from "./common/profile-view.routes";
 import messageRoutes from "./common/messages.routes";
 import messageModal from "../models/message.modal";
 import notificationRouter from "./notification.routes";
-import cloudinaryRouter from "./common/cloudinary.routes";
 
 import userModal from "../models/user.modal";
 import mongoose from "mongoose";
@@ -19,7 +18,6 @@ router.use("/skill", skillRouter);
 router.use("/api", ProfileViewRouter);
 router.use("/api/messages", messageRoutes);
 router.use("/notification", notificationRouter);
-router.use("/cloudinary", cloudinaryRouter);
 
 router.get("/api/chat/users/:userId", async (req: Request, res: Response) => {
   const { userId } = req.params;

@@ -13,7 +13,7 @@ import {
 } from "../../services/FollowService";
 import UserListModal from "../modals/UserListModal";
 import toast from "react-hot-toast";
-import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
+// import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
 
 interface ProfileHeaderProps {
   userData: UserData;
@@ -143,17 +143,16 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
             <div className="px-4 sm:px-6 md:px-8 lg:px-12 pt-2 pb-6 relative">
               <div className="relative -mt-16 sm:-mt-20 md:-mt-24 mb-4 flex justify-between items-end">
                 <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full border-4 border-white overflow-hidden bg-white shadow-md group relative">
-                  {/* <img
-                    src={
-                      userData?.profilePicture}
-                    alt={userData?.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  /> */}
-                  <SecureCloudinaryImage
-                    publicId={userData?.profilePicture}
+                  <img
+                    src={userData?.profilePicture || "/default.png"}
                     alt={userData?.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
+                  {/* <SecureCloudinaryImage
+                    publicId={userData?.profilePicture}
+                    alt={userData?.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  /> */}
                 </div>
               </div>
 

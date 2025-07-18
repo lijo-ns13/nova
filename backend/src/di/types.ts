@@ -148,7 +148,6 @@ export const TYPES = {
   StripeService: Symbol.for("StripeService"),
   StripeController: Symbol.for("StripeController"),
   // cluadinary
-  CloudinaryService: Symbol.for("CloudinaryService"),
-  CloudinaryController: Symbol.for("CloudinaryController"),
+
   // media
 };

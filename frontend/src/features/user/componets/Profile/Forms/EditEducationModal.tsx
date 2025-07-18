@@ -49,13 +49,20 @@ export default function EditEducationModal({
 
   useEffect(() => {
     if (education) {
+      const formatDate = (dateStr: string | undefined) => {
+        if (!dateStr) return "";
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return "";
+        return d.toISOString().split("T")[0]; // "2025-07-08"
+      };
+
       reset({
         institutionName: education.institutionName,
         degree: education.degree,
         fieldOfStudy: education.fieldOfStudy ?? "",
         grade: education.grade ?? "",
-        startDate: education.startDate.split("T")[0],
-        endDate: education.endDate?.split("T")[0] ?? "",
+        startDate: formatDate(education.startDate),
+        endDate: formatDate(education.endDate),
         description: education.description ?? "",
       });
     }
@@ -63,7 +70,11 @@ export default function EditEducationModal({
 
   const onSubmit = async (data: UpdateEducationInputDTO) => {
     try {
-      await editEducation(id, education.id, data);
+      const cleanedData = {
+        ...data,
+        endDate: data.endDate?.trim() === "" ? undefined : data.endDate,
+      };
+      await editEducation(id, education.id, cleanedData);
       toast.success("Education updated successfully");
       onEducationUpdated();
       handleClose();

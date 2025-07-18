@@ -2,7 +2,7 @@ import React, { useState, useRef, type ChangeEvent } from "react";
 import { X, Upload, Image, Video, File, Send, Camera } from "lucide-react";
 import Avatar from "../ui/Avatar";
 import Button from "../ui/Button";
-import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
+// import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
 
 interface Media {
   id: string;
@@ -212,12 +212,16 @@ const CreatePostForm: React.FC<CreatePostFormProps> = ({
         <div className="space-y-4">
           {/* User info */}
           <div className="flex items-center mb-4">
-            {/* <Avatar src={userProfilePic} alt={userName} size="md" /> */}
-            <SecureCloudinaryImage
+            <Avatar
+              src={userProfilePic || "/default.png"}
+              alt={userName}
+              size="md"
+            />
+            {/* <SecureCloudinaryImage
               publicId={userProfilePic}
               alt={userName}
               className="w-10 h-10 rounded-full object-cover"
-            />
+            /> */}
             <div className="ml-3">
               <p className="font-medium text-gray-900 dark:text-white">
                 {userName}

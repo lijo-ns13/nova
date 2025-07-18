@@ -5,6 +5,7 @@ import { useAppSelector } from "../../../../hooks/useAppSelector";
 import ConfirmDialog from "../../../../components/ConfirmDiolog";
 import toast from "react-hot-toast";
 import { ProjectResponseDTO } from "../../dto/projectResponse.dto";
+import EditProjectModal from "./Forms/EditProjectModal";
 
 function ProjectSection() {
   const [projects, setProjects] = useState<ProjectResponseDTO[]>([]);
@@ -20,6 +21,10 @@ function ProjectSection() {
     null
   );
   const [isDeleting, setIsDeleting] = useState(false);
+  const [editProjectModalOpen, setEditProjectModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] =
+    useState<ProjectResponseDTO | null>(null);
+
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -35,17 +40,16 @@ function ProjectSection() {
       setIsLoading(false);
     }
   }
-
+  const handleEditClick = (project: ProjectResponseDTO) => {
+    setSelectedProject(project);
+    setEditProjectModalOpen(true);
+  };
   const handleProjectAdded = () => {
     setIsModalOpen(false);
     setEditProject(null);
     fetchProjects();
   };
 
-  const handleEdit = (project: ProjectResponseDTO) => {
-    setEditProject(project);
-    setIsModalOpen(true);
-  };
   const handleDeleteClick = (projectId: string) => {
     setSelectedProjectId(projectId);
     setIsConfirmOpen(true);
@@ -211,7 +215,7 @@ function ProjectSection() {
 
                 <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-end gap-2">
                   <button
-                    onClick={() => handleEdit(project)}
+                    onClick={() => handleEditClick(project)} //
                     className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
                     title="Edit"
                   >
@@ -298,6 +302,15 @@ function ProjectSection() {
             setEditProject(null);
           }}
           onProjectAdded={handleProjectAdded}
+        />
+        <EditProjectModal
+          isOpen={editProjectModalOpen}
+          onClose={() => setEditProjectModalOpen(false)}
+          project={selectedProject}
+          userId={id}
+          onProjectUpdated={(updated) => {
+            fetchProjects();
+          }}
         />
         <ConfirmDialog
           isOpen={isConfirmOpen}

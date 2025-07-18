@@ -11,9 +11,10 @@ export const CreateExperienceInputSchema = z.object({
   endDate: z
     .string()
     .optional()
-    .refine((val) => !val || !isNaN(Date.parse(val)), {
-      message: "Invalid date format",
-    }),
+    .refine(
+      (val) => val === undefined || val === "" || !isNaN(Date.parse(val)),
+      { message: "Invalid end date" }
+    ),
 });
 
 export const UpdateExperienceInputSchema =

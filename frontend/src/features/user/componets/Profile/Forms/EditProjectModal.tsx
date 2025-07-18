@@ -1,221 +1,150 @@
-// import { useEffect, useState } from "react";
-// import BaseModal from "../../modals/BaseModal";
-// import { editProject } from "../../../services/ProfileService";
-// import { useAppSelector } from "../../../../../hooks/useAppSelector";
-// import toast from "react-hot-toast";
-// import {
-//   UpdateProjectInputDTO,
-//   UpdateProjectInputSchema,
-// } from "../../../schema/projectSchema";
-// import { useForm, useFieldArray } from "react-hook-form";
-// import { zodResolver } from "@hookform/resolvers/zod";
-// import { handleApiError } from "../../../../../utils/apiError";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
 
-// export interface ProjectResponseDTO {
-//   id: string;
-//   userId: string;
-//   title: string;
-//   description: string;
-//   projectUrl?: string;
-//   startDate: string;
-//   endDate?: string;
-//   technologies: string[];
-// }
+import BaseModal from "../../modals/BaseModal";
+import {
+  UpdateProjectInputDTO,
+  UpdateProjectInputSchema,
+} from "../../../schema/projectSchema";
+import { editProject } from "../../../services/ProfileService";
+import { ProjectResponseDTO } from "../../../dto/projectResponse.dto";
 
-// interface EditProjectModalProps {
-//   isOpen: boolean;
-//   onClose: () => void;
-//   project: ProjectResponseDTO;
-//   onProjectUpdated: () => void;
-// }
+interface EditProjectModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  project: ProjectResponseDTO | null; // project to edit
+  userId: string;
+  onProjectUpdated: (updated: ProjectResponseDTO) => void;
+}
 
-// export default function EditProjectModal({
-//   isOpen,
-//   onClose,
-//   project,
-//   onProjectUpdated,
-// }: EditProjectModalProps) {
-//   const { id } = useAppSelector((state) => state.auth);
-//   const [globalError, setGlobalError] = useState<string | null>(null);
+const EditProjectModal = ({
+  isOpen,
+  onClose,
+  project,
+  userId,
+  onProjectUpdated,
+}: EditProjectModalProps) => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<UpdateProjectInputDTO>({
+    resolver: zodResolver(UpdateProjectInputSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      startDate: "",
+      endDate: "",
+      projectUrl: "",
+      technologies: [],
+    },
+  });
 
-//   const {
-//     register,
-//     handleSubmit,
-//     reset,
-//     control,
-//     setError,
-//     formState: { errors },
-//   } = useForm<UpdateProjectInputDTO>({
-//     resolver: zodResolver(UpdateProjectInputSchema),
-//     defaultValues: {
-//       title: "",
-//       description: "",
-//       projectUrl: "",
-//       startDate: "",
-//       endDate: "",
-//       technologies: [""],
-//     },
-//   });
+  // Populate form when project is provided
+  useEffect(() => {
+    if (project) {
+      reset({
+        title: project.title,
+        description: project.description,
+        startDate: new Date(project.startDate).toISOString().split("T")[0],
+        endDate: project.endDate
+          ? new Date(project.endDate).toISOString().split("T")[0]
+          : "",
+        projectUrl: project.projectUrl || "",
+        technologies: project.technologies,
+      });
+    }
+  }, [project, reset]);
 
-//   const { fields, append, remove } = useFieldArray({
-//     control,
-//     name: "technologies",
-//   });
+  const onSubmit = async (data: UpdateProjectInputDTO) => {
+    if (!project) return;
+    try {
+      const updated = await editProject(userId, project.id, data);
+      toast.success("Project updated successfully");
+      onProjectUpdated(updated);
+      onClose();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update project");
+    }
+  };
 
-//   useEffect(() => {
-//     if (project) {
-//       reset({
-//         title: project.title,
-//         description: project.description,
-//         projectUrl: project.projectUrl ?? "",
-//         startDate: project.startDate.split("T")[0],
-//         endDate: project.endDate?.split("T")[0] ?? "",
-//         technologies: project.technologies.length ? project.technologies : [""],
-//       });
-//     }
-//   }, [project, reset]);
+  return (
+    <BaseModal isOpen={isOpen} onClose={onClose} title="Edit Project">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <label className="block font-medium">Title</label>
+          <input type="text" {...register("title")} className="input" />
+          {errors.title && (
+            <p className="text-red-500">{errors.title.message}</p>
+          )}
+        </div>
 
-//   const onSubmit = async (data: UpdateProjectInputDTO) => {
-//     try {
-//       await editProject(id, project.id, data);
-//       toast.success("Project updated successfully");
-//       onProjectUpdated();
-//       handleClose();
-//     } catch (err: unknown) {
-//       const parsed = handleApiError(err, "Failed to update project");
-//       setGlobalError(parsed.message ?? "Something went wrong");
+        <div>
+          <label className="block font-medium">Description</label>
+          <textarea {...register("description")} className="input" rows={3} />
+          {errors.description && (
+            <p className="text-red-500">{errors.description.message}</p>
+          )}
+        </div>
 
-//       if (parsed.errors) {
-//         Object.entries(parsed.errors).forEach(([key, value]) => {
-//           setError(key as keyof UpdateProjectInputDTO, {
-//             type: "manual",
-//             message: value,
-//           });
-//         });
-//       }
-//     }
-//   };
+        <div>
+          <label className="block font-medium">Project URL</label>
+          <input type="text" {...register("projectUrl")} className="input" />
+          {errors.projectUrl && (
+            <p className="text-red-500">{errors.projectUrl.message}</p>
+          )}
+        </div>
 
-//   const handleClose = () => {
-//     reset();
-//     setGlobalError(null);
-//     onClose();
-//   };
+        <div>
+          <label className="block font-medium">Start Date</label>
+          <input type="date" {...register("startDate")} className="input" />
+          {errors.startDate && (
+            <p className="text-red-500">{errors.startDate.message}</p>
+          )}
+        </div>
 
-//   return (
-//     <BaseModal isOpen={isOpen} onClose={handleClose} title="Edit Project">
-//       {globalError && (
-//         <p className="text-red-600 text-sm font-medium text-center">
-//           {globalError}
-//         </p>
-//       )}
+        <div>
+          <label className="block font-medium">End Date</label>
+          <input type="date" {...register("endDate")} className="input" />
+          {errors.endDate && (
+            <p className="text-red-500">{errors.endDate.message}</p>
+          )}
+        </div>
 
-//       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-//         <div>
-//           <input
-//             type="text"
-//             {...register("title")}
-//             placeholder="Project Title"
-//             className="w-full border px-3 py-2 rounded"
-//           />
-//           {errors.title && (
-//             <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
-//           )}
-//         </div>
+        <div>
+          <label className="block font-medium">
+            Technologies (comma separated)
+          </label>
+          <input
+            type="text"
+            className="input"
+            defaultValue={project?.technologies?.join(", ")}
+            onBlur={(e) => {
+              const techs = e.target.value
+                .split(",")
+                .map((t) => t.trim())
+                .filter((t) => t);
+              reset((prev) => ({ ...prev, technologies: techs }));
+            }}
+          />
+          {errors.technologies && (
+            <p className="text-red-500">{errors.technologies.message}</p>
+          )}
+        </div>
 
-//         <div>
-//           <textarea
-//             {...register("description")}
-//             placeholder="Description"
-//             className="w-full border px-3 py-2 rounded"
-//             rows={4}
-//           />
-//           {errors.description && (
-//             <p className="text-red-500 text-sm mt-1">
-//               {errors.description.message}
-//             </p>
-//           )}
-//         </div>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="btn btn-primary w-full"
+        >
+          {isSubmitting ? "Updating..." : "Update Project"}
+        </button>
+      </form>
+    </BaseModal>
+  );
+};
 
-//         <div>
-//           <input
-//             type="url"
-//             {...register("projectUrl")}
-//             placeholder="Project URL (optional)"
-//             className="w-full border px-3 py-2 rounded"
-//           />
-//           {errors.projectUrl && (
-//             <p className="text-red-500 text-sm mt-1">
-//               {errors.projectUrl.message}
-//             </p>
-//           )}
-//         </div>
-
-//         <div>
-//           <input
-//             type="date"
-//             {...register("startDate")}
-//             className="w-full border px-3 py-2 rounded"
-//           />
-//           {errors.startDate && (
-//             <p className="text-red-500 text-sm mt-1">
-//               {errors.startDate.message}
-//             </p>
-//           )}
-//         </div>
-
-//         <div>
-//           <input
-//             type="date"
-//             {...register("endDate")}
-//             className="w-full border px-3 py-2 rounded"
-//           />
-//           {errors.endDate && (
-//             <p className="text-red-500 text-sm mt-1">
-//               {errors.endDate.message}
-//             </p>
-//           )}
-//         </div>
-
-//         <div>
-//           <label className="block text-sm font-medium mb-1">Technologies</label>
-//           {fields.map((field, index) => (
-//             <div key={field.id} className="flex gap-2 mb-2">
-//               <input
-//                 type="text"
-//                 {...register(`technologies.${index}` as const)}
-//                 className="flex-1 border px-3 py-2 rounded"
-//               />
-//               <button
-//                 type="button"
-//                 onClick={() => remove(index)}
-//                 className="text-red-500 font-semibold"
-//               >
-//                 Remove
-//               </button>
-//             </div>
-//           ))}
-//           <button
-//             type="button"
-//             onClick={() => append("")}
-//             className="text-blue-500 text-sm font-medium"
-//           >
-//             + Add Technology
-//           </button>
-//           {errors.technologies && (
-//             <p className="text-red-500 text-sm mt-1">
-//               {errors.technologies.message as string}
-//             </p>
-//           )}
-//         </div>
-
-//         <button
-//           type="submit"
-//           className="bg-indigo-600 text-white px-4 py-2 rounded w-full hover:bg-indigo-700"
-//         >
-//           Update Project
-//         </button>
-//       </form>
-//     </BaseModal>
-//   );
-// }
+export default EditProjectModal;

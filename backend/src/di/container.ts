@@ -171,14 +171,7 @@ import jobModal, { IJob } from "../models/job.modal";
 import commentModal, { IComment } from "../models/comment.modal";
 import { IStripeController } from "../interfaces/controllers/IStripeController";
 import { IStripeService } from "../interfaces/services/IStripeService";
-import {
-  CloudinaryService,
-  ICloudinaryService,
-} from "../services/ClaudinaryService";
-import {
-  CloudinaryController,
-  ICloudinaryController,
-} from "../controllers/CloudinaryController";
+
 import skillModal, { ISkill } from "../models/skill.modal";
 import { IMediaController } from "../interfaces/controllers/IMediaController";
 // import { MediaController } from "../controllers/MediaController";
@@ -468,15 +461,10 @@ container
     TYPES.JobApplicantManagementController
   )
   .to(JobApplicantManagementController);
-container
-  .bind<ICloudinaryService>(TYPES.CloudinaryService)
-  .to(CloudinaryService);
-container
-  .bind<ICloudinaryController>(TYPES.CloudinaryController)
-  .to(CloudinaryController);
+
 // di/container.ts
 // container.bind<IUserMapper>(TYPES.UserMapper).to(UserMapper);
-container.bind<IUserMapper>(TYPES.UserMapper).to(UserMapper)
+container.bind<IUserMapper>(TYPES.UserMapper).to(UserMapper);
 
 // media
 // container.bind<IMediaController>(TYPES.MediaController).to(MediaController);

@@ -2,7 +2,7 @@ import React from "react";
 import { X } from "lucide-react";
 import Avatar from "../../ui/Avatar";
 import { Link } from "react-router-dom";
-import { SecureCloudinaryImage } from "../../../../../components/SecureCloudinaryImage";
+// import { SecureCloudinaryImage } from "../../../../../components/SecureCloudinaryImage";
 import { LikeResponseDTO } from "../../../types/commentlike";
 // interface LikeResponseDTO {
 //     _id: string;
@@ -14,7 +14,6 @@ import { LikeResponseDTO } from "../../../types/commentlike";
 //         profilePicture: string;
 //     };
 // }
-
 
 interface PostLikesModalProps {
   likes: LikeResponseDTO[];
@@ -73,7 +72,7 @@ const PostLikesModal: React.FC<PostLikesModalProps> = ({
                       alt={like.user?.name || "User"}
                       size="sm"
                     />
-                    
+
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                         {like.user?.name || "Unknown User"}

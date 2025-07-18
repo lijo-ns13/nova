@@ -9,7 +9,7 @@ import { Bell, Check, Loader2, RefreshCw } from "lucide-react";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
 import { NotificationSkeleton } from "../componets/NotificationSkeleton";
 import { Notification as Noty } from "../../../types/notification";
-import { SecureCloudinaryImage } from "../../../components/SecureCloudinaryImage";
+// import { SecureCloudinaryImage } from "../../../components/SecureCloudinaryImage";
 dayjs.extend(relativeTime);
 
 const PAGE_SIZE = 15;
@@ -235,17 +235,17 @@ const NotificationPage: React.FC = () => {
               >
                 <div className="flex-shrink-0 mt-1">
                   {notif.senderId?.profilePicture ? (
-                    // <img
-                    //   src={notif.senderId.profilePicture}
-                    //   alt={notif.senderId.name}
-                    //   className="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-gray-800"
-                    // />
-                    <SecureCloudinaryImage
-                      publicId={notif.senderId.profilePicture}
+                    <img
+                      src={notif.senderId.profilePicture || "/default.png"}
                       alt={notif.senderId.name}
                       className="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-gray-800"
                     />
                   ) : (
+                    // <SecureCloudinaryImage
+                    //   publicId={notif.senderId.profilePicture}
+                    //   alt={notif.senderId.name}
+                    //   className="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-gray-800"
+                    // />
                     <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-300 font-medium">
                       {notif.senderId?.name
                         ? notif.senderId.name.charAt(0).toUpperCase()

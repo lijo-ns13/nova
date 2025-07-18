@@ -44,7 +44,11 @@ export default function AddEducationModal({
 
   const onSubmit = async (data: CreateEducationInputDTO) => {
     try {
-      await addEducation(id, data);
+      const cleanedData = {
+        ...data,
+        endDate: data.endDate?.trim() === "" ? undefined : data.endDate,
+      };
+      await addEducation(id, cleanedData);
       toast.success("Education added successfully");
       onEducationAdded();
       handleClose();
