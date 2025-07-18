@@ -168,34 +168,11 @@ export class CompanyInterviewService implements ICompanyInterviewService {
 
   async getUpcomingAcceptedInterviews(
     companyId: string
-  ): Promise<UpcomingInterviewResponseDTO[]> {
+  ): Promise<IInterview[]> {
     const interviews = await this._interviewRepo.findByCompanyIdforPop(
       companyId
     );
-
-    const result: UpcomingInterviewResponseDTO[] = [];
-
-    for (const interview of interviews) {
-      const application = await this._applicationRepo.findById(
-        interview.applicationId.toString()
-      );
-      if (!application) continue;
-
-      const user = await this._userRepo.findById(application.user.toString());
-      const job = await this._jobRepo.findById(application.job.toString());
-      if (!user || !job) continue;
-
-      result.push(
-        InterviewMapper.toUpcomingDTO(
-          interview,
-          user,
-          job,
-          application._id.toString()
-        )
-      );
-    }
-
-    return result;
+    return interviews;
   }
 }
 function uuid4() {

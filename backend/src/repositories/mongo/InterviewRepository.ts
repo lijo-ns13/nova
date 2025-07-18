@@ -88,4 +88,18 @@ export class InterviewRepository
 
     return Interview.findOne(filter).exec();
   }
+  async findUpcomingWithApplication(companyId: string): Promise<IInterview[]> {
+    return this.model
+      .find({
+        companyId: new Types.ObjectId(companyId),
+        scheduledAt: { $gte: new Date() },
+      })
+      .populate({
+        path: "applicationId",
+        model: "Application",
+        select: "status job user",
+      })
+      .sort({ scheduledAt: 1 })
+      .exec();
+  }
 }

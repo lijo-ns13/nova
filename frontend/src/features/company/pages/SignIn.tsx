@@ -11,7 +11,6 @@ import socket from "../../../socket/socket";
 
 import SiteInfoNav from "../../../components/SiteInfoNav";
 import SiteInfoFooter from "../../../components/SiteInfoFooter";
-import Googlebutton from "../../user/componets/GoogleButton";
 
 const signInSchema = z.object({
   email: z.string().email("Invalid email format"),
@@ -248,7 +247,7 @@ function SignInPage() {
           </div>
         </div>
 
-        <Googlebutton />
+        {/* <Googlebutton /> */}
       </div>
       <SiteInfoFooter />
     </div>

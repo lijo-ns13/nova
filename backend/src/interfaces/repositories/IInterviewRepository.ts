@@ -22,4 +22,5 @@ export interface IInterviewRepository extends IBaseRepository<IInterview> {
     slot: Date,
     excludeInterviewId?: string
   ): Promise<IInterview | null>;
+  findUpcomingWithApplication(companyId: string): Promise<IInterview[]>;
 }

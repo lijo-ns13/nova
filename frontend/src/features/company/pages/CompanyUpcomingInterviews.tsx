@@ -1,15 +1,11 @@
-// InterviewListPage.tsx
 import React, { useEffect, useState } from "react";
 import {
-  Avatar,
   Box,
   Button,
   Card,
   CardContent,
   CardHeader,
-  Chip,
   CircularProgress,
-  Divider,
   Pagination,
   Paper,
   Stack,
@@ -21,7 +17,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Person, AccessTime, VideoCall } from "@mui/icons-material";
+import { Person, VideoCall } from "@mui/icons-material";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import {
@@ -32,9 +28,7 @@ import {
 const ITEMS_PER_PAGE = 5;
 
 const CompanyUpcomingInterviews: React.FC = () => {
-  const [interviews, setInterviews] = useState<UpcomingInterviewResponseDTO[]>(
-    []
-  );
+  const [interviews, setInterviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -43,7 +37,6 @@ const CompanyUpcomingInterviews: React.FC = () => {
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
-        setLoading(true);
         const data = await companyInterviewService.getUpcomingInterviews();
         setInterviews(data);
         setError(null);
@@ -119,7 +112,7 @@ const CompanyUpcomingInterviews: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
+      <Typography variant="h4" gutterBottom>
         Upcoming Interviews
       </Typography>
 
@@ -131,8 +124,7 @@ const CompanyUpcomingInterviews: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Candidate</TableCell>
-              <TableCell>Job Position</TableCell>
+              <TableCell>User</TableCell>
               <TableCell>Interview Time</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -141,48 +133,12 @@ const CompanyUpcomingInterviews: React.FC = () => {
             {paginatedInterviews.map((interview) => (
               <TableRow key={interview.id}>
                 <TableCell>
-                  <Box display="flex" alignItems="center">
-                    <Avatar
-                      src={interview.user.profilePicture}
-                      alt={interview.user.name}
-                      sx={{ mr: 2 }}
-                    />
-                    <Box>
-                      <Typography variant="subtitle1">
-                        {interview.user.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {interview.user.email}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </TableCell>
-                <TableCell>
                   <Typography variant="subtitle1">
-                    {interview.job.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {interview.job.location} • {interview.job.jobType}
+                    {interview.applicationId.user.name}
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <Typography>
-                    {format(new Date(interview.interviewTime), "PPpp")}
-                  </Typography>
-                  <Chip
-                    label={
-                      new Date(interview.interviewTime) > new Date()
-                        ? "Upcoming"
-                        : "Started"
-                    }
-                    color={
-                      new Date(interview.interviewTime) > new Date()
-                        ? "primary"
-                        : "success"
-                    }
-                    size="small"
-                    sx={{ mt: 1 }}
-                  />
+                  {format(new Date(interview.scheduledAt), "PPpp")}
                 </TableCell>
                 <TableCell>
                   <Stack direction="row" spacing={1}>
@@ -191,7 +147,7 @@ const CompanyUpcomingInterviews: React.FC = () => {
                       size="small"
                       startIcon={<Person />}
                       onClick={() =>
-                        handleViewApplication(interview.applicationId)
+                        handleViewApplication(interview.applicationId._id)
                       }
                     >
                       Application
@@ -201,7 +157,7 @@ const CompanyUpcomingInterviews: React.FC = () => {
                       size="small"
                       startIcon={<VideoCall />}
                       onClick={() => handleStartInterview(interview.roomId)}
-                      disabled={new Date(interview.interviewTime) > new Date()}
+                      disabled={new Date(interview.scheduledAt) > new Date()}
                     >
                       Join
                     </Button>
@@ -217,82 +173,31 @@ const CompanyUpcomingInterviews: React.FC = () => {
       <Box sx={{ display: { xs: "block", md: "none" } }}>
         {paginatedInterviews.map((interview) => (
           <Card key={interview.id} sx={{ mb: 2 }}>
-            <CardHeader
-              avatar={
-                <Avatar
-                  src={interview.user.profilePicture}
-                  alt={interview.user.name}
-                />
-              }
-              title={interview.user.name}
-              subheader={interview.user.email}
-            />
+            <CardHeader title={`@${interview.companyId}`} />
             <CardContent>
-              <Stack spacing={2}>
-                <Box>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Job Position
-                  </Typography>
-                  <Typography variant="body1">{interview.job.title}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {interview.job.location} • {interview.job.jobType}
-                  </Typography>
-                </Box>
-                <Box>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Interview Time
-                  </Typography>
-                  <Box display="flex" alignItems="center">
-                    <AccessTime fontSize="small" sx={{ mr: 1 }} />
-                    <Typography>
-                      {format(new Date(interview.interviewTime), "PPpp")}
-                    </Typography>
-                  </Box>
-                  <Chip
-                    label={
-                      new Date(interview.interviewTime) > new Date()
-                        ? "Upcoming"
-                        : "Started"
-                    }
-                    color={
-                      new Date(interview.interviewTime) > new Date()
-                        ? "primary"
-                        : "success"
-                    }
-                    size="small"
-                    sx={{ mt: 1 }}
-                  />
-                </Box>
-
-                <Divider />
-
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  justifyContent="space-between"
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                {format(new Date(interview.scheduledAt), "PPpp")}
+              </Typography>
+              <Stack direction="row" spacing={1}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() =>
+                    handleViewApplication(interview.applicationId._id)
+                  }
+                  fullWidth
                 >
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<Person />}
-                    onClick={() =>
-                      handleViewApplication(interview.applicationId)
-                    }
-                    fullWidth
-                  >
-                    Application
-                  </Button>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    startIcon={<VideoCall />}
-                    onClick={() => handleStartInterview(interview.roomId)}
-                    disabled={new Date(interview.interviewTime) > new Date()}
-                    fullWidth
-                  >
-                    Join
-                  </Button>
-                </Stack>
+                  Application
+                </Button>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => handleStartInterview(interview.roomId)}
+                  disabled={new Date(interview.scheduledAt) > new Date()}
+                  fullWidth
+                >
+                  Join
+                </Button>
               </Stack>
             </CardContent>
           </Card>
