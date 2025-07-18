@@ -16,7 +16,7 @@ export interface IInterview extends Document {
 
 const InterviewSchema = new Schema<IInterview>(
   {
-    companyId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    companyId: { type: Schema.Types.ObjectId, ref: "Company", required: true },
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     applicationId: {
       type: Schema.Types.ObjectId,

@@ -4,6 +4,7 @@ import { JobResponseDto } from "../core/dtos/company/job.dto";
 import { ICompany } from "../models/company.modal";
 import { IJob } from "../models/job.modal";
 import { ISkill } from "../models/skill.modal";
+import { IJobWithCompanyAndSkills } from "./user/jobmapper";
 export interface IJobWithSkills extends Omit<IJob, "skillsRequired"> {
   skillsRequired: ISkill[];
 }
@@ -33,7 +34,9 @@ export const JobMapper = {
       updatedAt: job.updatedAt,
     };
   },
-  toResponseWithSkillDto(job: IJobWithSkills): JobResponseDto {
+  toResponseWithSkillDto(
+    job: IJobWithSkills | IJobWithCompanyAndSkills
+  ): JobResponseDto {
     return {
       id: job._id.toString(),
       title: job.title,

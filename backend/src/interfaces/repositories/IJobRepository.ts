@@ -73,7 +73,7 @@ export interface IJobRepository extends IBaseRepository<IJob> {
     page: number,
     limit: number
   ): Promise<{ jobs: IJobWithSkills[]; total: number }>;
-  getJob(jobId: string): Promise<IJobWithCompanyAndSkills | null>;
+  getJob(jobId: string): Promise<any>;
   getAllJobs(
     page: number,
     limit: number,

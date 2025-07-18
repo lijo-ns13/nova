@@ -48,7 +48,7 @@ export class InterviewRepository
   async findByCompanyIdforPop(companyId: string): Promise<IInterview[]> {
     return this.model
       .find({
-        companyId,
+        companyId: new Types.ObjectId(companyId),
         scheduledAt: { $gte: new Date() },
       })
       .populate({

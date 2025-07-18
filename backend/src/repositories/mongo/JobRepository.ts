@@ -101,7 +101,7 @@ export class JobRepository
     return { jobs, total };
   }
 
-  async getJob(jobId: string): Promise<IJobWithCompanyAndSkills | null> {
+  async getJob(jobId: string): Promise<any> {
     return await jobModal
       .findById(jobId)
       .populate<{ skillsRequired: ISkill[] }>("skillsRequired")
