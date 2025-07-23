@@ -12,6 +12,7 @@ import {
   UpdateInterviewStatusRescheduledSchema,
   UpdateInterviewStatusRescheduleParamsSchema,
 } from "../../core/validations/user/userinterview.schema";
+import { USER_MESSAGES } from "../../constants/message.constants";
 
 @injectable()
 export class UserInterviewController {
@@ -35,14 +36,14 @@ export class UserInterviewController {
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Interview status updated",
+        message: USER_MESSAGES.USER_INTERVIEW.SUCCESS.UPDATED,
         data: updated,
       });
     } catch (error) {
       handleControllerError(
         error,
         res,
-        "UserInterviewController.updateInterviewStatus"
+        USER_MESSAGES.USER_INTERVIEW.ERROR.UPDATE_FAILED
       );
     }
   }
@@ -69,14 +70,14 @@ export class UserInterviewController {
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Interview reschedule status updated",
+        message: USER_MESSAGES.USER_INTERVIEW.SUCCESS.RESCHEDULED,
         data: updated,
       });
     } catch (error) {
       handleControllerError(
         error,
         res,
-        "UserInterviewController.updateInterviewStatusRescheduled"
+        USER_MESSAGES.USER_INTERVIEW.ERROR.RESCHEDULE_FAILED
       );
     }
   }
@@ -94,14 +95,14 @@ export class UserInterviewController {
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Reschedule slots retrieved",
+        message: USER_MESSAGES.USER_INTERVIEW.SUCCESS.GET_RESCHEDULED_SLOTS,
         data: slots,
       });
     } catch (error) {
       handleControllerError(
         error,
         res,
-        "UserInterviewController.getRescheduleSlots"
+        USER_MESSAGES.USER_INTERVIEW.ERROR.FETCH_SLOTS_FAILED
       );
     }
   }
