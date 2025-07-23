@@ -4,7 +4,7 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { IUserInterviewService } from "../../interfaces/services/IUserInterviewService";
-import { IEmailService } from "../../interfaces/services/IEmailService";
+import { UserPayload } from "../../constants/userPayload";
 import { ApplicationStatus } from "../../models/application.modal";
 import { handleControllerError } from "../../utils/errorHandler";
 import {
@@ -12,11 +12,7 @@ import {
   UpdateInterviewStatusRescheduledSchema,
   UpdateInterviewStatusRescheduleParamsSchema,
 } from "../../core/validations/user/userinterview.schema";
-interface UserPayload {
-  id: string;
-  email: string;
-  role: string;
-}
+
 @injectable()
 export class UserInterviewController {
   constructor(
