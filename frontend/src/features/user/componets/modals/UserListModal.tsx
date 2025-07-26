@@ -73,7 +73,7 @@ const UserListModal: React.FC<UserListModalProps> = ({
 
                     <div>
                       <p className="font-medium text-gray-900">
-                        {user.user.name}
+                        {"checking woring"}
                       </p>
                       {user.user.username && (
                         <p className="text-sm text-gray-500">

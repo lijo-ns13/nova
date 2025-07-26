@@ -1,5 +1,3 @@
-import { TransactionRepository } from "../repositories/mongo/TransactionRepository";
-
 export const TYPES = {
   // Repositories
   UserModal: Symbol.for("UserModal"),
