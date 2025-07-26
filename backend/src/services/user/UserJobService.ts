@@ -2,21 +2,16 @@ import { inject } from "inversify";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { IUserJobService } from "../../interfaces/services/IUserJobService";
 import { TYPES } from "../../di/types";
-import { IJob } from "../../models/job.modal";
 import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
-import {
-  ApplicationStatus,
-  IApplication,
-} from "../../models/application.modal";
+import { ApplicationStatus } from "../../models/application.modal";
 import { INotificationService } from "../../interfaces/services/INotificationService";
-import mongoose, { Types } from "mongoose";
 import { NotificationType } from "../../models/notification.modal";
 import { GetAllJobsQueryInput } from "../../core/validations/user/user.jobschema";
 import { JobResponseDTO, UserJobMapper } from "../../mapping/user/jobmapper";
-import { JobMapper } from "../../mapping/job.mapper";
 import { IAppliedJob } from "../../repositories/mongo/ApplicationRepository";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 export interface AppliedJobDTO {
   _id: string;
   job: {
@@ -115,7 +110,7 @@ export class UserJobService implements IUserJobService {
     const job = await this._jobRepository.getJob(jobId);
 
     if (!job) {
-      throw new Error("Job not found");
+      throw new Error(COMMON_MESSAGES.JOB_NOT_FOUND);
     }
 
     return UserJobMapper.toGetJobResponse(job);
@@ -132,7 +127,7 @@ export class UserJobService implements IUserJobService {
     resumeFile: Express.Multer.File
   ): Promise<void> {
     const user = await this._userRepository.findById(userId);
-    if (!user) throw new Error("user not found");
+    if (!user) throw new Error(COMMON_MESSAGES.USER_NOT_FOUND);
 
     const maxFree = parseInt(process.env.FREE_JOB_APPLY_COUNT || "5", 10);
     const hasValidSubscription =
@@ -141,7 +136,7 @@ export class UserJobService implements IUserJobService {
       user.subscriptionEndDate > new Date();
 
     if (!hasValidSubscription && user.appliedJobCount >= maxFree) {
-      throw new Error("free tier limit ended");
+      throw new Error(COMMON_MESSAGES.FREETIER_LIMIT_ENDED);
     }
 
     const [mediaId] = await this._mediaService.uploadMedia(
@@ -156,7 +151,7 @@ export class UserJobService implements IUserJobService {
       resumeMediaId: mediaId,
     });
 
-    if (!application) throw new Error("application not found");
+    if (!application) throw new Error(COMMON_MESSAGES.APPLICATION_NOT_FOUND);
 
     await this._userRepository.addToAppliedJobs(userId, jobId);
     await this._userRepository.updateUser(userId, {
@@ -164,7 +159,7 @@ export class UserJobService implements IUserJobService {
     });
 
     const job = await this._jobRepository.findById(jobId);
-    if (!job) throw new Error("job not found");
+    if (!job) throw new Error(COMMON_MESSAGES.JOB_NOT_FOUND);
 
     const companyId = job.company;
 
