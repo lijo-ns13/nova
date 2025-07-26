@@ -7,6 +7,8 @@ import {
   unfollowUser,
 } from "../../services/FollowService";
 import { handleApiError } from "../../../../utils/apiError";
+import { UserProfileData } from "../Profile/UserProfile";
+import { Link } from "react-router-dom";
 
 interface UserListModalProps {
   isOpen: boolean;
@@ -15,6 +17,7 @@ interface UserListModalProps {
   users: NetworkUser[];
   currentUserId: string;
   refetch: () => void;
+  setUserData?: React.Dispatch<React.SetStateAction<UserProfileData>>;
 }
 
 const UserListModal: React.FC<UserListModalProps> = ({
@@ -24,9 +27,9 @@ const UserListModal: React.FC<UserListModalProps> = ({
   users,
   currentUserId,
   refetch,
+  setUserData,
 }) => {
   const [pending, setPending] = useState<string | null>(null);
-
   const handleFollowToggle = async (userId: string, isFollowing?: boolean) => {
     try {
       setPending(userId);
@@ -34,15 +37,36 @@ const UserListModal: React.FC<UserListModalProps> = ({
       if (isFollowing) {
         await unfollowUser(userId);
         toast.success("Unfollowed successfully");
+
+        setUserData?.((prev) => {
+          if (!prev) return prev;
+
+          return {
+            ...prev,
+            followingCount: isFollowing
+              ? Math.max(prev.followingCount - 1, 0)
+              : prev.followingCount,
+          };
+        });
       } else {
         await followUser(userId);
         toast.success("Followed successfully");
+
+        setUserData?.((prev) => {
+          if (!prev) return prev;
+
+          return {
+            ...prev,
+            followingCount: !isFollowing
+              ? prev.followingCount + 1
+              : prev.followingCount,
+          };
+        });
       }
 
-      refetch(); // refresh user list
+      refetch(); // Refresh user list (optional)
     } catch (error) {
-      const parsed = handleApiError(error, "Follow action failed");
-      toast.error(parsed.message || "Unable to toggle follow status");
+      handleApiError(error);
     } finally {
       setPending(null);
     }
@@ -71,21 +95,23 @@ const UserListModal: React.FC<UserListModalProps> = ({
                       className="w-10 h-10 rounded-full object-cover"
                     />
 
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        {user.user.name}
-                      </p>
-                      {user.user.username && (
-                        <p className="text-sm text-gray-500">
-                          @{user.user.username}
+                    <Link to={`/in/${user.user.username}`}>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {user.user.name}
                         </p>
-                      )}
-                      {user.user.headline && (
-                        <p className="text-sm text-gray-500">
-                          {user.user.headline}
-                        </p>
-                      )}
-                    </div>
+                        {user.user.username && (
+                          <p className="text-sm text-gray-500">
+                            @{user.user.username}
+                          </p>
+                        )}
+                        {user.user.headline && (
+                          <p className="text-sm text-gray-500">
+                            {user.user.headline}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
                   </div>
 
                   {/* follow/unfollow button */}

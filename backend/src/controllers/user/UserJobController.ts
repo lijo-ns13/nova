@@ -7,12 +7,11 @@ import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { IUserJobController } from "../../interfaces/controllers/IUserJobController";
 import { handleControllerError } from "../../utils/errorHandler";
 import { GetAllJobsQuerySchema } from "../../core/validations/user/user.jobschema";
-
-interface UserPayload {
-  id: string;
-  email: string;
-  role: string;
-}
+import { UserPayload } from "../../constants/userPayload";
+import {
+  COMMON_MESSAGES,
+  USER_MESSAGES,
+} from "../../constants/message.constants";
 
 @injectable()
 export class UserJobController implements IUserJobController {
@@ -27,7 +26,7 @@ export class UserJobController implements IUserJobController {
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Jobs fetched successfully",
+        message: USER_MESSAGES.JOB.SUCCESS.JOB_ALL_FETCH,
         data: {
           jobs: result.jobs,
           pagination: {
@@ -39,7 +38,11 @@ export class UserJobController implements IUserJobController {
         },
       });
     } catch (error) {
-      handleControllerError(error, res, "UserJobController.getAllJobs");
+      handleControllerError(
+        error,
+        res,
+        USER_MESSAGES.JOB.ERROR.FAILED_JOBALLFETCH
+      );
     }
   };
   getJob: RequestHandler = async (req: Request, res: Response) => {
@@ -50,11 +53,15 @@ export class UserJobController implements IUserJobController {
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Job fetched successfully",
-        data: job, // already mapped via toResponseWithSkillDto
+        message: USER_MESSAGES.JOB.SUCCESS.JOB_FETCH,
+        data: job,
       });
     } catch (error) {
-      handleControllerError(error, res, "UserJobController.getJob");
+      handleControllerError(
+        error,
+        res,
+        USER_MESSAGES.JOB.ERROR.FAILED_JOBFETCH
+      );
     }
   };
   getAppliedJobs: RequestHandler = async (req: Request, res: Response) => {
@@ -64,11 +71,15 @@ export class UserJobController implements IUserJobController {
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Applied jobs fetched successfully",
+        message: USER_MESSAGES.JOB.SUCCESS.APPLIED_JOB_FETCH,
         data,
       });
     } catch (error) {
-      handleControllerError(error, res, "UserJobController.getAppliedJobs");
+      handleControllerError(
+        error,
+        res,
+        USER_MESSAGES.JOB.ERROR.FAILED_APPLIEDJOBFETCH
+      );
     }
   };
 
@@ -81,7 +92,7 @@ export class UserJobController implements IUserJobController {
       if (!userId) {
         res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
           success: false,
-          message: "User not authenticated",
+          message: COMMON_MESSAGES.NOT_AUTHORIZED,
           data: false,
         });
         return;
@@ -90,7 +101,7 @@ export class UserJobController implements IUserJobController {
       if (!resumeFile) {
         res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
           success: false,
-          message: "Resume file is required",
+          message: COMMON_MESSAGES.RESUME_FILE_REQUIRED,
           data: false,
         });
         return;
@@ -99,7 +110,7 @@ export class UserJobController implements IUserJobController {
       if (resumeFile.mimetype !== "application/pdf") {
         res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
           success: false,
-          message: "Only PDF files are accepted for resumes",
+          message: COMMON_MESSAGES.ONLY_PDF,
           data: false,
         });
         return;
@@ -109,11 +120,15 @@ export class UserJobController implements IUserJobController {
 
       res.status(HTTP_STATUS_CODES.CREATED).json({
         success: true,
-        message: "Job application submitted successfully",
+        message: USER_MESSAGES.JOB.SUCCESS.APPLY_JOB,
         data: true,
       });
     } catch (error) {
-      handleControllerError(error, res, "JobApplicationController.applyToJob");
+      handleControllerError(
+        error,
+        res,
+        USER_MESSAGES.JOB.ERROR.FAILED_JOBAPPLY
+      );
     }
   };
 
@@ -128,7 +143,7 @@ export class UserJobController implements IUserJobController {
       if (!userId) {
         res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
           success: false,
-          message: "User not authenticated",
+          message: COMMON_MESSAGES.NOT_AUTHORIZED,
         });
         return;
       }
@@ -137,11 +152,15 @@ export class UserJobController implements IUserJobController {
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Application status retrieved successfully",
+        message: USER_MESSAGES.JOB.SUCCESS.CHECK_APPLICATION_STATUS,
         data: hasApplied,
       });
     } catch (error) {
-      handleControllerError(error, res, "checkApplicationStatus");
+      handleControllerError(
+        error,
+        res,
+        USER_MESSAGES.JOB.ERROR.FAILED_CHECK_APPLICATION_STATUS
+      );
     }
   };
 }

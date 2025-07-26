@@ -21,6 +21,10 @@ import {
   ApplicationMapper,
   ApplicationStatusResponseDTO,
 } from "../../mapping/user/userapplication.mapper";
+import {
+  COMMON_MESSAGES,
+  USER_INTERVIEW_MESSAGES,
+} from "../../constants/message.constants";
 export class UserInterviewService implements IUserInterviewService {
   private logger = logger.child({ context: "userinterviewService" });
   constructor(
@@ -46,34 +50,33 @@ export class UserInterviewService implements IUserInterviewService {
       status !== ApplicationStatus.INTERVIEW_REJECTED_BY_USER &&
       status !== ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER
     ) {
-      throw new Error("Only user can accept or reject interview");
+      throw new Error(USER_INTERVIEW_MESSAGES.USER_RESPONSE_INTERVIEW);
     }
 
     const application = await this._applicationRepo.findById(applicationId);
-    console.log("application", application, "jlkdsf");
     if (!application) {
-      throw new Error("Application not found");
+      throw new Error(COMMON_MESSAGES.APPLICATION_NOT_FOUND);
     }
     const userId = application.user;
 
     if (!userId) {
-      throw new Error("userId not found");
+      throw new Error(COMMON_MESSAGES.USERID_NOT_FOUND);
     }
     const user = await this._userRepo.findById(userId.toString());
     if (!user) {
-      throw new Error("user not found");
+      throw new Error(COMMON_MESSAGES.USER_NOT_FOUND);
     }
     const { name, _id } = user;
     const jobId = application.job;
-    console.log("jobid", jobId);
+
     if (!jobId) {
-      throw new Error("jobId not found");
+      throw new Error(COMMON_MESSAGES.JOBID_NOT_FOUND);
     }
     const job = await this._jobRepo.findById(jobId.toString());
-    console.log(job, "jobdatajlkdsfjlkdsfjlkdsfjlkdfsjlk");
+
     const companyId = job?.company;
     if (!companyId) {
-      throw new Error("companyId not found");
+      throw new Error(COMMON_MESSAGES.COMPANYID_NOT_FOUND);
     }
     await this.notificationService.sendNotification(
       companyId.toString(),
@@ -91,7 +94,7 @@ export class UserInterviewService implements IUserInterviewService {
         userId,
       });
       if (!interview) {
-        throw new Error("Interview not found for this application");
+        throw new Error(COMMON_MESSAGES.INTERVIEW_NOT_FOUND);
       }
 
       await this._emailService.sendInterviewLink(
@@ -105,7 +108,7 @@ export class UserInterviewService implements IUserInterviewService {
       status
     );
     if (!updated) {
-      throw new Error("Application failed updation");
+      throw new Error(COMMON_MESSAGES.APPLICATION_FAILED_UPDATE);
     }
     return ApplicationMapper.toStatusResponseDTO(updated);
   }
@@ -118,29 +121,30 @@ export class UserInterviewService implements IUserInterviewService {
     email?: string
   ): Promise<ApplicationStatusResponseDTO> {
     const application = await this._applicationRepo.findById(applicationId);
-    if (!application) throw new Error("Application not found");
+    if (!application) throw new Error(COMMON_MESSAGES.APPLICATION_NOT_FOUND);
 
     const user = await this._userRepo.findById(application.user.toString());
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error(COMMON_MESSAGES.USER_NOT_FOUND);
 
     const job = await this._jobRepo.findById(application.job.toString());
-    if (!job) throw new Error("Job not found");
+    if (!job) throw new Error(COMMON_MESSAGES.JOB_NOT_FOUND);
 
     const companyId = job.company;
-    if (!companyId) throw new Error("Company ID not found");
+    if (!companyId) throw new Error(COMMON_MESSAGES.COMPANYID_NOT_FOUND);
 
     const interview = await this._interviewRepo.findOne({
       applicationId,
       userId: user._id,
       status: "reschedule_proposed",
     });
-    if (!interview) throw new Error("No reschedule proposal found");
+    if (!interview)
+      throw new Error(USER_INTERVIEW_MESSAGES.NO_RESCHEDULE_FOUND);
 
     let updatedApp: IApplication | null = null;
 
     if (status === ApplicationStatus.INTERVIEW_RESCHEDULE_ACCEPTED) {
       if (!selectedSlot) {
-        throw new Error("Selected slot is required when accepting reschedule");
+        throw new Error(USER_INTERVIEW_MESSAGES.SELECTED_SLOTS_REQUIRED);
       }
 
       const selectedDate = new Date(selectedSlot);
@@ -149,7 +153,7 @@ export class UserInterviewService implements IUserInterviewService {
       );
 
       if (!isSlotValid) {
-        throw new Error("Selected slot is not one of the proposed slots");
+        throw new Error(USER_INTERVIEW_MESSAGES.SELECTED_SLOT_MISMATCH);
       }
 
       await this._interviewRepo.update(interview._id.toString(), {
@@ -209,11 +213,13 @@ export class UserInterviewService implements IUserInterviewService {
         user._id.toString()
       );
     } else {
-      throw new Error("Invalid status for reschedule response");
+      throw new Error(
+        USER_INTERVIEW_MESSAGES.INVALID_STATUS_RESCHEDULE_RESPONSE
+      );
     }
 
     if (!updatedApp) {
-      throw new Error("Application update failed");
+      throw new Error(COMMON_MESSAGES.APPLICATION_FAILED_UPDATE);
     }
 
     return ApplicationMapper.toStatusResponseDTO(updatedApp);

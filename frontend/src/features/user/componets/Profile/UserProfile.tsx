@@ -12,11 +12,24 @@ import toast from "react-hot-toast";
 import UserListModal from "../modals/UserListModal";
 import { getFollowers, getFollowing } from "../../services/FollowService";
 import { handleApiError } from "../../../../utils/apiError";
+export interface UserProfileData {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  headline: string;
+  about: string;
+  profilePicture: string;
+  followersCount: number;
+  followingCount: number;
+  appliedJobCount: number;
+  createdPostCount: number;
+}
 
 function UserProfile() {
   const dispatch = useAppDispatch();
   const { id: userId } = useAppSelector((state) => state.auth);
-  const [userData, setUserData] = useState({
+  const [userData, setUserData] = useState<UserProfileData>({
     id: "",
     name: "",
     username: "",
@@ -24,15 +37,13 @@ function UserProfile() {
     headline: "",
     about: "",
     profilePicture: "",
-    followersCount: "",
-    followingCount: "",
-    appliedJobCount: "",
-    createdPostCount: "",
+    followersCount: 0,
+    followingCount: 0,
+    appliedJobCount: 0,
+    createdPostCount: 0,
   });
   const [updatingUserData, setUpdatingUserData] = useState(userData);
   const [isLoading, setIsLoading] = useState(false);
-  const [followingCount, setFollowingCount] = useState<number>(0);
-  const [followersCount, setFollowersCount] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -53,10 +64,7 @@ function UserProfile() {
     try {
       const response = await getUserProfile(userId);
       const res = response.data;
-      console.log("ressslkdlkjsdfjlkdsf", res);
       if (res) {
-        setFollowersCount(res.followersCount || 0);
-        setFollowingCount(res.followingCount || 0);
         setUserData({
           id: res.id,
           name: res.name,
@@ -155,12 +163,6 @@ function UserProfile() {
     if (modalType) {
       await fetchUsers(modalType);
     }
-    // Refresh counts
-    const res = await getUserProfile(userId);
-    if (res) {
-      setFollowersCount(res.followers.length || 0);
-      setFollowingCount(res.following.length || 0);
-    }
   };
 
   if (isLoading) {
@@ -239,13 +241,15 @@ function UserProfile() {
                   onClick={handleFollowersClick}
                   className="text-white hover:underline cursor-pointer"
                 >
-                  <span className="font-bold">{followersCount}</span> Followers
+                  <span className="font-bold">{userData.followersCount}</span>{" "}
+                  Followers
                 </button>
                 <button
                   onClick={handleFollowingClick}
                   className="text-white hover:underline cursor-pointer"
                 >
-                  <span className="font-bold">{followingCount}</span> Following
+                  <span className="font-bold">{userData.followingCount}</span>{" "}
+                  Following
                 </button>
               </div>
               <p className="text-indigo-100 text-lg md:text-xl">
@@ -429,6 +433,7 @@ function UserProfile() {
         users={users}
         currentUserId={userId}
         refetch={refetchUsers}
+        setUserData={setUserData}
       />
     </div>
   );

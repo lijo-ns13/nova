@@ -20,9 +20,9 @@ import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 export class UserFollowService implements IUserFollowService {
   constructor(
     @inject(TYPES.UserRepository)
-    private userRepository: IUserRepository,
+    private _userRepository: IUserRepository,
     @inject(TYPES.NotificationService)
-    private notificationService: INotificationService,
+    private _notificationService: INotificationService,
     @inject(TYPES.MediaService) private _mediaService: IMediaService
   ) {}
 
@@ -34,7 +34,7 @@ export class UserFollowService implements IUserFollowService {
       throw new Error("You cannot follow yourself");
     }
 
-    const alreadyFollowing = await this.userRepository.isFollowing(
+    const alreadyFollowing = await this._userRepository.isFollowing(
       followerId,
       followingId
     );
@@ -42,7 +42,7 @@ export class UserFollowService implements IUserFollowService {
       throw new Error("You are already following this user");
     }
 
-    const { follower, following } = await this.userRepository.followUser(
+    const { follower, following } = await this._userRepository.followUser(
       followerId,
       followingId
     );
@@ -51,9 +51,9 @@ export class UserFollowService implements IUserFollowService {
       throw new Error("Failed to follow user");
     }
 
-    const followerUser = await this.userRepository.findById(followerId);
+    const followerUser = await this._userRepository.findById(followerId);
     if (followerUser) {
-      await this.notificationService.sendNotification(
+      await this._notificationService.sendNotification(
         followingId,
         `${followerUser.name} followed you`,
         NotificationType.FOLLOW,
@@ -72,7 +72,7 @@ export class UserFollowService implements IUserFollowService {
       throw new Error("You cannot unfollow yourself");
     }
 
-    const isFollowing = await this.userRepository.isFollowing(
+    const isFollowing = await this._userRepository.isFollowing(
       followerId,
       followingId
     );
@@ -80,7 +80,7 @@ export class UserFollowService implements IUserFollowService {
       throw new Error("You are not following this user");
     }
 
-    const { follower, following } = await this.userRepository.unfollowUser(
+    const { follower, following } = await this._userRepository.unfollowUser(
       followerId,
       followingId
     );
@@ -97,11 +97,26 @@ export class UserFollowService implements IUserFollowService {
     currentUserId: string
   ): Promise<UserWithStatusDTO[]> {
     const followers: IUserWithStatus[] =
-      await this.userRepository.getFollowersWithFollowingStatus(
+      await this._userRepository.getFollowersWithFollowingStatus(
         targetUserId,
         currentUserId
       );
-    return followers.map(UserFollowMapper.toUserWithStatusDTO);
+
+    return Promise.all(
+      followers.map(async (follower) => {
+        const signedProfilePic = follower.user.profilePicture
+          ? await this._mediaService.getMediaUrl(follower.user.profilePicture)
+          : undefined;
+
+        return UserFollowMapper.toUserWithStatusDTO({
+          ...follower,
+          user: {
+            ...follower.user,
+            profilePicture: signedProfilePic,
+          },
+        });
+      })
+    );
   }
 
   async getFollowing(
@@ -109,15 +124,32 @@ export class UserFollowService implements IUserFollowService {
     currentUserId: string
   ): Promise<UserWithStatusDTO[]> {
     const following: IUserWithStatus[] =
-      await this.userRepository.getFollowingWithFollowingStatus(
+      await this._userRepository.getFollowingWithFollowingStatus(
         targetUserId,
         currentUserId
       );
-    return following.map(UserFollowMapper.toUserWithStatusDTO);
+
+    return Promise.all(
+      following.map(async (followedUser) => {
+        const signedProfilePic = followedUser.user.profilePicture
+          ? await this._mediaService.getMediaUrl(
+              followedUser.user.profilePicture
+            )
+          : undefined;
+
+        return UserFollowMapper.toUserWithStatusDTO({
+          ...followedUser,
+          user: {
+            ...followedUser.user,
+            profilePicture: signedProfilePic,
+          },
+        });
+      })
+    );
   }
 
   async isFollowing(followerId: string, followingId: string): Promise<boolean> {
-    return this.userRepository.isFollowing(followerId, followingId);
+    return this._userRepository.isFollowing(followerId, followingId);
   }
   async getNetworkUsers(
     currentUserId: string,
@@ -126,13 +158,13 @@ export class UserFollowService implements IUserFollowService {
     search: string
   ): Promise<{ users: NetworkUserDTO[]; total: number }> {
     const [{ users: allUsers, total }, followingUsers] = await Promise.all([
-      this.userRepository.getPaginatedUsersExcept(
+      this._userRepository.getPaginatedUsersExcept(
         currentUserId,
         page,
         limit,
         search
       ),
-      this.userRepository.getFollowing(currentUserId),
+      this._userRepository.getFollowing(currentUserId),
     ]);
 
     const followingIds = new Set(followingUsers.map((u) => u._id.toString()));
