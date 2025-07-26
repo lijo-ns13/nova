@@ -101,7 +101,22 @@ export class UserFollowService implements IUserFollowService {
         targetUserId,
         currentUserId
       );
-    return followers.map(UserFollowMapper.toUserWithStatusDTO);
+
+    return Promise.all(
+      followers.map(async (follower) => {
+        const signedProfilePic = follower.user.profilePicture
+          ? await this._mediaService.getMediaUrl(follower.user.profilePicture)
+          : undefined;
+
+        return UserFollowMapper.toUserWithStatusDTO({
+          ...follower,
+          user: {
+            ...follower.user,
+            profilePicture: signedProfilePic,
+          },
+        });
+      })
+    );
   }
 
   async getFollowing(
@@ -113,7 +128,24 @@ export class UserFollowService implements IUserFollowService {
         targetUserId,
         currentUserId
       );
-    return following.map(UserFollowMapper.toUserWithStatusDTO);
+
+    return Promise.all(
+      following.map(async (followedUser) => {
+        const signedProfilePic = followedUser.user.profilePicture
+          ? await this._mediaService.getMediaUrl(
+              followedUser.user.profilePicture
+            )
+          : undefined;
+
+        return UserFollowMapper.toUserWithStatusDTO({
+          ...followedUser,
+          user: {
+            ...followedUser.user,
+            profilePicture: signedProfilePic,
+          },
+        });
+      })
+    );
   }
 
   async isFollowing(followerId: string, followingId: string): Promise<boolean> {
