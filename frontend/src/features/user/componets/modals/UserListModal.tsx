@@ -17,7 +17,7 @@ interface UserListModalProps {
   users: NetworkUser[];
   currentUserId: string;
   refetch: () => void;
-  setUserData: React.Dispatch<React.SetStateAction<UserProfileData>>;
+  setUserData?: React.Dispatch<React.SetStateAction<UserProfileData>>;
 }
 
 const UserListModal: React.FC<UserListModalProps> = ({
