@@ -8,6 +8,7 @@ import {
   UserSummaryDTO,
 } from "../../dtos/response/admin/admin.user.response.dto";
 import logger from "../../utils/logger";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 
 @injectable()
 export class AdminUserManagementService implements IAdminUserManagementService {
@@ -22,21 +23,21 @@ export class AdminUserManagementService implements IAdminUserManagementService {
   async blockUser(userId: string): Promise<UserSummaryDTO> {
     const user = await this._userRepository.findById(userId);
     if (!user) {
-      this.logger.warn(`User not found during block: ${userId}`);
-      throw new Error("User not found");
+      this.logger.warn(COMMON_MESSAGES.USER_NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.USER_NOT_FOUND);
     }
 
     if (user.isBlocked) {
-      this.logger.warn(`User already blocked during block: ${userId}`);
-      throw new Error("User already blocked");
+      this.logger.warn(COMMON_MESSAGES.ALREADY_BLOCKED);
+      throw new Error(COMMON_MESSAGES.ALREADY_BLOCKED);
     }
 
     const updatedUser = await this._userRepository.updateUser(userId, {
       isBlocked: true,
     });
     if (!updatedUser) {
-      this.logger.warn("user not updated");
-      throw new Error("user not updated");
+      this.logger.warn(COMMON_MESSAGES.USER_NOT_UPDATED);
+      throw new Error(COMMON_MESSAGES.USER_NOT_UPDATED);
     }
     return this._userMapper.toSummaryDTO(updatedUser);
   }
@@ -44,13 +45,13 @@ export class AdminUserManagementService implements IAdminUserManagementService {
   async unblockUser(userId: string): Promise<UserSummaryDTO> {
     const user = await this._userRepository.findById(userId);
     if (!user) {
-      this.logger.warn(`User not found during unblock: ${userId}`);
-      throw new Error("User not found during unblock");
+      this.logger.warn(COMMON_MESSAGES.USER_NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.USER_NOT_FOUND);
     }
 
     if (!user.isBlocked) {
-      this.logger.warn(`User already unblocked: ${userId}`);
-      throw new Error("User already unblocked");
+      this.logger.warn(COMMON_MESSAGES.ALREADY_UNBLOCKED);
+      throw new Error(COMMON_MESSAGES.ALREADY_UNBLOCKED);
     }
 
     const updatedUser = await this._userRepository.updateUser(userId, {
@@ -58,8 +59,8 @@ export class AdminUserManagementService implements IAdminUserManagementService {
     });
 
     if (!updatedUser) {
-      this.logger.warn("User not updated for unblock");
-      throw new Error("User not updated for unblock");
+      this.logger.warn(COMMON_MESSAGES.USER_NOT_UPDATED);
+      throw new Error(COMMON_MESSAGES.USER_NOT_UPDATED);
     }
 
     return this._userMapper.toSummaryDTO(updatedUser);
@@ -77,7 +78,7 @@ export class AdminUserManagementService implements IAdminUserManagementService {
       this.logger.warn(
         `Invalid pagination values: page=${page}, limit=${limit}`
       );
-      throw new Error("Invalid pagination values");
+      throw new Error(COMMON_MESSAGES.INVALID_PAGINATION_VALUES);
     }
 
     const { users, totalUsers } = await this._userRepository.findUsers(

@@ -2,10 +2,10 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { IAdminAuthService } from "../../interfaces/services/IAdminAuthService";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
-import { ZodError } from "zod";
+
 import { IAdminAuthController } from "../../interfaces/controllers/IAdminAuthController";
 import { Request, Response } from "express";
-import logger from "../../utils/logger";
+
 import { handleControllerError } from "../../utils/errorHandler";
 import { AdminSignInRequestSchema } from "../../core/dtos/admin/admin.auth.request.dto";
 @injectable()

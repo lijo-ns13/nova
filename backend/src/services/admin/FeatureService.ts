@@ -11,6 +11,7 @@ import {
 } from "../../core/dtos/admin/feature.dto";
 import { FeatureMapper } from "../../mapping/admin/admin.feature.mapper";
 import logger from "../../utils/logger";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 @injectable()
 export class FeatureService implements IFeatureService {
   private logger = logger.child({ context: "AdminFeatureService" });
@@ -27,8 +28,8 @@ export class FeatureService implements IFeatureService {
   async update(id: string, updates: FeatureInput): Promise<FeatureSummaryDTO> {
     const feature = await this._featureRepository.update(id, updates);
     if (!feature) {
-      this.logger.warn("feature not updated");
-      throw new Error("feature not updated");
+      this.logger.warn(COMMON_MESSAGES.FEATURE.NOT_UPDATED);
+      throw new Error(COMMON_MESSAGES.FEATURE.NOT_UPDATED);
     }
     return FeatureMapper.toSummaryDTO(feature);
   }
@@ -36,8 +37,8 @@ export class FeatureService implements IFeatureService {
   async delete(id: string): Promise<boolean> {
     const deleted = await this._featureRepository.delete(id);
     if (!deleted) {
-      this.logger.warn("feature not deleted");
-      throw new Error("feature not deleted");
+      this.logger.warn(COMMON_MESSAGES.FEATURE.NOT_DELETED);
+      throw new Error(COMMON_MESSAGES.FEATURE.NOT_DELETED);
     }
     return true;
   }
@@ -50,8 +51,8 @@ export class FeatureService implements IFeatureService {
   async getById(id: string): Promise<FeatureSummaryDTO> {
     const feature = await this._featureRepository.findById(id);
     if (!feature) {
-      this.logger.warn("feature not found");
-      throw new Error("Feature not found");
+      this.logger.warn(COMMON_MESSAGES.FEATURE.NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.FEATURE.NOT_FOUND);
     }
     return FeatureMapper.toSummaryDTO(feature);
   }

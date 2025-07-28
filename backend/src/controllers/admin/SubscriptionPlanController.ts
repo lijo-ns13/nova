@@ -12,6 +12,10 @@ import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { handleControllerError } from "../../utils/errorHandler";
 import { transactionFilterSchema } from "../../core/dtos/admin/admin.sub.dto";
 import { SubscriptionPlanService } from "../../services/admin/SubscriptionPlanService";
+import {
+  ADMIN_CONTROLLER_ERROR,
+  ADMIN_MESSAGES,
+} from "../../constants/message.constants";
 
 @injectable()
 export class SubscriptionPlanController implements ISubscriptionPlanController {
@@ -25,11 +29,17 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       const result = await this.subscriptionPlanService.getFilteredTransactions(
         filter
       );
-      res
-        .status(200)
-        .json({ success: true, message: "Transactions fetched", data: result });
+      res.status(200).json({
+        success: true,
+        message: ADMIN_MESSAGES.SUBSCRIPTION.FETCH_FILTERED_TRANSACTIONS,
+        data: result,
+      });
     } catch (error) {
-      handleControllerError(error, res, "getFilteredTransactions");
+      handleControllerError(
+        error,
+        res,
+        ADMIN_CONTROLLER_ERROR.SUB.FETCH_FILTERED
+      );
     }
   }
   async createPlan(req: Request, res: Response): Promise<void> {
@@ -38,15 +48,11 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       const result = await this.subscriptionPlanService.createPlan(parsed);
       res.status(HTTP_STATUS_CODES.CREATED).json({
         success: true,
-        message: "Subscription plan created successfully",
+        message: ADMIN_MESSAGES.SUBSCRIPTION.CREATED,
         data: result,
       });
     } catch (error) {
-      handleControllerError(
-        error,
-        res,
-        "SubscriptionPlanController.createPlan"
-      );
+      handleControllerError(error, res, ADMIN_CONTROLLER_ERROR.SUB.CREATE);
     }
   }
 
@@ -57,15 +63,11 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       const result = await this.subscriptionPlanService.updatePlan(id, parsed);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Subscription plan updated successfully",
+        message: ADMIN_MESSAGES.SUBSCRIPTION.UPDATED,
         data: result,
       });
     } catch (error) {
-      handleControllerError(
-        error,
-        res,
-        "SubscriptionPlanController.updatePlan"
-      );
+      handleControllerError(error, res, ADMIN_CONTROLLER_ERROR.SUB.UPDATE);
     }
   }
 
@@ -75,14 +77,10 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       await this.subscriptionPlanService.deletePlan(id);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Subscription plan deleted successfully",
+        message: ADMIN_MESSAGES.SUBSCRIPTION.DELETED,
       });
     } catch (error) {
-      handleControllerError(
-        error,
-        res,
-        "SubscriptionPlanController.deletePlan"
-      );
+      handleControllerError(error, res, ADMIN_CONTROLLER_ERROR.SUB.DELETE);
     }
   }
 
@@ -91,15 +89,11 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       const result = await this.subscriptionPlanService.getAllPlans();
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "All subscription plans fetched successfully",
+        message: ADMIN_MESSAGES.SUBSCRIPTION.FETCH_ALL,
         data: result,
       });
     } catch (error) {
-      handleControllerError(
-        error,
-        res,
-        "SubscriptionPlanController.getAllPlans"
-      );
+      handleControllerError(error, res, ADMIN_CONTROLLER_ERROR.SUB.FETCH_ALL);
     }
   }
 
@@ -109,15 +103,11 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       const result = await this.subscriptionPlanService.getPlanById(id);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Subscription plan fetched successfully",
+        message: ADMIN_MESSAGES.SUBSCRIPTION.FETCH_ONE,
         data: result,
       });
     } catch (error) {
-      handleControllerError(
-        error,
-        res,
-        "SubscriptionPlanController.getPlanById"
-      );
+      handleControllerError(error, res, ADMIN_CONTROLLER_ERROR.SUB.FETCH_ONE);
     }
   }
 
@@ -131,14 +121,14 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       );
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Subscription plan status updated",
+        message: ADMIN_MESSAGES.SUBSCRIPTION.TOGGLE_STATUS,
         data: result,
       });
     } catch (error) {
       handleControllerError(
         error,
         res,
-        "SubscriptionPlanController.togglePlanStatus"
+        ADMIN_CONTROLLER_ERROR.SUB.TOGGLE_STATUS
       );
     }
   }

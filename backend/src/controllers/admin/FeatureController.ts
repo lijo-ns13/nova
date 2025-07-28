@@ -11,6 +11,10 @@ import {
   FeatureUpdateSchema,
 } from "../../core/dtos/admin/feature.dto";
 import { IdSchema } from "../../core/validations/id.schema";
+import {
+  ADMIN_CONTROLLER_ERROR,
+  ADMIN_MESSAGES,
+} from "../../constants/message.constants";
 
 @injectable()
 export class FeatureController implements IFeatureController {
@@ -25,11 +29,11 @@ export class FeatureController implements IFeatureController {
       const feature = await this._featureService.create(parsed);
       res.status(HTTP_STATUS_CODES.CREATED).json({
         success: true,
-        message: "Feature created successfully",
+        message: ADMIN_MESSAGES.FEATURE.CREATED,
         data: feature,
       });
     } catch (error) {
-      handleControllerError(error, res, "FeatureController.create");
+      handleControllerError(error, res, ADMIN_CONTROLLER_ERROR.CREATE_FEATURE);
     }
   }
 
@@ -40,11 +44,11 @@ export class FeatureController implements IFeatureController {
       const feature = await this._featureService.update(id, parsedBody);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Feature updated successfully",
+        message: ADMIN_MESSAGES.FEATURE.UPDATED,
         data: feature,
       });
     } catch (error) {
-      handleControllerError(error, res, "FeatureController.update");
+      handleControllerError(error, res, ADMIN_CONTROLLER_ERROR.UPDATE_FEATURE);
     }
   }
 
@@ -54,10 +58,10 @@ export class FeatureController implements IFeatureController {
       await this._featureService.delete(id);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Feature deleted successfully",
+        message: ADMIN_MESSAGES.FEATURE.DELETED,
       });
     } catch (error) {
-      handleControllerError(error, res, "FeatureController.delete");
+      handleControllerError(error, res, ADMIN_CONTROLLER_ERROR.DELETE_FEATURE);
     }
   }
 
@@ -66,11 +70,15 @@ export class FeatureController implements IFeatureController {
       const features = await this._featureService.getAll();
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "succesfully fetched all features",
+        message: ADMIN_MESSAGES.FEATURE.FETCH_ALL,
         data: features,
       });
     } catch (error) {
-      handleControllerError(error, res, "FeatureController.getAll");
+      handleControllerError(
+        error,
+        res,
+        ADMIN_CONTROLLER_ERROR.FETCHALL_FEATURE
+      );
     }
   }
 
@@ -80,11 +88,11 @@ export class FeatureController implements IFeatureController {
       const feature = await this._featureService.getById(id);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "successfully fetch feature",
+        message: ADMIN_MESSAGES.FEATURE.FETCH_BYID,
         data: feature,
       });
     } catch (error) {
-      handleControllerError(error, res, "FeatureController.getById");
+      handleControllerError(error, res, ADMIN_CONTROLLER_ERROR.FETCH_FEATURE);
     }
   }
 }

@@ -1,9 +1,9 @@
 import { TYPES } from "../../di/types";
 import { inject, injectable } from "inversify";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
-import { Request, RequestHandler, Response } from "express";
+import { RequestHandler } from "express";
 import { IAdminCompanyManagementService } from "../../interfaces/services/IAdminCompanyManagementService ";
-import { sendVerificationCompanyEmail } from "../../shared/util/email.verification.company";
+
 import { IAdminCompanyManagementController } from "../../interfaces/controllers/IAdminCompanyManagementController";
 import {
   companyIdSchema,
@@ -11,6 +11,10 @@ import {
   paginationSchema,
 } from "../../core/validations/admin/admin.company.validation";
 import { handleControllerError } from "../../utils/errorHandler";
+import {
+  ADMIN_CONTROLLER_ERROR,
+  ADMIN_MESSAGES,
+} from "../../constants/message.constants";
 
 @injectable()
 export class AdminCompanyManagementController
@@ -30,10 +34,15 @@ export class AdminCompanyManagementController
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
+        message: ADMIN_MESSAGES.COMPANY.COMPANY_FETCHED,
         data: company,
       });
     } catch (error) {
-      handleControllerError(error, res, "getCompanyById");
+      handleControllerError(
+        error,
+        res,
+        ADMIN_CONTROLLER_ERROR.GET_COMPANY_ERROR
+      );
     }
   };
   verifyCompany: RequestHandler = async (req, res): Promise<void> => {
@@ -51,11 +60,15 @@ export class AdminCompanyManagementController
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: `Company ${status} successfully`,
+        message: ADMIN_MESSAGES.COMPANY.VERIFIED_SUCCESSFULLY(status),
         data: result,
       });
     } catch (error) {
-      handleControllerError(error, res, "verifyCompany");
+      handleControllerError(
+        error,
+        res,
+        ADMIN_CONTROLLER_ERROR.VERIFY_COMPANY_ERROR
+      );
     }
   };
 
@@ -71,11 +84,15 @@ export class AdminCompanyManagementController
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Unverified companies fetched successfully",
+        message: ADMIN_MESSAGES.COMPANY.UNVERIFED_COMPANIES_FETCHED,
         data: result,
       });
     } catch (error) {
-      handleControllerError(error, res, "getUnverifiedCompaniesHandler");
+      handleControllerError(
+        error,
+        res,
+        ADMIN_CONTROLLER_ERROR.GET_UNVERIFIED_COMPANIES_ERROR
+      );
     }
   };
 
@@ -87,11 +104,15 @@ export class AdminCompanyManagementController
       );
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Company blocked successfully",
+        message: ADMIN_MESSAGES.COMPANY.BLOCK_COMPANY,
         data: company,
       });
     } catch (error) {
-      handleControllerError(error, res, "blockcompany");
+      handleControllerError(
+        error,
+        res,
+        ADMIN_CONTROLLER_ERROR.BLOCK_COMPANY_ERROR
+      );
     }
   };
 
@@ -103,11 +124,15 @@ export class AdminCompanyManagementController
       );
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Company unblocked successfully",
+        message: ADMIN_MESSAGES.COMPANY.UNBLOCK_COMPANY,
         data: company,
       });
     } catch (error) {
-      handleControllerError(error, res, "unblockcomapny");
+      handleControllerError(
+        error,
+        res,
+        ADMIN_CONTROLLER_ERROR.UNBLOCK_COMPANY_ERROR
+      );
     }
   };
 
@@ -121,11 +146,15 @@ export class AdminCompanyManagementController
       );
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Companies fetched successfully",
+        message: ADMIN_MESSAGES.COMPANY.FETCH_COMPANIES,
         data: companies,
       });
     } catch (error) {
-      handleControllerError(error, res, "getCompanies");
+      handleControllerError(
+        error,
+        res,
+        ADMIN_CONTROLLER_ERROR.GET_COMPANIES_ERROR
+      );
     }
   };
 }

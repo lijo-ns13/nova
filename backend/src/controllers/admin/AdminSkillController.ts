@@ -9,6 +9,10 @@ import {
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { handleControllerError } from "../../utils/errorHandler";
 import { TYPES } from "../../di/types";
+import {
+  ADMIN_CONTROLLER_ERROR,
+  ADMIN_MESSAGES,
+} from "../../constants/message.constants";
 
 @injectable()
 export class AdminSkillController implements IAdminSkillController {
@@ -26,11 +30,15 @@ export class AdminSkillController implements IAdminSkillController {
 
       res.status(HTTP_STATUS_CODES.CREATED).json({
         success: true,
-        message: "Skill created successfully",
+        message: ADMIN_MESSAGES.SKILL.CREATED,
         data: skillDto,
       });
     } catch (error) {
-      handleControllerError(error, res, "AdminSkillController.create");
+      handleControllerError(
+        error,
+        res,
+        ADMIN_CONTROLLER_ERROR.CREATE_SKILL_ERROR
+      );
     }
   };
 
@@ -43,11 +51,15 @@ export class AdminSkillController implements IAdminSkillController {
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Skill updated successfully",
+        message: ADMIN_MESSAGES.SKILL.UPDATED,
         data: updatedDto,
       });
     } catch (error) {
-      handleControllerError(error, res, "AdminSkillController.update");
+      handleControllerError(
+        error,
+        res,
+        ADMIN_CONTROLLER_ERROR.UPDATE_SKILL_ERROR
+      );
     }
   };
 
@@ -58,10 +70,14 @@ export class AdminSkillController implements IAdminSkillController {
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Skill deleted successfully",
+        message: ADMIN_MESSAGES.SKILL.DELETED,
       });
     } catch (error) {
-      handleControllerError(error, res, "AdminSkillController.delete");
+      handleControllerError(
+        error,
+        res,
+        ADMIN_CONTROLLER_ERROR.DELETE_SKILL_ERROR
+      );
     }
   };
 
@@ -84,7 +100,11 @@ export class AdminSkillController implements IAdminSkillController {
         },
       });
     } catch (error) {
-      handleControllerError(error, res, "AdminSkillController.getAll");
+      handleControllerError(
+        error,
+        res,
+        ADMIN_CONTROLLER_ERROR.GETALL_SKILL_ERROR
+      );
     }
   };
 
@@ -98,7 +118,11 @@ export class AdminSkillController implements IAdminSkillController {
         data: skillDto,
       });
     } catch (error) {
-      handleControllerError(error, res, "AdminSkillController.getById");
+      handleControllerError(
+        error,
+        res,
+        ADMIN_CONTROLLER_ERROR.GETBYID_SKILL_ERROR
+      );
     }
   };
 }

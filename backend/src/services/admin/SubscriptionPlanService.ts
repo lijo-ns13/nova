@@ -19,6 +19,7 @@ import {
   mapTransactionToDTO,
   TransactionListWithPagination,
 } from "../../mapping/admin/admin.sub.mapper";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 
 @injectable()
 export class SubscriptionPlanService implements ISubscriptionPlanService {
@@ -57,8 +58,8 @@ export class SubscriptionPlanService implements ISubscriptionPlanService {
   ): Promise<SubscriptionPlanResponse> {
     const updated = await this._subscriptionPlanRepository.update(id, updates);
     if (!updated) {
-      this.logger.warn("Plan not found for update", { id });
-      throw new Error("Subscription plan not found");
+      this.logger.warn(COMMON_MESSAGES.SUB.NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.SUB.NOT_FOUND);
     }
     return SubscriptionPlanMapper.toResponse(updated);
   }
@@ -66,8 +67,8 @@ export class SubscriptionPlanService implements ISubscriptionPlanService {
   async deletePlan(id: string): Promise<void> {
     const deleted = await this._subscriptionPlanRepository.delete(id);
     if (!deleted) {
-      this.logger.warn("Plan not found for delete", { id });
-      throw new Error("Subscription plan not found");
+      this.logger.warn(COMMON_MESSAGES.SUB.NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.SUB.NOT_FOUND);
     }
   }
 
@@ -79,8 +80,8 @@ export class SubscriptionPlanService implements ISubscriptionPlanService {
   async getPlanById(id: string): Promise<SubscriptionPlanResponse> {
     const plan = await this._subscriptionPlanRepository.getById(id);
     if (!plan) {
-      this.logger.warn("Plan not found by ID", { id });
-      throw new Error("Subscription plan not found");
+      this.logger.warn(COMMON_MESSAGES.SUB.NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.SUB.NOT_FOUND);
     }
     return SubscriptionPlanMapper.toResponse(plan);
   }
@@ -94,8 +95,8 @@ export class SubscriptionPlanService implements ISubscriptionPlanService {
       isActive
     );
     if (!updated) {
-      this.logger.warn("Plan not found for toggle", { id });
-      throw new Error("Subscription plan not found");
+      this.logger.warn(COMMON_MESSAGES.SUB.NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.SUB.NOT_FOUND);
     }
     return SubscriptionPlanMapper.toResponse(updated);
   }

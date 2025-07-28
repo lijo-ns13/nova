@@ -14,6 +14,7 @@ import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 
 import { CompanyUnVerifiedMapper } from "../../mapping/admin/admin.comp.unveri.mapping";
 import { CompanyWithSignedDocsDTO } from "../../core/dtos/admin/company.unveri.dto";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 @injectable()
 export class AdminCompanyManagementService
   implements IAdminCompanyManagementService
@@ -30,8 +31,8 @@ export class AdminCompanyManagementService
   async getCompanyById(companyId: string): Promise<CompanySummaryDTO> {
     const company = await this._companyRepository.findById(companyId);
     if (!company) {
-      this.logger.warn("admin not found");
-      throw new Error("admin not found");
+      this.logger.warn(COMMON_MESSAGES.ADMIN_NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.ADMIN_NOT_FOUND);
     }
     return CompanyMapper.toSummaryDTO(company);
   }
@@ -44,8 +45,8 @@ export class AdminCompanyManagementService
 
     const company = await this._companyRepository.findById(companyId);
     if (!company) {
-      this.logger.warn(`Company not found: ${companyId}`);
-      throw new Error("Company not found");
+      this.logger.warn(COMMON_MESSAGES.COMPANY_NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.COMPANY_NOT_FOUND);
     }
 
     if (status === "accepted") {
@@ -74,8 +75,8 @@ export class AdminCompanyManagementService
       isBlocked: true,
     });
     if (!company) {
-      logger.warn("company not found");
-      throw new Error("company not found");
+      logger.warn(COMMON_MESSAGES.COMPANY_NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.COMPANY_NOT_FOUND);
     }
     return CompanyMapper.toSummaryDTO(company);
   }
@@ -85,8 +86,8 @@ export class AdminCompanyManagementService
       isBlocked: false,
     });
     if (!company) {
-      logger.warn("company not found");
-      throw new Error("company not found");
+      logger.warn(COMMON_MESSAGES.COMPANY_NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.COMPANY_NOT_FOUND);
     }
     return CompanyMapper.toSummaryDTO(company);
   }

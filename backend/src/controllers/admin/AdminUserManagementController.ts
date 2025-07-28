@@ -7,6 +7,10 @@ import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { handleControllerError } from "../../utils/errorHandler";
 import { paginationSchema } from "../../core/validations/admin/admin.company.validation";
 import { userIdSchema } from "../../core/validations/admin/admin.user.validation";
+import {
+  ADMIN_CONTROLLER_ERROR,
+  ADMIN_MESSAGES,
+} from "../../constants/message.constants";
 
 export class AdminUserManagementController
   implements IAdminUserManagementController
@@ -23,11 +27,11 @@ export class AdminUserManagementController
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "User blocked successfully",
+        message: ADMIN_MESSAGES.USER.BLOCKED,
         data: user,
       });
     } catch (error) {
-      handleControllerError(error, res, "blockUser");
+      handleControllerError(error, res, ADMIN_CONTROLLER_ERROR.BLOCK_USER);
     }
   };
 
@@ -38,11 +42,11 @@ export class AdminUserManagementController
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "User unblocked successfully",
+        message: ADMIN_MESSAGES.USER.UNBLOCKED,
         data: user,
       });
     } catch (error) {
-      handleControllerError(error, res, "unblockUser");
+      handleControllerError(error, res, ADMIN_CONTROLLER_ERROR.UNBLOCK_USER);
     }
   };
 
@@ -58,12 +62,12 @@ export class AdminUserManagementController
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: search
-          ? "Search results fetched successfully"
-          : "Users fetched successfully",
+          ? ADMIN_MESSAGES.USER.FETCH_SEARCHED_USERS
+          : ADMIN_MESSAGES.USER.FETCH_USERS,
         data: result,
       });
     } catch (error) {
-      handleControllerError(error, res, "getUsers");
+      handleControllerError(error, res, ADMIN_CONTROLLER_ERROR.FETCH_USERS);
     }
   };
 }
