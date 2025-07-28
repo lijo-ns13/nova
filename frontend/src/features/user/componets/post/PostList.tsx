@@ -1,10 +1,11 @@
 import toast from "react-hot-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PostResponseDTO } from "../../types/post";
-import LoadingSpinner from "../viewableProfile/LoadingSpinner";
+
 import { useAppSelector } from "../../../../hooks/useAppSelector";
 import { getAllPosts } from "../../services/PostService";
 import FinalPost from "./FinalPost";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
 const page = 1;
 const limit = 10;
 function PostList() {
