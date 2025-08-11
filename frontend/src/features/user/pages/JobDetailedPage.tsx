@@ -433,12 +433,12 @@ function JobDetailedPage() {
                     <h3 className="font-medium text-gray-900">
                       {job.company.companyName}
                     </h3>
-                    <Link
+                    {/* <Link
                       to={`/company/${job.company.username}`}
                       className="text-sm text-blue-600 hover:underline"
                     >
                       View company profile
-                    </Link>
+                    </Link> */}
                   </div>
                 </div>
                 {job.company.foundedYear && (

@@ -1,13 +1,11 @@
 import { FC, useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import toast from "react-hot-toast";
-
 import {
   acceptReschedule,
   getRescheduleSlots,
   updateInterviewStatus,
 } from "../../services/InterviewRescheduleService";
-
 import { AppliedJobResponseDTO } from "../../services/JobServices";
 import { ApplicationStatus } from "../../../../constants/applicationStatus";
 
@@ -24,7 +22,7 @@ const getStatusClasses = (status: ApplicationStatus): string => {
       "interview_reschedule_rejected",
     ].includes(status)
   )
-    return "bg-red-100 text-red-700";
+    return "bg-red-100 text-red-800 border-red-200";
   if (
     [
       "selected",
@@ -35,8 +33,8 @@ const getStatusClasses = (status: ApplicationStatus): string => {
       "offered",
     ].includes(status)
   )
-    return "bg-green-100 text-green-700";
-  return "bg-blue-100 text-blue-700";
+    return "bg-green-100 text-green-800 border-green-200";
+  return "bg-blue-100 text-blue-800 border-blue-200";
 };
 
 const formatStatusMessage = (status: string): string => {
@@ -65,7 +63,10 @@ const formatDateTime = (dateString: string): string => {
     year: "numeric",
     month: "short",
     day: "numeric",
-  })} at ${date.toLocaleTimeString("en-US")}`;
+  })} at ${date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}`;
 };
 
 const ApplicationCard: FC<ApplicationCardProps> = ({
@@ -159,104 +160,129 @@ const ApplicationCard: FC<ApplicationCardProps> = ({
   };
 
   return (
-    <article className="bg-white border rounded-xl shadow-sm p-5 transition hover:shadow-md">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* Job Info */}
-        <div>
-          <h2 className="text-lg font-semibold text-gray-800">{job.title}</h2>
-          <p className="text-sm text-gray-500 capitalize">{job.location}</p>
-          <p className="text-sm text-gray-500">{job.jobType}</p>
+    <article className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden transition-all hover:shadow-md">
+      <div className="p-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-6">
+          {/* Job Info */}
+          <div className="flex-1">
+            <div className="flex items-start gap-3">
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold text-gray-900 mb-1">
+                  {job.title}
+                </h2>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {job.jobType}
+                  </span>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 capitalize">
+                    {job.location}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-2 space-y-1">
+              <p className="text-sm text-gray-600">
+                <span className="font-medium">Applied:</span>{" "}
+                {formatDistanceToNow(new Date(appliedAt), { addSuffix: true })}
+              </p>
+
+              {showScheduledTime && scheduledAt && (
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium">Interview:</span>{" "}
+                  {formatDateTime(scheduledAt)}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Status + Actions */}
+          <div className="flex flex-col items-start md:items-end gap-3 w-full md:w-auto">
+            <div className="flex flex-col items-end gap-2 w-full">
+              <span
+                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusClasses(
+                  status as ApplicationStatus
+                )}`}
+              >
+                {formatStatusMessage(status)}
+              </span>
+
+              {canRespondToInterview && !isRescheduleProposed && (
+                <div className="flex gap-2 w-full md:w-auto">
+                  <button
+                    onClick={() => respondToInterview("accept")}
+                    disabled={loading}
+                    className="flex-1 md:flex-none px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => respondToInterview("reject")}
+                    disabled={loading}
+                    className="flex-1 md:flex-none px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Application Info */}
-        <div>
-          <p className="text-sm text-gray-700">
-            <span className="font-medium">Applied: </span>
-            {formatDistanceToNow(new Date(appliedAt), { addSuffix: true })}
-          </p>
+        {/* Reschedule Slot Selection */}
+        {isRescheduleProposed && rescheduleSlots.length > 0 && (
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-gray-900">
+                New Interview Time Proposal
+              </h3>
+              <p className="text-sm text-gray-600">
+                Please select one of the proposed time slots or reject the
+                request:
+              </p>
 
-          {showScheduledTime && scheduledAt && (
-            <p className="text-sm text-gray-700">
-              <span className="font-medium">Interview: </span>
-              {formatDateTime(scheduledAt)}
-            </p>
-          )}
+              <div className="space-y-2">
+                <label
+                  htmlFor="reschedule-slot"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Available Time Slots
+                </label>
+                <select
+                  id="reschedule-slot"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                  value={selectedSlot ?? ""}
+                  onChange={(e) => setSelectedSlot(e.target.value)}
+                  disabled={slotsLoading}
+                >
+                  <option value="">Select a time slot</option>
+                  {rescheduleSlots.map((slot) => (
+                    <option key={slot} value={slot}>
+                      {formatDateTime(slot)}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          {/* Reschedule Slot Selection */}
-          {isRescheduleProposed && rescheduleSlots.length > 0 && (
-            <div className="mt-2">
-              <label className="text-sm font-medium text-gray-700">
-                Choose Reschedule Slot
-              </label>
-              <select
-                className="mt-1 block w-full border rounded px-3 py-2 text-sm"
-                value={selectedSlot ?? ""}
-                onChange={(e) => setSelectedSlot(e.target.value)}
-                disabled={slotsLoading}
-                aria-label="Select a reschedule slot"
-              >
-                <option value="" disabled>
-                  Select a slot
-                </option>
-                {rescheduleSlots.map((slot) => (
-                  <option key={slot} value={slot}>
-                    {formatDateTime(slot)}
-                  </option>
-                ))}
-              </select>
-
-              <div className="flex gap-2 mt-2">
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   onClick={handleRescheduleAccept}
                   disabled={loading || !selectedSlot}
-                  className="px-4 py-1 text-sm font-medium text-green-700 border border-green-500 rounded hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  Accept Slot
+                  Accept New Time
                 </button>
                 <button
                   onClick={handleRescheduleReject}
                   disabled={loading}
-                  className="px-4 py-1 text-sm font-medium text-red-700 border border-red-500 rounded hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  Reject Slot
+                  Reject Reschedule
                 </button>
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Status + Actions */}
-        <div className="flex flex-col md:items-end gap-2">
-          <span
-            className={`inline-block px-3 py-1 text-xs font-medium rounded-full capitalize ${getStatusClasses(
-              status as ApplicationStatus
-            )}`}
-            aria-label="Application status"
-          >
-            {formatStatusMessage(status)}
-          </span>
-
-          {canRespondToInterview && !isRescheduleProposed && (
-            <div className="flex gap-2">
-              <button
-                onClick={() => respondToInterview("accept")}
-                disabled={loading}
-                className="px-4 py-1 text-sm font-medium text-green-700 border border-green-500 rounded hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Accept interview"
-              >
-                Accept
-              </button>
-              <button
-                onClick={() => respondToInterview("reject")}
-                disabled={loading}
-                className="px-4 py-1 text-sm font-medium text-red-700 border border-red-500 rounded hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Reject interview"
-              >
-                Reject
-              </button>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </article>
   );
