@@ -22,6 +22,7 @@ import { CreateExperienceInputDTO } from "../../core/dtos/user/userExperience";
 import { CreateProjectInputDTO } from "../../core/dtos/user/userproject";
 import { CreateCertificateInputDTO } from "../../core/dtos/user/certificate.dto";
 import { UpdateUserProfileInputDTO } from "../../core/dtos/user/getuserresponse.dto";
+import { subDays } from "date-fns";
 export interface IUserWithStatus {
   user: {
     _id: Types.ObjectId;
@@ -599,5 +600,15 @@ export class UserRepository
     ]);
 
     return { users, total };
+  }
+  // new for admin dash
+  async countAllUsers(): Promise<number> {
+    return userModal.countDocuments();
+  }
+
+  async countActiveUsers(): Promise<number> {
+    return userModal.countDocuments({
+      lastActive: { $gte: subDays(new Date(), 30) },
+    });
   }
 }

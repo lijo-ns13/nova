@@ -153,4 +153,7 @@ export interface IUserRepository extends IBaseRepository<IUser> {
     limit: number,
     search: string
   ): Promise<{ users: IUser[]; total: number }>;
+  // new for amdindash
+  countAllUsers(): Promise<number>;
+  countActiveUsers(): Promise<number>;
 }
