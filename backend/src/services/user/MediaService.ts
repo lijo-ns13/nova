@@ -11,6 +11,8 @@ import mediaModal, { IMedia } from "../../models/media.modal";
 import { v4 as uuidv4 } from "uuid";
 import { Types } from "mongoose";
 import { TYPES } from "../../di/types";
+import { s3Client as s3 } from "../../core/aws/s3Client";
+
 import { IMediaRepository } from "../../interfaces/repositories/IMediaRepository";
 export interface MediaUrlDTO {
   url: string;
@@ -22,13 +24,6 @@ export interface MediaUrlDTO {
     | "video/quicktime"
     | "application/pdf";
 }
-const s3 = new S3Client({
-  region: process.env.AWS_REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
 
 @injectable()
 export class MediaService implements IMediaService {
