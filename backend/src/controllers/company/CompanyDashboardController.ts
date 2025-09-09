@@ -12,18 +12,13 @@ interface Userr {
 export const getCompanyDashboardStats = async (req: Request, res: Response) => {
   try {
     const companyId = req.query.companyId as string;
-    // const companyId = "682570832310cdb03566e160";
     if (!companyId) {
       return res.status(400).json({ message: "Company ID missing" });
     }
-
-    // Get all jobs created by this company
     const jobs = await jobModal
       .find({ company: companyId })
       .select("_id status");
     const jobIds = jobs.map((job) => job._id);
-
-    // Get current date and calculate date ranges
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const oneMonthAgo = new Date(

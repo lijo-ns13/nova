@@ -3,10 +3,16 @@ import { inject, injectable } from "inversify";
 import { ITransactionRepository } from "../../interfaces/repositories/ITransactionRepository";
 import tranasctionModal, { ITransaction } from "../../models/tranasction.modal";
 import { TransactionFilterInput } from "../../core/dtos/admin/admin.sub.dto";
-import { FilterQuery, Model } from "mongoose";
+import { FilterQuery, Model, Types } from "mongoose";
 import { TYPES } from "../../di/types";
 import { BaseRepository } from "./BaseRepository";
 import { ITransactionPopulated } from "../../mapping/admin/admin.sub.mapper";
+import { eachDayOfInterval, format } from "date-fns";
+import {
+  TopPlanDTO,
+  UserGrowthDTO,
+} from "../../interfaces/services/IAdminDashboardService";
+import { TransactionDTO } from "../../dtos/request/admin/admin.dashbaord.dto";
 
 @injectable()
 export class TransactionRepository
@@ -85,5 +91,125 @@ export class TransactionRepository
     ]);
 
     return { transactions, total };
+  }
+  // new
+  async getRevenue(startDate: Date, endDate: Date): Promise<number> {
+    const result = await tranasctionModal.aggregate([
+      {
+        $match: {
+          status: "completed",
+          createdAt: { $gte: startDate, $lte: endDate },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    return result[0]?.totalRevenue || 0;
+  }
+  async getTopPlans(startDate: Date, endDate: Date): Promise<TopPlanDTO[]> {
+    const result = await tranasctionModal.aggregate([
+      {
+        $match: {
+          status: "completed",
+          createdAt: { $gte: startDate, $lte: endDate },
+        },
+      },
+      {
+        $group: {
+          _id: "$planName",
+          count: { $sum: 1 },
+          totalRevenue: { $sum: "$amount" },
+        },
+      },
+      { $sort: { count: -1 } },
+      { $limit: 10 },
+    ]);
+
+    return result.map((r) => ({
+      planName: r._id,
+      count: r.count,
+      totalRevenue: r.totalRevenue,
+    }));
+  }
+  async getUserGrowth(
+    startDate: Date,
+    endDate: Date
+  ): Promise<UserGrowthDTO[]> {
+    const days = eachDayOfInterval({ start: startDate, end: endDate });
+
+    const result = await tranasctionModal.aggregate([
+      {
+        $match: {
+          status: "completed",
+          createdAt: { $gte: startDate, $lte: endDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    // Fill in missing dates with 0
+    return days.map((day) => {
+      const dateStr = format(day, "yyyy-MM-dd");
+      const found = result.find((item) => item._id === dateStr);
+      return {
+        date: dateStr,
+        count: found ? found.count : 0,
+      };
+    });
+  }
+  async findTransactions(
+    startDate: Date,
+    endDate: Date
+  ): Promise<ITransaction[]> {
+    return tranasctionModal
+      .find({
+        status: "completed",
+        createdAt: { $gte: startDate, $lte: endDate },
+      })
+      .lean();
+  }
+  async getTransactions(
+    startDate: Date,
+    endDate: Date
+  ): Promise<TransactionDTO[]> {
+    const transactions = await tranasctionModal
+      .find({
+        createdAt: { $gte: startDate, $lte: endDate },
+      })
+      .sort({ createdAt: -1 })
+      .limit(100)
+      .populate<{ userId: { _id: Types.ObjectId; name: string } }>(
+        "userId",
+        "name"
+      )
+      .lean();
+
+    return transactions.map((tx) => ({
+      id: tx._id.toHexString(),
+      userId: {
+        id: tx.userId._id.toHexString(),
+        name: tx.userId.name,
+      },
+      amount: tx.amount,
+      currency: tx.currency,
+      status: tx.status,
+      paymentMethod: tx.paymentMethod,
+      stripeSessionId: tx.stripeSessionId,
+      planName: tx.planName,
+      createdAt: tx.createdAt!, // Assert it exists
+    }));
   }
 }

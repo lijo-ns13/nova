@@ -182,6 +182,10 @@ import { ITransactionRepository } from "../interfaces/repositories/ITransactionR
 import { Types } from "aws-sdk/clients/acm";
 import { TransactionRepository } from "../repositories/mongo/TransactionRepository";
 import { IUserMapper, UserMapper } from "../mapping/admin/admin.user.mapper";
+import { IAdminDashboardService } from "../interfaces/services/IAdminDashboardService";
+import { AdminDashboardService } from "../services/admin/AdminDashboardService";
+import { IAdminDashboardController } from "../interfaces/controllers/IAdminDashboardController";
+import { AdminDashboardController } from "../controllers/admin/AdminDashboardController";
 // import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
@@ -466,6 +470,12 @@ container
 // container.bind<IUserMapper>(TYPES.UserMapper).to(UserMapper);
 container.bind<IUserMapper>(TYPES.UserMapper).to(UserMapper);
 
-// media
-// container.bind<IMediaController>(TYPES.MediaController).to(MediaController);
+// admin dhasboard
+container
+  .bind<IAdminDashboardService>(TYPES.AdminDashboardService)
+  .to(AdminDashboardService);
+container
+  .bind<IAdminDashboardController>(TYPES.AdminDashboardController)
+  .to(AdminDashboardController);
+
 export default container;

@@ -1,3 +1,6 @@
+import { AdminDashboardController } from "../controllers/admin/AdminDashboardController";
+import { AdminDashboardService } from "../services/admin/AdminDashboardService";
+
 export const TYPES = {
   // Repositories
   UserModal: Symbol.for("UserModal"),
@@ -145,7 +148,4 @@ export const TYPES = {
   // SubscriptionPlanRepository: Symbol.for("SubscriptionPlanRepository"),
   StripeService: Symbol.for("StripeService"),
   StripeController: Symbol.for("StripeController"),
-  // cluadinary
-
-  // media
 };
