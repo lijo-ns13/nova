@@ -10,13 +10,16 @@ import {
 } from "../../core/dtos/request/user.request.dto";
 import { IAuthController } from "../../interfaces/controllers/IUserAuthController";
 import { IUserAuthService } from "../../interfaces/services/IUserAuthService";
+import { config } from "../../core/config/config";
+import { COOKIE_NAMES } from "../../constants/cookie_names";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
+import { ROLES } from "../../constants/roles";
 
 export class AuthController implements IAuthController {
   constructor(
     @inject(TYPES.UserAuthService) private authService: IUserAuthService
   ) {}
   signUp = async (req: Request, res: Response) => {
-    console.log("req.body", req.body);
     try {
       const userDTO = signupRequestSchema.parse(req.body);
       const tempUser = await this.authService.signUp(userDTO);
@@ -46,24 +49,24 @@ export class AuthController implements IAuthController {
     try {
       const userDTO = signinRequestSchema.parse(req.body);
       const result = await this.authService.signIn(userDTO);
-      res.cookie("refreshToken", result.refreshToken, {
+      res.cookie(COOKIE_NAMES.REFRESH_TOKEN, result.refreshToken, {
         httpOnly: true,
-        secure: true, // true in production
-        sameSite: "none", // ← IMPORTANT for cross-origin cookies
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: config.cookieSecure,
+        sameSite: config.cookieSameSite,
+        maxAge: config.refreshTokenMaxAge,
       });
 
-      res.cookie("accessToken", result.accessToken, {
+      res.cookie(COOKIE_NAMES.ACCESSS_TOKEN, result.accessToken, {
         httpOnly: true,
-        secure: true,
-        sameSite: "none", // ← IMPORTANT
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: config.cookieSecure,
+        sameSite: config.cookieSameSite,
+        maxAge: config.accessTokenMaxAge,
       });
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Sign-in successful",
+        message: COMMON_MESSAGES.SIGNIN(ROLES.USER),
         user: result.user,
-        role: "user",
+        role: ROLES.USER,
         isVerified: result.isVerified,
         isBlocked: result.isBlocked,
       });
@@ -150,8 +153,8 @@ export class AuthController implements IAuthController {
         sameSite: "none" as const,
       };
 
-      res.clearCookie("refreshToken", cookieOptions);
-      res.clearCookie("accessToken", cookieOptions);
+      res.clearCookie(COOKIE_NAMES.REFRESH_TOKEN, cookieOptions);
+      res.clearCookie(COOKIE_NAMES.ACCESSS_TOKEN, cookieOptions);
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: "Logged out successfully" });

@@ -9,6 +9,10 @@ import { signInCompanyRequestSchema } from "../../core/dtos/company/company.sign
 import { IJWTService } from "../../interfaces/services/IJwtService";
 import { Request, Response } from "express";
 import { handleControllerError } from "../../utils/errorHandler";
+import { COOKIE_NAMES } from "../../constants/cookie_names";
+import { config } from "../../core/config/config";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
+import { ROLES } from "../../constants/roles";
 export class CompanyAuthController implements ICompanyAuthController {
   constructor(
     @inject(TYPES.CompanyAuthService) private authService: ICompanyAuthService,
@@ -17,8 +21,6 @@ export class CompanyAuthController implements ICompanyAuthController {
 
   async signUp(req: Request, res: Response): Promise<void> {
     try {
-      console.log("reqbodyauth", req.body);
-      console.log("req.files", req.files);
       const files = req.files as Express.Multer.File[];
       const parsed = signUpCompanyRequestSchema.parse({
         ...req.body,
@@ -41,22 +43,22 @@ export class CompanyAuthController implements ICompanyAuthController {
       const parsed = signInCompanyRequestSchema.parse(req.body);
       const result = await this.authService.signIn(parsed);
 
-      res.cookie("refreshToken", result.refreshToken, {
+      res.cookie(COOKIE_NAMES.REFRESH_TOKEN, result.refreshToken, {
         httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: config.cookieSecure,
+        sameSite: config.cookieSameSite,
+        maxAge: config.refreshTokenMaxAge,
       });
-      res.cookie("accessToken", result.accessToken, {
+      res.cookie(COOKIE_NAMES.ACCESSS_TOKEN, result.accessToken, {
         httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: config.cookieSecure,
+        sameSite: config.cookieSameSite,
+        maxAge: config.accessTokenMaxAge,
       });
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Login successful",
+        message: COMMON_MESSAGES.SIGNIN(ROLES.COMPANY),
         data: result.company,
       });
     } catch (error) {
