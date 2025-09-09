@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
 
 export interface IAdminSkillController {
-  create: RequestHandler;
-  update: RequestHandler;
-  delete: RequestHandler;
-  getAll: RequestHandler;
-  getById: RequestHandler;
+  createSkill: RequestHandler;
+  updateSkill: RequestHandler;
+  deleteSkill: RequestHandler;
+  getAllSkill: RequestHandler;
+  getByIdSkill: RequestHandler;
 }

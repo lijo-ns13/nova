@@ -21,7 +21,7 @@ export class AdminSkillController implements IAdminSkillController {
     private _adminSkillService: IAdminSkillService
   ) {}
 
-  create = async (req: Request, res: Response) => {
+  createSkill = async (req: Request, res: Response) => {
     try {
       const { title } = CreateSkillSchema.parse(req.body);
       const adminId = (req.user as { id: string }).id;
@@ -42,7 +42,7 @@ export class AdminSkillController implements IAdminSkillController {
     }
   };
 
-  update = async (req: Request, res: Response) => {
+  updateSkill = async (req: Request, res: Response) => {
     try {
       const id = req.params.id;
       const data = UpdateSkillSchema.parse(req.body);
@@ -63,7 +63,7 @@ export class AdminSkillController implements IAdminSkillController {
     }
   };
 
-  delete = async (req: Request, res: Response) => {
+  deleteSkill = async (req: Request, res: Response) => {
     try {
       const id = req.params.id;
       await this._adminSkillService.delete(id);
@@ -81,7 +81,7 @@ export class AdminSkillController implements IAdminSkillController {
     }
   };
 
-  getAll = async (req: Request, res: Response) => {
+  getAllSkill = async (req: Request, res: Response) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
@@ -108,7 +108,7 @@ export class AdminSkillController implements IAdminSkillController {
     }
   };
 
-  getById = async (req: Request, res: Response) => {
+  getByIdSkill = async (req: Request, res: Response) => {
     try {
       const id = req.params.id;
       const skillDto = await this._adminSkillService.getById(id);
