@@ -5,14 +5,8 @@ import { ISkillService } from "../interfaces/services/ISkillService";
 import { ISkillController } from "../interfaces/controllers/ISkillController";
 import { HTTP_STATUS_CODES } from "../core/enums/httpStatusCode";
 import { SkillSearchRequestSchema } from "../dtos/request/skill.request.dto";
-import { query } from "winston";
 import { handleControllerError } from "../utils/errorHandler";
 
-interface UserPayload {
-  id: string;
-  email: string;
-  role: string;
-}
 @injectable()
 export class SkillController implements ISkillController {
   constructor(

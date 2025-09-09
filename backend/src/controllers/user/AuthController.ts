@@ -10,19 +10,19 @@ import {
 } from "../../core/dtos/request/user.request.dto";
 import { IAuthController } from "../../interfaces/controllers/IUserAuthController";
 import { IUserAuthService } from "../../interfaces/services/IUserAuthService";
-import { config } from "../../core/config/config";
+import { config } from "../../config/config";
 import { COOKIE_NAMES } from "../../constants/cookie_names";
 import { COMMON_MESSAGES } from "../../constants/message.constants";
 import { ROLES } from "../../constants/roles";
 
 export class AuthController implements IAuthController {
   constructor(
-    @inject(TYPES.UserAuthService) private authService: IUserAuthService
+    @inject(TYPES.UserAuthService) private _authService: IUserAuthService
   ) {}
   signUp = async (req: Request, res: Response) => {
     try {
       const userDTO = signupRequestSchema.parse(req.body);
-      const tempUser = await this.authService.signUp(userDTO);
+      const tempUser = await this._authService.signUp(userDTO);
       res
         .status(HTTP_STATUS_CODES.CREATED)
         .json({ success: true, message: "OTP sent to email", tempUser });
@@ -48,7 +48,7 @@ export class AuthController implements IAuthController {
   signIn = async (req: Request, res: Response) => {
     try {
       const userDTO = signinRequestSchema.parse(req.body);
-      const result = await this.authService.signIn(userDTO);
+      const result = await this._authService.signIn(userDTO);
       res.cookie(COOKIE_NAMES.REFRESH_TOKEN, result.refreshToken, {
         httpOnly: true,
         secure: config.cookieSecure,
@@ -90,7 +90,7 @@ export class AuthController implements IAuthController {
   verifyOTP = async (req: Request, res: Response) => {
     try {
       const { email, otp } = req.body;
-      const result = await this.authService.verifyOTP(email, otp);
+      const result = await this._authService.verifyOTP(email, otp);
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: result.message });
@@ -104,7 +104,7 @@ export class AuthController implements IAuthController {
   resendOTP = async (req: Request, res: Response) => {
     try {
       const { email } = req.body;
-      const result = await this.authService.resendOTP(email);
+      const result = await this._authService.resendOTP(email);
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: result.message });
@@ -118,7 +118,7 @@ export class AuthController implements IAuthController {
   forgetPassword = async (req: Request, res: Response) => {
     try {
       const { email } = req.body;
-      const result = await this.authService.forgetPassword(email);
+      const result = await this._authService.forgetPassword(email);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Password reset token sent",
@@ -134,7 +134,7 @@ export class AuthController implements IAuthController {
   resetPassword = async (req: Request, res: Response) => {
     try {
       const { token, password, confirmPassword } = req.body;
-      await this.authService.resetPassword(token, password, confirmPassword);
+      await this._authService.resetPassword(token, password, confirmPassword);
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: "Password reset successful" });

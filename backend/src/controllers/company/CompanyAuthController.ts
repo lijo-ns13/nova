@@ -10,13 +10,12 @@ import { IJWTService } from "../../interfaces/services/IJwtService";
 import { Request, Response } from "express";
 import { handleControllerError } from "../../utils/errorHandler";
 import { COOKIE_NAMES } from "../../constants/cookie_names";
-import { config } from "../../core/config/config";
+import { config } from "../../config/config";
 import { COMMON_MESSAGES } from "../../constants/message.constants";
 import { ROLES } from "../../constants/roles";
 export class CompanyAuthController implements ICompanyAuthController {
   constructor(
-    @inject(TYPES.CompanyAuthService) private authService: ICompanyAuthService,
-    @inject(TYPES.JWTService) private jwtService: IJWTService
+    @inject(TYPES.CompanyAuthService) private _authService: ICompanyAuthService
   ) {}
 
   async signUp(req: Request, res: Response): Promise<void> {
@@ -27,7 +26,7 @@ export class CompanyAuthController implements ICompanyAuthController {
         businessNumber: parseInt(req.body.businessNumber),
         foundedYear: parseInt(req.body.foundedYear),
       });
-      const result = await this.authService.signUp(parsed, files);
+      const result = await this._authService.signUp(parsed, files);
       res.status(HTTP_STATUS_CODES.CREATED).json({
         success: true,
         message: "OTP sent to email successfully",
@@ -41,7 +40,7 @@ export class CompanyAuthController implements ICompanyAuthController {
   async signIn(req: Request, res: Response): Promise<void> {
     try {
       const parsed = signInCompanyRequestSchema.parse(req.body);
-      const result = await this.authService.signIn(parsed);
+      const result = await this._authService.signIn(parsed);
 
       res.cookie(COOKIE_NAMES.REFRESH_TOKEN, result.refreshToken, {
         httpOnly: true,
@@ -69,7 +68,7 @@ export class CompanyAuthController implements ICompanyAuthController {
   async verify(req: Request, res: Response): Promise<void> {
     try {
       const { email, otp } = req.body;
-      const result = await this.authService.verifyOTP(email, otp);
+      const result = await this._authService.verifyOTP(email, otp);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "OTP verified successfully",
@@ -83,7 +82,7 @@ export class CompanyAuthController implements ICompanyAuthController {
   async resend(req: Request, res: Response): Promise<void> {
     try {
       const { email } = req.body;
-      const result = await this.authService.resendOTP(email);
+      const result = await this._authService.resendOTP(email);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: result.message,
@@ -96,7 +95,7 @@ export class CompanyAuthController implements ICompanyAuthController {
   async forgetPassword(req: Request, res: Response): Promise<void> {
     try {
       const { email } = req.body;
-      const result = await this.authService.forgetPassword(email);
+      const result = await this._authService.forgetPassword(email);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Password reset token sent",
@@ -109,7 +108,7 @@ export class CompanyAuthController implements ICompanyAuthController {
   async resetPassword(req: Request, res: Response): Promise<void> {
     try {
       const { token, password, confirmPassword } = req.body;
-      await this.authService.resetPassword({
+      await this._authService.resetPassword({
         token,
         password,
         confirmPassword,

@@ -20,14 +20,14 @@ export class JobApplicantManagementController
 {
   constructor(
     @inject(TYPES.JobApplicantManagementService)
-    private jobApplicantManagementService: IJobApplicantManagementService
+    private _jobApplicantManagementService: IJobApplicantManagementService
   ) {}
 
   async getApplicationById(req: Request, res: Response): Promise<void> {
     try {
       const { applicationId } = req.params;
       const result =
-        await this.jobApplicantManagementService.getApplicationWithDetails(
+        await this._jobApplicantManagementService.getApplicationWithDetails(
           applicationId
         );
       if (!result) {
@@ -51,7 +51,7 @@ export class JobApplicantManagementController
       const { applicationId } = req.params;
       const parsed = UpdateApplicationStatusSchema.parse(req.body);
       const updated =
-        await this.jobApplicantManagementService.updateApplicationStatus(
+        await this._jobApplicantManagementService.updateApplicationStatus(
           applicationId,
           parsed.status,
           parsed.reason

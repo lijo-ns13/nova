@@ -21,14 +21,13 @@ import {
 export class SubscriptionPlanController implements ISubscriptionPlanController {
   constructor(
     @inject(TYPES.SubscriptionPlanService)
-    private subscriptionPlanService: ISubscriptionPlanService
+    private _subscriptionPlanService: ISubscriptionPlanService
   ) {}
   async getFilteredTransactions(req: Request, res: Response): Promise<void> {
     try {
       const filter = transactionFilterSchema.parse(req.query);
-      const result = await this.subscriptionPlanService.getFilteredTransactions(
-        filter
-      );
+      const result =
+        await this._subscriptionPlanService.getFilteredTransactions(filter);
       res.status(200).json({
         success: true,
         message: ADMIN_MESSAGES.SUBSCRIPTION.FETCH_FILTERED_TRANSACTIONS,
@@ -45,7 +44,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
   async createPlan(req: Request, res: Response): Promise<void> {
     try {
       const parsed = SubscriptionPlanCreateSchema.parse(req.body);
-      const result = await this.subscriptionPlanService.createPlan(parsed);
+      const result = await this._subscriptionPlanService.createPlan(parsed);
       res.status(HTTP_STATUS_CODES.CREATED).json({
         success: true,
         message: ADMIN_MESSAGES.SUBSCRIPTION.CREATED,
@@ -60,7 +59,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
     try {
       const { id } = IdSchema.parse(req.params);
       const parsed = SubscriptionPlanUpdateSchema.parse(req.body);
-      const result = await this.subscriptionPlanService.updatePlan(id, parsed);
+      const result = await this._subscriptionPlanService.updatePlan(id, parsed);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: ADMIN_MESSAGES.SUBSCRIPTION.UPDATED,
@@ -74,7 +73,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
   async deletePlan(req: Request, res: Response): Promise<void> {
     try {
       const { id } = IdSchema.parse(req.params);
-      await this.subscriptionPlanService.deletePlan(id);
+      await this._subscriptionPlanService.deletePlan(id);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: ADMIN_MESSAGES.SUBSCRIPTION.DELETED,
@@ -86,7 +85,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
 
   async getAllPlans(_: Request, res: Response): Promise<void> {
     try {
-      const result = await this.subscriptionPlanService.getAllPlans();
+      const result = await this._subscriptionPlanService.getAllPlans();
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: ADMIN_MESSAGES.SUBSCRIPTION.FETCH_ALL,
@@ -100,7 +99,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
   async getPlanById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = IdSchema.parse(req.params);
-      const result = await this.subscriptionPlanService.getPlanById(id);
+      const result = await this._subscriptionPlanService.getPlanById(id);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: ADMIN_MESSAGES.SUBSCRIPTION.FETCH_ONE,
@@ -115,7 +114,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
     try {
       const { id } = IdSchema.parse(req.params);
       const { isActive } = req.body;
-      const result = await this.subscriptionPlanService.togglePlanStatus(
+      const result = await this._subscriptionPlanService.togglePlanStatus(
         id,
         isActive
       );

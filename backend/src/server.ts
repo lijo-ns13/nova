@@ -1,7 +1,7 @@
 // server.ts
 import { ExpressPeerServer } from "peerjs-server";
 import { createServer } from "http";
-import { connectDB } from "./shared/config/db.config";
+import { connectDB } from "./config/db.config";
 import app from "./app";
 import { initSocketServer, getSocketIO } from "./socketServer";
 import container from "./di/container";

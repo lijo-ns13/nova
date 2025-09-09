@@ -16,13 +16,13 @@ import {
 @injectable()
 export class UserJobController implements IUserJobController {
   constructor(
-    @inject(TYPES.UserJobService) private jobService: IUserJobService
+    @inject(TYPES.UserJobService) private _jobService: IUserJobService
   ) {}
   getAllJobs: RequestHandler = async (req: Request, res: Response) => {
     try {
       const query = GetAllJobsQuerySchema.parse(req.query);
 
-      const result = await this.jobService.getAllJobs(query);
+      const result = await this._jobService.getAllJobs(query);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -49,7 +49,7 @@ export class UserJobController implements IUserJobController {
     try {
       const { jobId } = req.params;
 
-      const job = await this.jobService.getJob(jobId);
+      const job = await this._jobService.getJob(jobId);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -67,7 +67,7 @@ export class UserJobController implements IUserJobController {
   getAppliedJobs: RequestHandler = async (req: Request, res: Response) => {
     try {
       const user = req.user as UserPayload;
-      const data = await this.jobService.getAppliedJobs(user.id);
+      const data = await this._jobService.getAppliedJobs(user.id);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -116,7 +116,7 @@ export class UserJobController implements IUserJobController {
         return;
       }
 
-      await this.jobService.applyToJob(jobId, userId, resumeFile);
+      await this._jobService.applyToJob(jobId, userId, resumeFile);
 
       res.status(HTTP_STATUS_CODES.CREATED).json({
         success: true,
@@ -148,7 +148,7 @@ export class UserJobController implements IUserJobController {
         return;
       }
 
-      const hasApplied = await this.jobService.hasApplied(jobId, userId);
+      const hasApplied = await this._jobService.hasApplied(jobId, userId);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,

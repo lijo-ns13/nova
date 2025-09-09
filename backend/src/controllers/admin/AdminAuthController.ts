@@ -7,7 +7,7 @@ import { IAdminAuthController } from "../../interfaces/controllers/IAdminAuthCon
 import { Request, Response } from "express";
 import { handleControllerError } from "../../utils/errorHandler";
 import { AdminSignInRequestSchema } from "../../core/dtos/admin/admin.auth.request.dto";
-import { config } from "../../core/config/config";
+import { config } from "../../config/config";
 import { COOKIE_NAMES } from "../../constants/cookie_names";
 import { COMMON_MESSAGES } from "../../constants/message.constants";
 import { ROLES } from "../../constants/roles";
