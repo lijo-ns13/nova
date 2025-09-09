@@ -1,11 +1,7 @@
-// src/modules/job/controllers/JobController.ts
-
 import { Request, Response, RequestHandler } from "express";
-
 import { TYPES } from "../../di/types";
 import { inject } from "inversify";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
-
 import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
 import { ICompanyJobController } from "../../interfaces/controllers/ICompanyJobController";
 import { ISkillService } from "../../interfaces/services/ISkillService";

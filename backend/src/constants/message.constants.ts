@@ -62,6 +62,7 @@ export const COMMON_MESSAGES = {
   SUB: {
     NOT_FOUND: "Subscription plan not found",
   },
+  SIGNIN: (role: string) => `${role} signin successfully`,
 };
 
 export const USER_INTERVIEW_MESSAGES = {

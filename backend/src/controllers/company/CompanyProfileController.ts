@@ -37,7 +37,7 @@ const formatZodError = (error: ZodError): Record<string, string> => {
 export class CompanyProfileController implements ICompanyProfileController {
   constructor(
     @inject(TYPES.CompanyProfileService)
-    private companyProfileService: ICompanyProfileService
+    private _companyProfileService: ICompanyProfileService
   ) {
     // console.log("companyProfileService:", this.companyProfileService);
   }
@@ -45,7 +45,7 @@ export class CompanyProfileController implements ICompanyProfileController {
   async getCompanyProfile(req: Request, res: Response): Promise<void> {
     try {
       const companyId = (req.user as Userr)?.id; // Assumes auth middleware sets req.user
-      const profile = await this.companyProfileService.getCompanyProfile(
+      const profile = await this._companyProfileService.getCompanyProfile(
         companyId
       );
       res.status(200).json({ success: true, data: profile });
@@ -64,7 +64,7 @@ export class CompanyProfileController implements ICompanyProfileController {
     try {
       const companyId = (req.user as Userr)?.id;
       const profile =
-        await this.companyProfileService.getCompanyProfileWithDetails(
+        await this._companyProfileService.getCompanyProfileWithDetails(
           companyId
         );
       res.status(200).json({ success: true, data: profile });
@@ -83,7 +83,7 @@ export class CompanyProfileController implements ICompanyProfileController {
       // Validate request body
       const validatedData = UpdateProfileSchema.parse(req.body);
 
-      const updated = await this.companyProfileService.updateCompanyProfile(
+      const updated = await this._companyProfileService.updateCompanyProfile(
         companyId,
         validatedData
       );
@@ -108,7 +108,7 @@ export class CompanyProfileController implements ICompanyProfileController {
       const companyId = (req.user as Userr)?.id;
       const validatedData = ProfileImageSchema.parse(req.body);
 
-      const updated = await this.companyProfileService.updateProfileImage(
+      const updated = await this._companyProfileService.updateProfileImage(
         companyId,
         validatedData.imageUrl
       );
@@ -130,7 +130,7 @@ export class CompanyProfileController implements ICompanyProfileController {
   async deleteProfileImage(req: Request, res: Response): Promise<void> {
     try {
       const companyId = (req.user as Userr)?.id;
-      await this.companyProfileService.deleteProfileImage(companyId);
+      await this._companyProfileService.deleteProfileImage(companyId);
       res.status(200).json({ success: true, message: "Profile image removed" });
     } catch (err) {
       console.log("error", err);
@@ -145,7 +145,7 @@ export class CompanyProfileController implements ICompanyProfileController {
       const companyId = (req.user as Userr)?.id;
       const validatedData = ChangePasswordSchema.parse(req.body);
 
-      await this.companyProfileService.changePassword(
+      await this._companyProfileService.changePassword(
         companyId,
         validatedData.currentPassword,
         validatedData.newPassword,

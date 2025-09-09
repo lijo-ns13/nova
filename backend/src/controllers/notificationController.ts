@@ -15,7 +15,7 @@ interface UserPayload {
 export class NotificationController implements INotificationController {
   constructor(
     @inject(TYPES.NotificationService)
-    private notificationService: INotificationService
+    private _notificationService: INotificationService
   ) {}
 
   async getNotifications(req: Request, res: Response): Promise<void> {
@@ -34,12 +34,14 @@ export class NotificationController implements INotificationController {
       const skip = (page - 1) * limit;
 
       const { notifications, total } =
-        await this.notificationService.getUserNotifications(
+        await this._notificationService.getUserNotifications(
           userId,
           limit,
           skip
         );
-      const unreadCount = await this.notificationService.getUnreadCount(userId);
+      const unreadCount = await this._notificationService.getUnreadCount(
+        userId
+      );
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -73,7 +75,7 @@ export class NotificationController implements INotificationController {
         return;
       }
 
-      const notification = await this.notificationService.markAsRead(
+      const notification = await this._notificationService.markAsRead(
         notificationId
       );
       if (!notification) {
@@ -84,7 +86,9 @@ export class NotificationController implements INotificationController {
         return;
       }
 
-      const unreadCount = await this.notificationService.getUnreadCount(userId);
+      const unreadCount = await this._notificationService.getUnreadCount(
+        userId
+      );
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -113,8 +117,12 @@ export class NotificationController implements INotificationController {
         return;
       }
 
-      const updatedCount = await this.notificationService.markAllAsRead(userId);
-      const unreadCount = await this.notificationService.getUnreadCount(userId);
+      const updatedCount = await this._notificationService.markAllAsRead(
+        userId
+      );
+      const unreadCount = await this._notificationService.getUnreadCount(
+        userId
+      );
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -143,7 +151,7 @@ export class NotificationController implements INotificationController {
         return;
       }
 
-      const count = await this.notificationService.getUnreadCount(userId);
+      const count = await this._notificationService.getUnreadCount(userId);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         data: { count },
@@ -170,7 +178,7 @@ export class NotificationController implements INotificationController {
         return;
       }
 
-      const success = await this.notificationService.deleteNotification(
+      const success = await this._notificationService.deleteNotification(
         notificationId,
         userId
       );
@@ -182,7 +190,9 @@ export class NotificationController implements INotificationController {
         return;
       }
 
-      const unreadCount = await this.notificationService.getUnreadCount(userId);
+      const unreadCount = await this._notificationService.getUnreadCount(
+        userId
+      );
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         data: { unreadCount },
@@ -208,7 +218,7 @@ export class NotificationController implements INotificationController {
       }
 
       const deletedCount =
-        await this.notificationService.deleteAllNotifications(userId);
+        await this._notificationService.deleteAllNotifications(userId);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: `${deletedCount} notifications deleted`,

@@ -22,13 +22,13 @@ export class AdminCompanyManagementController
 {
   constructor(
     @inject(TYPES.AdminCompanyManagementService)
-    private adminCompanyManagementService: IAdminCompanyManagementService
+    private _adminCompanyService: IAdminCompanyManagementService
   ) {}
   getCompanyById: RequestHandler = async (req, res) => {
     try {
       const { companyId } = companyIdSchema.parse(req.params);
 
-      const company = await this.adminCompanyManagementService.getCompanyById(
+      const company = await this._adminCompanyService.getCompanyById(
         companyId
       );
 
@@ -52,7 +52,7 @@ export class AdminCompanyManagementController
         req.body
       );
 
-      const result = await this.adminCompanyManagementService.verifyCompany(
+      const result = await this._adminCompanyService.verifyCompany(
         companyId,
         status,
         rejectionReason
@@ -77,7 +77,7 @@ export class AdminCompanyManagementController
       const { page, limit } = paginationSchema.parse(req.query);
 
       const result =
-        await this.adminCompanyManagementService.getUnverifiedCompanies(
+        await this._adminCompanyService.getUnverifiedCompanies(
           page,
           limit
         );
@@ -99,7 +99,7 @@ export class AdminCompanyManagementController
   blockCompany: RequestHandler = async (req, res) => {
     try {
       const { companyId } = companyIdSchema.parse(req.params);
-      const company = await this.adminCompanyManagementService.blockCompany(
+      const company = await this._adminCompanyService.blockCompany(
         companyId
       );
       res.status(HTTP_STATUS_CODES.OK).json({
@@ -119,7 +119,7 @@ export class AdminCompanyManagementController
   unblockCompany: RequestHandler = async (req, res) => {
     try {
       const { companyId } = companyIdSchema.parse(req.params);
-      const company = await this.adminCompanyManagementService.unblockCompany(
+      const company = await this._adminCompanyService.unblockCompany(
         companyId
       );
       res.status(HTTP_STATUS_CODES.OK).json({
@@ -139,7 +139,7 @@ export class AdminCompanyManagementController
   getCompanies: RequestHandler = async (req, res) => {
     try {
       const { page, limit, search } = paginationSchema.parse(req.query);
-      const companies = await this.adminCompanyManagementService.getCompanies(
+      const companies = await this._adminCompanyService.getCompanies(
         page,
         limit,
         search

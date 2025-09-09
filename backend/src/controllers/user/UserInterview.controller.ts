@@ -18,7 +18,7 @@ import { USER_MESSAGES } from "../../constants/message.constants";
 export class UserInterviewController {
   constructor(
     @inject(TYPES.UserInterviewService)
-    private userInterviewService: IUserInterviewService
+    private _userInterviewService: IUserInterviewService
   ) {}
 
   async updateInterviewStatus(req: Request, res: Response): Promise<void> {
@@ -28,7 +28,7 @@ export class UserInterviewController {
       );
       const user = req.user as UserPayload;
 
-      const updated = await this.userInterviewService.updateStatus(
+      const updated = await this._userInterviewService.updateStatus(
         applicationId,
         status as ApplicationStatus,
         user.email
@@ -61,7 +61,7 @@ export class UserInterviewController {
 
       const user = req.user as UserPayload;
 
-      const updated = await this.userInterviewService.handleRescheduleResponse(
+      const updated = await this._userInterviewService.handleRescheduleResponse(
         applicationId,
         status,
         selectedSlot,
@@ -88,7 +88,7 @@ export class UserInterviewController {
         UpdateInterviewStatusRescheduleParamsSchema.parse(req.params);
       const user = req.user as UserPayload;
 
-      const slots = await this.userInterviewService.getRescheduleProposedSlots(
+      const slots = await this._userInterviewService.getRescheduleProposedSlots(
         applicationId,
         user.id
       );

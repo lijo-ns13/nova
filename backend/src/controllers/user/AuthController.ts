@@ -10,16 +10,19 @@ import {
 } from "../../core/dtos/request/user.request.dto";
 import { IAuthController } from "../../interfaces/controllers/IUserAuthController";
 import { IUserAuthService } from "../../interfaces/services/IUserAuthService";
+import { config } from "../../config/config";
+import { COOKIE_NAMES } from "../../constants/cookie_names";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
+import { ROLES } from "../../constants/roles";
 
 export class AuthController implements IAuthController {
   constructor(
-    @inject(TYPES.UserAuthService) private authService: IUserAuthService
+    @inject(TYPES.UserAuthService) private _authService: IUserAuthService
   ) {}
   signUp = async (req: Request, res: Response) => {
-    console.log("req.body", req.body);
     try {
       const userDTO = signupRequestSchema.parse(req.body);
-      const tempUser = await this.authService.signUp(userDTO);
+      const tempUser = await this._authService.signUp(userDTO);
       res
         .status(HTTP_STATUS_CODES.CREATED)
         .json({ success: true, message: "OTP sent to email", tempUser });
@@ -45,25 +48,25 @@ export class AuthController implements IAuthController {
   signIn = async (req: Request, res: Response) => {
     try {
       const userDTO = signinRequestSchema.parse(req.body);
-      const result = await this.authService.signIn(userDTO);
-      res.cookie("refreshToken", result.refreshToken, {
+      const result = await this._authService.signIn(userDTO);
+      res.cookie(COOKIE_NAMES.REFRESH_TOKEN, result.refreshToken, {
         httpOnly: true,
-        secure: true, // true in production
-        sameSite: "none", // ← IMPORTANT for cross-origin cookies
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: config.cookieSecure,
+        sameSite: config.cookieSameSite,
+        maxAge: config.refreshTokenMaxAge,
       });
 
-      res.cookie("accessToken", result.accessToken, {
+      res.cookie(COOKIE_NAMES.ACCESSS_TOKEN, result.accessToken, {
         httpOnly: true,
-        secure: true,
-        sameSite: "none", // ← IMPORTANT
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: config.cookieSecure,
+        sameSite: config.cookieSameSite,
+        maxAge: config.accessTokenMaxAge,
       });
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "Sign-in successful",
+        message: COMMON_MESSAGES.SIGNIN(ROLES.USER),
         user: result.user,
-        role: "user",
+        role: ROLES.USER,
         isVerified: result.isVerified,
         isBlocked: result.isBlocked,
       });
@@ -87,7 +90,7 @@ export class AuthController implements IAuthController {
   verifyOTP = async (req: Request, res: Response) => {
     try {
       const { email, otp } = req.body;
-      const result = await this.authService.verifyOTP(email, otp);
+      const result = await this._authService.verifyOTP(email, otp);
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: result.message });
@@ -101,7 +104,7 @@ export class AuthController implements IAuthController {
   resendOTP = async (req: Request, res: Response) => {
     try {
       const { email } = req.body;
-      const result = await this.authService.resendOTP(email);
+      const result = await this._authService.resendOTP(email);
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: result.message });
@@ -115,7 +118,7 @@ export class AuthController implements IAuthController {
   forgetPassword = async (req: Request, res: Response) => {
     try {
       const { email } = req.body;
-      const result = await this.authService.forgetPassword(email);
+      const result = await this._authService.forgetPassword(email);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Password reset token sent",
@@ -131,7 +134,7 @@ export class AuthController implements IAuthController {
   resetPassword = async (req: Request, res: Response) => {
     try {
       const { token, password, confirmPassword } = req.body;
-      await this.authService.resetPassword(token, password, confirmPassword);
+      await this._authService.resetPassword(token, password, confirmPassword);
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: "Password reset successful" });
@@ -150,8 +153,8 @@ export class AuthController implements IAuthController {
         sameSite: "none" as const,
       };
 
-      res.clearCookie("refreshToken", cookieOptions);
-      res.clearCookie("accessToken", cookieOptions);
+      res.clearCookie(COOKIE_NAMES.REFRESH_TOKEN, cookieOptions);
+      res.clearCookie(COOKIE_NAMES.ACCESSS_TOKEN, cookieOptions);
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: "Logged out successfully" });

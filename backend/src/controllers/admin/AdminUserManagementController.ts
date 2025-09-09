@@ -17,13 +17,13 @@ export class AdminUserManagementController
 {
   constructor(
     @inject(TYPES.AdminUserManagementService)
-    private adminUserManagementService: IAdminUserManagementService
+    private _adminUserService: IAdminUserManagementService
   ) {}
 
   blockUser: RequestHandler = async (req, res) => {
     try {
       const { userId } = userIdSchema.parse(req.params);
-      const user = await this.adminUserManagementService.blockUser(userId);
+      const user = await this._adminUserService.blockUser(userId);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -38,7 +38,7 @@ export class AdminUserManagementController
   unblockUser: RequestHandler = async (req, res) => {
     try {
       const { userId } = userIdSchema.parse(req.params);
-      const user = await this.adminUserManagementService.unblockUser(userId);
+      const user = await this._adminUserService.unblockUser(userId);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -53,11 +53,7 @@ export class AdminUserManagementController
   getUsers: RequestHandler = async (req, res) => {
     try {
       const { page, limit, search } = paginationSchema.parse(req.query);
-      const result = await this.adminUserManagementService.getUsers(
-        page,
-        limit,
-        search
-      );
+      const result = await this._adminUserService.getUsers(page, limit, search);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,

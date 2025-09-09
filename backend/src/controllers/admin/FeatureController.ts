@@ -23,7 +23,7 @@ export class FeatureController implements IFeatureController {
     private _featureService: IFeatureService
   ) {}
 
-  async create(req: Request, res: Response): Promise<void> {
+  async createFeature(req: Request, res: Response): Promise<void> {
     try {
       const parsed = FeatureCreateSchema.parse(req.body);
       const feature = await this._featureService.create(parsed);
@@ -37,7 +37,7 @@ export class FeatureController implements IFeatureController {
     }
   }
 
-  async update(req: Request, res: Response): Promise<void> {
+  async updateFeature(req: Request, res: Response): Promise<void> {
     try {
       const { id } = IdSchema.parse(req.params);
       const parsedBody = FeatureUpdateSchema.parse(req.body);
@@ -52,7 +52,7 @@ export class FeatureController implements IFeatureController {
     }
   }
 
-  async delete(req: Request, res: Response): Promise<void> {
+  async deleteFeature(req: Request, res: Response): Promise<void> {
     try {
       const { id } = IdSchema.parse(req.params);
       await this._featureService.delete(id);
@@ -65,7 +65,7 @@ export class FeatureController implements IFeatureController {
     }
   }
 
-  async getAll(_: Request, res: Response): Promise<void> {
+  async getAllFeature(_: Request, res: Response): Promise<void> {
     try {
       const features = await this._featureService.getAll();
       res.status(HTTP_STATUS_CODES.OK).json({
@@ -82,7 +82,7 @@ export class FeatureController implements IFeatureController {
     }
   }
 
-  async getById(req: Request, res: Response): Promise<void> {
+  async getByIdFeature(req: Request, res: Response): Promise<void> {
     try {
       const { id } = IdSchema.parse(req.params);
       const feature = await this._featureService.getById(id);

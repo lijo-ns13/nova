@@ -19,58 +19,23 @@ export class SubscriptionWithFeaturesController
 {
   constructor(
     @inject(TYPES.SubscriptionWithFeaturesService)
-    private service: ISubscriptionWithFeaturesService,
-    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
-    @inject(TYPES.SubscriptionPlanRepository)
-    private _subRepo: ISubscriptionPlanRepository,
-    @inject(TYPES.FeatureRepository) private _featRepo: IFeatureRepository
+    private _subscriptionFeatService: ISubscriptionWithFeaturesService
   ) {}
   async userCurrentSubscription(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req.user as userPayload)?.id;
-      const user = await this._userRepo.findById(userId);
-
-      if (!user) {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, message: "user not found" });
-        return;
-      }
-      if (!user?.subscription) {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, message: "user not taken subscriptoin" });
-        return;
-      }
-      if (!user.subscriptionStartDate || !user.subscriptionEndDate) {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, message: "sub data not found" });
-      }
-      const subData = await this._subRepo.findById(
-        user?.subscription?.toString()
-      );
-      if (!subData) {
-        res
-          .status(HTTP_STATUS_CODES.BAD_REQUEST)
-          .json({ success: false, message: "sub data not found" });
-      }
-      const features = await this._featRepo.findAll();
-      const featName = features.map((feat) => feat.name);
+      const data =
+        await this._subscriptionFeatService.getUserCurrentSubscription(userId);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
-        message: "succesfully retrived user sub data",
-        data: {
-          subcription: subData,
-          features: featName,
-          subStartDate: user.subscriptionStartDate,
-          subEndDate: user.subscriptionEndDate,
-        },
+        message: "Successfully retrieved user subscription data",
+        data,
       });
     } catch (error) {
-      res
-        .status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: "failed to get sub data" });
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message || "Failed to get subscription data",
+      });
     }
   }
   async getActiveSubscriptionsWithFeatures(
@@ -78,7 +43,8 @@ export class SubscriptionWithFeaturesController
     res: Response
   ): Promise<void> {
     try {
-      const result = await this.service.getActiveSubscriptionsWithFeatures();
+      const result =
+        await this._subscriptionFeatService.getActiveSubscriptionsWithFeatures();
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         data: result,
