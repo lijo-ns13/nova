@@ -4,7 +4,6 @@ import { TYPES } from "../../di/types";
 import { IPostService } from "../../interfaces/services/Post/IPostService";
 import { IPostController } from "../../interfaces/controllers/post/IPostController";
 import { ILikeService } from "../../interfaces/services/Post/ILikeService";
-
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { handleControllerError } from "../../utils/errorHandler";
 import { CreatePostInputSchema } from "../../core/dtos/user/post/post";
