@@ -1,13 +1,9 @@
-// src/controllers/JobApplicantManagementController.ts
-
 import { Request, Response, NextFunction } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
-import { ZodError } from "zod";
 import { IJobApplicantManagementController } from "../../interfaces/controllers/IJobApplicantManagementController";
 import { IJobApplicantManagementService } from "../../interfaces/services/IJobApplicantManagement";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
-import { ApplicationStatus } from "../../models/application.modal";
 import { handleControllerError } from "../../utils/errorHandler";
 import {
   ApplicationMapper,
@@ -74,60 +70,4 @@ export class JobApplicantManagementController
       handleControllerError(error, res, "UpdateApplicationStatus");
     }
   }
-  // async getApplicationsByJob(req: Request, res: Response): Promise<void> {
-  //   try {
-  //     const { jobId } = req.params;
-  //     const applications =
-  //       await this.jobApplicantManagementService.getApplicationsByJob(jobId);
-  //     res
-  //       .status(HTTP_STATUS_CODES.OK)
-  //       .json({ success: true, data: applications });
-  //   } catch (error) {
-  //     console.log("error form here", error);
-  //     res
-  //       .status(HTTP_STATUS_CODES.BAD_REQUEST)
-  //       .json({ succuss: false, message: (error as Error).message });
-  //   }
-  // }
-
-  // async getApplicationsByUser(req: Request, res: Response): Promise<void> {
-  //   try {
-  //     const { userId } = req.params;
-  //     const applications =
-  //       await this.jobApplicantManagementService.getApplicationsByUser(userId);
-  //     res
-  //       .status(HTTP_STATUS_CODES.OK)
-  //       .json({ success: true, data: applications });
-  //   } catch (error) {
-  //     console.log("error form here", error);
-  //     res
-  //       .status(HTTP_STATUS_CODES.BAD_REQUEST)
-  //       .json({ succuss: false, message: (error as Error).message });
-  //   }
-  // }
-  // async createApplication(req: Request, res: Response): Promise<void> {
-  //   try {
-  //     const { job, user, resumeMediaId } = req.body;
-  //     const application =
-  //       await this.jobApplicantManagementService.createApplication({
-  //         job,
-  //         user,
-  //         resumeMediaId,
-  //       });
-  //     res
-  //       .status(HTTP_STATUS_CODES.CREATED)
-  //       .json({ success: true, data: application });
-  //   } catch (error) {
-  //     if (error instanceof ZodError) {
-  //       res
-  //         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-  //         .json({ success: false, errors: formatZodError(error) });
-  //     } else {
-  //       console.log("error form here", error);
-  //       res
-  //         .status(HTTP_STATUS_CODES.BAD_REQUEST)
-  //         .json({ succuss: false, message: (error as Error).message });
-  //     }
-  //   }
-  // }
 }
