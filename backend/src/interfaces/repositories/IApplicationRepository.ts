@@ -12,13 +12,16 @@ import {
 import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
 import { ApplyToJobInput } from "../../repositories/mongo/ApplicationRepository";
 import { Types } from "mongoose";
-import { IApplicationPopulatedJob } from "../../repositories/entities/applicationPopulated.entity";
+import {
+  IApplicationPopulatedJob,
+  IApplicationPopulatedUserAndJob,
+} from "../../repositories/entities/applicationPopulated.entity";
 
 export interface IApplicationRepository extends IBaseRepository<IApplication> {
   findAppliedJobs(userId: Types.ObjectId): Promise<IApplicationPopulatedJob[]>;
   findWithUserAndJobById(
     applicationId: string
-  ): Promise<IApplicationWithUserAndJob | null>;
+  ): Promise<IApplicationPopulatedUserAndJob | null>;
   updateStatus(
     applicationId: string,
     status: ApplicationStatus,
@@ -34,10 +37,6 @@ export interface IApplicationRepository extends IBaseRepository<IApplication> {
   findByJobId(jobId: string): Promise<IApplication[]>;
 
   findByUserId(userId: string): Promise<IApplication[]>;
-
-  findByJobIdAndPop(userId: string): Promise<IApplication[]>;
-  // findByJobIdAndPop(userId: string): Promise<IApplicationWithPopulatedJob[]>;
-
   CreateApplication(input: ApplyToJobInput): Promise<IApplication>;
   rejectApplication(applicationId: string, reason?: string): Promise<boolean>;
   shortlistApplication(applicationId: string): Promise<boolean>;

@@ -32,6 +32,7 @@ import {
 import { ApplicationJobMapper } from "../../mapping/company/job.application.mapper";
 import { ApplicationGetMapper } from "../../mapping/company/getApplicant.mapper";
 import { ApplicantDetailDTO } from "../../core/dtos/company/getApplicant.dto";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 
 export class CompanyJobService implements ICompanyJobService {
   private logger = logger.child({ context: "companyjobservice" });
@@ -97,16 +98,17 @@ export class CompanyJobService implements ICompanyJobService {
     if (!application) return false;
 
     await this._notificationService.sendNotification(
-      application.user.id,
+      application.user._id.toString(),
       `Congrats! Your application for "${application.job.title}" is shortlisted.`,
       NotificationType.JOB,
-      application.job.companyId
+      application.job.company.toString()
     );
 
     const res = await this._applicationRepo.updateStatus(
       applicationId,
       ApplicationStatus.SHORTLISTED
     );
+    this.logger.info("application shortlisted successfully✅");
     return !!res;
   }
 
@@ -120,10 +122,10 @@ export class CompanyJobService implements ICompanyJobService {
     if (!application) return false;
 
     await this._notificationService.sendNotification(
-      application.user.id,
+      application.user._id.toString(),
       `Congrats! Your application for "${application.job.title}" is shortlisted.`,
       NotificationType.JOB,
-      application.job.companyId
+      application.job.company.toString()
     );
 
     const res = await this._applicationRepo.updateStatus(
