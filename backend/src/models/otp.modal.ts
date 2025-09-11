@@ -1,14 +1,6 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 import bcrypt from "bcryptjs";
-export interface IOTP extends Document {
-  _id: Types.ObjectId;
-  accountId: Types.ObjectId;
-  accountType: string;
-  otp: string;
-  expiresAt: Date;
-  createdAt: Date;
-  attempts: number;
-}
+import { IOTP } from "../repositories/entities/otp.entity";
 
 const OTPSchema = new Schema<IOTP>(
   {

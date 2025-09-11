@@ -1,3 +1,5 @@
+import { INVALID } from "zod";
+
 export const USER_MESSAGES = {
   USER_INTERVIEW: {
     SUCCESS: {
@@ -61,6 +63,18 @@ export const COMMON_MESSAGES = {
   },
   SUB: {
     NOT_FOUND: "Subscription plan not found",
+  },
+  INVALID: {
+    APPLICATIONID: "application id is not valid",
+    USERID: "userid is not valid",
+    JOBID: "jobid is not valid",
+    COMPANYID: "company id is not valid",
+    INTERVIEWID: "interview id is not valid",
+    POSTID: "post id is not valid",
+    MEDIAID: "media id is not valid",
+    COMMENTID: "comment id is not valid",
+    LIKEID: "like id is not valid",
+    SUBCRIPTIONID: "subscription id is not valid",
   },
   SIGNIN: (role: string) => `${role} signin successfully`,
 };

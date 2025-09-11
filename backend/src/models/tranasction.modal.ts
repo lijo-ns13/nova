@@ -1,21 +1,5 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
-
-export interface ITransaction extends Document {
-  _id: Types.ObjectId;
-  userId: Types.ObjectId;
-  orderId: string;
-  amount: number;
-  currency: string;
-  status: "pending" | "completed" | "failed" | "refunded";
-  paymentMethod: string;
-  stripeSessionId: string;
-  stripeRefundId?: string | null;
-  planName: string;
-  refundReason?: string | null;
-  refundDate?: Date | null;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+import { ITransaction } from "../repositories/entities/transaction.entity";
 
 const TransactionSchema = new Schema<ITransaction>({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },

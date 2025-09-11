@@ -1,84 +1,8 @@
-// src/shared/models/job.model.ts
-import mongoose, { Schema, Document, Types } from "mongoose";
-import { IUser } from "./user.modal";
-import { ICompany } from "./company.modal";
-
-export enum EmploymentType {
-  FULL_TIME = "full-time",
-  PART_TIME = "part-time",
-  CONTRACT = "contract",
-  TEMPORARY = "temporary",
-  INTERNSHIP = "internship",
-  FREELANCE = "freelance",
-}
-
-export enum ApplicationStatus {
-  // Initial stages
-  APPLIED = "applied",
-  SHORTLISTED = "shortlisted",
-  REJECTED = "rejected",
-
-  // Interview process
-  INTERVIEW_SCHEDULED = "interview_scheduled",
-  INTERVIEW_RESCHEDULED = "interview_rescheduled",
-  INTERVIEW_CANCELLED = "interview_cancelled",
-
-  INTERVIEW_ACCEPTED_BY_USER = "interview_accepted_by_user",
-  INTERVIEW_REJECTED_BY_USER = "interview_rejected_by_user",
-
-  INTERVIEW_COMPLETED = "interview_completed",
-  INTERVIEW_PASSED = "interview_passed",
-  INTERVIEW_FAILED = "interview_failed",
-
-  // Offer process
-  OFFERED = "offered",
-  OFFER_ACCEPTED = "offer_accepted",
-  OFFER_REJECTED = "offer_rejected",
-
-  // Final status
-  SELECTED = "selected", // Final hiring decision
-  HIRED = "hired", // Officially onboarded
-  WITHDRAWN = "withdrawn", // Candidate withdrew from the process
-}
-
-export enum JobType {
-  REMOTE = "remote",
-  HYBRID = "hybrid",
-  ON_SITE = "on-site",
-}
-
-export enum ExperienceLevel {
-  ENTRY = "entry",
-  MID = "mid",
-  SENIOR = "senior",
-  LEAD = "lead",
-}
-
-export interface SalaryRange {
-  currency: string;
-  min: number;
-  max: number;
-  isVisibleToApplicants: boolean;
-}
-
-export interface IJob extends Document {
-  _id: Types.ObjectId;
-  title: string;
-  description: string;
-  location: string;
-  jobType: JobType;
-  employmentType: EmploymentType;
-  experienceLevel: ExperienceLevel;
-  company: Types.ObjectId;
-  skillsRequired: Types.ObjectId[];
-  salary: SalaryRange;
-  benefits: string[];
-  perks?: string[];
-  applicationDeadline: Date;
-  status: "open" | "closed" | "filled";
-  createdAt: Date;
-  updatedAt: Date;
-}
+import mongoose, { Schema } from "mongoose";
+import { IJob } from "../repositories/entities/job.entity";
+import { JobType } from "../constants/job.constant";
+import { EmploymentType } from "../constants/employeeType.constant";
+import { ExperienceLevel } from "../constants/experience.constant";
 
 const JobSchema = new Schema<IJob>(
   {

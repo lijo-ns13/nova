@@ -1,25 +1,26 @@
 // src/interfaces/repositories/IApplicationRepository.ts
 import { IBaseRepository } from "./IBaseRepository";
-import {
-  IApplication,
-  ApplicationStatus,
-} from "../../models/application.modal";
+
 import { IApplicationWithUserAndJob } from "../../core/dtos/company/application.dto";
 import {
   ApplicantRawData,
   GetApplicationsQuery,
 } from "../../core/dtos/company/getapplications.dto";
 import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
+import { ApplyToJobInput } from "../../repositories/mongo/ApplicationRepository";
+import { Types } from "mongoose";
 import {
-  ApplyToJobInput,
-  IAppliedJob,
-} from "../../repositories/mongo/ApplicationRepository";
+  IApplicationPopulatedJob,
+  IApplicationPopulatedUserAndJob,
+} from "../../repositories/entities/applicationPopulated.entity";
+import { IApplication } from "../../repositories/entities/application.entity";
+import { ApplicationStatus } from "../../core/enums/applicationStatus";
 
 export interface IApplicationRepository extends IBaseRepository<IApplication> {
-  findAppliedJobs(userId: string): Promise<IAppliedJob[]>;
+  findAppliedJobs(userId: string): Promise<IApplicationPopulatedJob[]>;
   findWithUserAndJobById(
     applicationId: string
-  ): Promise<IApplicationWithUserAndJob | null>;
+  ): Promise<IApplicationPopulatedUserAndJob | null>;
   updateStatus(
     applicationId: string,
     status: ApplicationStatus,
@@ -35,10 +36,6 @@ export interface IApplicationRepository extends IBaseRepository<IApplication> {
   findByJobId(jobId: string): Promise<IApplication[]>;
 
   findByUserId(userId: string): Promise<IApplication[]>;
-
-  findByJobIdAndPop(userId: string): Promise<IApplication[]>;
-  // findByJobIdAndPop(userId: string): Promise<IApplicationWithPopulatedJob[]>;
-
   CreateApplication(input: ApplyToJobInput): Promise<IApplication>;
   rejectApplication(applicationId: string, reason?: string): Promise<boolean>;
   shortlistApplication(applicationId: string): Promise<boolean>;

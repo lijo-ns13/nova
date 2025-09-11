@@ -1,18 +1,5 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
-
-export interface IInterview extends Document {
-  _id: Types.ObjectId;
-  companyId: mongoose.Types.ObjectId | string;
-  userId: mongoose.Types.ObjectId | string;
-  applicationId: mongoose.Types.ObjectId | string;
-  scheduledAt: Date;
-  status: "pending" | "accepted" | "rejected" | "reschedule_proposed";
-  result: "pending" | "pass" | "fail";
-  roomId: string;
-  rescheduleProposedSlots?: Date[];
-  rescheduleReason?: string;
-  rescheduleSelectedSlot?: Date;
-}
+import { IInterview } from "../repositories/entities/interview.entity";
 
 const InterviewSchema = new Schema<IInterview>(
   {

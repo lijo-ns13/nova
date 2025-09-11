@@ -7,13 +7,11 @@ import {
   UpdateJobDto,
 } from "../../interfaces/repositories/IJobRepository";
 import { TYPES } from "../../di/types";
-import { IJob } from "../../models/job.modal";
 import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
-import { Types } from "mongoose";
 import { NotificationType } from "../../models/notification.modal";
 import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
 import { JobMapper } from "../../mapping/job.mapper";
@@ -24,7 +22,6 @@ import {
 } from "../../core/dtos/company/job.dto";
 import logger from "../../utils/logger";
 import { ApplicationStatus } from "../../core/enums/applicationStatus";
-import { ApplicationMapper } from "../../mapping/company/application.mapper";
 import {
   ApplicantSummaryDTO,
   GetApplicationsQuery,
@@ -97,16 +94,17 @@ export class CompanyJobService implements ICompanyJobService {
     if (!application) return false;
 
     await this._notificationService.sendNotification(
-      application.user.id,
+      application.user._id.toString(),
       `Congrats! Your application for "${application.job.title}" is shortlisted.`,
       NotificationType.JOB,
-      application.job.companyId
+      application.job.company.toString()
     );
 
     const res = await this._applicationRepo.updateStatus(
       applicationId,
       ApplicationStatus.SHORTLISTED
     );
+    this.logger.info("application shortlisted successfully✅");
     return !!res;
   }
 
@@ -120,10 +118,10 @@ export class CompanyJobService implements ICompanyJobService {
     if (!application) return false;
 
     await this._notificationService.sendNotification(
-      application.user.id,
+      application.user._id.toString(),
       `Congrats! Your application for "${application.job.title}" is shortlisted.`,
       NotificationType.JOB,
-      application.job.companyId
+      application.job.company.toString()
     );
 
     const res = await this._applicationRepo.updateStatus(

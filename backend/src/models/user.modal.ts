@@ -1,45 +1,6 @@
-// usermodel
-import mongoose, { Document, Schema, Types } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
-
-export interface IUser extends Document {
-  _id: Types.ObjectId;
-  name: string;
-  username: string;
-  email: string;
-  password?: string;
-  profilePicture?: string;
-  skills: string[] | [];
-  certifications: mongoose.Types.ObjectId[] | [];
-  experiences: mongoose.Types.ObjectId[] | [];
-  educations: mongoose.Types.ObjectId[] | [];
-  projects: mongoose.Types.ObjectId[] | [];
-  followers: mongoose.Types.ObjectId[] | [];
-  following: mongoose.Types.ObjectId[] | [];
-  // connections: mongoose.Types.ObjectId[] | [];
-  headline?: string;
-  about?: string;
-  isBlocked: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
-  googleId?: string;
-  isVerified: boolean;
-  appliedJobs: mongoose.Types.ObjectId[] | [];
-  savedJobs: mongoose.Types.ObjectId[] | [];
-  socketId?: string;
-  online?: boolean;
-  // Subscription
-  isSubscriptionActive: boolean;
-  subscriptionStartDate: Date | null;
-  subscriptionEndDate: Date | null;
-  subscriptionCancelled: boolean;
-  subscription?: Types.ObjectId | null;
-  activePaymentSession?: string | null;
-  activePaymentSessionExpiresAt?: Date | null;
-  // job,post count
-  appliedJobCount: number;
-  createdPostCount: number;
-}
+import { IUser } from "../repositories/entities/user.entity";
 
 const userSchema = new Schema<IUser>(
   {
@@ -101,12 +62,6 @@ const userSchema = new Schema<IUser>(
         ref: "Project",
       },
     ],
-    // connections: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "User",
-    //   },
-    // ],
     followers: [
       {
         type: mongoose.Schema.Types.ObjectId,

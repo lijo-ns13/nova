@@ -1,15 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-
-export interface IUserCertificate extends Document {
-  _id: mongoose.Types.ObjectId;
-  title: string;
-  userId: mongoose.Types.ObjectId;
-  issuer: string;
-  issueDate: Date;
-  expirationDate: Date;
-  certificateUrl: string;
-  certificateImageUrl: string;
-}
+import { IUserCertificate } from "../repositories/entities/certificate.entity";
 
 const certificateSchema = new Schema<IUserCertificate>({
   title: {

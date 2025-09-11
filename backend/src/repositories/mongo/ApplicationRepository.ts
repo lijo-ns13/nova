@@ -1,26 +1,23 @@
-// src/modules/job/repositories/ApplicationRepository.ts
 import { inject, injectable } from "inversify";
-import applicationModel, {
-  IApplication,
-  ApplicationStatus,
-  IStatusHistory,
-} from "../../models/application.modal";
 import { BaseRepository } from "./BaseRepository";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import mongoose, { Model, PipelineStage, Types } from "mongoose";
 import { TYPES } from "../../di/types";
 import { MongoServerError } from "mongodb";
-import { IApplicationWithUserAndJob } from "../../core/dtos/company/application.dto";
-import {
-  ApplicationMapper,
-  IApplicationPopulated,
-} from "../../mapping/company/application.mapper";
 import {
   ApplicantRawData,
   GetApplicationsQuery,
 } from "../../core/dtos/company/getapplications.dto";
-import jobModal, { IJob } from "../../models/job.modal";
+import jobModal from "../../models/job.modal";
 import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
+import {
+  IApplicationPopulatedJob,
+  IApplicationPopulatedUserAndJob,
+} from "../entities/applicationPopulated.entity";
+import { ApplicationStatus } from "../../core/enums/applicationStatus";
+import { IApplication, IStatusHistory } from "../entities/application.entity";
+import { IJob } from "../entities/job.entity";
+import applicationModal from "../../models/application.modal";
 export interface ApplyToJobInput {
   jobId: string;
   userId: string;
@@ -48,35 +45,65 @@ export class ApplicationRepository
   ) {
     super(applicationModel);
   }
-  async findAppliedJobs(userId: string): Promise<IAppliedJob[]> {
-    const applications = await this.model
-      .find({ user: new mongoose.Types.ObjectId(userId) })
-      .populate<{ job: IAppliedJob["job"] }>(
-        "job",
-        "_id title description location jobType"
-      )
-      .lean();
-
-    return applications.map((a) => ({
-      _id: a._id,
-      job: a.job,
-      appliedAt: a.appliedAt,
-      status: a.status,
-      resumeMediaId: a.resumeMediaId,
-      statusHistory: a.statusHistory,
-      scheduledAt: a.scheduledAt,
-      coverLetter: a.coverLetter,
-      notes: a.notes,
-    }));
-  }
-
-  async findByJobIdAndPop(userId: string): Promise<IApplication[]> {
+  async findAppliedJobs(userId: string): Promise<IApplicationPopulatedJob[]> {
+    const objectId = new Types.ObjectId(userId);
     return this.model
-      .find({ user: userId })
-      .populate("job", "title description location jobType skillsRequired")
+      .find({ user: objectId })
+      .populate("job", "_id title description location jobType")
+      .lean<IApplicationPopulatedJob[]>()
       .exec();
   }
+  async updateStatus(
+    applicationId: string,
+    status: ApplicationStatus,
+    reason?: string
+  ): Promise<IApplication | null> {
+    const application = await this.findById(applicationId);
+    if (!application) return null;
 
+    // Update fields
+    application.status = status;
+
+    // Push to status history
+    application.statusHistory.push({
+      status,
+      changedAt: new Date(),
+      ...(reason ? { reason } : {}),
+    });
+
+    return application.save();
+  }
+  async shortlistApplication(applicationId: string): Promise<boolean> {
+    const application = await this.findById(applicationId);
+    if (!application) return false;
+
+    application.status = ApplicationStatus.SHORTLISTED;
+    application.statusHistory.push({
+      status: ApplicationStatus.SHORTLISTED,
+      changedAt: new Date(),
+    });
+
+    await application.save();
+    return true;
+  }
+
+  async rejectApplication(
+    applicationId: string,
+    reason?: string
+  ): Promise<boolean> {
+    const application = await this.findById(applicationId);
+    if (!application) return false;
+
+    application.status = ApplicationStatus.REJECTED;
+    application.statusHistory.push({
+      status: ApplicationStatus.REJECTED,
+      changedAt: new Date(),
+      reason: reason || "No reason provided",
+    });
+
+    await application.save();
+    return true;
+  }
   async findApplicationsByFilter(
     filter: GetApplicationsQuery,
     page: number,
@@ -188,7 +215,7 @@ export class ApplicationRepository
       },
     ];
 
-    const result = await applicationModel.aggregate<{
+    const result = await applicationModal.aggregate<{
       applications: ApplicantRawData[];
       total: number;
     }>(aggregation);
@@ -201,16 +228,15 @@ export class ApplicationRepository
 
   async findWithUserAndJobById(
     applicationId: string
-  ): Promise<IApplicationWithUserAndJob | null> {
-    const doc = await this.model
-      .findById(applicationId)
-      .populate("user", "name username profilePicture")
-      .populate("job", "title company")
-      .lean<IApplicationPopulated>()
+  ): Promise<IApplicationPopulatedUserAndJob | null> {
+    if (!Types.ObjectId.isValid(applicationId)) return null;
+    const objectId = new Types.ObjectId(applicationId);
+    return this.model
+      .findById(objectId)
+      .populate("user", "_id name username profilePicture")
+      .populate("job", "_id title company")
+      .lean<IApplicationPopulatedUserAndJob>()
       .exec();
-
-    if (!doc) return null;
-    return ApplicationMapper.toUserAndJobDTO(doc);
   }
 
   async CreateApplication(input: ApplyToJobInput): Promise<IApplication> {
@@ -247,30 +273,6 @@ export class ApplicationRepository
     }
   }
 
-  /**
-   * Reuses BaseRepository's findById and update
-   */
-  async updateStatus(
-    applicationId: string,
-    status: ApplicationStatus,
-    reason?: string
-  ): Promise<IApplication | null> {
-    const application = await this.findById(applicationId);
-    if (!application) return null;
-
-    // Update fields
-    application.status = status;
-
-    // Push to status history
-    application.statusHistory.push({
-      status,
-      changedAt: new Date(),
-      ...(reason ? { reason } : {}),
-    });
-
-    return application.save();
-  }
-
   async findByJobId(jobId: string): Promise<IApplication[]> {
     return this.findAll({ job: new Types.ObjectId(jobId) });
   }
@@ -290,37 +292,6 @@ export class ApplicationRepository
       .exec() as Promise<PopulatedApplication | null>;
   }
 
-  async shortlistApplication(applicationId: string): Promise<boolean> {
-    const application = await this.findById(applicationId);
-    if (!application) return false;
-
-    application.status = ApplicationStatus.SHORTLISTED;
-    application.statusHistory.push({
-      status: ApplicationStatus.SHORTLISTED,
-      changedAt: new Date(),
-    });
-
-    await application.save();
-    return true;
-  }
-
-  async rejectApplication(
-    applicationId: string,
-    reason?: string
-  ): Promise<boolean> {
-    const application = await this.findById(applicationId);
-    if (!application) return false;
-
-    application.status = ApplicationStatus.REJECTED;
-    application.statusHistory.push({
-      status: ApplicationStatus.REJECTED,
-      changedAt: new Date(),
-      reason: reason || "No reason provided",
-    });
-
-    await application.save();
-    return true;
-  }
   async hasUserApplied(jobId: string, userId: string): Promise<boolean> {
     const count = await this.model.countDocuments({
       job: new Types.ObjectId(jobId),

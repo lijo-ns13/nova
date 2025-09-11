@@ -1,12 +1,5 @@
-// src/models/feature.modal.ts
 import mongoose, { Schema, Document, Types } from "mongoose";
-
-export interface IFeature extends Document {
-  _id: Types.ObjectId;
-  name: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { IFeature } from "../repositories/entities/feature.entity";
 
 const FeatureSchema = new Schema<IFeature>(
   {
