@@ -10,13 +10,12 @@ import {
   GetApplicationsQuery,
 } from "../../core/dtos/company/getapplications.dto";
 import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
-import {
-  ApplyToJobInput,
-  IAppliedJob,
-} from "../../repositories/mongo/ApplicationRepository";
+import { ApplyToJobInput } from "../../repositories/mongo/ApplicationRepository";
+import { Types } from "mongoose";
+import { IApplicationPopulatedJob } from "../../repositories/entities/applicationPopulated.entity";
 
 export interface IApplicationRepository extends IBaseRepository<IApplication> {
-  findAppliedJobs(userId: string): Promise<IAppliedJob[]>;
+  findAppliedJobs(userId: Types.ObjectId): Promise<IApplicationPopulatedJob[]>;
   findWithUserAndJobById(
     applicationId: string
   ): Promise<IApplicationWithUserAndJob | null>;

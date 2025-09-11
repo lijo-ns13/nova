@@ -12,6 +12,8 @@ import { GetAllJobsQueryInput } from "../../core/validations/user/user.jobschema
 import { JobResponseDTO, UserJobMapper } from "../../mapping/user/jobmapper";
 import { IAppliedJob } from "../../repositories/mongo/ApplicationRepository";
 import { COMMON_MESSAGES } from "../../constants/message.constants";
+import { Types } from "mongoose";
+import { ApplicationMapper } from "../../mapping/user/application.mapper";
 export interface AppliedJobDTO {
   _id: string;
   job: {
@@ -117,8 +119,12 @@ export class UserJobService implements IUserJobService {
   }
 
   async getAppliedJobs(userId: string): Promise<IAppliedJob[]> {
-    const applications = await this._applicationRepo.findAppliedJobs(userId);
-    return applications;
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new Error("Invalid User ID");
+    }
+    const objectId = new Types.ObjectId(userId);
+    const applications = await this._applicationRepo.findAppliedJobs(objectId);
+    return applications.map(ApplicationMapper.toAppliedJobDTO);
   }
 
   async applyToJob(

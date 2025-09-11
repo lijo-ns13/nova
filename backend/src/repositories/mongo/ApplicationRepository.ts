@@ -21,6 +21,7 @@ import {
 } from "../../core/dtos/company/getapplications.dto";
 import jobModal, { IJob } from "../../models/job.modal";
 import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
+import { IApplicationPopulatedJob } from "../entities/applicationPopulated.entity";
 export interface ApplyToJobInput {
   jobId: string;
   userId: string;
@@ -48,26 +49,14 @@ export class ApplicationRepository
   ) {
     super(applicationModel);
   }
-  async findAppliedJobs(userId: string): Promise<IAppliedJob[]> {
-    const applications = await this.model
-      .find({ user: new mongoose.Types.ObjectId(userId) })
-      .populate<{ job: IAppliedJob["job"] }>(
-        "job",
-        "_id title description location jobType"
-      )
-      .lean();
-
-    return applications.map((a) => ({
-      _id: a._id,
-      job: a.job,
-      appliedAt: a.appliedAt,
-      status: a.status,
-      resumeMediaId: a.resumeMediaId,
-      statusHistory: a.statusHistory,
-      scheduledAt: a.scheduledAt,
-      coverLetter: a.coverLetter,
-      notes: a.notes,
-    }));
+  async findAppliedJobs(
+    userId: Types.ObjectId
+  ): Promise<IApplicationPopulatedJob[]> {
+    return this.model
+      .find({ user: userId })
+      .populate("job", "_id title description location jobType")
+      .lean<IApplicationPopulatedJob[]>()
+      .exec();
   }
 
   async findByJobIdAndPop(userId: string): Promise<IApplication[]> {
