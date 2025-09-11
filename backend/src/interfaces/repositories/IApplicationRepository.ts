@@ -18,7 +18,7 @@ import {
 } from "../../repositories/entities/applicationPopulated.entity";
 
 export interface IApplicationRepository extends IBaseRepository<IApplication> {
-  findAppliedJobs(userId: Types.ObjectId): Promise<IApplicationPopulatedJob[]>;
+  findAppliedJobs(userId: string): Promise<IApplicationPopulatedJob[]>;
   findWithUserAndJobById(
     applicationId: string
   ): Promise<IApplicationPopulatedUserAndJob | null>;

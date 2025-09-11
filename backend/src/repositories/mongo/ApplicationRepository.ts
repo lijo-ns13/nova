@@ -52,11 +52,10 @@ export class ApplicationRepository
   ) {
     super(applicationModel);
   }
-  async findAppliedJobs(
-    userId: Types.ObjectId
-  ): Promise<IApplicationPopulatedJob[]> {
+  async findAppliedJobs(userId: string): Promise<IApplicationPopulatedJob[]> {
+    const objectId = new Types.ObjectId(userId);
     return this.model
-      .find({ user: userId })
+      .find({ user: objectId })
       .populate("job", "_id title description location jobType")
       .lean<IApplicationPopulatedJob[]>()
       .exec();

@@ -119,11 +119,7 @@ export class UserJobService implements IUserJobService {
   }
 
   async getAppliedJobs(userId: string): Promise<IAppliedJob[]> {
-    if (!Types.ObjectId.isValid(userId)) {
-      throw new Error("Invalid User ID");
-    }
-    const objectId = new Types.ObjectId(userId);
-    const applications = await this._applicationRepo.findAppliedJobs(objectId);
+    const applications = await this._applicationRepo.findAppliedJobs(userId);
     return applications.map(ApplicationMapper.toAppliedJobDTO);
   }
 
