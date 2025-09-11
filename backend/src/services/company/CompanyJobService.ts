@@ -1,18 +1,11 @@
-// src/modules/job/services/JobService.ts
-
 import { inject } from "inversify";
-import {
-  CreateJobDto,
-  IJobRepository,
-  UpdateJobDto,
-} from "../../interfaces/repositories/IJobRepository";
+import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import { TYPES } from "../../di/types";
 import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
-import { NotificationType } from "../../models/notification.modal";
 import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
 import { JobMapper } from "../../mapping/job.mapper";
 import {
@@ -29,6 +22,7 @@ import {
 import { ApplicationJobMapper } from "../../mapping/company/job.application.mapper";
 import { ApplicationGetMapper } from "../../mapping/company/getApplicant.mapper";
 import { ApplicantDetailDTO } from "../../core/dtos/company/getApplicant.dto";
+import { NotificationType } from "../../constants/notification.type.constant";
 
 export class CompanyJobService implements ICompanyJobService {
   private logger = logger.child({ context: "companyjobservice" });

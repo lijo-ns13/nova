@@ -5,16 +5,14 @@ import { TYPES } from "../../di/types";
 import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
-
 import { INotificationService } from "../../interfaces/services/INotificationService";
-import { NotificationType } from "../../models/notification.modal";
 import { GetAllJobsQueryInput } from "../../core/validations/user/user.jobschema";
 import { JobResponseDTO, UserJobMapper } from "../../mapping/user/jobmapper";
 import { IAppliedJob } from "../../repositories/mongo/ApplicationRepository";
 import { COMMON_MESSAGES } from "../../constants/message.constants";
-import { Types } from "mongoose";
 import { ApplicationMapper } from "../../mapping/user/application.mapper";
 import { ApplicationStatus } from "../../core/enums/applicationStatus";
+import { NotificationType } from "../../constants/notification.type.constant";
 export interface AppliedJobDTO {
   _id: string;
   job: {

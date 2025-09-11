@@ -1,19 +1,10 @@
-// src/modules/job/services/UserInterviewService.ts
 import { inject } from "inversify";
 import { TYPES } from "../../di/types";
-
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
-import {
-  ApplicationStatus,
-  IApplication,
-} from "../../models/application.modal";
 import { IUserInterviewService } from "../../interfaces/services/IUserInterviewService";
 import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRepository";
-import { IInterview } from "../../core/entities/interview.interface";
 import { INotificationService } from "../../interfaces/services/INotificationService";
-import { NotificationType } from "../../models/notification.modal";
 import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
-import { Types } from "mongoose";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { IEmailService } from "../../interfaces/services/IEmailService";
 import logger from "../../utils/logger";
@@ -25,6 +16,9 @@ import {
   COMMON_MESSAGES,
   USER_INTERVIEW_MESSAGES,
 } from "../../constants/message.constants";
+import { ApplicationStatus } from "../../core/enums/applicationStatus";
+import { NotificationType } from "../../constants/notification.type.constant";
+import { IApplication } from "../../repositories/entities/application.entity";
 export class UserInterviewService implements IUserInterviewService {
   private logger = logger.child({ context: "userinterviewService" });
   constructor(

@@ -1,4 +1,3 @@
-// src/services/subscriptionWithFeatures.service.ts
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { ISubscriptionWithFeaturesRepository } from "../../interfaces/repositories/ISubscriptionWithFeatures";

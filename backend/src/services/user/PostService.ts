@@ -8,12 +8,9 @@ import {
   PostMapper,
   PostResponseDTO,
 } from "../../mapping/user/postmapper";
-import { IMedia } from "../../models/media.modal";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import logger from "../../utils/logger";
 import { MediaUrlDTO } from "./MediaService";
-import { IUser } from "../../models/user.modal";
-
 @injectable()
 export class PostService {
   private logger = logger.child({ context: "userpostservice" });

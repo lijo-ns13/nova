@@ -1,14 +1,12 @@
-// src/services/notificationService.ts
 import { inject, injectable } from "inversify";
 import { Server } from "socket.io";
 import { TYPES } from "../di/types";
 import { INotificationService } from "../interfaces/services/INotificationService";
 import { INotificationRepository } from "../interfaces/repositories/INotificationRepository";
-import { INotification, NotificationType } from "../models/notification.modal";
-
 import { getUserByIdAcrossCollections } from "../utils/getUserSocketData";
 import { NotificationMapper } from "../mapping/notificationmapper";
 import { NotificationResponseDTO } from "../core/dtos/response/notification.response.dto";
+import { NotificationType } from "../constants/notification.type.constant";
 @injectable()
 export class NotificationService implements INotificationService {
   private io?: Server;

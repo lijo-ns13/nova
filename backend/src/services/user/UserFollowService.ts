@@ -1,12 +1,8 @@
-// src/services/UserFollowService.ts
-
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
-
 import { IUserFollowService } from "../../interfaces/services/IUserFollowService";
 import { INotificationService } from "../../interfaces/services/INotificationService";
-import { NotificationType } from "../../models/notification.modal";
 import { IUserWithStatus } from "../../repositories/mongo/UserRepository";
 import {
   FollowResultDTO,
@@ -15,6 +11,7 @@ import {
   UserWithStatusDTO,
 } from "../../mapping/user/UserFollowMapper";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
+import { NotificationType } from "../../constants/notification.type.constant";
 
 @injectable()
 export class UserFollowService implements IUserFollowService {

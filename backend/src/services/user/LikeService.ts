@@ -6,13 +6,13 @@ import { Types } from "mongoose";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { IPostRepository } from "../../interfaces/repositories/IPostRepository";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
-import { NotificationType } from "../../models/notification.modal";
 import {
   LikeMapper,
   LikeResponseDTO,
 } from "../../mapping/user/post/likemapper";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { AppEventEmitter } from "../../event/AppEventEmitter";
+import { NotificationType } from "../../constants/notification.type.constant";
 @injectable()
 export class LikeService implements ILikeService {
   constructor(

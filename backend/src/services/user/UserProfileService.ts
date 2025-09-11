@@ -3,7 +3,6 @@ import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { TYPES } from "../../di/types";
 import { IUserProfileService } from "../../interfaces/services/IUserProfileService";
 import { UpdateUserProfileInputDTO } from "../../core/dtos/user/userprofile";
-
 import { EducationMapper } from "../../mapping/user/education.mapper";
 import {
   CreateEducationInputDTO,

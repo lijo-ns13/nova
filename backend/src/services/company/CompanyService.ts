@@ -1,13 +1,8 @@
-// src/modules/job/services/JobService.ts
-
 import { inject } from "inversify";
-
 import { TYPES } from "../../di/types";
-
 import { ICompanyRepository } from "../../interfaces/repositories/ICompanyRepository";
-import { ICompany } from "../../models/company.modal";
 import { ICompanyService } from "../../interfaces/services/ICompanyService";
-
+import { ICompany } from "../../repositories/entities/company.entity";
 export class CompanyService implements ICompanyService {
   constructor(
     @inject(TYPES.CompanyRepository)

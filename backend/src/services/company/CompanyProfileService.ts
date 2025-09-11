@@ -2,16 +2,14 @@ import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { ICompanyRepository } from "../../interfaces/repositories/ICompanyRepository";
 import { ICompanyProfileService } from "../../interfaces/services/ICompanyProfileService";
-import { ICompany } from "../../models/company.modal";
+import { ICompany } from "../../repositories/entities/company.entity";
 
 @injectable()
 export class CompanyProfileService implements ICompanyProfileService {
   constructor(
     @inject(TYPES.CompanyRepository)
     private _companyRepository: ICompanyRepository
-  ) {
-    // console.log("ProfileRepo", this._companyRepository);
-  }
+  ) {}
 
   async getCompanyProfile(companyId: string): Promise<ICompany> {
     const company = await this._companyRepository.getCompanyProfile(companyId);

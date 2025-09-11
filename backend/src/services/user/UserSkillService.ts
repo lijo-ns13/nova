@@ -1,7 +1,4 @@
-// services/UserSkillService.ts
 import { inject, injectable } from "inversify";
-
-import { Types } from "mongoose";
 import { IUserSkillService } from "../../interfaces/services/IUserSkillService";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
