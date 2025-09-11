@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { IndustryTypes } from "../../../models/company.temp.modal";
+import { IndustryTypes } from "../../../constants/industrytypes";
 
 // Base company schema
 const CompanyBaseSchema = z.object({

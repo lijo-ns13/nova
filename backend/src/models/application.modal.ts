@@ -1,57 +1,9 @@
-// src/shared/models/application.model.ts
 import mongoose, { Schema, Document, Types } from "mongoose";
-import { IUser } from "./user.modal";
-import { IJob } from "./job.modal";
-
-export enum ApplicationStatus {
-  // Initial stages
-  APPLIED = "applied",
-  SHORTLISTED = "shortlisted",
-  REJECTED = "rejected",
-
-  // Interview process
-  INTERVIEW_SCHEDULED = "interview_scheduled",
-  INTERVIEW_CANCELLED = "interview_cancelled",
-
-  INTERVIEW_ACCEPTED_BY_USER = "interview_accepted_by_user",
-  INTERVIEW_REJECTED_BY_USER = "interview_rejected_by_user",
-  // new
-  // Rescheduling statuses
-  INTERVIEW_RESCHEDULE_PROPOSED = "interview_reschedule_proposed",
-  INTERVIEW_RESCHEDULE_ACCEPTED = "interview_reschedule_accepted",
-  INTERVIEW_RESCHEDULE_REJECTED = "interview_reschedule_rejected",
-  // ^
-  INTERVIEW_COMPLETED = "interview_completed",
-  INTERVIEW_PASSED = "interview_passed",
-  INTERVIEW_FAILED = "interview_failed",
-
-  // Offer process
-  OFFERED = "offered",
-
-  // Final status
-  SELECTED = "selected", // Final hiring decision
-  HIRED = "hired", // Officially onboarded
-  WITHDRAWN = "withdrawn", // Candidate withdrew
-}
-
-export interface IStatusHistory {
-  status: ApplicationStatus;
-  changedAt: Date;
-  reason?: string;
-}
-
-export interface IApplication extends Document {
-  _id: Types.ObjectId;
-  job: Types.ObjectId;
-  user: Types.ObjectId;
-  appliedAt: Date;
-  resumeMediaId: Types.ObjectId;
-  coverLetter?: string;
-  status: ApplicationStatus;
-  notes?: string;
-  scheduledAt?: Date;
-  statusHistory: IStatusHistory[];
-}
+import {
+  IApplication,
+  IStatusHistory,
+} from "../repositories/entities/application.entity";
+import { ApplicationStatus } from "../core/enums/applicationStatus";
 
 const StatusHistorySchema = new Schema<IStatusHistory>(
   {

@@ -1,13 +1,5 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
-
-export interface ISkill extends Document {
-  _id: Types.ObjectId;
-  title: string;
-  createdAt: Date;
-  updatedAt: Date;
-  createdById?: Types.ObjectId;
-  createdBy?: "user" | "company" | "admin";
-}
+import mongoose, { Schema } from "mongoose";
+import { ISkill } from "../repositories/entities/skill.entity";
 
 const SkillSchema = new Schema<ISkill>(
   {

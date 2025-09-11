@@ -1,13 +1,5 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
-
-export interface IAdmin extends Document {
-  _id: Types.ObjectId;
-  name: string;
-  email: string;
-  password: string;
-  socketId?: string;
-  online?: boolean;
-}
+import mongoose, { Schema } from "mongoose";
+import { IAdmin } from "../repositories/entities/admin.entity";
 
 const AdminSchema = new Schema<IAdmin>(
   {

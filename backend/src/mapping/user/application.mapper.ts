@@ -1,5 +1,5 @@
-import { IJob } from "../../models/job.modal";
 import { IApplicationPopulatedJob } from "../../repositories/entities/applicationPopulated.entity";
+import { IJob } from "../../repositories/entities/job.entity";
 import { IAppliedJob } from "../../repositories/mongo/ApplicationRepository";
 
 export class ApplicationMapper {

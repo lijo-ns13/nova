@@ -1,9 +1,6 @@
 // src/interfaces/repositories/IApplicationRepository.ts
 import { IBaseRepository } from "./IBaseRepository";
-import {
-  IApplication,
-  ApplicationStatus,
-} from "../../models/application.modal";
+
 import { IApplicationWithUserAndJob } from "../../core/dtos/company/application.dto";
 import {
   ApplicantRawData,
@@ -16,6 +13,8 @@ import {
   IApplicationPopulatedJob,
   IApplicationPopulatedUserAndJob,
 } from "../../repositories/entities/applicationPopulated.entity";
+import { IApplication } from "../../repositories/entities/application.entity";
+import { ApplicationStatus } from "../../core/enums/applicationStatus";
 
 export interface IApplicationRepository extends IBaseRepository<IApplication> {
   findAppliedJobs(userId: string): Promise<IApplicationPopulatedJob[]>;

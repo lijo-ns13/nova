@@ -1,20 +1,7 @@
 import mongoose, { Document } from "mongoose";
+import { IUserEducation } from "../repositories/entities/education.entity";
 
-export interface IUserEducation extends Document {
-  _id: mongoose.Types.ObjectId;
-  userId: mongoose.Types.ObjectId;
-  institutionName: string;
-  degree: string;
-  fieldOfStudy?: string;
-  grade?: string;
-  startDate: Date;
-  endDate?: Date;
-  description?: string;
-  createdAt?: Date;
-  updateAt?: Date;
-}
-
-const UserEducationSchema = new mongoose.Schema(
+const UserEducationSchema = new mongoose.Schema<IUserEducation>(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,

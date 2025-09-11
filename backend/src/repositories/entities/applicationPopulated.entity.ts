@@ -1,6 +1,6 @@
-import { IJob } from "../../models/job.modal";
-import { IUser } from "../../models/user.modal";
 import { IApplication } from "./application.entity";
+import { IJob } from "./job.entity";
+import { IUser } from "./user.entity";
 
 export interface IApplicationPopulatedJob extends Omit<IApplication, "job"> {
   job: Pick<IJob, "_id" | "title" | "description" | "location" | "jobType">;

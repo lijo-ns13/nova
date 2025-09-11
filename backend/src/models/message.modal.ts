@@ -1,7 +1,7 @@
-// models/Message.ts
 import mongoose from "mongoose";
+import { IMessage } from "../repositories/entities/message.entity";
 
-const MessageSchema = new mongoose.Schema(
+const MessageSchema = new mongoose.Schema<IMessage>(
   {
     sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     receiver: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -13,4 +13,4 @@ const MessageSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Message", MessageSchema);
+export default mongoose.model<IMessage>("Message", MessageSchema);

@@ -1,4 +1,4 @@
-import { ApplicationStatus } from "../models/application.modal";
+import { ApplicationStatus } from "../core/enums/applicationStatus";
 
 export const allowedTransitions: Record<
   ApplicationStatus,

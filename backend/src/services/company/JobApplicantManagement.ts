@@ -3,10 +3,7 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
-import {
-  ApplicationStatus,
-  IApplication,
-} from "../../models/application.modal";
+
 import { IJobApplicantManagementService } from "../../interfaces/services/IJobApplicantManagement";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 
@@ -18,7 +15,9 @@ import {
   ApplicationResponseDTO,
 } from "../../mapping/company/applicant/aplicationtwo.mapper";
 import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
-import { NotificationType } from "../../models/notification.modal";
+import { ApplicationStatus } from "../../core/enums/applicationStatus";
+import { IApplication } from "../../repositories/entities/application.entity";
+import { NotificationType } from "../../constants/notification.type.constant";
 
 @injectable()
 export class JobApplicantManagementService

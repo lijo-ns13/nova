@@ -1,20 +1,5 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
-
-export interface IPasswordResetToken extends Document {
-  findByToken(hashedToken: string): unknown;
-  deleteByAccount(userId: Types.ObjectId, arg1: string): unknown;
-  createToken(arg0: {
-    token: string;
-    accountId: Types.ObjectId;
-    accountType: string;
-    expiresAt: Date;
-  }): unknown;
-  _id: Types.ObjectId;
-  token: string;
-  accountId: Types.ObjectId;
-  accountType: "user" | "company";
-  expiresAt: Date;
-}
+import { IPasswordResetToken } from "../repositories/entities/password.reset.entity";
 
 const PasswordResetTokenSchema = new Schema<IPasswordResetToken>({
   token: {

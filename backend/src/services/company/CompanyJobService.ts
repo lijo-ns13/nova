@@ -7,13 +7,11 @@ import {
   UpdateJobDto,
 } from "../../interfaces/repositories/IJobRepository";
 import { TYPES } from "../../di/types";
-import { IJob } from "../../models/job.modal";
 import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
-import { Types } from "mongoose";
 import { NotificationType } from "../../models/notification.modal";
 import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
 import { JobMapper } from "../../mapping/job.mapper";
@@ -24,7 +22,6 @@ import {
 } from "../../core/dtos/company/job.dto";
 import logger from "../../utils/logger";
 import { ApplicationStatus } from "../../core/enums/applicationStatus";
-import { ApplicationMapper } from "../../mapping/company/application.mapper";
 import {
   ApplicantSummaryDTO,
   GetApplicationsQuery,
@@ -32,7 +29,6 @@ import {
 import { ApplicationJobMapper } from "../../mapping/company/job.application.mapper";
 import { ApplicationGetMapper } from "../../mapping/company/getApplicant.mapper";
 import { ApplicantDetailDTO } from "../../core/dtos/company/getApplicant.dto";
-import { COMMON_MESSAGES } from "../../constants/message.constants";
 
 export class CompanyJobService implements ICompanyJobService {
   private logger = logger.child({ context: "companyjobservice" });

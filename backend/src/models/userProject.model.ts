@@ -1,15 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-
-export interface IUserProject extends Document {
-  _id: mongoose.Types.ObjectId;
-  userId: mongoose.Types.ObjectId;
-  title: string;
-  description: string;
-  projectUrl?: string;
-  startDate: Date;
-  endDate?: Date;
-  technologies: string[];
-}
+import { IUserProject } from "../repositories/entities/project.entity";
 
 const userProjectSchema = new Schema<IUserProject>({
   userId: {

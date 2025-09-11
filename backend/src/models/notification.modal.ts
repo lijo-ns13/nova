@@ -1,27 +1,6 @@
-// models/notification.model.ts
 import mongoose, { Schema, Document, Types } from "mongoose";
-
-export enum NotificationType {
-  JOB = "job",
-  POST = "post",
-  COMMENT = "comment",
-  LIKE = "like",
-  MESSAGE = "message",
-  FOLLOW = "FOLLOW",
-  GENERAL = "GENERAL",
-}
-
-export interface INotification extends Document {
-  _id: Types.ObjectId;
-  userId: mongoose.Types.ObjectId;
-  senderId: mongoose.Types.ObjectId;
-  content: string;
-  type: NotificationType;
-  relatedId?: mongoose.Types.ObjectId;
-  isRead: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { NotificationType } from "../constants/notification.type.constant";
+import { INotification } from "../repositories/entities/notification.entity";
 
 const notificationSchema = new Schema<INotification>(
   {

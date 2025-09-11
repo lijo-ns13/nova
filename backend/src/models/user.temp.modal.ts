@@ -1,14 +1,6 @@
 import bcrypt from "bcryptjs";
-import mongoose, { Document, Schema, Types } from "mongoose";
-
-export interface ITempUser extends Document {
-  _id: Types.ObjectId;
-  name: string;
-  email: string;
-  password: string;
-  isVerified: boolean;
-  expiresAt: Date;
-}
+import mongoose, { Schema } from "mongoose";
+import { ITempUser } from "../repositories/entities/tempuser.entity";
 
 const TempUserSchema = new Schema<ITempUser>({
   name: {

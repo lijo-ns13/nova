@@ -1,17 +1,7 @@
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
+import { IUserExperience } from "../repositories/entities/experience.entity";
 
-export interface IUserExperience extends Document {
-  _id: mongoose.Types.ObjectId;
-  userId: mongoose.Types.ObjectId;
-  title: string;
-  description?: string;
-  company: string;
-  location: string;
-  startDate: Date;
-  endDate?: Date;
-}
-
-const UserExperienceSchema = new mongoose.Schema(
+const UserExperienceSchema = new mongoose.Schema<IUserExperience>(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
