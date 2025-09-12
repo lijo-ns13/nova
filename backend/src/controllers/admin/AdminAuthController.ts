@@ -11,6 +11,7 @@ import { config } from "../../config/config";
 import { COOKIE_NAMES } from "../../constants/cookie_names";
 import { COMMON_MESSAGES } from "../../constants/message.constants";
 import { ROLES } from "../../constants/roles";
+import { AdminAuthMapper } from "../../mapping/admin/admin.auth.mapper";
 @injectable()
 export class AdminAuthController implements IAdminAuthController {
   constructor(
@@ -18,8 +19,12 @@ export class AdminAuthController implements IAdminAuthController {
   ) {}
   async signIn(req: Request, res: Response): Promise<void> {
     try {
+      // *************validating entitiyesssssss*****************
       const parsed = AdminSignInRequestSchema.parse(req.body);
-      const result = await this._authService.signIn(parsed);
+      // *************reverese mapping =>************************
+      const entity = AdminAuthMapper.fromDTO(parsed);
+      // *************service only sees internal entity************
+      const result = await this._authService.signIn(entity);
       res.cookie(COOKIE_NAMES.REFRESH_TOKEN, result.refreshToken, {
         httpOnly: true,
         secure: config.cookieSecure,

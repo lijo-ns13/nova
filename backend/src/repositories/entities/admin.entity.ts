@@ -8,3 +8,7 @@ export interface IAdmin extends Document {
   socketId?: string;
   online?: boolean;
 }
+export interface AdminSignInEntity {
+  email: string;
+  password: string;
+}
