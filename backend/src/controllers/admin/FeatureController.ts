@@ -43,7 +43,8 @@ export class FeatureController implements IFeatureController {
     try {
       const { id } = IdSchema.parse(req.params);
       const parsedBody = FeatureUpdateSchema.parse(req.body);
-      const feature = await this._featureService.update(id, parsedBody);
+      const entity = FeatureMapper.fromDTO(parsedBody);
+      const feature = await this._featureService.update(id, entity);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: ADMIN_MESSAGES.FEATURE.UPDATED,
