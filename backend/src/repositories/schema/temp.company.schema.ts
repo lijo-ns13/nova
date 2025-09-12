@@ -1,8 +1,8 @@
-import mongoose, { Document, Schema } from "mongoose";
-import { IndustryTypes } from "../constants/industrytypes";
-import { ITempCompany } from "../repositories/entities/temp.comany.entity";
+import { Schema } from "mongoose";
+import { IndustryTypes } from "../../constants/industrytypes";
+import { ITempCompany } from "../entities/temp.comany.entity";
 
-const tempCompanySchema = new Schema<ITempCompany>(
+export const tempCompanySchema = new Schema<ITempCompany>(
   {
     companyName: {
       type: String,
@@ -55,5 +55,3 @@ const tempCompanySchema = new Schema<ITempCompany>(
     timestamps: true,
   }
 );
-tempCompanySchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
-export default mongoose.model<ITempCompany>("TempCompany", tempCompanySchema);
