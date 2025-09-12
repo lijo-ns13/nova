@@ -13,6 +13,7 @@ import {
   ADMIN_CONTROLLER_ERROR,
   ADMIN_MESSAGES,
 } from "../../constants/message.constants";
+import { SkillMapper } from "../../mapping/admin/admin.skill.mapper";
 
 @injectable()
 export class AdminSkillController implements IAdminSkillController {
@@ -24,9 +25,10 @@ export class AdminSkillController implements IAdminSkillController {
   createSkill = async (req: Request, res: Response) => {
     try {
       const { title } = CreateSkillSchema.parse(req.body);
+      const entity = SkillMapper.fromBaseDTO(title);
       const adminId = (req.user as { id: string }).id;
 
-      const skillDto = await this._adminSkillService.create({ title }, adminId);
+      const skillDto = await this._adminSkillService.create(entity, adminId);
 
       res.status(HTTP_STATUS_CODES.CREATED).json({
         success: true,
@@ -45,7 +47,9 @@ export class AdminSkillController implements IAdminSkillController {
   updateSkill = async (req: Request, res: Response) => {
     try {
       const id = req.params.id;
-      const data = UpdateSkillSchema.parse(req.body);
+
+      const entity = SkillMapper.idFromDTO({ id });
+      const data = UpdateSkillSchema.parse(entity.id);
 
       const updatedDto = await this._adminSkillService.update(id, data);
 
@@ -66,7 +70,8 @@ export class AdminSkillController implements IAdminSkillController {
   deleteSkill = async (req: Request, res: Response) => {
     try {
       const id = req.params.id;
-      await this._adminSkillService.delete(id);
+      const entity = SkillMapper.idFromDTO({ id });
+      await this._adminSkillService.delete(entity.id);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -111,7 +116,9 @@ export class AdminSkillController implements IAdminSkillController {
   getByIdSkill = async (req: Request, res: Response) => {
     try {
       const id = req.params.id;
-      const skillDto = await this._adminSkillService.getById(id);
+      const entity = SkillMapper.idFromDTO({ id });
+
+      const skillDto = await this._adminSkillService.getById(entity.id);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,

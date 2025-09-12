@@ -8,3 +8,9 @@ export interface ISkill extends Document {
   createdById?: Types.ObjectId;
   createdBy?: "user" | "company" | "admin";
 }
+export interface SkillIdEntity {
+  id: string;
+}
+export interface SkillTitleEntity {
+  title: string;
+}
