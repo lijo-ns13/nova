@@ -19,3 +19,4 @@ export const companyVerificationSchema = z.object({
   status: z.enum(["accepted", "rejected"]),
   rejectionReason: z.string().optional(),
 });
+export type CompanyIdDTO = z.infer<typeof companyIdSchema>;

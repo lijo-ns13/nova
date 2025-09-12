@@ -1,6 +1,6 @@
 import { Document, Types } from "mongoose";
 
-export interface ICompany extends Document{
+export interface ICompany extends Document {
   _id: Types.ObjectId;
   companyName: string;
   username: string;
@@ -22,4 +22,8 @@ export interface ICompany extends Document{
   online?: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface CompanyIdEntity {
+  companyId: string;
 }

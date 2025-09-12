@@ -1,8 +1,8 @@
 import { CompanyBaseDTO } from "../../core/dtos/admin/company.unveri.dto";
-import { ICompany } from "../../models/company.modal";
+import { ICompany } from "../../repositories/entities/company.entity";
 
-export class CompanyUnVerifiedMapper {
-  static toBase(company: ICompany): CompanyBaseDTO {
+export class UnverifiedCompanyMapper {
+  static toDTO(company: ICompany): CompanyBaseDTO {
     return {
       id: company._id.toString(),
       companyName: company.companyName,

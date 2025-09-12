@@ -12,7 +12,7 @@ import { sendVerificationCompanyEmail } from "../../shared/util/email.verificati
 import { buildCompanyVerificationEmail } from "../../shared/email/verificationEmailBuilder";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 
-import { CompanyUnVerifiedMapper } from "../../mapping/admin/admin.comp.unveri.mapping";
+import { UnverifiedCompanyMapper } from "../../mapping/admin/admin.comp.unveri.mapping";
 import { CompanyWithSignedDocsDTO } from "../../core/dtos/admin/company.unveri.dto";
 import { COMMON_MESSAGES } from "../../constants/message.constants";
 @injectable()
@@ -137,12 +137,12 @@ export class AdminCompanyManagementService
     const updatedCompanies: CompanyWithSignedDocsDTO[] = await Promise.all(
       companies.map(async (company) => {
         const signedDocUrls = await Promise.all(
-          company.documents.map((s3Key) =>
+          company.documents.map((s3Key: string) =>
             this._mediaService.getMediaUrl(s3Key)
           )
         );
 
-        const baseDTO = CompanyUnVerifiedMapper.toBase(company); // no signed URLs
+        const baseDTO = UnverifiedCompanyMapper.toDTO(company); // no signed URLs
 
         return {
           ...baseDTO,
