@@ -4,16 +4,14 @@ import { Model } from "mongoose";
 import { TYPES } from "../../di/types";
 import { BaseRepository } from "./BaseRepository";
 import { IAdminRepository } from "../../interfaces/repositories/IAdminRepository";
-import { IAdmin } from "../../models/admin.modal";
+import { IAdmin } from "../entities/admin.entity";
 
 @injectable()
 export class AdminRepository
   extends BaseRepository<IAdmin>
   implements IAdminRepository
 {
-  constructor(
-    @inject(TYPES.AdminModal) adminModel: Model<IAdmin> 
-  ) {
+  constructor(@inject(TYPES.AdminModal) adminModel: Model<IAdmin>) {
     super(adminModel);
   }
 
