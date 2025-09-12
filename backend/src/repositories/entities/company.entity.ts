@@ -24,6 +24,11 @@ export interface ICompany extends Document {
   updatedAt: Date;
 }
 
+export interface CompanySigninEntity {
+  email: string;
+  password: string;
+}
+
 export interface CompanyIdEntity {
   companyId: string;
 }
