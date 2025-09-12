@@ -6,3 +6,9 @@ export interface IFeature extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+export interface FeatureNameEntity {
+  name: string;
+}
+export interface FeatureIdEntity {
+  id: string;
+}

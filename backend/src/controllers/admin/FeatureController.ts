@@ -15,6 +15,7 @@ import {
   ADMIN_CONTROLLER_ERROR,
   ADMIN_MESSAGES,
 } from "../../constants/message.constants";
+import { FeatureMapper } from "../../mapping/admin/admin.feature.mapper";
 
 @injectable()
 export class FeatureController implements IFeatureController {
@@ -26,7 +27,8 @@ export class FeatureController implements IFeatureController {
   async createFeature(req: Request, res: Response): Promise<void> {
     try {
       const parsed = FeatureCreateSchema.parse(req.body);
-      const feature = await this._featureService.create(parsed);
+      const entity = FeatureMapper.fromDTO(parsed);
+      const feature = await this._featureService.create(entity);
       res.status(HTTP_STATUS_CODES.CREATED).json({
         success: true,
         message: ADMIN_MESSAGES.FEATURE.CREATED,
@@ -55,7 +57,8 @@ export class FeatureController implements IFeatureController {
   async deleteFeature(req: Request, res: Response): Promise<void> {
     try {
       const { id } = IdSchema.parse(req.params);
-      await this._featureService.delete(id);
+      const entity = FeatureMapper.formIdDTO(id);
+      await this._featureService.delete(entity.id);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: ADMIN_MESSAGES.FEATURE.DELETED,
@@ -85,7 +88,8 @@ export class FeatureController implements IFeatureController {
   async getByIdFeature(req: Request, res: Response): Promise<void> {
     try {
       const { id } = IdSchema.parse(req.params);
-      const feature = await this._featureService.getById(id);
+      const entity = FeatureMapper.formIdDTO(id);
+      const feature = await this._featureService.getById(entity.id);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: ADMIN_MESSAGES.FEATURE.FETCH_BYID,
