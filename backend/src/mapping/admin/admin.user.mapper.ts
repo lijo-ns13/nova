@@ -1,9 +1,8 @@
-// src/mappers/UserMapper.ts
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { UserSummaryDTO } from "../../dtos/response/admin/admin.user.response.dto";
-import { IUser } from "../../models/user.modal";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
+import { IUser, UserIdEntity } from "../../repositories/entities/user.entity";
 export interface IUserMapper {
   toSummaryDTO(user: IUser): Promise<UserSummaryDTO>;
 }
@@ -22,6 +21,11 @@ export class UserMapper implements IUserMapper {
         ? await this._mediaService.getMediaUrl(user.profilePicture)
         : "",
       isBlocked: user.isBlocked,
+    };
+  }
+  static fromDTO(dto: string): UserIdEntity {
+    return {
+      userId: dto,
     };
   }
 }

@@ -35,3 +35,7 @@ export interface IUser extends Document {
   appliedJobCount: number;
   createdPostCount: number;
 }
+
+export interface UserIdEntity {
+  userId: string;
+}

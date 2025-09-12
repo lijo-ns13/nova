@@ -11,6 +11,7 @@ import {
   ADMIN_CONTROLLER_ERROR,
   ADMIN_MESSAGES,
 } from "../../constants/message.constants";
+import { UserMapper } from "../../mapping/admin/admin.user.mapper";
 
 export class AdminUserManagementController
   implements IAdminUserManagementController
@@ -23,7 +24,8 @@ export class AdminUserManagementController
   blockUser: RequestHandler = async (req, res) => {
     try {
       const { userId } = userIdSchema.parse(req.params);
-      const user = await this._adminUserService.blockUser(userId);
+      const entity = UserMapper.fromDTO(userId);
+      const user = await this._adminUserService.blockUser(entity.userId);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -38,7 +40,8 @@ export class AdminUserManagementController
   unblockUser: RequestHandler = async (req, res) => {
     try {
       const { userId } = userIdSchema.parse(req.params);
-      const user = await this._adminUserService.unblockUser(userId);
+      const entity = UserMapper.fromDTO(userId);
+      const user = await this._adminUserService.unblockUser(entity.userId);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
