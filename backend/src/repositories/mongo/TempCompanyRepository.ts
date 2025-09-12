@@ -1,12 +1,10 @@
-// src/infrastructure/database/repositories/mongo/TempCompanyRepository.ts
 import { inject, injectable } from "inversify";
 import { Model } from "mongoose";
 import { ITempCompanyRepository } from "../../interfaces/repositories/ITempCompanyRepository";
-import companyTempModal, {
-  ITempCompany,
-} from "../../models/company.temp.modal";
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";
+import { ITempCompany } from "../entities/temp.comany.entity";
+import companyTempModel from "../models/company.temp.model";
 
 @injectable()
 export class TempCompanyRepository
@@ -14,12 +12,12 @@ export class TempCompanyRepository
   implements ITempCompanyRepository
 {
   constructor(
-    @inject(TYPES.TempCompanyModal) companyTempModal: Model<ITempCompany>
+    @inject(TYPES.TempCompanyModel) companyTempModel: Model<ITempCompany>
   ) {
-    super(companyTempModal);
+    super(companyTempModel);
   }
 
   async findByEmail(email: string): Promise<ITempCompany | null> {
-    return companyTempModal.findOne({ email }).select("+password").exec();
+    return this.model.findOne({ email }).select("+password").exec();
   }
 }

@@ -1,9 +1,7 @@
-// src/modules/dashboard/controllers/companyDashboardController.ts
 import { Request, Response } from "express";
-import { Types } from "mongoose";
-import jobModal from "../../models/job.modal";
-import applicationModal from "../../models/application.modal";
-import { ApplicationStatus } from "../../models/application.modal";
+import jobModel from "../../repositories/models/job.model";
+import applicationModel from "../../repositories/models/application.model";
+import { ApplicationStatus } from "../../core/enums/applicationStatus";
 interface Userr {
   _id: string;
   email: string;
@@ -15,7 +13,7 @@ export const getCompanyDashboardStats = async (req: Request, res: Response) => {
     if (!companyId) {
       return res.status(400).json({ message: "Company ID missing" });
     }
-    const jobs = await jobModal
+    const jobs = await jobModel
       .find({ company: companyId })
       .select("_id status");
     const jobIds = jobs.map((job) => job._id);
@@ -50,19 +48,19 @@ export const getCompanyDashboardStats = async (req: Request, res: Response) => {
       jobStatusTrend,
     ] = await Promise.all([
       // Job counts
-      jobModal.countDocuments({ company: companyId }),
-      jobModal.countDocuments({ company: companyId, status: "open" }),
-      jobModal.countDocuments({ company: companyId, status: "closed" }),
+      jobModel.countDocuments({ company: companyId }),
+      jobModel.countDocuments({ company: companyId, status: "open" }),
+      jobModel.countDocuments({ company: companyId, status: "closed" }),
 
       // Application counts
-      applicationModal.countDocuments({ job: { $in: jobIds } }),
-      applicationModal.countDocuments({
+      applicationModel.countDocuments({ job: { $in: jobIds } }),
+      applicationModel.countDocuments({
         job: { $in: jobIds },
         appliedAt: { $gte: oneWeekAgo },
       }),
 
       // Status counts with all possible statuses initialized
-      applicationModal.aggregate([
+      applicationModel.aggregate([
         { $match: { job: { $in: jobIds } } },
         {
           $group: {
@@ -73,7 +71,7 @@ export const getCompanyDashboardStats = async (req: Request, res: Response) => {
       ]),
 
       // Daily trends for last 7 days
-      applicationModal.aggregate([
+      applicationModel.aggregate([
         {
           $match: {
             job: { $in: jobIds },
@@ -113,7 +111,7 @@ export const getCompanyDashboardStats = async (req: Request, res: Response) => {
       ]),
 
       // Weekly trends for last 12 weeks
-      applicationModal.aggregate([
+      applicationModel.aggregate([
         {
           $match: {
             job: { $in: jobIds },
@@ -153,7 +151,7 @@ export const getCompanyDashboardStats = async (req: Request, res: Response) => {
       ]),
 
       // Monthly trends for last 12 months
-      applicationModal.aggregate([
+      applicationModel.aggregate([
         {
           $match: {
             job: { $in: jobIds },
@@ -193,7 +191,7 @@ export const getCompanyDashboardStats = async (req: Request, res: Response) => {
       ]),
 
       // Job status trend over time
-      jobModal.aggregate([
+      jobModel.aggregate([
         { $match: { company: companyId } },
         {
           $group: {

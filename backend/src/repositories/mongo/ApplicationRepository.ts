@@ -8,7 +8,6 @@ import {
   ApplicantRawData,
   GetApplicationsQuery,
 } from "../../core/dtos/company/getapplications.dto";
-import jobModal from "../../models/job.modal";
 import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
 import {
   IApplicationPopulatedJob,
@@ -17,7 +16,8 @@ import {
 import { ApplicationStatus } from "../../core/enums/applicationStatus";
 import { IApplication, IStatusHistory } from "../entities/application.entity";
 import { IJob } from "../entities/job.entity";
-import applicationModal from "../../models/application.modal";
+import jobModel from "../models/job.model";
+import applicationModel from "../models/application.model";
 export interface ApplyToJobInput {
   jobId: string;
   userId: string;
@@ -41,7 +41,7 @@ export class ApplicationRepository
   implements IApplicationRepository
 {
   constructor(
-    @inject(TYPES.applicationModal) applicationModel: Model<IApplication>
+    @inject(TYPES.applicationModel) applicationModel: Model<IApplication>
   ) {
     super(applicationModel);
   }
@@ -116,7 +116,7 @@ export class ApplicationRepository
     if (jobId) {
       query.job = new mongoose.Types.ObjectId(jobId);
       if (filter.companyId) {
-        const exists = await jobModal.exists({
+        const exists = await jobModel.exists({
           _id: jobId,
           company: filter.companyId,
         });
@@ -215,7 +215,7 @@ export class ApplicationRepository
       },
     ];
 
-    const result = await applicationModal.aggregate<{
+    const result = await applicationModel.aggregate<{
       applications: ApplicantRawData[];
       total: number;
     }>(aggregation);

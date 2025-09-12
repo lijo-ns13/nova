@@ -1,14 +1,13 @@
-// src/infrastructure/database/repositories/mongo/PasswordResetTokenRepository.ts
 import { inject, injectable } from "inversify";
 import { Model, Types } from "mongoose";
 
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";
-import { IPasswordResetToken } from "../../models/PasswordResetToken";
 import {
   CreatePasswordResetTokenDto,
   IPasswordResetTokenRepository,
 } from "../../interfaces/repositories/IPasswordResetTokenRepository";
+import { IPasswordResetToken } from "../entities/password.reset.entity";
 
 @injectable()
 export class PasswordResetTokenRepository
@@ -16,7 +15,7 @@ export class PasswordResetTokenRepository
   implements IPasswordResetTokenRepository
 {
   constructor(
-    @inject(TYPES.PasswordResetTokenModal)
+    @inject(TYPES.PasswordResetTokenModel)
     model: Model<IPasswordResetToken>
   ) {
     super(model);

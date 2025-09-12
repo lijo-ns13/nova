@@ -1,25 +1,25 @@
 import { inject, injectable } from "inversify";
 import { IPostRepository } from "../../interfaces/repositories/IPostRepository";
 import { BaseRepository } from "./BaseRepository";
-import postModal, { IPost } from "../../models/post.modal";
 import { TYPES } from "../../di/types";
 import { Model, Types } from "mongoose";
-import { IPostResponse } from "../../core/entities/post";
+import { IPost } from "../entities/post.entity";
+import postModel from "../models/post.model";
 
 @injectable()
 export class PostRepository
   extends BaseRepository<IPost>
   implements IPostRepository
 {
-  constructor(@inject(TYPES.postModal) postModal: Model<IPost>) {
-    super(postModal);
+  constructor(@inject(TYPES.postModel) postModel: Model<IPost>) {
+    super(postModel);
   }
   async createPost(
     creatorId: string,
     description: string | undefined,
     mediaIds: string[]
   ): Promise<IPost> {
-    const post = await postModal.create({
+    const post = await this.model.create({
       creatorId: new Types.ObjectId(creatorId),
       description,
       mediaIds: mediaIds.map((id) => new Types.ObjectId(id)),
@@ -28,7 +28,7 @@ export class PostRepository
     return await post.populate({ path: "Likes" }); // ✅ populate after create
   }
   async updatePost(postId: string, description: string): Promise<IPost | null> {
-    const post = await postModal.findByIdAndUpdate(
+    const post = await this.model.findByIdAndUpdate(
       postId,
       { description },
       { new: true }
@@ -37,11 +37,11 @@ export class PostRepository
     return post ? await post.populate({ path: "Likes" }) : null; // ✅ populate if found
   }
   async getPostById(postId: string): Promise<IPost | null> {
-    return await postModal.findById(postId).populate({ path: "Likes" });
+    return await this.model.findById(postId).populate({ path: "Likes" });
   }
 
   async getAllPosts(page: number, limit: number): Promise<IPost[]> {
-    return await postModal
+    return await this.model
       .find({ isDeleted: false })
       .skip((page - 1) * limit)
       .limit(limit)
@@ -50,7 +50,7 @@ export class PostRepository
   }
 
   async deletePost(postId: string): Promise<void> {
-    await postModal.findByIdAndUpdate(postId, { isDeleted: true });
+    await this.model.findByIdAndUpdate(postId, { isDeleted: true });
   }
   async findByCreator(
     skip: number,
@@ -113,15 +113,4 @@ export class PostRepository
   async findById(postId: string): Promise<IPost | null> {
     return this.model.findById(postId);
   }
-  // async createPost(input: {
-  //   creatorId: string;
-  //   description: string;
-  //   mediaIds: string[];
-  // }): Promise<IPost> {
-  //   return this.model.create({
-  //     creatorId: new Types.ObjectId(input.creatorId),
-  //     description: input.description,
-  //     mediaIds: input.mediaIds.map((id) => new Types.ObjectId(id)),
-  //   });
-  // }
 }

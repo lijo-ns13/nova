@@ -1,18 +1,18 @@
-// src/repositories/TransactionRepository.ts
 import { inject, injectable } from "inversify";
 import { ITransactionRepository } from "../../interfaces/repositories/ITransactionRepository";
-import tranasctionModal, { ITransaction } from "../../models/tranasction.modal";
 import { TransactionFilterInput } from "../../core/dtos/admin/admin.sub.dto";
 import { FilterQuery, Model, Types } from "mongoose";
 import { TYPES } from "../../di/types";
 import { BaseRepository } from "./BaseRepository";
 import { ITransactionPopulated } from "../../mapping/admin/admin.sub.mapper";
-import { eachDayOfInterval, format } from "date-fns";
+import { eachDayOfInterval, format, isThisISOWeek } from "date-fns";
 import {
   TopPlanDTO,
   UserGrowthDTO,
 } from "../../interfaces/services/IAdminDashboardService";
 import { TransactionDTO } from "../../dtos/request/admin/admin.dashbaord.dto";
+import { ITransaction } from "../entities/transaction.entity";
+import transactionModel from "../models/transaction.model";
 
 @injectable()
 export class TransactionRepository
@@ -20,23 +20,23 @@ export class TransactionRepository
   implements ITransactionRepository
 {
   constructor(
-    @inject(TYPES.tranasctionModal) tranasctionModal: Model<ITransaction>
+    @inject(TYPES.tranasctionModel) transactionModel: Model<ITransaction>
   ) {
-    super(tranasctionModal);
+    super(transactionModel);
   }
   async find(query: any): Promise<ITransaction[]> {
-    return await tranasctionModal
+    return await this.model
       .find(query)
       .sort({ createdAt: -1 })
       .populate("userId", "name email");
   }
 
   async count(query: any = {}): Promise<number> {
-    return await tranasctionModal.countDocuments(query);
+    return await this.model.countDocuments(query);
   }
 
   async getTotalRevenue(query: any = {}): Promise<number> {
-    const result = await tranasctionModal.aggregate([
+    const result = await this.model.aggregate([
       { $match: { ...query, status: "completed" } },
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]);
@@ -47,7 +47,7 @@ export class TransactionRepository
     status: string,
     refundData?: any
   ): Promise<ITransaction | null> {
-    return await tranasctionModal.findByIdAndUpdate(
+    return await this.model.findByIdAndUpdate(
       transactionId,
       { status, ...refundData },
       { new: true }
@@ -79,7 +79,7 @@ export class TransactionRepository
     const skip = (page - 1) * limit;
 
     const [transactions, total] = await Promise.all([
-      tranasctionModal
+      this.model
         .find(query)
         .populate("userId", "name email")
         .sort({ createdAt: -1 })
@@ -87,14 +87,14 @@ export class TransactionRepository
         .limit(limit)
         .lean()
         .exec() as unknown as Promise<ITransactionPopulated[]>, // 👈 FIX
-      tranasctionModal.countDocuments(query),
+      this.model.countDocuments(query),
     ]);
 
     return { transactions, total };
   }
   // new
   async getRevenue(startDate: Date, endDate: Date): Promise<number> {
-    const result = await tranasctionModal.aggregate([
+    const result = await this.model.aggregate([
       {
         $match: {
           status: "completed",
@@ -112,7 +112,7 @@ export class TransactionRepository
     return result[0]?.totalRevenue || 0;
   }
   async getTopPlans(startDate: Date, endDate: Date): Promise<TopPlanDTO[]> {
-    const result = await tranasctionModal.aggregate([
+    const result = await this.model.aggregate([
       {
         $match: {
           status: "completed",
@@ -142,7 +142,7 @@ export class TransactionRepository
   ): Promise<UserGrowthDTO[]> {
     const days = eachDayOfInterval({ start: startDate, end: endDate });
 
-    const result = await tranasctionModal.aggregate([
+    const result = await this.model.aggregate([
       {
         $match: {
           status: "completed",
@@ -174,7 +174,7 @@ export class TransactionRepository
     startDate: Date,
     endDate: Date
   ): Promise<ITransaction[]> {
-    return tranasctionModal
+    return this.model
       .find({
         status: "completed",
         createdAt: { $gte: startDate, $lte: endDate },
@@ -185,7 +185,7 @@ export class TransactionRepository
     startDate: Date,
     endDate: Date
   ): Promise<TransactionDTO[]> {
-    const transactions = await tranasctionModal
+    const transactions = await this.model
       .find({
         createdAt: { $gte: startDate, $lte: endDate },
       })

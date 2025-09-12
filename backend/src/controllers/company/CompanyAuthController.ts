@@ -4,9 +4,7 @@ import { ICompanyAuthService } from "../../interfaces/services/ICompanyAuthServi
 import { TYPES } from "../../di/types";
 import { signUpCompanyRequestSchema } from "../../core/dtos/company/company.signup.dto";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
-import { ZodError } from "zod";
 import { signInCompanyRequestSchema } from "../../core/dtos/company/company.signin.dto";
-import { IJWTService } from "../../interfaces/services/IJwtService";
 import { Request, Response } from "express";
 import { handleControllerError } from "../../utils/errorHandler";
 import { COOKIE_NAMES } from "../../constants/cookie_names";

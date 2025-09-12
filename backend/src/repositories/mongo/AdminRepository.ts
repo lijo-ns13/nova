@@ -1,4 +1,3 @@
-// src/modules/admin/repositories/AdminRepository.ts
 import { inject, injectable } from "inversify";
 import { Model } from "mongoose";
 import { TYPES } from "../../di/types";
@@ -11,7 +10,7 @@ export class AdminRepository
   extends BaseRepository<IAdmin>
   implements IAdminRepository
 {
-  constructor(@inject(TYPES.AdminModal) adminModel: Model<IAdmin>) {
+  constructor(@inject(TYPES.AdminModel) adminModel: Model<IAdmin>) {
     super(adminModel);
   }
 

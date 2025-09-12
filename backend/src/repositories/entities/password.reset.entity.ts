@@ -1,6 +1,6 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
-export interface IPasswordResetToken {
+export interface IPasswordResetToken extends Document {
   findByToken(hashedToken: string): unknown;
   deleteByAccount(userId: Types.ObjectId, arg1: string): unknown;
   createToken(arg0: {

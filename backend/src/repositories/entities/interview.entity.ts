@@ -1,6 +1,6 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
-export interface IInterview {
+export interface IInterview extends Document {
   _id: Types.ObjectId;
   companyId: Types.ObjectId | string;
   userId: Types.ObjectId | string;

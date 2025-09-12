@@ -2,16 +2,17 @@ import { Router, Request, Response } from "express";
 import skillRouter from "./common/skill.routes";
 import ProfileViewRouter from "./common/profile-view.routes";
 import messageRoutes from "./common/messages.routes";
-import messageModal from "../models/message.modal";
+
 import notificationRouter from "./notification.routes";
 
-import userModal from "../models/user.modal";
 import mongoose from "mongoose";
 import { MediaService } from "../services/user/MediaService";
-import mediaModal from "../models/media.modal";
 import { MediaRepository } from "../repositories/mongo/MediaRepository";
+import mediaModel from "../repositories/models/media.model";
+import userModel from "../repositories/models/user.model";
+import messageModel from "../repositories/models/message.model";
 const router = Router();
-const mediaRepo = new MediaRepository(mediaModal);
+const mediaRepo = new MediaRepository(mediaModel);
 const mediaService = new MediaService(mediaRepo);
 
 router.use("/skill", skillRouter);
@@ -28,7 +29,7 @@ router.get("/api/chat/users/:userId", async (req: Request, res: Response) => {
   );
 
   try {
-    const currentUser = await userModal
+    const currentUser = await userModel
       .findById(userId)
       .select("following")
       .lean();
@@ -39,7 +40,7 @@ router.get("/api/chat/users/:userId", async (req: Request, res: Response) => {
 
     const followingIds = currentUser.following.map((id) => id.toString());
 
-    const messagedUserDocs = await messageModal.aggregate([
+    const messagedUserDocs = await messageModel.aggregate([
       {
         $match: {
           createdAt: { $gte: pastDate },
@@ -77,7 +78,7 @@ router.get("/api/chat/users/:userId", async (req: Request, res: Response) => {
       new Set([...followingIds, ...messagedUserIds])
     );
 
-    const users = await userModal
+    const users = await userModel
       .find({ _id: { $in: uniqueUserIds } })
       .select("_id name profilePicture online")
       .lean();
@@ -139,7 +140,7 @@ router.get("/api/username/:otherUserId", async (req, res) => {
       return;
     }
 
-    const user = await userModal.findById(otherUserId);
+    const user = await userModel.findById(otherUserId);
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });
       return;

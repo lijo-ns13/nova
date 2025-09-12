@@ -12,7 +12,6 @@ import {
 import bcrypt from "bcryptjs";
 import { generateOTP } from "../../shared/util/otp.util";
 import { sendOTPEmail } from "../../shared/util/email.util";
-import { JWTService } from "../../shared/util/jwt.service";
 import { IEmailService } from "../../interfaces/services/IEmailService";
 import { IJWTService } from "../../interfaces/services/IJwtService";
 import { generateUsername } from "../../shared/util/GenerateUserName";
@@ -20,7 +19,7 @@ import { IPasswordResetTokenRepository } from "../../interfaces/repositories/IPa
 import { generatePasswordResetToken } from "../../shared/util/generatePasswordResetToken ";
 import crypto from "crypto";
 import { INotificationService } from "../../interfaces/services/INotificationService";
-import { NotificationType } from "../../models/notification.modal";
+
 import { IAdminRepository } from "../../interfaces/repositories/IAdminRepository";
 import {
   TempCompanyMapper,
@@ -35,6 +34,7 @@ import {
   ResetPasswordInputDTO,
 } from "../../mapping/company/auth/company.auth.mapper";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
+import { NotificationType } from "../../constants/notification.type.constant";
 
 @injectable()
 export class CompanyAuthService implements ICompanyAuthService {

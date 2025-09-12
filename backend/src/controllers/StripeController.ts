@@ -1,12 +1,11 @@
-// controllers/stripeController.ts
 import { Request, Response } from "express";
 import Stripe from "stripe";
-import userModal from "../models/user.modal";
-import tranasctionModal from "../models/tranasction.modal";
-import subscriptionModal from "../models/subscription.modal";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 import { HTTP_STATUS_CODES } from "../core/enums/httpStatusCode";
+import userModel from "../repositories/models/user.model";
+import transactionModel from "../repositories/models/transaction.model";
+import subscriptionModel from "../repositories/models/subscription.model";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-05-28.basil",
@@ -16,7 +15,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
   const { price, userId, metadata } = req.body;
 
   try {
-    const user = await userModal.findById(userId);
+    const user = await userModel.findById(userId);
     if (!user) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
@@ -99,7 +98,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       },
     });
 
-    await userModal.findByIdAndUpdate(userId, {
+    await userModel.findByIdAndUpdate(userId, {
       activePaymentSession: session.id,
       activePaymentSessionExpiresAt: new Date(session.expires_at! * 1000),
     });
@@ -139,7 +138,7 @@ export const confirmPaymentSession = async (req: Request, res: Response) => {
       return;
     }
 
-    const existingTxn = await tranasctionModal.findOne({
+    const existingTxn = await transactionModel.findOne({
       stripeSessionId: sessionId,
     });
     const paymentIntent = session.payment_intent as Stripe.PaymentIntent & {
@@ -165,7 +164,7 @@ export const confirmPaymentSession = async (req: Request, res: Response) => {
       return;
     }
 
-    const subscription = await subscriptionModal.findOne({ name: planName });
+    const subscription = await subscriptionModel.findOne({ name: planName });
     if (!subscription) {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
@@ -176,7 +175,7 @@ export const confirmPaymentSession = async (req: Request, res: Response) => {
     const now = new Date();
     const endDate = moment(now).add(subscription.validityDays, "days").toDate();
 
-    const newTransaction = new tranasctionModal({
+    const newTransaction = new transactionModel({
       userId,
       orderId,
       amount: session.amount_total! / 100,
@@ -190,7 +189,7 @@ export const confirmPaymentSession = async (req: Request, res: Response) => {
 
     await newTransaction.save();
 
-    await userModal.findByIdAndUpdate(userId, {
+    await userModel.findByIdAndUpdate(userId, {
       $set: {
         isSubscriptionActive: true,
         subscriptionStartDate: now,
@@ -232,7 +231,7 @@ export const handleRefund = async (req: Request, res: Response) => {
   const { stripeSessionId, reason } = req.body;
 
   try {
-    const transaction = await tranasctionModal.findOne({ stripeSessionId });
+    const transaction = await transactionModel.findOne({ stripeSessionId });
     if (!transaction || transaction.status !== "completed") {
       res
         .status(HTTP_STATUS_CODES.BAD_REQUEST)
@@ -240,7 +239,7 @@ export const handleRefund = async (req: Request, res: Response) => {
       return;
     }
 
-    const user = await userModal.findById(transaction.userId);
+    const user = await userModel.findById(transaction.userId);
     if (!user) {
       res
         .status(HTTP_STATUS_CODES.NOT_FOUND)
@@ -296,7 +295,7 @@ export const handleRefund = async (req: Request, res: Response) => {
     await transaction.save();
 
     // 💾 Update user subscription status
-    await userModal.findByIdAndUpdate(user._id, {
+    await userModel.findByIdAndUpdate(user._id, {
       $set: {
         isSubscriptionActive: false,
         subscriptionStartDate: null,

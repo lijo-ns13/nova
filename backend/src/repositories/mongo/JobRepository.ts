@@ -7,18 +7,19 @@ import {
   IJobRepository,
   UpdateJobDto,
 } from "../../interfaces/repositories/IJobRepository";
-import jobModal, { IJob, ApplicationStatus } from "../../models/job.modal";
-import applicationModal, { IApplication } from "../../models/application.modal";
 import { BaseRepository } from "./BaseRepository";
 import { inject } from "inversify";
 import { TYPES } from "../../di/types";
 import { IJobWithSkills } from "../../mapping/job.mapper";
-import { ISkill } from "../../models/skill.modal";
-import {
-  IJobPopulated,
-  IJobWithCompanyAndSkills,
-} from "../../mapping/user/jobmapper";
-import { ICompany } from "../../models/company.modal";
+
+import { IJobPopulated } from "../../mapping/user/jobmapper";
+import { IApplication } from "../entities/application.entity";
+import { IJob } from "../entities/job.entity";
+import jobModel from "../models/job.model";
+import { ISkill } from "../entities/skill.entity";
+import { ICompany } from "../entities/company.entity";
+import applicationModel from "../models/application.model";
+import { ApplicationStatus } from "../../core/enums/applicationStatus";
 
 type PopulatedUser = {
   _id: Types.ObjectId;
@@ -46,14 +47,14 @@ export class JobRepository
   extends BaseRepository<IJob>
   implements IJobRepository
 {
-  constructor(@inject(TYPES.jobModal) jobModal: Model<IJob>) {
-    super(jobModal);
+  constructor(@inject(TYPES.jobModel) jobModel: Model<IJob>) {
+    super(jobModel);
   }
   async createJob(
     createJobDto: CreateJobDto,
     companyId: string
   ): Promise<IJob> {
-    const job = new jobModal({
+    const job = new jobModel({
       ...createJobDto,
       company: new mongoose.Types.ObjectId(companyId),
     });
@@ -65,7 +66,7 @@ export class JobRepository
     companyId: string,
     updateJobDto: UpdateJobDto
   ): Promise<IJob | null> {
-    const job = await jobModal.findOneAndUpdate(
+    const job = await jobModel.findOneAndUpdate(
       {
         _id: new mongoose.Types.ObjectId(jobId),
         company: new mongoose.Types.ObjectId(companyId),
@@ -77,7 +78,7 @@ export class JobRepository
   }
 
   async deleteJob(jobId: string, companyId: string): Promise<boolean> {
-    const result = await jobModal.deleteOne({ _id: jobId, company: companyId });
+    const result = await jobModel.deleteOne({ _id: jobId, company: companyId });
     return result.deletedCount === 1;
   }
   async getJobs(
@@ -88,21 +89,21 @@ export class JobRepository
     const skip = (page - 1) * limit;
 
     const [jobs, total] = await Promise.all([
-      jobModal
+      jobModel
         .find({ company: companyId })
         .skip(skip)
         .limit(limit)
         .populate<{ skillsRequired: ISkill[] }>("skillsRequired") // ✅ typed populate
         .sort({ createdAt: -1 })
         .exec(),
-      jobModal.countDocuments({ company: companyId }),
+      jobModel.countDocuments({ company: companyId }),
     ]);
 
     return { jobs, total };
   }
 
   async getJob(jobId: string): Promise<any> {
-    return await jobModal
+    return await jobModel
       .findById(jobId)
       .populate<{ skillsRequired: ISkill[] }>("skillsRequired")
       .populate<{ company: Pick<ICompany, "_id" | "companyName"> }>("company")
@@ -116,10 +117,10 @@ export class JobRepository
   ): Promise<{ jobs: IJobPopulated[]; total: number; totalPages: number }> {
     const query = filters;
 
-    const total = await jobModal.countDocuments(query);
+    const total = await jobModel.countDocuments(query);
     const totalPages = Math.ceil(total / limit);
 
-    const jobs = await jobModal
+    const jobs = await jobModel
       .find(query)
       .populate<{ skillsRequired: ISkill[] }>("skillsRequired")
       .sort({ createdAt: -1 })
@@ -136,7 +137,7 @@ export class JobRepository
     resumeUrl: string,
     coverLetter?: string
   ): Promise<IApplication> {
-    const job = await jobModal.findById(jobId);
+    const job = await jobModel.findById(jobId);
     if (!job) {
       throw new Error("Job not found");
     }
@@ -147,7 +148,7 @@ export class JobRepository
     }
 
     // Check if user already applied
-    const existingApplication = await applicationModal.findOne({
+    const existingApplication = await applicationModel.findOne({
       job: jobId,
       user: userId,
     });
@@ -157,7 +158,7 @@ export class JobRepository
     }
 
     // Create new application
-    const application = new applicationModal({
+    const application = new applicationModel({
       job: jobId,
       user: userId,
       appliedAt: new Date(),
@@ -188,7 +189,7 @@ export class JobRepository
     }
 
     const objectId = new mongoose.Types.ObjectId(applicantId);
-    return applicationModal
+    return applicationModel
       .findById(objectId)
       .populate("user", "name username email profilePicture headline")
       .populate("resumeMediaId", "s3Key")

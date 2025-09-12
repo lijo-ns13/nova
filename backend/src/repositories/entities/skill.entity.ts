@@ -1,6 +1,6 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
-export interface ISkill {
+export interface ISkill extends Document {
   _id: Types.ObjectId;
   title: string;
   createdAt: Date;

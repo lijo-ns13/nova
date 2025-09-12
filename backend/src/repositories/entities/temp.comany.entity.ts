@@ -1,6 +1,6 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
-export interface ITempCompany {
+export interface ITempCompany extends Document {
   _id: Types.ObjectId;
   companyName: string;
   password: string;

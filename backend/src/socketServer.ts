@@ -1,8 +1,5 @@
-// socket/socketServer.ts
 import { Server as SocketIOServer } from "socket.io";
 import { Server } from "http";
-import userModal from "./models/user.modal";
-import messageModal from "./models/message.modal";
 import {
   updateSocketInfo,
   updateSocketInfoBySocketId,
@@ -10,8 +7,10 @@ import {
 import container from "./di/container";
 import { NotificationService } from "./services/notificationService";
 import { TYPES } from "./di/types";
-import { NotificationType } from "./models/notification.modal";
 import { registerLikeEvents } from "./likeEventsListener";
+import messageModel from "./repositories/models/message.model";
+import userModel from "./repositories/models/user.model";
+import { NotificationType } from "./constants/notification.type.constant";
 const notificationService = container.get<NotificationService>(
   TYPES.NotificationService
 );
@@ -43,7 +42,7 @@ export const initSocketServer = (server: Server) => {
 
       io.emit("userOnline", userId);
 
-      const unreadMessages = await messageModal
+      const unreadMessages = await messageModel
         .find({
           receiver: userId,
           isRead: false,
@@ -68,13 +67,13 @@ export const initSocketServer = (server: Server) => {
         tempId?: string;
       }) => {
         try {
-          const message = await messageModal.create({
+          const message = await messageModel.create({
             sender,
             receiver,
             content,
           });
-          const receiverUser = await userModal.findById(receiver);
-          const senderUser = await userModal.findById(sender);
+          const receiverUser = await userModel.findById(receiver);
+          const senderUser = await userModel.findById(sender);
           if (receiverUser?.socketId) {
             io.to(receiverUser.socketId).emit("receiveMessage", message);
           }
@@ -161,7 +160,7 @@ export const initSocketServer = (server: Server) => {
 
     // Typing indicator
     socket.on("typing", ({ sender, receiver }) => {
-      userModal.findById(receiver).then((receiverUser) => {
+      userModel.findById(receiver).then((receiverUser) => {
         if (receiverUser?.socketId) {
           io.to(receiverUser.socketId).emit("typing", { sender });
         }
@@ -170,12 +169,12 @@ export const initSocketServer = (server: Server) => {
 
     // Mark messages as read
     socket.on("readMessages", async ({ sender, receiver }) => {
-      await messageModal.updateMany(
+      await messageModel.updateMany(
         { sender, receiver, isRead: false },
         { isRead: true }
       );
 
-      const senderUser = await userModal.findById(sender);
+      const senderUser = await userModel.findById(sender);
       if (senderUser?.socketId) {
         io.to(senderUser.socketId).emit("messagesRead", { receiver });
       }
