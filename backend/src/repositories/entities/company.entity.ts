@@ -1,6 +1,6 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
-export interface ICompany {
+export interface ICompany extends Document {
   _id: Types.ObjectId;
   companyName: string;
   username: string;
@@ -22,4 +22,13 @@ export interface ICompany {
   online?: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface CompanySigninEntity {
+  email: string;
+  password: string;
+}
+
+export interface CompanyIdEntity {
+  companyId: string;
 }

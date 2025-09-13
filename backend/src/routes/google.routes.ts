@@ -7,9 +7,9 @@ import {
   Response,
   NextFunction,
 } from "express";
-import userModal from "../models/user.modal";
 import { JWTService } from "../shared/util/jwt.service";
 import { HTTP_STATUS_CODES } from "../core/enums/httpStatusCode";
+import userModel from "../repositories/models/user.model";
 
 // ENV variables
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
@@ -40,7 +40,7 @@ async function generateUniqueUsername(baseName: string): Promise<string> {
   let username = baseUsername;
   let suffix = 1;
 
-  while (await userModal.exists({ username })) {
+  while (await userModel.exists({ username })) {
     username = `${baseUsername}${suffix}`;
     suffix++;
   }
@@ -91,16 +91,16 @@ router.get("/google/callback", (async (req: Request, res: Response) => {
 
     const { email, name, id: googleId } = userInfo;
     let username = await generateUniqueUsername(name);
-    let user = await userModal.findOne({ googleId });
+    let user = await userModel.findOne({ googleId });
 
     if (!user) {
-      user = await userModal.findOne({ email });
+      user = await userModel.findOne({ email });
 
       if (user) {
         user.googleId = googleId;
         await user.save();
       } else {
-        user = new userModal({ googleId, email, name, username });
+        user = new userModel({ googleId, email, name, username });
         await user.save();
       }
     }
@@ -173,7 +173,7 @@ router.post("/refresh-token", (async (
       return;
     }
 
-    const user = await userModal.findById(decoded.id);
+    const user = await userModel.findById(decoded.id);
 
     if (!user) {
       res.status(404).json({ message: "User not found" });
@@ -223,7 +223,7 @@ router.get("/me", (async (req: Request, res: Response) => {
         .json({ message: "Invalid token" });
     }
 
-    const user = await userModal.findById(decoded.id);
+    const user = await userModel.findById(decoded.id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -262,7 +262,7 @@ router.get("/refresh-user", (async (req: Request, res: Response) => {
     }
 
     // Find user by ID
-    const user = await userModal.findById(decoded.id);
+    const user = await userModel.findById(decoded.id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -321,7 +321,7 @@ router.get(
         .json({ message: "Invalid or expired refresh token" });
     }
 
-    const user = await userModal.findById(decoded.id);
+    const user = await userModel.findById(decoded.id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });

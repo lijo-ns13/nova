@@ -1,8 +1,12 @@
+import { AdminSignInRequestDTO } from "../../core/dtos/admin/admin.auth.request.dto";
 import { AdminSignInResponseDTO } from "../../dtos/response/admin/admin.auth.response.dto";
-import { IAdmin } from "../../models/admin.modal";
+import {
+  AdminSignInEntity,
+  IAdmin,
+} from "../../repositories/entities/admin.entity";
 
 export class AdminAuthMapper {
-  static toSignInResponse(
+  static toDTO(
     admin: IAdmin,
     tokens: { accessToken: string; refreshToken: string }
   ): AdminSignInResponseDTO {
@@ -12,6 +16,12 @@ export class AdminAuthMapper {
       email: admin.email,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
+    };
+  }
+  static fromDTO(dto: AdminSignInRequestDTO): AdminSignInEntity {
+    return {
+      email: dto.email.toLowerCase(),
+      password: dto.password,
     };
   }
 }

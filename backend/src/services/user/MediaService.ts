@@ -7,7 +7,7 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
-import mediaModal from "../../models/media.modal";
+
 import { v4 as uuidv4 } from "uuid";
 import { Types } from "mongoose";
 import { TYPES } from "../../di/types";
@@ -15,6 +15,7 @@ import { s3Client as s3 } from "../../core/aws/s3Client";
 
 import { IMediaRepository } from "../../interfaces/repositories/IMediaRepository";
 import { IMedia } from "../../repositories/entities/media.entity";
+import mediaModel from "../../repositories/models/media.model";
 export interface MediaUrlDTO {
   url: string;
   mimeType:
@@ -75,7 +76,7 @@ export class MediaService implements IMediaService {
             })
           );
 
-          const mediaDoc = await mediaModal.create({
+          const mediaDoc = await mediaModel.create({
             s3Key: fileKey,
             mimeType: file.mimetype,
             ownerId,
@@ -168,7 +169,7 @@ export class MediaService implements IMediaService {
       });
 
       // Find all media records
-      const mediaRecords = await mediaModal.find({
+      const mediaRecords = await mediaModel.find({
         _id: { $in: objectIds },
       });
 
@@ -194,7 +195,7 @@ export class MediaService implements IMediaService {
       });
 
       // Delete from MongoDB
-      const dbDeletion = mediaModal.deleteMany({ _id: { $in: objectIds } });
+      const dbDeletion = mediaModel.deleteMany({ _id: { $in: objectIds } });
 
       // Wait for all operations to complete
       await Promise.all([...s3Deletions, dbDeletion]);

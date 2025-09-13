@@ -1,11 +1,12 @@
 import { inject, injectable } from "inversify";
 
-import { BaseRepository } from "./BaseRepository"; // Import BaseRepository
+import { BaseRepository } from "./BaseRepository";
 
 import { Model, Types } from "mongoose";
-import { ILike } from "../../models/like.modal";
 import { ILikeRepository } from "../../interfaces/repositories/ILikeRepository";
 import { TYPES } from "../../di/types";
+import { ILike } from "../entities/like.entity";
+import likeModel from "../models/like.model";
 export interface ILikePopulated {
   _id: Types.ObjectId;
   postId: Types.ObjectId;
@@ -23,10 +24,9 @@ export class LikeRepository
   extends BaseRepository<ILike>
   implements ILikeRepository
 {
-  constructor(@inject(TYPES.likeModal) likeModal: Model<ILike>) {
-    super(likeModal);
+  constructor(@inject(TYPES.likeModel) likeModal: Model<ILike>) {
+    super(likeModel);
   }
-  // Custom method: Find like by postId and userId
   async findByPostIdAndUserId(
     postId: string,
     userId: string

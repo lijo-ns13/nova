@@ -45,7 +45,7 @@ export class AdminAuthService implements IAdminAuthService {
       role: "admin",
     });
 
-    return AdminAuthMapper.toSignInResponse(admin, {
+    return AdminAuthMapper.toDTO(admin, {
       accessToken,
       refreshToken,
     });

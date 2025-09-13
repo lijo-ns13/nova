@@ -1,20 +1,20 @@
-// src/infrastructure/database/repositories/mongo/OTPRepository.ts
+
 import { inject, injectable } from "inversify";
 import { Model, Types } from "mongoose";
 import { BaseRepository } from "./BaseRepository";
-import { IOTP } from "../../models/otp.modal";
 import {
   createOtpDTO,
   IOTPRepository,
 } from "../../interfaces/repositories/IOTPRepository";
 import { TYPES } from "../../di/types";
+import { IOTP } from "../entities/otp.entity";
 
 @injectable()
 export class OTPRepository
   extends BaseRepository<IOTP>
   implements IOTPRepository
 {
-  constructor(@inject(TYPES.OTPModal) otpModel: Model<IOTP>) {
+  constructor(@inject(TYPES.OTPModel) otpModel: Model<IOTP>) {
     super(otpModel);
   }
 

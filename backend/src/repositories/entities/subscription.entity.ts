@@ -1,6 +1,6 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
-export interface ISubscriptionPlan {
+export interface ISubscriptionPlan extends Document {
   _id: Types.ObjectId;
   name: "BASIC" | "PRO" | "PREMIUM";
   price: number;

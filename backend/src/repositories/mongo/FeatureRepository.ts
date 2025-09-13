@@ -1,10 +1,8 @@
-// src/repositories/feature.repository.ts
 import { inject, injectable } from "inversify";
-
 import { TYPES } from "../../di/types";
 import { Model } from "mongoose";
-import { IFeature } from "../../models/feature.modal";
 import { BaseRepository } from "./BaseRepository";
+import { IFeature } from "../entities/feature.entity";
 
 @injectable()
 export class FeatureRepository extends BaseRepository<IFeature> {

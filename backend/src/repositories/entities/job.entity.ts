@@ -1,10 +1,10 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 import { EmploymentType } from "../../constants/employeeType.constant";
 import { JobType } from "../../constants/job.constant";
 import { ExperienceLevel } from "../../constants/experience.constant";
 import { SalaryRange } from "../../constants/salaryrange.constant";
 
-export interface IJob {
+export interface IJob extends Document {
   _id: Types.ObjectId;
   title: string;
   description: string;

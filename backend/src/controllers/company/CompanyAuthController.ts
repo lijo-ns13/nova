@@ -4,15 +4,24 @@ import { ICompanyAuthService } from "../../interfaces/services/ICompanyAuthServi
 import { TYPES } from "../../di/types";
 import { signUpCompanyRequestSchema } from "../../core/dtos/company/company.signup.dto";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
-import { ZodError } from "zod";
 import { signInCompanyRequestSchema } from "../../core/dtos/company/company.signin.dto";
-import { IJWTService } from "../../interfaces/services/IJwtService";
 import { Request, Response } from "express";
 import { handleControllerError } from "../../utils/errorHandler";
 import { COOKIE_NAMES } from "../../constants/cookie_names";
 import { config } from "../../config/config";
 import { COMMON_MESSAGES } from "../../constants/message.constants";
 import { ROLES } from "../../constants/roles";
+import { SignInCompanyMapper } from "../../mapping/company/auth/SignInCompanyMapper";
+import {
+  forgetRequestSchema,
+  resendRequestSchema,
+  resetRequestSchema,
+  verifyRequestSchema,
+} from "../../core/dtos/auth";
+import { ResetMapper } from "../../mapping/auth/reset.mapper";
+import { ForgetMapper } from "../../mapping/auth/forget.mapper";
+import { ResendMapper } from "../../mapping/auth/resend.mapper";
+import { VerifyMapper } from "../../mapping/auth/verify.mapper";
 export class CompanyAuthController implements ICompanyAuthController {
   constructor(
     @inject(TYPES.CompanyAuthService) private _authService: ICompanyAuthService
@@ -40,7 +49,8 @@ export class CompanyAuthController implements ICompanyAuthController {
   async signIn(req: Request, res: Response): Promise<void> {
     try {
       const parsed = signInCompanyRequestSchema.parse(req.body);
-      const result = await this._authService.signIn(parsed);
+      const entity = SignInCompanyMapper.fromDTO(parsed);
+      const result = await this._authService.signIn(entity);
 
       res.cookie(COOKIE_NAMES.REFRESH_TOKEN, result.refreshToken, {
         httpOnly: true,
@@ -67,8 +77,12 @@ export class CompanyAuthController implements ICompanyAuthController {
 
   async verify(req: Request, res: Response): Promise<void> {
     try {
-      const { email, otp } = req.body;
-      const result = await this._authService.verifyOTP(email, otp);
+      const parsed = verifyRequestSchema.parse(req.body);
+      const entity = VerifyMapper.fromDTO(parsed);
+      const result = await this._authService.verifyOTP(
+        entity.email,
+        entity.otp
+      );
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "OTP verified successfully",
@@ -81,8 +95,9 @@ export class CompanyAuthController implements ICompanyAuthController {
 
   async resend(req: Request, res: Response): Promise<void> {
     try {
-      const { email } = req.body;
-      const result = await this._authService.resendOTP(email);
+      const parsed = resendRequestSchema.parse(req.body);
+      const entity = ResendMapper.fromDTO(parsed);
+      const result = await this._authService.resendOTP(entity.email);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: result.message,
@@ -94,8 +109,9 @@ export class CompanyAuthController implements ICompanyAuthController {
 
   async forgetPassword(req: Request, res: Response): Promise<void> {
     try {
-      const { email } = req.body;
-      const result = await this._authService.forgetPassword(email);
+      const parsed = forgetRequestSchema.parse(req.body);
+      const entity = ForgetMapper.fromDTO(parsed);
+      await this._authService.forgetPassword(entity.email);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Password reset token sent",
@@ -107,12 +123,9 @@ export class CompanyAuthController implements ICompanyAuthController {
 
   async resetPassword(req: Request, res: Response): Promise<void> {
     try {
-      const { token, password, confirmPassword } = req.body;
-      await this._authService.resetPassword({
-        token,
-        password,
-        confirmPassword,
-      });
+      const parsed = resetRequestSchema.parse(req.body);
+      const entity = ResetMapper.fromDTO(parsed);
+      await this._authService.resetPassword(entity);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Password reset successful",

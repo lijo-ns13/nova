@@ -1,3 +1,4 @@
+import { token } from "morgan";
 import { z } from "zod";
 export interface SignInCompanyResponseDTO {
   accessToken: string;

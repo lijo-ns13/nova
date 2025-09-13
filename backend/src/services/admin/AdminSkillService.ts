@@ -1,4 +1,3 @@
-// src/services/admin/AdminSkillService.ts
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { IAdminSkillService } from "../../interfaces/services/IAdminSkillService";
@@ -7,7 +6,6 @@ import {
   CreateSkillDto,
   UpdateSkillDto,
 } from "../../core/dtos/admin/admin.skill.dto";
-
 import { Logger } from "winston";
 import logger from "../../utils/logger";
 import { SkillMapper } from "../../mapping/admin/admin.skill.mapper";
@@ -39,7 +37,7 @@ export class AdminSkillService implements IAdminSkillService {
     if (exists) throw new Error(COMMON_MESSAGES.SKILL_ALREADY_EXISTS);
 
     const created = await this.skillRepository.createSkillAsAdmin(dto, adminId);
-    return SkillMapper.toResponse(created);
+    return SkillMapper.toDTO(created);
   }
 
   async update(id: string, dto: UpdateSkillDto): Promise<SkillResponseDto> {
@@ -55,7 +53,7 @@ export class AdminSkillService implements IAdminSkillService {
     const updated = await this.skillRepository.update(id, dto);
     if (!updated) throw new Error(COMMON_MESSAGES.SKILL_NOT_FOUND);
 
-    return SkillMapper.toResponse(updated);
+    return SkillMapper.toDTO(updated);
   }
 
   async delete(id: string): Promise<void> {
@@ -81,7 +79,7 @@ export class AdminSkillService implements IAdminSkillService {
       search
     );
     return {
-      skills: skills.map(SkillMapper.toResponse),
+      skills: skills.map(SkillMapper.toDTO),
       total,
       page,
       limit,
@@ -94,6 +92,6 @@ export class AdminSkillService implements IAdminSkillService {
     const skill = await this.skillRepository.findById(id);
     if (!skill) throw new Error(COMMON_MESSAGES.SKILL_NOT_FOUND);
 
-    return SkillMapper.toResponse(skill);
+    return SkillMapper.toDTO(skill);
   }
 }

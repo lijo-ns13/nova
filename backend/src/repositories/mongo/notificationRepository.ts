@@ -1,13 +1,9 @@
-// src/repositories/notificationRepository.ts
 import { injectable } from "inversify";
-
 import mongoose from "mongoose";
-import {
-  INotification,
-  Notification,
-  NotificationType,
-} from "../../models/notification.modal";
 import { INotificationRepository } from "../../interfaces/repositories/INotificationRepository";
+import { NotificationType } from "../../constants/notification.type.constant";
+import { INotification } from "../entities/notification.entity";
+import { Notification } from "../models/notification.model";
 
 @injectable()
 export class NotificationRepository implements INotificationRepository {

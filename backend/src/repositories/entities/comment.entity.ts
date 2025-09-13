@@ -1,6 +1,6 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
-export interface IComment {
+export interface IComment extends Document {
   _id: Types.ObjectId;
   postId: Types.ObjectId;
   parentId: Types.ObjectId | null;

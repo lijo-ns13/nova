@@ -1,28 +1,27 @@
 import { inject, injectable } from "inversify";
 import { FilterQuery, Model, Types } from "mongoose";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
-import userModal, { IUser } from "../../models/user.modal";
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";
 import bcrypt from "bcryptjs";
-import userCertificateModel, {
-  IUserCertificate,
-} from "../../models/userCertificate.model";
-import userProjectModel, { IUserProject } from "../../models/userProject.model";
-import userExperienceModel, {
-  IUserExperience,
-} from "../../models/userExperience.model";
-import userEducationModel, {
-  IUserEducation,
-} from "../../models/userEducation.model";
-import { IJob } from "../../models/job.modal";
-import { ISkill } from "../../models/skill.modal";
+
 import { CreateEducationInputDTO } from "../../core/dtos/user/UserEducation.dto";
 import { CreateExperienceInputDTO } from "../../core/dtos/user/userExperience";
 import { CreateProjectInputDTO } from "../../core/dtos/user/userproject";
 import { CreateCertificateInputDTO } from "../../core/dtos/user/certificate.dto";
 import { UpdateUserProfileInputDTO } from "../../core/dtos/user/getuserresponse.dto";
 import { subDays } from "date-fns";
+import { IUser } from "../entities/user.entity";
+import { ISkill } from "../entities/skill.entity";
+import { IJob } from "../entities/job.entity";
+import { IUserEducation } from "../entities/education.entity";
+import userEducationModel from "../models/user.education.model";
+import { IUserExperience } from "../entities/experience.entity";
+import userExpModel from "../models/user.exp.model";
+import { IUserProject } from "../entities/project.entity";
+import userProjectModel from "../models/user.project.model";
+import { IUserCertificate } from "../entities/certificate.entity";
+import userCertificateModel from "../models/user.certificate.model";
 export interface IUserWithStatus {
   user: {
     _id: Types.ObjectId;
@@ -39,7 +38,7 @@ export class UserRepository
   extends BaseRepository<IUser>
   implements IUserRepository
 {
-  constructor(@inject(TYPES.UserModal) private userModel: Model<IUser>) {
+  constructor(@inject(TYPES.UserModel) private userModel: Model<IUser>) {
     super(userModel);
   }
 
@@ -47,7 +46,7 @@ export class UserRepository
     userId: string,
     data: UpdateUserProfileInputDTO
   ): Promise<IUser | null> {
-    return await userModal
+    return await this.model
       .findByIdAndUpdate(userId, data, { new: true })
       .lean();
   }
@@ -56,7 +55,7 @@ export class UserRepository
     username: string,
     excludeUserId: string
   ): Promise<boolean> {
-    const user = await userModal
+    const user = await this.model
       .findOne({
         username,
         _id: { $ne: excludeUserId },
@@ -267,7 +266,7 @@ export class UserRepository
     userId: string,
     experience: CreateExperienceInputDTO
   ): Promise<IUserExperience> {
-    const newExperience = await userExperienceModel.create({
+    const newExperience = await userExpModel.create({
       ...experience,
       userId,
     });
@@ -283,7 +282,7 @@ export class UserRepository
     experienceId: string,
     data: Partial<CreateExperienceInputDTO>
   ): Promise<IUserExperience | null> {
-    return userExperienceModel.findByIdAndUpdate(experienceId, data, {
+    return userExpModel.findByIdAndUpdate(experienceId, data, {
       new: true,
     });
   }
@@ -292,7 +291,7 @@ export class UserRepository
     userId: string,
     experienceId: string
   ): Promise<boolean> {
-    await userExperienceModel.findByIdAndDelete(experienceId);
+    await userExpModel.findByIdAndDelete(experienceId);
     await this.model.findByIdAndUpdate(userId, {
       $pull: { experiences: experienceId },
     });
@@ -300,7 +299,7 @@ export class UserRepository
   }
 
   async getAllExperiences(userId: string): Promise<IUserExperience[]> {
-    return userExperienceModel.find({ userId });
+    return userExpModel.find({ userId });
   }
 
   // Project Methods
@@ -603,11 +602,11 @@ export class UserRepository
   }
   // new for admin dash
   async countAllUsers(): Promise<number> {
-    return userModal.countDocuments();
+    return this.model.countDocuments();
   }
 
   async countActiveUsers(): Promise<number> {
-    return userModal.countDocuments({
+    return this.model.countDocuments({
       lastActive: { $gte: subDays(new Date(), 30) },
     });
   }

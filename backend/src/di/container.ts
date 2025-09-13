@@ -1,12 +1,12 @@
 import { Container } from "inversify";
 import { TYPES } from "./types";
 
-import userModal from "../models/user.modal";
-
 import { IUserRepository } from "../interfaces/repositories/IUserRepository";
 import { ITempUserRepository } from "../interfaces/repositories/ITempUserRepository";
 
-import { TempUserRepository } from "../repositories/mongo/TempUserRepository";
+import {
+  TempUserRepository,
+} from "../repositories/mongo/TempUserRepository";
 import { UserRepository } from "../repositories/mongo/UserRepository";
 import { ITempCompanyRepository } from "../interfaces/repositories/ITempCompanyRepository";
 import { TempCompanyRepository } from "../repositories/mongo/TempCompanyRepository";
@@ -24,20 +24,14 @@ import { AuthMiddleware } from "../middlewares/auth.middleware";
 import { JWTService } from "../shared/util/jwt.service";
 import { AuthController } from "../controllers/user/AuthController";
 import { IAuthController } from "../interfaces/controllers/IUserAuthController";
-import { IUser } from "../models/user.modal";
+
 import { Model } from "mongoose";
-import otpModal, { IOTP } from "../models/otp.modal";
-import userTempModal, { ITempUser } from "../models/user.temp.modal";
-import PasswordResetToken, {
-  IPasswordResetToken,
-} from "../models/PasswordResetToken";
+
 import { CompanyAuthController } from "../controllers/company/CompanyAuthController";
 import { CompanyAuthService } from "../services/company/CompanyAuthService";
 import { ICompanyAuthService } from "../interfaces/services/ICompanyAuthService";
 import { ICompanyAuthController } from "../interfaces/controllers/ICompanyAuthController";
-import companyModal, { ICompany } from "../models/company.modal";
-import companyTempModal, { ITempCompany } from "../models/company.temp.modal";
-import { Admin } from "../models/admin.modal";
+
 import { AdminRepository } from "../repositories/mongo/AdminRepository";
 import { IAdminRepository } from "../interfaces/repositories/IAdminRepository";
 import { AdminAuthService } from "../services/admin/AdminAuthService";
@@ -93,10 +87,9 @@ import { IMediaService } from "../interfaces/services/Post/IMediaService";
 import { MediaService } from "../services/user/MediaService";
 import { PostController } from "../controllers/user/PostController";
 import { IPostController } from "../interfaces/controllers/post/IPostController";
-import postModal, { IPost } from "../models/post.modal";
+
 import { LikeService } from "../services/user/LikeService";
 import { ILikeService } from "../interfaces/services/Post/ILikeService";
-import likeModal, { ILike } from "../models/like.modal";
 
 import { CommentService } from "../services/user/CommentService";
 import { IProfileViewService } from "../interfaces/services/IProfileViewService";
@@ -120,10 +113,9 @@ import { CompanyInterviewService } from "../services/company/CompanyInterviewSer
 import { ApplicationRepository } from "../repositories/mongo/ApplicationRepository";
 import { ICompanyInterviewService } from "../interfaces/services/ICompanyInterviewService";
 import { IInterviewRepository } from "../interfaces/repositories/IInterviewRepository";
-import { IInterview, Interview } from "../models/interview.modal";
-import applicationModal, { IApplication } from "../models/application.modal";
+
 import { IUserInterviewService } from "../interfaces/services/IUserInterviewService";
-import { TYPE } from "inversify-express-utils";
+
 import { UserInterviewService } from "../services/user/UserInterviewService";
 import { IUserInterviewController } from "../interfaces/controllers/IUserInterviewController";
 import { UserInterviewController } from "../controllers/user/UserInterview.controller";
@@ -147,12 +139,10 @@ import { ISubscriptionPlanController } from "../interfaces/controllers/ISubscrip
 import { SubscriptionPlanController } from "../controllers/admin/SubscriptionPlanController";
 import { SubscriptionPlanService } from "../services/admin/SubscriptionPlanService";
 import { SubscriptionPlanRepository } from "../repositories/mongo/SubscriptionPlanRepository";
-import subscriptionModal, {
-  ISubscriptionPlan,
-} from "../models/subscription.modal";
+
 import { IFeatureRepository } from "../interfaces/repositories/IFeatureRepository";
 import { FeatureRepository } from "../repositories/mongo/FeatureRepository";
-import featureModal, { IFeature } from "../models/feature.modal";
+
 import { IFeatureService } from "../interfaces/services/IFeatureService";
 import { FeatureService } from "../services/admin/FeatureService";
 import { IFeatureController } from "../interfaces/controllers/IFeatureController";
@@ -167,25 +157,54 @@ import { IJobApplicantManagementService } from "../interfaces/services/IJobAppli
 import { JobApplicantManagementService } from "../services/company/JobApplicantManagement";
 import { IJobApplicantManagementController } from "../interfaces/controllers/IJobApplicantManagementController";
 import { JobApplicantManagementController } from "../controllers/company/JobApplicantManagementController";
-import jobModal, { IJob } from "../models/job.modal";
-import commentModal, { IComment } from "../models/comment.modal";
-import { IStripeController } from "../interfaces/controllers/IStripeController";
-import { IStripeService } from "../interfaces/services/IStripeService";
 
-import skillModal, { ISkill } from "../models/skill.modal";
-import { IMediaController } from "../interfaces/controllers/IMediaController";
 // import { MediaController } from "../controllers/MediaController";
-import mediaModal, { IMedia } from "../models/media.modal";
+
 import { ICommentService } from "../interfaces/services/Post/ICommentService";
-import tranasctionModal, { ITransaction } from "../models/tranasction.modal";
+
 import { ITransactionRepository } from "../interfaces/repositories/ITransactionRepository";
-import { Types } from "aws-sdk/clients/acm";
+
 import { TransactionRepository } from "../repositories/mongo/TransactionRepository";
 import { IUserMapper, UserMapper } from "../mapping/admin/admin.user.mapper";
 import { IAdminDashboardService } from "../interfaces/services/IAdminDashboardService";
 import { AdminDashboardService } from "../services/admin/AdminDashboardService";
 import { IAdminDashboardController } from "../interfaces/controllers/IAdminDashboardController";
 import { AdminDashboardController } from "../controllers/admin/AdminDashboardController";
+import { IUser } from "../repositories/entities/user.entity";
+import userModel from "../repositories/models/user.model";
+import otpModel from "../repositories/models/otp.model";
+import userTempModel from "../repositories/models/user.temp.model";
+import { IOTP } from "../repositories/entities/otp.entity";
+import { ITempUser } from "../repositories/entities/tempuser.entity";
+import companyModel from "../repositories/models/company.model";
+import { ICompany } from "../repositories/entities/company.entity";
+import { ITempCompany } from "../repositories/entities/temp.comany.entity";
+import companyTempModel from "../repositories/models/company.temp.model";
+import { IPasswordResetToken } from "../repositories/entities/password.reset.entity";
+import passwordResetModel from "../repositories/models/password.reset.model";
+import jobModel from "../repositories/models/job.model";
+import { IJob } from "../repositories/entities/job.entity";
+import { ITransaction } from "../repositories/entities/transaction.entity";
+import transactionModel from "../repositories/models/transaction.model";
+import postModel from "../repositories/models/post.model";
+import { IPost } from "../repositories/entities/post.entity";
+import commentModel from "../repositories/models/comment.model";
+import { IComment } from "../repositories/entities/comment.entity";
+import likeModel from "../repositories/models/like.model";
+import { ILike } from "../repositories/entities/like.entity";
+import mediaModel from "../repositories/models/media.model";
+import { IMedia } from "../repositories/entities/media.entity";
+import { Admin } from "../repositories/models/admin.model";
+import { IInterview } from "../repositories/entities/interview.entity";
+import { Interview } from "../repositories/models/interview.model";
+import applicationModel from "../repositories/models/application.model";
+import { IApplication } from "../repositories/entities/application.entity";
+import skillModel from "../repositories/models/skill.model";
+import { ISkill } from "../repositories/entities/skill.entity";
+import { ISubscriptionPlan } from "../repositories/entities/subscription.entity";
+import subscriptionModel from "../repositories/models/subscription.model";
+import featureModel from "../repositories/models/feature.model";
+import { IFeature } from "../repositories/entities/feature.entity";
 // import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
@@ -195,36 +214,36 @@ import { AdminDashboardController } from "../controllers/admin/AdminDashboardCon
 const container = new Container();
 
 // Repositories
-container.bind<Model<IUser>>(TYPES.UserModal).toConstantValue(userModal);
+container.bind<Model<IUser>>(TYPES.UserModel).toConstantValue(userModel);
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository);
 
-container.bind<Model<IOTP>>(TYPES.OTPModal).toConstantValue(otpModal);
+container.bind<Model<IOTP>>(TYPES.OTPModel).toConstantValue(otpModel);
 container.bind<IOTPRepository>(TYPES.OTPRepository).to(OTPRepository);
 
 container
-  .bind<Model<ITempUser>>(TYPES.TempUserModal)
-  .toConstantValue(userTempModal);
+  .bind<Model<ITempUser>>(TYPES.TempUserModel)
+  .toConstantValue(userTempModel);
 container
   .bind<ITempUserRepository>(TYPES.TempUserRepository)
   .to(TempUserRepository);
 
 container
-  .bind<Model<ICompany>>(TYPES.CompanyModal)
-  .toConstantValue(companyModal);
+  .bind<Model<ICompany>>(TYPES.CompanyModel)
+  .toConstantValue(companyModel);
 
 container
   .bind<ICompanyRepository>(TYPES.CompanyRepository)
   .to(CompanyRepository);
 container
-  .bind<Model<ITempCompany>>(TYPES.TempCompanyModal)
-  .toConstantValue(companyTempModal);
+  .bind<Model<ITempCompany>>(TYPES.TempCompanyModel)
+  .toConstantValue(companyTempModel);
 container
   .bind<ITempCompanyRepository>(TYPES.TempCompanyRepository)
   .to(TempCompanyRepository);
 
 container
-  .bind<Model<IPasswordResetToken>>(TYPES.PasswordResetTokenModal)
-  .toConstantValue(PasswordResetToken);
+  .bind<Model<IPasswordResetToken>>(TYPES.PasswordResetTokenModel)
+  .toConstantValue(passwordResetModel);
 
 container
   .bind<IPasswordResetTokenRepository>(TYPES.PasswordResetTokenRepository)
@@ -235,31 +254,31 @@ container
   .to(TransactionRepository);
 // job
 container.bind<IJobRepository>(TYPES.JobRepository).to(JobRepository);
-container.bind<Model<IJob>>(TYPES.jobModal).toConstantValue(jobModal);
+container.bind<Model<IJob>>(TYPES.jobModel).toConstantValue(jobModel);
 container
-  .bind<Model<ITransaction>>(TYPES.tranasctionModal)
-  .toConstantValue(tranasctionModal);
+  .bind<Model<ITransaction>>(TYPES.tranasctionModel)
+  .toConstantValue(transactionModel);
 container.bind<IUserJobService>(TYPES.UserJobService).to(UserJobService);
 container
   .bind<IUserJobController>(TYPES.UserJobController)
   .to(UserJobController);
 // post
-container.bind<Model<IPost>>(TYPES.postModal).toConstantValue(postModal);
+container.bind<Model<IPost>>(TYPES.postModel).toConstantValue(postModel);
 container.bind<IPostRepository>(TYPES.PostRepository).to(PostRepository);
 container
   .bind<ICommentRepository>(TYPES.CommentRepository)
   .to(CommentRepository);
 container
-  .bind<Model<IComment>>(TYPES.commentModal)
-  .toConstantValue(commentModal);
-container.bind<Model<ILike>>(TYPES.likeModal).toConstantValue(likeModal);
+  .bind<Model<IComment>>(TYPES.commentModel)
+  .toConstantValue(commentModel);
+container.bind<Model<ILike>>(TYPES.likeModel).toConstantValue(likeModel);
 container.bind<ILikeRepository>(TYPES.LikeRepository).to(LikeRepository);
 container.bind<IMediaRepository>(TYPES.MediaRepository).to(MediaRepository);
-container.bind<Model<IMedia>>(TYPES.mediaModal).toConstantValue(mediaModal);
+container.bind<Model<IMedia>>(TYPES.mediaModel).toConstantValue(mediaModel);
 // admin
 
 container.bind<IAdminRepository>(TYPES.AdminRepository).to(AdminRepository);
-container.bind(TYPES.AdminModal).toConstantValue(Admin);
+container.bind(TYPES.AdminModel).toConstantValue(Admin);
 
 // services**************************
 
@@ -364,8 +383,8 @@ container
   .bind<IApplicationRepository>(TYPES.ApplicationRepository)
   .to(ApplicationRepository);
 container
-  .bind<Model<IApplication>>(TYPES.applicationModal)
-  .toConstantValue(applicationModal);
+  .bind<Model<IApplication>>(TYPES.applicationModel)
+  .toConstantValue(applicationModel);
 // Services
 container
   .bind<ICompanyInterviewService>(TYPES.CompanyInterviewService)
@@ -415,15 +434,15 @@ container
 // container.bind<Server>(TYPES.SocketIO).toConstantValue(io);
 
 //skill
-container.bind<Model<ISkill>>(TYPES.skillModal).toConstantValue(skillModal);
+container.bind<Model<ISkill>>(TYPES.skillModel).toConstantValue(skillModel);
 
 // subscritption related
 container
   .bind<ISubscriptionPlanRepository>(TYPES.SubscriptionPlanRepository)
   .to(SubscriptionPlanRepository);
 container
-  .bind<Model<ISubscriptionPlan>>(TYPES.subscriptionModal)
-  .toConstantValue(subscriptionModal);
+  .bind<Model<ISubscriptionPlan>>(TYPES.subscriptionModel)
+  .toConstantValue(subscriptionModel);
 container
   .bind<ISubscriptionPlanService>(TYPES.SubscriptionPlanService)
   .to(SubscriptionPlanService);
@@ -437,7 +456,7 @@ container
   .to(FeatureRepository);
 container
   .bind<Model<IFeature>>(TYPES.featureModel)
-  .toConstantValue(featureModal);
+  .toConstantValue(featureModel);
 container.bind<IFeatureService>(TYPES.FeatureService).to(FeatureService);
 container
   .bind<IFeatureController>(TYPES.FeatureController)

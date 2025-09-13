@@ -15,6 +15,7 @@ import {
   ADMIN_CONTROLLER_ERROR,
   ADMIN_MESSAGES,
 } from "../../constants/message.constants";
+import { CompanyMapper } from "../../mapping/admin/admin.company.mapper";
 
 @injectable()
 export class AdminCompanyManagementController
@@ -27,9 +28,9 @@ export class AdminCompanyManagementController
   getCompanyById: RequestHandler = async (req, res) => {
     try {
       const { companyId } = companyIdSchema.parse(req.params);
-
+      const entity = CompanyMapper.fromDTO({ companyId });
       const company = await this._adminCompanyService.getCompanyById(
-        companyId
+        entity.companyId
       );
 
       res.status(HTTP_STATUS_CODES.OK).json({
@@ -48,8 +49,9 @@ export class AdminCompanyManagementController
   verifyCompany: RequestHandler = async (req, res): Promise<void> => {
     try {
       const { companyId } = companyIdSchema.parse(req.params);
+      const entity = CompanyMapper.fromDTO({ companyId });
       const { status, rejectionReason } = companyVerificationSchema.parse(
-        req.body
+        entity.companyId
       );
 
       const result = await this._adminCompanyService.verifyCompany(
@@ -74,13 +76,13 @@ export class AdminCompanyManagementController
 
   getUnverifiedCompaniesHandler: RequestHandler = async (req, res) => {
     try {
+      // no revrese mapping needed already validated and primtiv 
       const { page, limit } = paginationSchema.parse(req.query);
 
-      const result =
-        await this._adminCompanyService.getUnverifiedCompanies(
-          page,
-          limit
-        );
+      const result = await this._adminCompanyService.getUnverifiedCompanies(
+        page,
+        limit
+      );
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -99,8 +101,10 @@ export class AdminCompanyManagementController
   blockCompany: RequestHandler = async (req, res) => {
     try {
       const { companyId } = companyIdSchema.parse(req.params);
+      const entity = CompanyMapper.fromDTO({ companyId });
+
       const company = await this._adminCompanyService.blockCompany(
-        companyId
+        entity.companyId
       );
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -119,8 +123,10 @@ export class AdminCompanyManagementController
   unblockCompany: RequestHandler = async (req, res) => {
     try {
       const { companyId } = companyIdSchema.parse(req.params);
+      const entity = CompanyMapper.fromDTO({ companyId });
+
       const company = await this._adminCompanyService.unblockCompany(
-        companyId
+        entity.companyId
       );
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -138,6 +144,7 @@ export class AdminCompanyManagementController
 
   getCompanies: RequestHandler = async (req, res) => {
     try {
+      // no revrese mapping needed already validated and primtiv 
       const { page, limit, search } = paginationSchema.parse(req.query);
       const companies = await this._adminCompanyService.getCompanies(
         page,

@@ -14,11 +14,7 @@ import sharedRouter from "./routes/shared.routes";
 import googleRouter from "./routes/google.routes";
 import container from "./di/container";
 import dashRouter from "./routes/companydash.routes";
-// stripe realted
-// import webhookRoute from "../src/routes/webhook.routes";
-// import stripeRoutes from "../src/routes/stripe";
-// import webhookRoute from "./routes/webhook.routes";
-// import stripeRoutes from "./routes/stripe";
+
 import stripeRoutes from "./routes/stripe.routes";
 import { IAuthMiddleware } from "./interfaces/middlewares/IAuthMiddleware";
 import { TYPES } from "./di/types";

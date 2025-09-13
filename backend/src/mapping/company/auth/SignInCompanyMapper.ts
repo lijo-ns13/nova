@@ -1,5 +1,11 @@
-import { SignInCompanyResponseDTO } from "../../../core/dtos/company/company.signin.dto";
-import { ICompany } from "../../../models/company.modal";
+import {
+  SignInCompanyRequestDTO,
+  SignInCompanyResponseDTO,
+} from "../../../core/dtos/company/company.signin.dto";
+import {
+  CompanySigninEntity,
+  ICompany,
+} from "../../../repositories/entities/company.entity";
 
 export class SignInCompanyMapper {
   static toDTO(
@@ -20,6 +26,12 @@ export class SignInCompanyMapper {
       },
       isVerified: company.isVerified,
       isBlocked: company.isBlocked,
+    };
+  }
+  static fromDTO(dto: SignInCompanyRequestDTO): CompanySigninEntity {
+    return {
+      email: dto.email.toLowerCase().trim(),
+      password: dto.password.trim(),
     };
   }
 }

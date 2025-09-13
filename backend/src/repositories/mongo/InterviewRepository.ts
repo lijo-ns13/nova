@@ -1,10 +1,10 @@
-// src/modules/job/repositories/InterviewRepository.ts
 import { inject, injectable } from "inversify";
-import { Interview, IInterview } from "../../models/interview.modal";
 import { BaseRepository } from "../../repositories/mongo/BaseRepository";
 import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRepository";
 import { FilterQuery, Model, Types } from "mongoose";
 import { TYPES } from "../../di/types";
+import { IInterview } from "../entities/interview.entity";
+import { Interview } from "../models/interview.model";
 
 @injectable()
 export class InterviewRepository
@@ -15,14 +15,8 @@ export class InterviewRepository
     super(Interview);
   }
 
-  // async findByCompanyId(companyId: string): Promise<IInterview[]> {
-  //   return this.model.find({ companyId }).exec();
-  // }
   async findByCompanyId(companyId: string): Promise<IInterview[]> {
-    return this.model
-      .find({ companyId })
-      .sort({ scheduledAt: -1 }) // Sort by most recent first
-      .exec();
+    return this.model.find({ companyId }).sort({ scheduledAt: -1 }).exec();
   }
   async findByUserId(userId: string): Promise<IInterview[]> {
     return this.model.find({ userId }).exec();

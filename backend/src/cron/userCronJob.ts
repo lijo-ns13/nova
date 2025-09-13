@@ -1,13 +1,14 @@
 import cron from "node-cron";
-import userModal from "../models/user.modal";
-import logger from "../utils/logger"; // ← use Winston or Pino logger
+
+import logger from "../utils/logger";
+import userModel from "../repositories/models/user.model";
 
 const now = () => new Date();
 
 // ⏰ Every 10 minutes: Remove expired Stripe sessions
 cron.schedule("*/10 * * * *", async () => {
   try {
-    const result = await userModal.updateMany(
+    const result = await userModel.updateMany(
       { activePaymentSessionExpiresAt: { $lt: now() } },
       {
         $unset: {
@@ -31,7 +32,7 @@ cron.schedule("0 0 1 * *", async () => {
     const currentDate = now();
 
     // Step 1: Reset expired/inactive subscriptions
-    const expiredReset = await userModal.updateMany(
+    const expiredReset = await userModel.updateMany(
       {
         $or: [
           { isSubscriptionActive: false },
@@ -50,7 +51,7 @@ cron.schedule("0 0 1 * *", async () => {
     );
 
     // Step 2: Reset subscriptionCancelled if no active sub
-    const cancelledReset = await userModal.updateMany(
+    const cancelledReset = await userModel.updateMany(
       {
         subscriptionCancelled: true,
         $or: [

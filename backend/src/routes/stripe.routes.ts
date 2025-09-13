@@ -1,12 +1,11 @@
-// routes/stripe.routes.ts
 import express from "express";
 
-import tranasctionModal from "../models/tranasction.modal";
 import {
   confirmPaymentSession,
   createCheckoutSession,
   handleRefund,
 } from "../controllers/StripeController";
+import transactionModel from "../repositories/models/transaction.model";
 
 const router = express.Router();
 
@@ -19,7 +18,7 @@ router.get("/session/:userId", async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const latestTransaction = await tranasctionModal
+    const latestTransaction = await transactionModel
       .findOne({ userId, status: "completed" })
       .sort({ createdAt: -1 });
 
@@ -45,7 +44,7 @@ router.get("/session-details/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
 
   try {
-    const transaction = await tranasctionModal.findOne({
+    const transaction = await transactionModel.findOne({
       stripeSessionId: sessionId,
     });
     if (!transaction) {

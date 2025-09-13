@@ -1,24 +1,25 @@
 import mongoose, { Model, Types } from "mongoose";
 import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
-import skillModal, { ISkill } from "../../models/skill.modal";
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";
 import { inject } from "inversify";
 import { CreateSkillDto } from "../../core/dtos/admin/admin.skill.dto";
+import skillModel from "../models/skill.model";
+import { ISkill } from "../entities/skill.entity";
 
 export class SkillRepository
   extends BaseRepository<ISkill>
   implements ISkillRepository
 {
-  constructor(@inject(TYPES.skillModal) skillModal: Model<ISkill>) {
-    super(skillModal);
+  constructor(@inject(TYPES.skillModel) skillModel: Model<ISkill>) {
+    super(skillModel);
   }
   // src/repositories/SkillRepository.ts
   async createSkillAsAdmin(
     dto: CreateSkillDto,
     adminId: string
   ): Promise<ISkill> {
-    return skillModal.create({
+    return this.model.create({
       title: dto.title.trim().toLowerCase(),
       createdById: new mongoose.Types.ObjectId(adminId),
       createdBy: "admin",
@@ -30,12 +31,12 @@ export class SkillRepository
     createdById: string,
     createdBy: "company" | "user" | "admin"
   ): Promise<ISkill> {
-    const existing = await skillModal.findOne({
+    const existing = await this.model.findOne({
       title: title.toLowerCase().trim(),
     });
     if (existing) return existing;
 
-    return await skillModal.create({
+    return await this.model.create({
       title: title.toLowerCase().trim(),
       createdById: new Types.ObjectId(createdById),
       createdBy,
@@ -60,7 +61,7 @@ export class SkillRepository
   ): Promise<{ skills: ISkill[]; total: number }> {
     const skip = (page - 1) * limit;
 
-    let query = skillModal.find();
+    let query = this.model.find();
     console.log("query", query);
 
     if (search) {
@@ -71,13 +72,13 @@ export class SkillRepository
 
     const [skills, total] = await Promise.all([
       query.skip(skip).limit(limit).sort({ createdAt: -1 }).exec(),
-      skillModal.countDocuments(query.getFilter()),
+      this.model.countDocuments(query.getFilter()),
     ]);
 
     return { skills, total };
   }
   async getByTitle(title: string): Promise<ISkill | null> {
-    return await skillModal.findOne({ title: title });
+    return await this.model.findOne({ title: title });
   }
   async findByTitle(title: string): Promise<ISkill | null> {
     return this.model.findOne({ title: title.trim().toLowerCase() });
@@ -96,7 +97,7 @@ export class SkillRepository
   }
   async searchSkills(query: string, limit = 10): Promise<ISkill[]> {
     const regex = new RegExp(`^${query}`, "i"); // ^ anchors to start of string
-    const skills = await skillModal.find({ title: regex }).limit(limit);
+    const skills = await this.model.find({ title: regex }).limit(limit);
     return skills;
   }
 }

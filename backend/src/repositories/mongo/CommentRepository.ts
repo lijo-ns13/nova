@@ -1,13 +1,15 @@
 import { inject, injectable } from "inversify";
 import { Model, Types } from "mongoose";
-import { BaseRepository } from "./BaseRepository"; // wherever your base repo lives
-import commentModal, { IComment } from "../../models/comment.modal";
+import { BaseRepository } from "./BaseRepository";
+
 import { ICommentRepository } from "../../interfaces/repositories/ICommentRepository";
 import { TYPES } from "../../di/types";
 import {
   CreateCommentDTO,
   UpdateCommentDTO,
 } from "../../core/dtos/user/post/comment.dto";
+import { IComment } from "../entities/comment.entity";
+import commentModel from "../models/comment.model";
 
 @injectable()
 export class CommentRepository
@@ -15,9 +17,9 @@ export class CommentRepository
   implements ICommentRepository
 {
   constructor(
-    @inject(TYPES.commentModal) private readonly commentModel: Model<IComment>
+    @inject(TYPES.commentModel) private readonly commentModel: Model<IComment>
   ) {
-    super(commentModal);
+    super(commentModel);
   }
 
   async createComment(input: CreateCommentDTO): Promise<IComment> {
@@ -25,14 +27,14 @@ export class CommentRepository
 
     const path = parentId
       ? [
-          ...(await commentModal
+          ...(await commentModel
             .findById(parentId)
             ?.then((c) => c?.path || [])),
           new Types.ObjectId(parentId),
         ]
       : [];
 
-    return commentModal.create({
+    return commentModel.create({
       postId: new Types.ObjectId(postId),
       content,
       parentId: parentId ? new Types.ObjectId(parentId) : null,
@@ -47,7 +49,7 @@ export class CommentRepository
     content,
     userId,
   }: UpdateCommentDTO): Promise<IComment> {
-    const comment = await commentModal.findOneAndUpdate(
+    const comment = await commentModel.findOneAndUpdate(
       {
         _id: new Types.ObjectId(commentId),
         authorId: new Types.ObjectId(userId),
@@ -62,7 +64,7 @@ export class CommentRepository
   }
 
   async softDeleteComment(commentId: string, userId: string): Promise<void> {
-    const result = await commentModal.deleteOne({
+    const result = await commentModel.deleteOne({
       _id: new Types.ObjectId(commentId),
       authorId: new Types.ObjectId(userId),
     });
@@ -76,7 +78,7 @@ export class CommentRepository
     page: number,
     limit: number
   ): Promise<IComment[]> {
-    return commentModal
+    return commentModel
       .find({ postId: new Types.ObjectId(postId) })
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
