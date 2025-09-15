@@ -1,5 +1,5 @@
-import companyAxios from "../../../utils/companyAxios";
 import { APIResponse } from "../../../types/api";
+import apiAxios from "../../../utils/apiAxios";
 import { handleApiError } from "../../../utils/apiError";
 
 export type InterviewResponseDTO = {
@@ -43,7 +43,7 @@ export interface ProposeRescheduleInput {
 class CompanyInterviewService {
   async getUpcomingInterviews(): Promise<UpcomingInterviewResponseDTO[]> {
     try {
-      const res = await companyAxios.get<
+      const res = await apiAxios.get<
         APIResponse<UpcomingInterviewResponseDTO[]>
       >(`${BASE_URL}/upcoming`);
       return res.data.data;
@@ -57,7 +57,7 @@ class CompanyInterviewService {
     input: ProposeRescheduleInput
   ): Promise<InterviewResponseDTO> {
     try {
-      const res = await companyAxios.post<APIResponse<InterviewResponseDTO>>(
+      const res = await apiAxios.post<APIResponse<InterviewResponseDTO>>(
         `${BASE_URL}/${applicationId}/reschedule`,
         input
       );
@@ -74,7 +74,7 @@ class CompanyInterviewService {
     scheduledAt: string;
   }): Promise<InterviewResponseDTO> {
     try {
-      const res = await companyAxios.post<APIResponse<InterviewResponseDTO>>(
+      const res = await apiAxios.post<APIResponse<InterviewResponseDTO>>(
         `${BASE_URL}`,
         input
       );

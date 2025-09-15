@@ -1,7 +1,7 @@
-import companyAxios from "../../../utils/companyAxios";
 import { APIResponse } from "../../../types/api";
 import { handleApiError } from "../../../utils/apiError";
 import { ApplicationStatus } from "../../../constants/applicationStatus";
+import apiAxios from "../../../utils/apiAxios";
 
 export type UpdateApplicationStatusInput = {
   status: ApplicationStatus;
@@ -37,11 +37,12 @@ export const ApplicantService = {
     applicationId: string
   ): Promise<ApplicationDetailDTO> {
     try {
-      const response = await companyAxios.get<
-        APIResponse<ApplicationDetailDTO>
-      >(`${BASE_URL}/${applicationId}`, {
-        withCredentials: true,
-      });
+      const response = await apiAxios.get<APIResponse<ApplicationDetailDTO>>(
+        `${BASE_URL}/${applicationId}`,
+        {
+          withCredentials: true,
+        }
+      );
       return response.data.data;
     } catch (err) {
       throw handleApiError(err, "Failed to load application details");
@@ -53,11 +54,13 @@ export const ApplicantService = {
     data: UpdateApplicationStatusInput
   ): Promise<ApplicationDetailDTO> {
     try {
-      const response = await companyAxios.patch<
-        APIResponse<ApplicationDetailDTO>
-      >(`${BASE_URL}/${applicationId}/status`, data, {
-        withCredentials: true,
-      });
+      const response = await apiAxios.patch<APIResponse<ApplicationDetailDTO>>(
+        `${BASE_URL}/${applicationId}/status`,
+        data,
+        {
+          withCredentials: true,
+        }
+      );
       return response.data.data;
     } catch (err) {
       throw handleApiError(err, "Failed to update application status");

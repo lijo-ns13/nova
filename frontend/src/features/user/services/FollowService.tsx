@@ -1,9 +1,9 @@
-import userAxios from "../../../utils/userAxios";
 import {
   HTTPErrorResponse,
   ParsedAPIError,
   APIResponse,
 } from "../../../types/api";
+import apiAxios from "../../../utils/apiAxios";
 import { handleApiError } from "../../../utils/apiError";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -50,7 +50,7 @@ export const getNetworkUsers = async (
   search = ""
 ): Promise<NetworkUserResponse> => {
   try {
-    const res = await userAxios.get<APIResponse<NetworkUserResponse>>(
+    const res = await apiAxios.get<APIResponse<NetworkUserResponse>>(
       `${BASE_URL}/network-users`,
       {
         params: { page, limit, search },
@@ -64,7 +64,7 @@ export const getNetworkUsers = async (
 
 export const followUser = async (userId: string): Promise<BasicResponse> => {
   try {
-    const res = await userAxios.post<BasicResponse>(
+    const res = await apiAxios.post<BasicResponse>(
       `${BASE_URL}/${userId}/follow`
     );
     return res.data;
@@ -75,7 +75,7 @@ export const followUser = async (userId: string): Promise<BasicResponse> => {
 
 export const unfollowUser = async (userId: string): Promise<BasicResponse> => {
   try {
-    const res = await userAxios.post<BasicResponse>(
+    const res = await apiAxios.post<BasicResponse>(
       `${BASE_URL}/${userId}/unfollow`
     );
     return res.data;
@@ -86,7 +86,7 @@ export const unfollowUser = async (userId: string): Promise<BasicResponse> => {
 
 export const getFollowers = async (userId: string): Promise<NetworkUser[]> => {
   try {
-    const res = await userAxios.get<APIResponse<NetworkUser[]>>(
+    const res = await apiAxios.get<APIResponse<NetworkUser[]>>(
       `${BASE_URL}/${userId}/followers`
     );
     return res.data.data;
@@ -97,7 +97,7 @@ export const getFollowers = async (userId: string): Promise<NetworkUser[]> => {
 
 export const getFollowing = async (userId: string): Promise<NetworkUser[]> => {
   try {
-    const res = await userAxios.get<APIResponse<NetworkUser[]>>(
+    const res = await apiAxios.get<APIResponse<NetworkUser[]>>(
       `${BASE_URL}/${userId}/following`
     );
     return res.data.data;
@@ -110,7 +110,7 @@ export const checkFollowStatus = async (
   userId: string
 ): Promise<FollowStatusResponse> => {
   try {
-    const res = await userAxios.get<FollowStatusResponse>(
+    const res = await apiAxios.get<FollowStatusResponse>(
       `${BASE_URL}/${userId}/follow-status`
     );
     return res.data;

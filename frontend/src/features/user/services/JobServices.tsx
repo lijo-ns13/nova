@@ -77,6 +77,7 @@ export interface PaginatedJobResponse {
 }
 
 import { APIResponse } from "../../../types/api";
+import apiAxios from "../../../utils/apiAxios";
 import { handleApiError } from "../../../utils/apiError";
 import userAxios from "../../../utils/userAxios";
 
@@ -114,7 +115,7 @@ export const getJobs = async (
       params.append("maxSalary", filters.maxSalary.toString());
     if (filters.company) params.append("company", filters.company);
 
-    const res = await userAxios.get<APIResponse<PaginatedJobResponse>>(
+    const res = await apiAxios.get<APIResponse<PaginatedJobResponse>>(
       `${API_BASE_URL}/jobs?${params.toString()}`
     );
 
@@ -129,7 +130,7 @@ export const getJob = async (
   jobId: string
 ): Promise<APIResponse<GetJobResponseDTO>> => {
   try {
-    const res = await userAxios.get<APIResponse<GetJobResponseDTO>>(
+    const res = await apiAxios.get<APIResponse<GetJobResponseDTO>>(
       `${API_BASE_URL}/jobs/${jobId}`
     );
     return res.data;
@@ -143,7 +144,7 @@ export const getJobAppliedStatus = async (
   jobId: string
 ): Promise<APIResponse<boolean>> => {
   try {
-    const res = await userAxios.get<APIResponse<boolean>>(
+    const res = await apiAxios.get<APIResponse<boolean>>(
       `${API_BASE_URL}/jobs/${jobId}/check-application`,
       { withCredentials: true }
     );
@@ -172,7 +173,7 @@ export const applyJob = async ({
       formData.append("coverLetter", coverLetter);
     }
 
-    const res = await userAxios.post<APIResponse<boolean>>(
+    const res = await apiAxios.post<APIResponse<boolean>>(
       `${API_BASE_URL}/jobs/${jobId}/apply`,
       formData,
       {
@@ -193,7 +194,7 @@ export const getAppliedJobs = async (): Promise<
   APIResponse<AppliedJobResponseDTO[]>
 > => {
   try {
-    const res = await userAxios.get<APIResponse<AppliedJobResponseDTO[]>>(
+    const res = await apiAxios.get<APIResponse<AppliedJobResponseDTO[]>>(
       `${API_BASE_URL}/jobs/applied-jobs/`,
       {
         withCredentials: true,

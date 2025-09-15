@@ -1,4 +1,3 @@
-import adminAxios from "../../../utils/adminAxios";
 import { APIResponse } from "../../../types/api";
 import {
   CreatePlanInput,
@@ -7,6 +6,7 @@ import {
 } from "../types/subscription";
 import { handleApiError } from "../../../utils/apiError";
 import z from "zod";
+import apiAxios from "../../../utils/apiAxios";
 export const TRANSACTION_STATUSES = [
   "pending",
   "completed",
@@ -62,7 +62,7 @@ export const GetFilteredTransactions = async (
   filters: TransactionFilterInput
 ): Promise<TransactionListWithPagination> => {
   try {
-    const result = await adminAxios.get<
+    const result = await apiAxios.get<
       APIResponse<TransactionListWithPagination>
     >(`${BASE_URL}/transactions`, {
       params: filters,
@@ -78,7 +78,7 @@ export const CreateSubscriptionPlan = async (
   data: CreatePlanInput
 ): Promise<SubscriptionPlanResponse> => {
   try {
-    const result = await adminAxios.post<APIResponse<SubscriptionPlanResponse>>(
+    const result = await apiAxios.post<APIResponse<SubscriptionPlanResponse>>(
       BASE_URL,
       data,
       { withCredentials: true }
@@ -94,9 +94,10 @@ export const GetAllSubscription = async (): Promise<
   SubscriptionPlanResponse[]
 > => {
   try {
-    const result = await adminAxios.get<
-      APIResponse<SubscriptionPlanResponse[]>
-    >(BASE_URL, { withCredentials: true });
+    const result = await apiAxios.get<APIResponse<SubscriptionPlanResponse[]>>(
+      BASE_URL,
+      { withCredentials: true }
+    );
     return result.data.data;
   } catch (error) {
     throw handleApiError(error, "Failed to fetch subscription plans");
@@ -106,7 +107,7 @@ export const GetAllSubscription = async (): Promise<
 // Delete a subscription plan
 export const DeleteSubscription = async (subId: string): Promise<boolean> => {
   try {
-    await adminAxios.delete(`${BASE_URL}/${subId}`, {
+    await apiAxios.delete(`${BASE_URL}/${subId}`, {
       withCredentials: true,
     });
     return true;
@@ -120,7 +121,7 @@ export const GetPlanById = async (
   subId: string
 ): Promise<SubscriptionPlanResponse> => {
   try {
-    const result = await adminAxios.get<APIResponse<SubscriptionPlanResponse>>(
+    const result = await apiAxios.get<APIResponse<SubscriptionPlanResponse>>(
       `${BASE_URL}/${subId}`,
       { withCredentials: true }
     );
@@ -136,9 +137,11 @@ export const TogglePlanStatus = async (
   isActive: boolean
 ): Promise<SubscriptionPlanResponse> => {
   try {
-    const result = await adminAxios.patch<
-      APIResponse<SubscriptionPlanResponse>
-    >(`${BASE_URL}/${subId}/status`, { isActive }, { withCredentials: true });
+    const result = await apiAxios.patch<APIResponse<SubscriptionPlanResponse>>(
+      `${BASE_URL}/${subId}/status`,
+      { isActive },
+      { withCredentials: true }
+    );
     return result.data.data;
   } catch (error) {
     throw handleApiError(error, "Failed to toggle subscription plan status");
@@ -151,7 +154,7 @@ export const UpdateSubscriptionPlan = async (
   updates: UpdatePlanInput
 ): Promise<SubscriptionPlanResponse> => {
   try {
-    const result = await adminAxios.put<APIResponse<SubscriptionPlanResponse>>(
+    const result = await apiAxios.put<APIResponse<SubscriptionPlanResponse>>(
       `${BASE_URL}/${subId}`,
       updates,
       { withCredentials: true }

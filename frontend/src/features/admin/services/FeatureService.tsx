@@ -1,4 +1,3 @@
-import adminAxios from "../../../utils/adminAxios";
 import {
   FeatureResponse,
   FeatureInput,
@@ -6,6 +5,7 @@ import {
 } from "../types/feature";
 import { APIResponse, HTTPErrorResponse } from "../../../types/api";
 import { handleApiError } from "../../../utils/apiError";
+import apiAxios from "../../../utils/apiAxios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const BASE_URL = `${API_BASE_URL}/admin/feature`;
@@ -13,7 +13,7 @@ const BASE_URL = `${API_BASE_URL}/admin/feature`;
 export const FeatureService = {
   async createFeature(data: FeatureInput): Promise<FeatureResponse> {
     try {
-      const result = await adminAxios.post<APIResponse<FeatureResponse>>(
+      const result = await apiAxios.post<APIResponse<FeatureResponse>>(
         BASE_URL,
         data,
         { withCredentials: true }
@@ -26,7 +26,7 @@ export const FeatureService = {
 
   async getAllFeatures(): Promise<FeatureResponse[]> {
     try {
-      const result = await adminAxios.get<APIResponse<FeatureResponse[]>>(
+      const result = await apiAxios.get<APIResponse<FeatureResponse[]>>(
         BASE_URL,
         { withCredentials: true }
       );
@@ -38,7 +38,7 @@ export const FeatureService = {
 
   async getFeatureById(id: string): Promise<FeatureResponse> {
     try {
-      const result = await adminAxios.get<APIResponse<FeatureResponse>>(
+      const result = await apiAxios.get<APIResponse<FeatureResponse>>(
         `${BASE_URL}/${id}`,
         { withCredentials: true }
       );
@@ -53,7 +53,7 @@ export const FeatureService = {
     updates: UpdateFeatureInput
   ): Promise<FeatureResponse> {
     try {
-      const result = await adminAxios.put<APIResponse<FeatureResponse>>(
+      const result = await apiAxios.put<APIResponse<FeatureResponse>>(
         `${BASE_URL}/${id}`,
         updates,
         { withCredentials: true }
@@ -66,7 +66,7 @@ export const FeatureService = {
 
   async deleteFeature(id: string): Promise<boolean> {
     try {
-      await adminAxios.delete(`${BASE_URL}/${id}`, {
+      await apiAxios.delete(`${BASE_URL}/${id}`, {
         withCredentials: true,
       });
       return true;

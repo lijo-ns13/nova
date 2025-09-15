@@ -7,7 +7,7 @@ import adminAxios from "../../../utils/adminAxios";
 import socket from "../../../socket/socket";
 import toast from "react-hot-toast";
 import { FiMenu, FiX } from "react-icons/fi";
-import path from "path";
+
 interface NotificationPayload {
   _id: string;
   userId: string;

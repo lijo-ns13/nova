@@ -1,5 +1,4 @@
-// src/api/subscriptionWithFeatures.ts
-import userAxios from "../../../utils/userAxios";
+import apiAxios from "../../../utils/apiAxios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const BASE_URL = `${API_BASE_URL}/subfeat`;
@@ -33,7 +32,7 @@ export interface SubscriptionWithFeaturesResponse {
 export const getAllSubscriptionWithFeature =
   async (): Promise<SubscriptionWithFeaturesResponse> => {
     try {
-      const result = await userAxios.get<SubscriptionWithFeaturesResponse>(
+      const result = await apiAxios.get<SubscriptionWithFeaturesResponse>(
         BASE_URL,
         { withCredentials: true }
       );

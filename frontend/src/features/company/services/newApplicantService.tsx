@@ -1,4 +1,4 @@
-import companyAxios from "../../../utils/companyAxios";
+import apiAxios from "../../../utils/apiAxios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const BASE_URL = `${API_BASE_URL}/company/applicant`;
@@ -55,7 +55,7 @@ export const getApplicantById = async (
   applicantId: string
 ): Promise<ApplicantData> => {
   try {
-    const result = await companyAxios.get<ApplicantData>(
+    const result = await apiAxios.get<ApplicantData>(
       `${BASE_URL}/${applicantId}`,
       { withCredentials: true }
     );
@@ -73,7 +73,7 @@ export const updateApplicationStatus = async (
   payload: UpdateApplicationStatusPayload
 ): Promise<ApplicantData> => {
   try {
-    const response = await companyAxios.patch<ApplicantData>(
+    const response = await apiAxios.patch<ApplicantData>(
       `${BASE_URL}/${applicantId}/status`,
       payload,
       { withCredentials: true }

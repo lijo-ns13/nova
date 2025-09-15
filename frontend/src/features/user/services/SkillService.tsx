@@ -1,4 +1,4 @@
-import userAxios from "../../../utils/userAxios";
+import apiAxios from "../../../utils/apiAxios";
 
 // ✅ API base setup
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -66,7 +66,7 @@ function throwHandled(error: unknown, fallback: string): never {
 // ✅ Search Skills
 export const searchSkills = async (query: string): Promise<string[]> => {
   try {
-    const response = await userAxios.get<ApiResponse<{ title: string }[]>>(
+    const response = await apiAxios.get<ApiResponse<{ title: string }[]>>(
       `${BASE_URL}/skill/search`,
       { params: { q: query } }
     );
@@ -81,7 +81,7 @@ export const addSkill = async (
   title: string
 ): Promise<{ skills: UserSkill[]; message?: string }> => {
   try {
-    const response = await userAxios.post<ApiResponse<UserSkill[]>>(
+    const response = await apiAxios.post<ApiResponse<UserSkill[]>>(
       `${BASE_URL}/userskills`,
       { title }
     );
@@ -97,7 +97,7 @@ export const addSkill = async (
 // ✅ Remove Skill
 export const removeSkill = async (skillId: string): Promise<string> => {
   try {
-    const response = await userAxios.delete<BasicResponse>(
+    const response = await apiAxios.delete<BasicResponse>(
       `${BASE_URL}/userskills/${skillId}`
     );
     return response.data.message || "Skill removed";
@@ -109,7 +109,7 @@ export const removeSkill = async (skillId: string): Promise<string> => {
 // ✅ Get User Skills
 export const getUserSkills = async (): Promise<UserSkill[]> => {
   try {
-    const response = await userAxios.get<ApiResponse<UserSkill[]>>(
+    const response = await apiAxios.get<ApiResponse<UserSkill[]>>(
       `${BASE_URL}/userskills/user`
     );
     return response.data.data;
