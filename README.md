@@ -131,7 +131,7 @@ Nova Job is a comprehensive platform designed to connect job seekers with compan
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+Contributions are welcome! Please open an issue or submit a pull request forany improvements or bug fixes.
 
 ---
 
