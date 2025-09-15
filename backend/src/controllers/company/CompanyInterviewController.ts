@@ -41,7 +41,7 @@ export class CompanyInterviewController implements ICompanyInterviewController {
         });
         return;
       }
-
+      
       const input: CreateInterviewInput = {
         companyId,
         userId: parsed.userId,
