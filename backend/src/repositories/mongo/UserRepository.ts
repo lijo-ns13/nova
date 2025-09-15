@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { FilterQuery, Model, Types } from "mongoose";
+import { FilterQuery, Model, Types, UpdateResult } from "mongoose";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { BaseRepository } from "./BaseRepository";
 import { TYPES } from "../../di/types";
@@ -609,5 +609,74 @@ export class UserRepository
     return this.model.countDocuments({
       lastActive: { $gte: subDays(new Date(), 30) },
     });
+  }
+  //
+  async clearExpiredPaymentSessions(): Promise<UpdateResult> {
+    const result = await this.model.updateMany(
+      { activePaymentSessionExpiresAt: { $lt: new Date() } },
+      {
+        $unset: { activePaymentSession: "", activePaymentSessionExpiresAt: "" },
+      }
+    );
+
+    return {
+      acknowledged: result.acknowledged,
+      modifiedCount: result.modifiedCount,
+      matchedCount: result.matchedCount,
+      upsertedCount: result.upsertedCount,
+      upsertedId: result.upsertedId || null,
+    };
+  }
+
+  async resetExpiredSubscriptions(): Promise<UpdateResult> {
+    const result = await this.model.updateMany(
+      {
+        $or: [
+          { isSubscriptionActive: false },
+          { subscriptionEndDate: { $lt: new Date() } },
+          { subscription: null },
+        ],
+      },
+      {
+        $set: {
+          isSubscriptionActive: false,
+          subscriptionStartDate: null,
+          subscriptionEndDate: null,
+          subscription: null,
+        },
+      }
+    );
+
+    return {
+      acknowledged: result.acknowledged,
+      modifiedCount: result.modifiedCount,
+      matchedCount: result.matchedCount,
+      upsertedCount: result.upsertedCount,
+      upsertedId: result.upsertedId || null,
+    };
+  }
+
+  async clearCancelledFlags(): Promise<UpdateResult> {
+    const result = await this.model.updateMany(
+      {
+        subscriptionCancelled: true,
+        $or: [
+          { isSubscriptionActive: false },
+          { subscriptionEndDate: { $lt: new Date() } },
+          { subscription: null },
+        ],
+      },
+      {
+        $set: { subscriptionCancelled: false },
+      }
+    );
+
+    return {
+      acknowledged: result.acknowledged,
+      modifiedCount: result.modifiedCount,
+      matchedCount: result.matchedCount,
+      upsertedCount: result.upsertedCount,
+      upsertedId: result.upsertedId,
+    };
   }
 }
