@@ -1,11 +1,9 @@
-// src/controllers/UserInterviewController.ts
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { IUserInterviewService } from "../../interfaces/services/IUserInterviewService";
-import { UserPayload } from "../../constants/userPayload";
-import { ApplicationStatus } from "../../models/application.modal";
+
 import { handleControllerError } from "../../utils/errorHandler";
 import {
   UpdateInterviewStatusParamsSchema,
@@ -13,6 +11,8 @@ import {
   UpdateInterviewStatusRescheduleParamsSchema,
 } from "../../core/validations/user/userinterview.schema";
 import { USER_MESSAGES } from "../../constants/message.constants";
+import { ApplicationStatus } from "../../core/enums/applicationStatus";
+import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.interface";
 
 @injectable()
 export class UserInterviewController {
@@ -26,7 +26,7 @@ export class UserInterviewController {
       const { applicationId, status } = UpdateInterviewStatusParamsSchema.parse(
         req.params
       );
-      const user = req.user as UserPayload;
+      const user = req.user as AuthenticatedUser;
 
       const updated = await this._userInterviewService.updateStatus(
         applicationId,
@@ -59,7 +59,7 @@ export class UserInterviewController {
           ...req.body,
         });
 
-      const user = req.user as UserPayload;
+      const user = req.user as AuthenticatedUser;
 
       const updated = await this._userInterviewService.handleRescheduleResponse(
         applicationId,
@@ -86,7 +86,7 @@ export class UserInterviewController {
     try {
       const { applicationId } =
         UpdateInterviewStatusRescheduleParamsSchema.parse(req.params);
-      const user = req.user as UserPayload;
+      const user = req.user as AuthenticatedUser;
 
       const slots = await this._userInterviewService.getRescheduleProposedSlots(
         applicationId,

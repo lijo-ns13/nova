@@ -15,12 +15,7 @@ import {
   createInterviewSchema,
   proposeRescheduleSchema,
 } from "../../core/validations/company/interview.schema";
-
-interface UserPayload {
-  id: string;
-  email: string;
-  role: string;
-}
+import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.interface";
 
 @injectable()
 export class CompanyInterviewController implements ICompanyInterviewController {
@@ -32,7 +27,7 @@ export class CompanyInterviewController implements ICompanyInterviewController {
   async createInterview(req: Request, res: Response): Promise<void> {
     try {
       const parsed = createInterviewSchema.parse(req.body);
-      const companyId = (req.user as UserPayload)?.id;
+      const companyId = (req.user as AuthenticatedUser)?.id;
 
       if (!companyId) {
         res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
@@ -41,7 +36,7 @@ export class CompanyInterviewController implements ICompanyInterviewController {
         });
         return;
       }
-      
+
       const input: CreateInterviewInput = {
         companyId,
         userId: parsed.userId,
@@ -78,7 +73,7 @@ export class CompanyInterviewController implements ICompanyInterviewController {
     res: Response
   ): Promise<void> {
     try {
-      const companyId = (req.user as UserPayload)?.id;
+      const companyId = (req.user as AuthenticatedUser)?.id;
 
       if (!companyId) {
         res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
@@ -108,7 +103,7 @@ export class CompanyInterviewController implements ICompanyInterviewController {
 
   async proposeReschedule(req: Request, res: Response): Promise<void> {
     try {
-      const companyId = (req.user as UserPayload)?.id;
+      const companyId = (req.user as AuthenticatedUser)?.id;
       const applicationId = req.params.applicationId;
       const parsed = proposeRescheduleSchema.parse(req.body);
 

@@ -2,11 +2,6 @@ import { Request, Response } from "express";
 import jobModel from "../../repositories/models/job.model";
 import applicationModel from "../../repositories/models/application.model";
 import { ApplicationStatus } from "../../core/enums/applicationStatus";
-interface Userr {
-  _id: string;
-  email: string;
-  role: string;
-}
 export const getCompanyDashboardStats = async (req: Request, res: Response) => {
   try {
     const companyId = req.query.companyId as string;

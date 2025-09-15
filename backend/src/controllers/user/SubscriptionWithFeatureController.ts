@@ -1,18 +1,11 @@
-// src/controllers/subscriptionWithFeatures.controller.ts
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { ISubscriptionWithFeaturesController } from "../../interfaces/controllers/ISubscriptionWithFeatures";
 import { ISubscriptionWithFeaturesService } from "../../interfaces/services/ISubscriptionWithFeatures";
-import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
-import { ISubscriptionPlanRepository } from "../../interfaces/repositories/ISubscriptonPlanRepository";
-import { IFeatureRepository } from "../../interfaces/repositories/IFeatureRepository";
-interface userPayload {
-  id: string;
-  email: string;
-  role: string;
-}
+import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.interface";
+
 @injectable()
 export class SubscriptionWithFeaturesController
   implements ISubscriptionWithFeaturesController
@@ -23,7 +16,7 @@ export class SubscriptionWithFeaturesController
   ) {}
   async userCurrentSubscription(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as userPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       const data =
         await this._subscriptionFeatService.getUserCurrentSubscription(userId);
       res.status(HTTP_STATUS_CODES.OK).json({

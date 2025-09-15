@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { IJobApplicantManagementController } from "../../interfaces/controllers/IJobApplicantManagementController";

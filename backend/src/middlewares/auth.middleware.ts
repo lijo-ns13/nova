@@ -1,4 +1,3 @@
-// src/middlewares/auth.middleware.ts
 import { inject, injectable } from "inversify";
 import { Request, Response, NextFunction } from "express";
 import { HTTP_STATUS_CODES } from "../core/enums/httpStatusCode";
