@@ -1,5 +1,6 @@
 import { CreateSkillDto } from "../../core/dtos/admin/admin.skill.dto";
-import { ISkill } from "../../models/skill.modal";
+import { ISkill } from "../../repositories/entities/skill.entity";
+
 import { IBaseRepository } from "./IBaseRepository";
 
 export interface ISkillRepository extends IBaseRepository<ISkill> {

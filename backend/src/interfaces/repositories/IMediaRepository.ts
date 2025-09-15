@@ -1,4 +1,4 @@
-import { IMedia } from "../../models/media.modal";
+import { IMedia } from "../../repositories/entities/media.entity";
 import { IBaseRepository } from "./IBaseRepository";
 
 export interface IMediaRepository extends IBaseRepository<IMedia> {

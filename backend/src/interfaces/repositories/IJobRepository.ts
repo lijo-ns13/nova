@@ -3,8 +3,8 @@ import {
   IJobPopulated,
   IJobWithCompanyAndSkills,
 } from "../../mapping/user/jobmapper";
-import { IApplication } from "../../models/application.modal";
-import { IJob } from "../../models/job.modal";
+import { IJob } from "../../repositories/entities/job.entity";
+
 import { PopulatedApplicationWithUserAndResume } from "../../repositories/mongo/JobRepository";
 import { IBaseRepository } from "./IBaseRepository";
 export interface JobFilters {

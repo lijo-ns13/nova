@@ -1,8 +1,8 @@
-import { ISubscriptionPlan } from "../../models/subscription.modal";
+import { ISubscriptionPlan } from "../../repositories/entities/subscription.entity";
 
 export interface ISubscriptionWithFeatures {
   subscription: ISubscriptionPlan;
-  features: string[]; // Array of feature names
+  features: string[];
 }
 
 export interface ISubscriptionWithFeaturesRepository {

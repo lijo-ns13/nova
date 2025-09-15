@@ -1,6 +1,6 @@
 // src/core/interfaces/repositories/ICompanyRepository.ts
+import { ICompany } from "../../repositories/entities/company.entity";
 import { IBaseRepository } from "./IBaseRepository";
-import { ICompany } from "../../models/company.modal";
 
 export interface ICompanyRepository extends IBaseRepository<ICompany> {
   findByEmail(email: string): Promise<ICompany | null>;

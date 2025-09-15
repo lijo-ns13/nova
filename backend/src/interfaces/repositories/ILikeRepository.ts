@@ -1,4 +1,4 @@
-import { ILike } from "../../models/like.modal";
+import { ILike } from "../../repositories/entities/like.entity";
 import { ILikePopulated } from "../../repositories/mongo/LikeRepository";
 
 import { IBaseRepository } from "./IBaseRepository";

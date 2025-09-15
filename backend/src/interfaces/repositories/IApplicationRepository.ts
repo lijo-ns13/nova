@@ -1,14 +1,12 @@
-// src/interfaces/repositories/IApplicationRepository.ts
 import { IBaseRepository } from "./IBaseRepository";
 
-import { IApplicationWithUserAndJob } from "../../core/dtos/company/application.dto";
 import {
   ApplicantRawData,
   GetApplicationsQuery,
 } from "../../core/dtos/company/getapplications.dto";
 import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
 import { ApplyToJobInput } from "../../repositories/mongo/ApplicationRepository";
-import { Types } from "mongoose";
+
 import {
   IApplicationPopulatedJob,
   IApplicationPopulatedUserAndJob,

@@ -1,8 +1,5 @@
-// src/interfaces/repositories/IInterviewRepository.ts
-import { Document } from "mongoose";
-
+import { IInterview } from "../../repositories/entities/interview.entity";
 import { IBaseRepository } from "./IBaseRepository";
-import { IInterview } from "../../models/interview.modal";
 
 export interface IInterviewRepository extends IBaseRepository<IInterview> {
   findByCompanyId(companyId: string): Promise<IInterview[]>;

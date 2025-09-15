@@ -1,8 +1,8 @@
-// src/interfaces/repositories/ITransactionRepository.ts
 import { TransactionFilterInput } from "../../core/dtos/admin/admin.sub.dto";
 import { TransactionDTO } from "../../dtos/request/admin/admin.dashbaord.dto";
 import { ITransactionPopulated } from "../../mapping/admin/admin.sub.mapper";
-import { ITransaction } from "../../models/tranasction.modal";
+import { ITransaction } from "../../repositories/entities/transaction.entity";
+
 import { TransactionQueryParams } from "../../types/dashboardTypes";
 import { TopPlanDTO, UserGrowthDTO } from "../services/IAdminDashboardService";
 

@@ -2,7 +2,7 @@ import {
   CreateCommentDTO,
   UpdateCommentDTO,
 } from "../../core/dtos/user/post/comment.dto";
-import { IComment } from "../../models/comment.modal";
+import { IComment } from "../../repositories/entities/comment.entity";
 
 export interface ICommentRepository {
   createComment(input: CreateCommentDTO): Promise<IComment>;
