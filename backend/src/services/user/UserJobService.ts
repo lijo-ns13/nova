@@ -8,7 +8,7 @@ import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { GetAllJobsQueryInput } from "../../core/validations/user/user.jobschema";
 import { JobResponseDTO, UserJobMapper } from "../../mapping/user/jobmapper";
-import { IAppliedJob } from "../../repositories/mongo/ApplicationRepository";
+import { IAppliedJob } from "../../repositories/mongo/JobApplicationRepository";
 import { COMMON_MESSAGES } from "../../constants/message.constants";
 import { ApplicationMapper } from "../../mapping/user/application.mapper";
 import { ApplicationStatus } from "../../core/enums/applicationStatus";

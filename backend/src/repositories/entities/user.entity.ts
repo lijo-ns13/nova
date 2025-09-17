@@ -1,4 +1,5 @@
 import { Document, Types } from "mongoose";
+import { IApplication } from "./application.entity";
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -39,3 +40,23 @@ export interface IUser extends Document {
 export interface UserIdEntity {
   userId: string;
 }
+
+export type IPopulatedUser = {
+  _id: Types.ObjectId;
+  name: string;
+  email: string;
+  username: string;
+  profilePicture?: string;
+  headline?: string;
+};
+export type IPopulatedResumeMedia = {
+  _id: Types.ObjectId;
+  s3Key: string;
+};
+export type IPopulatedApplicationWithUserAndResume = Omit<
+  IApplication,
+  "user" | "resumeMediaId"
+> & {
+  user: IPopulatedUser;
+  resumeMediaId: IPopulatedResumeMedia;
+};

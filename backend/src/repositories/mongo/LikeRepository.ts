@@ -5,19 +5,8 @@ import { BaseRepository } from "./BaseRepository";
 import { Model, Types } from "mongoose";
 import { ILikeRepository } from "../../interfaces/repositories/ILikeRepository";
 import { TYPES } from "../../di/types";
-import { ILike } from "../entities/like.entity";
+import { ILike, ILikePopulated } from "../entities/like.entity";
 import likeModel from "../models/like.model";
-export interface ILikePopulated {
-  _id: Types.ObjectId;
-  postId: Types.ObjectId;
-  userId: {
-    _id: Types.ObjectId;
-    name: string;
-    username: string;
-    profilePicture?: string;
-  };
-  createdAt: Date;
-}
 
 @injectable()
 export class LikeRepository

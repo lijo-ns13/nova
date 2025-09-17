@@ -1,6 +1,6 @@
 import { IApplicationPopulatedJob } from "../../repositories/entities/applicationPopulated.entity";
 import { IJob } from "../../repositories/entities/job.entity";
-import { IAppliedJob } from "../../repositories/mongo/ApplicationRepository";
+import { IAppliedJob } from "../../repositories/mongo/JobApplicationRepository";
 
 export class ApplicationMapper {
   static toAppliedJobDTO(doc: IApplicationPopulatedJob): IAppliedJob {

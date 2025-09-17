@@ -5,7 +5,7 @@ import {
   GetApplicationsQuery,
 } from "../../core/dtos/company/getapplications.dto";
 import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
-import { ApplyToJobInput } from "../../repositories/mongo/ApplicationRepository";
+import { ApplyToJobInput } from "../../repositories/mongo/JobApplicationRepository";
 
 import {
   IApplicationPopulatedJob,

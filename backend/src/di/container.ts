@@ -4,9 +4,7 @@ import { TYPES } from "./types";
 import { IUserRepository } from "../interfaces/repositories/IUserRepository";
 import { ITempUserRepository } from "../interfaces/repositories/ITempUserRepository";
 
-import {
-  TempUserRepository,
-} from "../repositories/mongo/TempUserRepository";
+import { TempUserRepository } from "../repositories/mongo/TempUserRepository";
 import { UserRepository } from "../repositories/mongo/UserRepository";
 import { ITempCompanyRepository } from "../interfaces/repositories/ITempCompanyRepository";
 import { TempCompanyRepository } from "../repositories/mongo/TempCompanyRepository";
@@ -110,7 +108,7 @@ import { InterviewRepository } from "../repositories/mongo/InterviewRepository";
 import { ICompanyInterviewController } from "../interfaces/controllers/ICompanyInterviewController";
 import { CompanyInterviewController } from "../controllers/company/CompanyInterviewController";
 import { CompanyInterviewService } from "../services/company/CompanyInterviewService";
-import { ApplicationRepository } from "../repositories/mongo/ApplicationRepository";
+import { ApplicationRepository } from "../repositories/mongo/JobApplicationRepository";
 import { ICompanyInterviewService } from "../interfaces/services/ICompanyInterviewService";
 import { IInterviewRepository } from "../interfaces/repositories/IInterviewRepository";
 
