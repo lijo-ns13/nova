@@ -1,4 +1,3 @@
-import adminAxios from "../../../utils/adminAxios";
 import { APIResponse, HTTPErrorResponse } from "../../../types/api";
 import { getErrorMessage, handleApiError } from "../../../utils/apiError";
 import {
@@ -6,6 +5,7 @@ import {
   PaginatedCompanyResponse,
   UnverifiedCompaniesResponse,
 } from "../types/company";
+import apiAxios from "../../../utils/apiAxios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const BASE_URL = `${API_BASE_URL}/admin/companies`;
@@ -24,7 +24,7 @@ export const getCompanies = async (
 
     if (searchQuery) params.append("search", searchQuery);
 
-    const result = await adminAxios.get<APIResponse<PaginatedCompanyResponse>>(
+    const result = await apiAxios.get<APIResponse<PaginatedCompanyResponse>>(
       `${BASE_URL}?${params.toString()}`,
       { withCredentials: true }
     );
@@ -40,7 +40,7 @@ export const getCompanyById = async (
   companyId: string
 ): Promise<CompanyResponse> => {
   try {
-    const result = await adminAxios.get<APIResponse<CompanyResponse>>(
+    const result = await apiAxios.get<APIResponse<CompanyResponse>>(
       `${BASE_URL}/${companyId}`,
       { withCredentials: true }
     );
@@ -55,7 +55,7 @@ export const blockCompany = async (
   companyId: string
 ): Promise<CompanyResponse> => {
   try {
-    const result = await adminAxios.patch<APIResponse<CompanyResponse>>(
+    const result = await apiAxios.patch<APIResponse<CompanyResponse>>(
       `${BASE_URL}/block/${companyId}`,
       {},
       { withCredentials: true }
@@ -71,7 +71,7 @@ export const unblockCompany = async (
   companyId: string
 ): Promise<CompanyResponse> => {
   try {
-    const result = await adminAxios.patch<APIResponse<CompanyResponse>>(
+    const result = await apiAxios.patch<APIResponse<CompanyResponse>>(
       `${BASE_URL}/unblock/${companyId}`,
       {},
       { withCredentials: true }
@@ -92,9 +92,10 @@ export const getUnverifiedCompanies = async (
       limit: limit.toString(),
     });
 
-    const result = await adminAxios.get<
-      APIResponse<UnverifiedCompaniesResponse>
-    >(`${BASE_URL}/unverified?${params.toString()}`, { withCredentials: true });
+    const result = await apiAxios.get<APIResponse<UnverifiedCompaniesResponse>>(
+      `${BASE_URL}/unverified?${params.toString()}`,
+      { withCredentials: true }
+    );
 
     return result.data.data;
   } catch (error) {
@@ -108,7 +109,7 @@ export const verifyCompany = async (
   rejectionReason?: string
 ): Promise<CompanyResponse> => {
   try {
-    const result = await adminAxios.patch<APIResponse<CompanyResponse>>(
+    const result = await apiAxios.patch<APIResponse<CompanyResponse>>(
       `${BASE_URL}/verify/${companyId}`,
       { status, rejectionReason },
       { withCredentials: true }

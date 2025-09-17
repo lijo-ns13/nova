@@ -1,4 +1,4 @@
-import { IApplication } from "../../models/application.modal";
+import { IApplication } from "../../repositories/entities/application.entity";
 
 export interface ApplicationStatusResponseDTO {
   id: string;

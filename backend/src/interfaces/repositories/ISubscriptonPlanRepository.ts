@@ -1,6 +1,4 @@
-// src/interfaces/repositories/ISubscriptionPlanRepository.ts
-
-import { ISubscriptionPlan } from "../../models/subscription.modal";
+import { ISubscriptionPlan } from "../../repositories/entities/subscription.entity";
 import { IBaseRepository } from "./IBaseRepository";
 
 export interface ISubscriptionPlanRepository

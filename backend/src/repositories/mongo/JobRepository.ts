@@ -2,11 +2,6 @@ import mongoose, { Model, Types, PipelineStage } from "mongoose";
 
 const aggregation: PipelineStage[] = [];
 
-import {
-  CreateJobDto,
-  IJobRepository,
-  UpdateJobDto,
-} from "../../interfaces/repositories/IJobRepository";
 import { BaseRepository } from "./BaseRepository";
 import { inject } from "inversify";
 import { TYPES } from "../../di/types";
@@ -16,32 +11,18 @@ import { IJobPopulated } from "../../mapping/user/jobmapper";
 import { IApplication } from "../entities/application.entity";
 import { IJob } from "../entities/job.entity";
 import jobModel from "../models/job.model";
+
+import {
+  CreateJobDto,
+  IJobRepository,
+  UpdateJobDto,
+} from "../../interfaces/repositories/IJobRepository";
 import { ISkill } from "../entities/skill.entity";
 import { ICompany } from "../entities/company.entity";
 import applicationModel from "../models/application.model";
 import { ApplicationStatus } from "../../core/enums/applicationStatus";
-
-type PopulatedUser = {
-  _id: Types.ObjectId;
-  name: string;
-  email: string;
-  username: string;
-  profilePicture?: string;
-  headline?: string;
-};
-
-type PopulatedResumeMedia = {
-  _id: Types.ObjectId;
-  s3Key: string;
-};
-
-export type PopulatedApplicationWithUserAndResume = Omit<
-  IApplication,
-  "user" | "resumeMediaId"
-> & {
-  user: PopulatedUser;
-  resumeMediaId: PopulatedResumeMedia;
-};
+import { IPopulatedApplicationWithUserAndResume } from "../entities/user.entity";
+import { JobStatusTrend } from "../../core/entities/dashbaord.interface";
 
 export class JobRepository
   extends BaseRepository<IJob>
@@ -49,6 +30,45 @@ export class JobRepository
 {
   constructor(@inject(TYPES.jobModel) jobModel: Model<IJob>) {
     super(jobModel);
+  }
+  async countJobsByCompany(companyId: string): Promise<number> {
+    return this.model.countDocuments({
+      company: new Types.ObjectId(companyId),
+    });
+  }
+
+  async countJobsByCompanyAndStatus(
+    companyId: string,
+    status: IJob["status"]
+  ): Promise<number> {
+    return this.model.countDocuments({
+      company: new Types.ObjectId(companyId),
+      status,
+    });
+  }
+
+  async findJobIdsByCompany(companyId: string): Promise<string[]> {
+    const jobs = await this.model
+      .find({ company: new Types.ObjectId(companyId) })
+      .select("_id");
+    return jobs.map((job) => job._id.toString());
+  }
+
+  async aggregateJobStatusTrend(companyId: string): Promise<JobStatusTrend[]> {
+    return this.model.aggregate([
+      { $match: { company: new Types.ObjectId(companyId) } },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+            status: "$status",
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
+    ]);
   }
   async createJob(
     createJobDto: CreateJobDto,
@@ -183,7 +203,7 @@ export class JobRepository
   // applicant detailed page
   async getApplicantDetails(
     applicantId: string
-  ): Promise<PopulatedApplicationWithUserAndResume | null> {
+  ): Promise<IPopulatedApplicationWithUserAndResume | null> {
     if (!mongoose.Types.ObjectId.isValid(applicantId)) {
       return null; // Prevent crash on invalid ObjectId
     }
@@ -193,6 +213,6 @@ export class JobRepository
       .findById(objectId)
       .populate("user", "name username email profilePicture headline")
       .populate("resumeMediaId", "s3Key")
-      .exec() as Promise<PopulatedApplicationWithUserAndResume | null>;
+      .exec() as Promise<IPopulatedApplicationWithUserAndResume | null>;
   }
 }

@@ -6,20 +6,13 @@ import { TYPES } from "../../di/types";
 import { ICompanyProfileService } from "../../interfaces/services/ICompanyProfileService";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 
-interface Userr {
-  id: string;
-  email: string;
-  role: string;
-}
 import {
   UpdateProfileSchema,
   ChangePasswordSchema,
   ProfileImageSchema,
-  type UpdateProfileInput,
-  type ChangePasswordInput,
-  type ProfileImageInput,
 } from "../../core/dtos/company/company.profile.validation";
 import { ZodError } from "zod";
+import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.interface";
 
 // Helper function to format Zod errors
 const formatZodError = (error: ZodError): Record<string, string> => {
@@ -44,7 +37,7 @@ export class CompanyProfileController implements ICompanyProfileController {
 
   async getCompanyProfile(req: Request, res: Response): Promise<void> {
     try {
-      const companyId = (req.user as Userr)?.id; // Assumes auth middleware sets req.user
+      const companyId = (req.user as AuthenticatedUser)?.id; // Assumes auth middleware sets req.user
       const profile = await this._companyProfileService.getCompanyProfile(
         companyId
       );
@@ -62,7 +55,7 @@ export class CompanyProfileController implements ICompanyProfileController {
     res: Response
   ): Promise<void> {
     try {
-      const companyId = (req.user as Userr)?.id;
+      const companyId = (req.user as AuthenticatedUser)?.id;
       const profile =
         await this._companyProfileService.getCompanyProfileWithDetails(
           companyId
@@ -78,7 +71,7 @@ export class CompanyProfileController implements ICompanyProfileController {
 
   async updateCompanyProfile(req: Request, res: Response): Promise<void> {
     try {
-      const companyId = (req.user as Userr)?.id;
+      const companyId = (req.user as AuthenticatedUser)?.id;
 
       // Validate request body
       const validatedData = UpdateProfileSchema.parse(req.body);
@@ -105,7 +98,7 @@ export class CompanyProfileController implements ICompanyProfileController {
 
   async updateProfileImage(req: Request, res: Response): Promise<void> {
     try {
-      const companyId = (req.user as Userr)?.id;
+      const companyId = (req.user as AuthenticatedUser)?.id;
       const validatedData = ProfileImageSchema.parse(req.body);
 
       const updated = await this._companyProfileService.updateProfileImage(
@@ -129,7 +122,7 @@ export class CompanyProfileController implements ICompanyProfileController {
 
   async deleteProfileImage(req: Request, res: Response): Promise<void> {
     try {
-      const companyId = (req.user as Userr)?.id;
+      const companyId = (req.user as AuthenticatedUser)?.id;
       await this._companyProfileService.deleteProfileImage(companyId);
       res.status(200).json({ success: true, message: "Profile image removed" });
     } catch (err) {
@@ -142,7 +135,7 @@ export class CompanyProfileController implements ICompanyProfileController {
 
   async changePassword(req: Request, res: Response): Promise<void> {
     try {
-      const companyId = (req.user as Userr)?.id;
+      const companyId = (req.user as AuthenticatedUser)?.id;
       const validatedData = ChangePasswordSchema.parse(req.body);
 
       await this._companyProfileService.changePassword(

@@ -1,5 +1,5 @@
 import { MediaResponseDTO } from "../core/dtos/response/media.response.dto";
-import { IMedia } from "../models/media.modal";
+import { IMedia } from "../repositories/entities/media.entity";
 
 export class MediaMapper {
   static toDTO(media: IMedia): MediaResponseDTO {

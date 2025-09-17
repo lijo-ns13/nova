@@ -4,9 +4,7 @@ import { TYPES } from "./types";
 import { IUserRepository } from "../interfaces/repositories/IUserRepository";
 import { ITempUserRepository } from "../interfaces/repositories/ITempUserRepository";
 
-import {
-  TempUserRepository,
-} from "../repositories/mongo/TempUserRepository";
+import { TempUserRepository } from "../repositories/mongo/TempUserRepository";
 import { UserRepository } from "../repositories/mongo/UserRepository";
 import { ITempCompanyRepository } from "../interfaces/repositories/ITempCompanyRepository";
 import { TempCompanyRepository } from "../repositories/mongo/TempCompanyRepository";
@@ -110,7 +108,7 @@ import { InterviewRepository } from "../repositories/mongo/InterviewRepository";
 import { ICompanyInterviewController } from "../interfaces/controllers/ICompanyInterviewController";
 import { CompanyInterviewController } from "../controllers/company/CompanyInterviewController";
 import { CompanyInterviewService } from "../services/company/CompanyInterviewService";
-import { ApplicationRepository } from "../repositories/mongo/ApplicationRepository";
+
 import { ICompanyInterviewService } from "../interfaces/services/ICompanyInterviewService";
 import { IInterviewRepository } from "../interfaces/repositories/IInterviewRepository";
 
@@ -205,6 +203,11 @@ import { ISubscriptionPlan } from "../repositories/entities/subscription.entity"
 import subscriptionModel from "../repositories/models/subscription.model";
 import featureModel from "../repositories/models/feature.model";
 import { IFeature } from "../repositories/entities/feature.entity";
+import { ApplicationRepository } from "../repositories/mongo/UserApplicationRepository";
+import { ICompanyDashboardService } from "../interfaces/services/ICompanyDashboardService";
+import { CompanyDashboardService } from "../services/company/CompanyDashboardService";
+import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
+import { CompanyDashboardController } from "../controllers/company/Company.dashbaordController";
 // import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
@@ -496,5 +499,12 @@ container
 container
   .bind<IAdminDashboardController>(TYPES.AdminDashboardController)
   .to(AdminDashboardController);
+// comapny dashboard
+container
+  .bind<ICompanyDashboardService>(TYPES.CompanyDashboardService)
+  .to(CompanyDashboardService);
+container
+  .bind<ICompanyDashboardController>(TYPES.CompanyDashboardController)
+  .to(CompanyDashboardController);
 
 export default container;

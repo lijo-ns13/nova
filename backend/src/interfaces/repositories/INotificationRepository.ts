@@ -1,9 +1,5 @@
-// src/interfaces/repositories/INotificationRepository.ts
-
-import {
-  INotification,
-  NotificationType,
-} from "../../models/notification.modal";
+import { NotificationType } from "../../constants/notification.type.constant";
+import { INotification } from "../../repositories/entities/notification.entity";
 
 export interface INotificationRepository {
   createNotification(

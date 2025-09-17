@@ -12,11 +12,7 @@ import {
   CreateCommentSchema,
   UpdateCommentSchema,
 } from "../../core/validations/user/comment.schema";
-interface Userr {
-  id: string;
-  email: string;
-  role: string;
-}
+import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.interface";
 
 @injectable()
 export class PostController implements IPostController {
@@ -112,7 +108,7 @@ export class PostController implements IPostController {
   async likeOrUnlikePost(req: Request, res: Response) {
     try {
       const { postId } = req.params;
-      const userId = (req.user as Userr)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
 
       const result = await this._likeService.likeOrUnlikePost(postId, userId);
       res.status(HTTP_STATUS_CODES.OK).json({
@@ -144,7 +140,7 @@ export class PostController implements IPostController {
     try {
       const { postId, content, parentId, authorName } =
         CreateCommentSchema.parse(req.body);
-      const authorId = (req.user as Userr).id;
+      const authorId = (req.user as AuthenticatedUser).id;
 
       const comment = await this._commentService.createComment({
         postId,
@@ -168,7 +164,7 @@ export class PostController implements IPostController {
     try {
       const { commentId } = req.params;
       const { content } = UpdateCommentSchema.parse(req.body);
-      const userId = (req.user as Userr).id;
+      const userId = (req.user as AuthenticatedUser).id;
 
       const updatedComment = await this._commentService.updateComment({
         commentId,
@@ -189,7 +185,7 @@ export class PostController implements IPostController {
   async deleteComment(req: Request, res: Response): Promise<void> {
     try {
       const { commentId } = req.params;
-      const userId = (req.user as Userr).id;
+      const userId = (req.user as AuthenticatedUser).id;
 
       await this._commentService.deleteComment(commentId, userId);
 
@@ -226,7 +222,7 @@ export class PostController implements IPostController {
 
   async getUsersPosts(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as Userr)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       if (!userId) {
         res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
           success: false,

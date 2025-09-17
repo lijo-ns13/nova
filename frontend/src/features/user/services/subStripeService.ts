@@ -1,4 +1,4 @@
-import userAxios from "../../../utils/userAxios";
+import apiAxios from "../../../utils/apiAxios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const BASE_URL = `${API_BASE_URL}/api/stripe`;
@@ -34,7 +34,7 @@ export const createCheckoutSession = async (
   data: StripeSessionRequest
 ): Promise<StripeSessionResponse> => {
   try {
-    const result = await userAxios.post<StripeSessionResponse>(
+    const result = await apiAxios.post<StripeSessionResponse>(
       `${BASE_URL}/create-checkout-session`,
       data,
       { withCredentials: true }
@@ -52,7 +52,7 @@ export const getLatestSession = async (
   userId: string
 ): Promise<RefundSessionData> => {
   try {
-    const result = await userAxios.get<RefundSessionData>(
+    const result = await apiAxios.get<RefundSessionData>(
       `${BASE_URL}/session/${userId}`,
       { withCredentials: true }
     );
@@ -69,7 +69,7 @@ export const requestRefund = async (
   data: RefundRequest
 ): Promise<{ message: string }> => {
   try {
-    const result = await userAxios.post<{ message: string }>(
+    const result = await apiAxios.post<{ message: string }>(
       `${BASE_URL}/refund`,
       data,
       { withCredentials: true }

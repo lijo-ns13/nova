@@ -7,11 +7,12 @@ import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { IUserJobController } from "../../interfaces/controllers/IUserJobController";
 import { handleControllerError } from "../../utils/errorHandler";
 import { GetAllJobsQuerySchema } from "../../core/validations/user/user.jobschema";
-import { UserPayload } from "../../constants/userPayload";
+
 import {
   COMMON_MESSAGES,
   USER_MESSAGES,
 } from "../../constants/message.constants";
+import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.interface";
 
 @injectable()
 export class UserJobController implements IUserJobController {
@@ -66,7 +67,7 @@ export class UserJobController implements IUserJobController {
   };
   getAppliedJobs: RequestHandler = async (req: Request, res: Response) => {
     try {
-      const user = req.user as UserPayload;
+      const user = req.user as AuthenticatedUser;
       const data = await this._jobService.getAppliedJobs(user.id);
 
       res.status(HTTP_STATUS_CODES.OK).json({
@@ -138,7 +139,7 @@ export class UserJobController implements IUserJobController {
   ) => {
     try {
       const { jobId } = req.params;
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
 
       if (!userId) {
         res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({

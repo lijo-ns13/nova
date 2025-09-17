@@ -16,6 +16,7 @@ import {
 } from "../../core/dtos/company/job.dto";
 import { paginationSchema } from "../../core/validations/admin/admin.company.validation";
 import { z } from "zod";
+import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.interface";
 export const getApplicationsQuerySchema = z.object({
   page: z.string().optional(),
   limit: z.string().optional(),
@@ -31,11 +32,6 @@ const rejectApplicationBodySchema = z.object({
   rejectionReason: z.string().optional(),
 });
 
-interface UserPayload {
-  id: string;
-  email: string;
-  role: string;
-}
 export class CompanyJobController implements ICompanyJobController {
   constructor(
     @inject(TYPES.CompanyJobService) private _jobService: ICompanyJobService,
@@ -43,7 +39,7 @@ export class CompanyJobController implements ICompanyJobController {
   ) {}
   createJob: RequestHandler = async (req: Request, res: Response) => {
     try {
-      const companyId = (req.user as UserPayload)?.id;
+      const companyId = (req.user as AuthenticatedUser)?.id;
       if (!companyId) {
         res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
           success: false,
@@ -80,7 +76,7 @@ export class CompanyJobController implements ICompanyJobController {
 
   updateJob: RequestHandler = async (req: Request, res: Response) => {
     try {
-      const companyId = (req.user as UserPayload)?.id;
+      const companyId = (req.user as AuthenticatedUser)?.id;
       const jobId = req.params.jobId;
 
       if (!companyId || !jobId) {
@@ -139,7 +135,7 @@ export class CompanyJobController implements ICompanyJobController {
 
   deleteJob: RequestHandler = async (req: Request, res: Response) => {
     try {
-      const companyId = (req.user as UserPayload)?.id;
+      const companyId = (req.user as AuthenticatedUser)?.id;
       const jobId = req.params.jobId;
 
       if (!companyId || !jobId) {
@@ -170,7 +166,7 @@ export class CompanyJobController implements ICompanyJobController {
   };
   getJobs = async (req: Request, res: Response) => {
     try {
-      const companyId = (req.user as UserPayload)?.id;
+      const companyId = (req.user as AuthenticatedUser)?.id;
       if (!companyId) {
         res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
           success: false,

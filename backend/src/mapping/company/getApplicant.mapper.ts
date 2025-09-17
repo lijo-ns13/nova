@@ -1,11 +1,9 @@
-// src/core/mappers/ApplicationMapper.ts
-
 import { ApplicantDetailDTO } from "../../core/dtos/company/getApplicant.dto";
-import { PopulatedApplicationWithUserAndResume } from "../../repositories/mongo/JobRepository";
+import { IPopulatedApplicationWithUserAndResume } from "../../repositories/entities/user.entity";
 
 export class ApplicationGetMapper {
   static toDetailDTO(
-    application: PopulatedApplicationWithUserAndResume,
+    application: IPopulatedApplicationWithUserAndResume,
     resumeUrl: string | null
   ): ApplicantDetailDTO {
     return {

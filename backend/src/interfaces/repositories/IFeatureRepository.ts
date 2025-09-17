@@ -1,4 +1,4 @@
-import { IFeature } from "../../models/feature.modal";
+import { IFeature } from "../../repositories/entities/feature.entity";
 import { IBaseRepository } from "./IBaseRepository";
 
 export interface IFeatureRepository extends IBaseRepository<IFeature> {

@@ -1,4 +1,3 @@
-// src/controllers/notificationController.ts
 import { inject, injectable } from "inversify";
 import { Request, Response } from "express";
 import { TYPES } from "../di/types";
@@ -6,11 +5,8 @@ import { INotificationController } from "../interfaces/controllers/INotification
 import { INotificationService } from "../interfaces/services/INotificationService";
 import { HTTP_STATUS_CODES } from "../core/enums/httpStatusCode";
 import { handleControllerError } from "../utils/errorHandler";
-interface UserPayload {
-  id: string;
-  email: string;
-  role: string;
-}
+import { AuthenticatedUser } from "../interfaces/request/authenticated.user.interface";
+
 @injectable()
 export class NotificationController implements INotificationController {
   constructor(
@@ -20,7 +16,7 @@ export class NotificationController implements INotificationController {
 
   async getNotifications(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       if (!userId) {
         res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
           success: false,
@@ -64,7 +60,7 @@ export class NotificationController implements INotificationController {
 
   async markNotificationAsRead(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       const { notificationId } = req.params;
 
       if (!userId) {
@@ -108,7 +104,7 @@ export class NotificationController implements INotificationController {
 
   async markAllNotificationsAsRead(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       if (!userId) {
         res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
           success: false,
@@ -142,7 +138,7 @@ export class NotificationController implements INotificationController {
 
   async getUnreadCount(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       if (!userId) {
         res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
           success: false,
@@ -167,7 +163,7 @@ export class NotificationController implements INotificationController {
 
   async deleteNotification(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       const { notificationId } = req.params;
 
       if (!userId) {
@@ -208,7 +204,7 @@ export class NotificationController implements INotificationController {
 
   async deleteAllNotifications(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       if (!userId) {
         res.status(HTTP_STATUS_CODES.UNAUTHORIZED).json({
           success: false,

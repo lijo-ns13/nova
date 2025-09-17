@@ -1,6 +1,4 @@
-import { Types } from "mongoose";
-import { IPost } from "../../models/post.modal";
-import { IPostResponse } from "../../core/entities/post";
+import { IPost } from "../../repositories/entities/post.entity";
 import { IBaseRepository } from "./IBaseRepository";
 
 export interface IPostRepository extends IBaseRepository<IPost> {

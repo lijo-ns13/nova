@@ -1,5 +1,5 @@
-import { ITempCompany } from "../../../models/company.temp.modal";
 import { z } from "zod";
+import { ITempCompany } from "../../../repositories/entities/temp.comany.entity";
 
 export const TempCompanyResponseSchema = z.object({
   id: z.string(),

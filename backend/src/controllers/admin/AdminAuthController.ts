@@ -19,11 +19,8 @@ export class AdminAuthController implements IAdminAuthController {
   ) {}
   async signIn(req: Request, res: Response): Promise<void> {
     try {
-      // *************validating entitiyesssssss*****************
       const parsed = AdminSignInRequestSchema.parse(req.body);
-      // *************reverese mapping =>************************
       const entity = AdminAuthMapper.fromDTO(parsed);
-      // *************service only sees internal entity************
       const result = await this._authService.signIn(entity);
       res.cookie(COOKIE_NAMES.REFRESH_TOKEN, result.refreshToken, {
         httpOnly: true,

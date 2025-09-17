@@ -2,7 +2,8 @@ import {
   ApplicationResponseDto,
   IApplicationWithUserAndJob,
 } from "../../core/dtos/company/application.dto";
-import { IApplication } from "../../models/application.modal";
+import { IApplication } from "../../repositories/entities/application.entity";
+
 export interface IApplicationPopulated {
   _id: string;
   job: {

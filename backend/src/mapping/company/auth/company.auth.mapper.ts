@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ICompany } from "../../../models/company.modal";
+import { ICompany } from "../../../repositories/entities/company.entity";
 
 export const companyResponseSchema = z.object({
   id: z.string(), // _id

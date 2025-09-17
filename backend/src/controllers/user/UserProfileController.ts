@@ -27,12 +27,7 @@ import {
   UpdateCertificateInputSchema,
 } from "../../core/validations/user/usercertificate.schema";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
-
-interface UserPayload {
-  id: string;
-  email: string;
-  role: string;
-}
+import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.interface";
 
 @injectable()
 export class UserProfileController implements IUserProfileController {
@@ -43,7 +38,7 @@ export class UserProfileController implements IUserProfileController {
   ) {}
   async getUserProfile(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       const profile = await this._userProfileService.getUserProfile(userId);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -57,7 +52,7 @@ export class UserProfileController implements IUserProfileController {
 
   async updateUserProfile(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       const parsed = UpdateUserProfileInputSchema.parse(req.body);
       const updated = await this._userProfileService.updateUserProfile(
         userId,
@@ -75,7 +70,7 @@ export class UserProfileController implements IUserProfileController {
 
   async updateProfileImage(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       const file = req.file;
 
       if (!file) {
@@ -106,7 +101,7 @@ export class UserProfileController implements IUserProfileController {
 
   async deleteProfileImage(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       await this._userProfileService.deleteProfileImage(userId);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -119,7 +114,7 @@ export class UserProfileController implements IUserProfileController {
   }
   async addEducation(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       const input = CreateEducationInputSchema.parse(req.body);
       const result = await this._userProfileService.addEducation(userId, input);
       res.status(HTTP_STATUS_CODES.CREATED).json({
@@ -151,7 +146,7 @@ export class UserProfileController implements IUserProfileController {
 
   async deleteEducation(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       await this._userProfileService.deleteEducation(
         userId,
         req.params.educationId
@@ -168,7 +163,7 @@ export class UserProfileController implements IUserProfileController {
 
   async getAllEducations(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       const result = await this._userProfileService.getAllEducations(userId);
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
@@ -182,7 +177,7 @@ export class UserProfileController implements IUserProfileController {
   // exp
   async addExperience(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       const input = CreateExperienceInputSchema.parse(req.body);
       const experience = await this._userProfileService.addExperience(
         userId,
@@ -215,7 +210,7 @@ export class UserProfileController implements IUserProfileController {
   }
   async deleteExperience(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       await this._userProfileService.deleteExperience(
         userId,
         req.params.experienceId
@@ -229,7 +224,7 @@ export class UserProfileController implements IUserProfileController {
   }
   async getAllExperiences(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       const experiences = await this._userProfileService.getAllExperiences(
         userId
       );
@@ -244,7 +239,7 @@ export class UserProfileController implements IUserProfileController {
   }
   async addProject(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       const input = CreateProjectInputSchema.parse(req.body);
       const project = await this._userProfileService.addProject(userId, input);
       res.status(HTTP_STATUS_CODES.CREATED).json({
@@ -274,8 +269,11 @@ export class UserProfileController implements IUserProfileController {
   }
   async deleteProject(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
-      await this._userProfileService.deleteProject(userId, req.params.projectId);
+      const userId = (req.user as AuthenticatedUser)?.id;
+      await this._userProfileService.deleteProject(
+        userId,
+        req.params.projectId
+      );
       res
         .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: "deleted successfully", data: true });
@@ -286,7 +284,7 @@ export class UserProfileController implements IUserProfileController {
   // Get all projects
   async getAllProjects(req: Request, res: Response) {
     try {
-      const UserId = (req.user as UserPayload)?.id;
+      const UserId = (req.user as AuthenticatedUser)?.id;
       const projects = await this._userProfileService.getAllProjects(UserId);
 
       res.status(HTTP_STATUS_CODES.OK).json({
@@ -300,7 +298,7 @@ export class UserProfileController implements IUserProfileController {
   }
   async addCertificate(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       const input = CreateCertificateInputSchema.parse(req.body);
       const certificate = await this._userProfileService.addCertificate(
         userId,
@@ -333,7 +331,7 @@ export class UserProfileController implements IUserProfileController {
   }
   async deleteCertificate(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       await this._userProfileService.deleteCertificate(
         userId,
         req.params.certificateId
@@ -349,7 +347,7 @@ export class UserProfileController implements IUserProfileController {
   // Get all certificates
   async getAllCertificates(req: Request, res: Response) {
     try {
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
       const certificates = await this._userProfileService.getAllCertificates(
         userId
       );
@@ -367,7 +365,7 @@ export class UserProfileController implements IUserProfileController {
       const { currentPassword, newPassword, confirmPassword } =
         ChangePasswordSchema.parse(req.body);
 
-      const userId = (req.user as UserPayload)?.id;
+      const userId = (req.user as AuthenticatedUser)?.id;
 
       await this._userProfileService.changePassword(
         userId,

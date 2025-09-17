@@ -1,6 +1,4 @@
-// src/types/dashboardTypes.ts
-
-import { ITransaction } from "../models/tranasction.modal";
+import { ITransaction } from "../repositories/entities/transaction.entity";
 
 export type TimePeriod = "daily" | "weekly" | "monthly" | "yearly";
 export type SubscriptionPlanName = "BASIC" | "PRO" | "PREMIUM";

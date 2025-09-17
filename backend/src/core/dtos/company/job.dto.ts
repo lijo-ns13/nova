@@ -1,5 +1,3 @@
-// src/modules/job/dtos/job.dto.ts
-
 import { z } from "zod";
 import {
   createJobSchema,

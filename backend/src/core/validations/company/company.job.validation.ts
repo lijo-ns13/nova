@@ -1,7 +1,4 @@
-// src/modules/job/validations/job.validation.ts
-
 import { z } from "zod";
-import mongoose from "mongoose";
 
 // Validate ObjectId
 const objectIdSchema = z

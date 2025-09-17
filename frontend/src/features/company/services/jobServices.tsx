@@ -1,6 +1,6 @@
 import { APIResponse } from "../../../types/api";
+import apiAxios from "../../../utils/apiAxios";
 import { handleApiError } from "../../../utils/apiError";
-import companyAxios from "../../../utils/companyAxios";
 import qs from "query-string";
 export type CreateJobInput = {
   title: string;
@@ -120,7 +120,7 @@ const BASE_URL = `${API_BASE_URL}/company/job`;
 export const JobService = {
   async createJob(data: CreateJobInput): Promise<JobResponseDto> {
     try {
-      const response = await companyAxios.post<APIResponse<JobResponseDto>>(
+      const response = await apiAxios.post<APIResponse<JobResponseDto>>(
         BASE_URL,
         data,
         { withCredentials: true }
@@ -136,7 +136,7 @@ export const JobService = {
     data: UpdateJobInput
   ): Promise<JobResponseDto> {
     try {
-      const response = await companyAxios.put<APIResponse<JobResponseDto>>(
+      const response = await apiAxios.put<APIResponse<JobResponseDto>>(
         `${BASE_URL}/${jobId}`,
         data,
         { withCredentials: true }
@@ -149,7 +149,7 @@ export const JobService = {
 
   async deleteJob(jobId: string): Promise<void> {
     try {
-      await companyAxios.delete<APIResponse<null>>(`${BASE_URL}/${jobId}`, {
+      await apiAxios.delete<APIResponse<null>>(`${BASE_URL}/${jobId}`, {
         withCredentials: true,
       });
     } catch (err) {
@@ -165,7 +165,7 @@ export const JobService = {
     pagination: PaginationMeta;
   }> {
     try {
-      const response = await companyAxios.get<
+      const response = await apiAxios.get<
         APIResponse<{
           jobs: JobResponseDto[];
           pagination: PaginationMeta;
@@ -182,7 +182,7 @@ export const JobService = {
 
   async getJob(jobId: string): Promise<JobResponseDto> {
     try {
-      const response = await companyAxios.get<APIResponse<JobResponseDto>>(
+      const response = await apiAxios.get<APIResponse<JobResponseDto>>(
         `${BASE_URL}/${jobId}`,
         { withCredentials: true }
       );
@@ -218,7 +218,7 @@ export const JobService = {
         ...filters,
       });
 
-      const response = await companyAxios.get<
+      const response = await apiAxios.get<
         APIResponse<{
           applications: ApplicantSummaryDTO[];
           pagination: {
@@ -242,7 +242,7 @@ export const JobService = {
     applicationId: string
   ): Promise<ApplicantDetailDTO> {
     try {
-      const response = await companyAxios.get<APIResponse<ApplicantDetailDTO>>(
+      const response = await apiAxios.get<APIResponse<ApplicantDetailDTO>>(
         `${BASE_URL}/application/${applicationId}/details`,
         { withCredentials: true }
       );
@@ -254,7 +254,7 @@ export const JobService = {
 
   async shortlistApplication(applicationId: string): Promise<void> {
     try {
-      await companyAxios.patch<APIResponse<null>>(
+      await apiAxios.patch<APIResponse<null>>(
         `${BASE_URL}/shortlist/${applicationId}`,
         {},
         { withCredentials: true }
@@ -269,7 +269,7 @@ export const JobService = {
     rejectionReason?: string
   ): Promise<void> {
     try {
-      await companyAxios.patch<APIResponse<null>>(
+      await apiAxios.patch<APIResponse<null>>(
         `${BASE_URL}/reject/${applicationId}`,
         { rejectionReason },
         { withCredentials: true }

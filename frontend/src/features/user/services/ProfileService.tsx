@@ -1,6 +1,6 @@
 import { APIResponse } from "../../../types/api";
+import apiAxios from "../../../utils/apiAxios";
 import { handleApiError } from "../../../utils/apiError";
-import userAxios from "../../../utils/userAxios";
 import { CertificateResponseDTO } from "../dto/certificateResponse.dto";
 import { EducationResponseDTO } from "../dto/educationResponse.dto";
 import { ExperienceResponseDTO } from "../dto/experienceResponse.dto";
@@ -28,12 +28,12 @@ const API_BASE_URL = `${BASE_URL}/user-profile`;
 
 // User Profile
 export const getUserProfile = async (userId: string) => {
-  const response = await userAxios.get(`${API_BASE_URL}`);
+  const response = await apiAxios.get(`${API_BASE_URL}`);
   return response.data;
 };
 
 export const updateUserProfile = async (userId: string, data: any) => {
-  const response = await userAxios.patch(`${API_BASE_URL}`, data, {
+  const response = await apiAxios.patch(`${API_BASE_URL}`, data, {
     withCredentials: true,
   });
   return response.data;
@@ -43,7 +43,7 @@ export const updateProfileImage = async (file: Blob) => {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await userAxios.put(
+  const response = await apiAxios.put(
     `${API_BASE_URL}/profile-image`,
     formData,
     {
@@ -57,7 +57,7 @@ export const updateProfileImage = async (file: Blob) => {
   return response.data.data; // this will be your signed URL from backend
 };
 export const deleteProfileImage = async (): Promise<void> => {
-  await userAxios.delete(`${API_BASE_URL}/profile-image`, {
+  await apiAxios.delete(`${API_BASE_URL}/profile-image`, {
     withCredentials: true,
   });
 };
@@ -68,7 +68,7 @@ export const addEducation = async (
   input: CreateEducationInputDTO
 ): Promise<EducationResponseDTO> => {
   try {
-    const response = await userAxios.post<APIResponse<EducationResponseDTO>>(
+    const response = await apiAxios.post<APIResponse<EducationResponseDTO>>(
       `${API_BASE_URL}/education`,
       input,
       { withCredentials: true }
@@ -85,7 +85,7 @@ export const editEducation = async (
   data: UpdateEducationInputDTO
 ): Promise<EducationResponseDTO> => {
   try {
-    const response = await userAxios.patch<APIResponse<EducationResponseDTO>>(
+    const response = await apiAxios.patch<APIResponse<EducationResponseDTO>>(
       `${API_BASE_URL}/education/${educationId}`,
       data,
       { withCredentials: true }
@@ -101,7 +101,7 @@ export const deleteEducation = async (
   educationId: string
 ): Promise<boolean> => {
   try {
-    const response = await userAxios.delete<APIResponse<boolean>>(
+    const response = await apiAxios.delete<APIResponse<boolean>>(
       `${API_BASE_URL}/education/${educationId}`,
       {
         withCredentials: true,
@@ -116,7 +116,7 @@ export const getEducations = async (
   userId: string
 ): Promise<EducationResponseDTO[]> => {
   try {
-    const res = await userAxios.get<APIResponse<EducationResponseDTO[]>>(
+    const res = await apiAxios.get<APIResponse<EducationResponseDTO[]>>(
       `${API_BASE_URL}/educations`
     );
     return res.data.data;
@@ -131,7 +131,7 @@ export const addExperience = async (
   experience: CreateExperienceInputDTO
 ): Promise<ExperienceResponseDTO> => {
   try {
-    const response = await userAxios.post<APIResponse<ExperienceResponseDTO>>(
+    const response = await apiAxios.post<APIResponse<ExperienceResponseDTO>>(
       `${API_BASE_URL}/experience`,
       experience,
       { withCredentials: true }
@@ -148,7 +148,7 @@ export const editExperience = async (
   data: UpdateExperienceInputDTO
 ): Promise<ExperienceResponseDTO> => {
   try {
-    const response = await userAxios.patch<APIResponse<ExperienceResponseDTO>>(
+    const response = await apiAxios.patch<APIResponse<ExperienceResponseDTO>>(
       `${API_BASE_URL}/experience/${experienceId}`,
       data,
       { withCredentials: true }
@@ -164,7 +164,7 @@ export const deleteExperience = async (
   experienceId: string
 ): Promise<boolean> => {
   try {
-    const res = await userAxios.delete<APIResponse<boolean>>(
+    const res = await apiAxios.delete<APIResponse<boolean>>(
       `${API_BASE_URL}/experience/${experienceId}`,
       { withCredentials: true }
     );
@@ -177,7 +177,7 @@ export const getExperience = async (
   userId: string
 ): Promise<ExperienceResponseDTO[]> => {
   try {
-    const res = await userAxios.get<APIResponse<ExperienceResponseDTO[]>>(
+    const res = await apiAxios.get<APIResponse<ExperienceResponseDTO[]>>(
       `${API_BASE_URL}/experiences`
     );
     return res.data.data;
@@ -191,7 +191,7 @@ export const addProject = async (
   project: CreateProjectInputDTO
 ): Promise<ProjectResponseDTO> => {
   try {
-    const response = await userAxios.post<APIResponse<ProjectResponseDTO>>(
+    const response = await apiAxios.post<APIResponse<ProjectResponseDTO>>(
       `${API_BASE_URL}/project`,
       project,
       { withCredentials: true }
@@ -208,7 +208,7 @@ export const editProject = async (
   data: UpdateProjectInputDTO
 ): Promise<ProjectResponseDTO> => {
   try {
-    const response = await userAxios.patch<APIResponse<ProjectResponseDTO>>(
+    const response = await apiAxios.patch<APIResponse<ProjectResponseDTO>>(
       `${API_BASE_URL}/project/${projectId}`,
       data,
       { withCredentials: true }
@@ -224,7 +224,7 @@ export const deleteProject = async (
   projectId: string
 ): Promise<boolean> => {
   try {
-    const res = await userAxios.delete<APIResponse<boolean>>(
+    const res = await apiAxios.delete<APIResponse<boolean>>(
       `${API_BASE_URL}/project/${projectId}`,
       {
         withCredentials: true,
@@ -239,7 +239,7 @@ export const getProjects = async (
   userId: string
 ): Promise<ProjectResponseDTO[]> => {
   try {
-    const res = await userAxios.get<APIResponse<ProjectResponseDTO[]>>(
+    const res = await apiAxios.get<APIResponse<ProjectResponseDTO[]>>(
       `${API_BASE_URL}/projects`
     );
     return res.data.data;
@@ -253,7 +253,7 @@ export const addCertificate = async (
   certificate: CreateCertificateInputDTO
 ): Promise<CertificateResponseDTO> => {
   try {
-    const response = await userAxios.post<APIResponse<CertificateResponseDTO>>(
+    const response = await apiAxios.post<APIResponse<CertificateResponseDTO>>(
       `${API_BASE_URL}/certificate`,
       certificate,
       { withCredentials: true }
@@ -270,7 +270,7 @@ export const editCertificate = async (
   data: UpdateCertificateInputDTO
 ): Promise<CertificateResponseDTO> => {
   try {
-    const response = await userAxios.patch<APIResponse<CertificateResponseDTO>>(
+    const response = await apiAxios.patch<APIResponse<CertificateResponseDTO>>(
       `${API_BASE_URL}/certificate/${certificateId}`,
       data,
       { withCredentials: true }
@@ -286,7 +286,7 @@ export const deleteCertificate = async (
   certificateId: string
 ): Promise<boolean> => {
   try {
-    const res = await userAxios.delete<APIResponse<boolean>>(
+    const res = await apiAxios.delete<APIResponse<boolean>>(
       `${API_BASE_URL}/certificate/${certificateId}`,
       { withCredentials: true }
     );
@@ -300,7 +300,7 @@ export const getCertificates = async (
   userId: string
 ): Promise<CertificateResponseDTO[]> => {
   try {
-    const res = await userAxios.get<APIResponse<CertificateResponseDTO[]>>(
+    const res = await apiAxios.get<APIResponse<CertificateResponseDTO[]>>(
       `${API_BASE_URL}/certificates`
     );
     return res.data.data;
@@ -315,7 +315,7 @@ export const changePassword = async (
   confirmPassword: string
 ): Promise<boolean> => {
   try {
-    const response = await userAxios.patch<APIResponse<boolean>>(
+    const response = await apiAxios.patch<APIResponse<boolean>>(
       `${API_BASE_URL}/change-password`,
       { currentPassword, newPassword, confirmPassword },
       { withCredentials: true }
@@ -329,10 +329,10 @@ export const changePassword = async (
 // profile view api
 
 export const getBasicUserData = async (username: string) => {
-  const res = await userAxios.get(`${BASE_URL}/api/users/${username}`);
+  const res = await apiAxios.get(`${BASE_URL}/api/users/${username}`);
   return res.data;
 };
 export const getUserPostData = async (username: string) => {
-  const res = await userAxios.get(`${BASE_URL}/post/${username}`);
+  const res = await apiAxios.get(`${BASE_URL}/post/${username}`);
   return res.data;
 };

@@ -1,5 +1,5 @@
+import { NotificationType } from "../../constants/notification.type.constant";
 import { NotificationResponseDTO } from "../../core/dtos/response/notification.response.dto";
-import { NotificationType } from "../../models/notification.modal";
 
 export interface INotificationService {
   createNotification(
@@ -32,13 +32,9 @@ export interface INotificationService {
 
   getUnreadCount(userId: string): Promise<number>;
 
-  deleteNotification(
-    notificationId: string,
-    userId: string
-  ): Promise<boolean>;
+  deleteNotification(notificationId: string, userId: string): Promise<boolean>;
 
   deleteAllNotifications(userId: string): Promise<number>;
 
   setSocketIO(io: import("socket.io").Server): void;
 }
-

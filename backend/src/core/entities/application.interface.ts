@@ -1,4 +1,4 @@
-import { ApplicationStatus } from "../../models/job.modal";
+import { ApplicationStatus } from "../enums/applicationStatus";
 
 export interface IApplicationService {
   updateApplicationStatus(id: string, status: ApplicationStatus): Promise<void>;

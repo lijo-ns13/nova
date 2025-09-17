@@ -1,9 +1,4 @@
-// src/interfaces/services/ISubscriptionPlanService.ts
-
-import {
-  TransactionFilterInput,
-  TransactionResponseDTO,
-} from "../../core/dtos/admin/admin.sub.dto";
+import { TransactionFilterInput } from "../../core/dtos/admin/admin.sub.dto";
 import {
   SubscriptionPlanInput,
   SubscriptionPlanResponse,
@@ -13,8 +8,8 @@ import { TransactionListWithPagination } from "../../mapping/admin/admin.sub.map
 
 export interface ISubscriptionPlanService {
   getFilteredTransactions(
-      filter: TransactionFilterInput
-    ): Promise<TransactionListWithPagination>;
+    filter: TransactionFilterInput
+  ): Promise<TransactionListWithPagination>;
   createPlan(input: SubscriptionPlanInput): Promise<SubscriptionPlanResponse>;
   updatePlan(
     id: string,

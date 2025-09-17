@@ -1,6 +1,4 @@
-import { ILike } from "../../../models/like.modal";
-import { IUser } from "../../../models/user.modal";
-import { ILikePopulated } from "../../../repositories/mongo/LikeRepository";
+import { ILikePopulated } from "../../../repositories/entities/like.entity";
 
 export interface LikeResponseDTO {
   user: {

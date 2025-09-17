@@ -1,8 +1,8 @@
-import adminAxios from "../../../utils/adminAxios";
 import { APIResponse, HTTPErrorResponse } from "../../../types/api";
 
 import { getErrorMessage, handleApiError } from "../../../utils/apiError";
 import { PaginatedUserData, User } from "../types/user";
+import apiAxios from "../../../utils/apiAxios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const BASE_URL = `${API_BASE_URL}/admin/users`;
@@ -23,7 +23,7 @@ export const getUsers = async (
       params.append("search", searchQuery);
     }
 
-    const response = await adminAxios.get<APIResponse<PaginatedUserData>>(
+    const response = await apiAxios.get<APIResponse<PaginatedUserData>>(
       `${BASE_URL}?${params.toString()}`,
       { withCredentials: true }
     );
@@ -38,7 +38,7 @@ export const getUsers = async (
 // Block user
 export const blockUser = async (userId: string): Promise<User> => {
   try {
-    const response = await adminAxios.patch<APIResponse<User>>(
+    const response = await apiAxios.patch<APIResponse<User>>(
       `${BASE_URL}/block/${userId}`,
       {},
       { withCredentials: true }
@@ -52,7 +52,7 @@ export const blockUser = async (userId: string): Promise<User> => {
 // Unblock user
 export const unblockUser = async (userId: string): Promise<User> => {
   try {
-    const response = await adminAxios.patch<APIResponse<User>>(
+    const response = await apiAxios.patch<APIResponse<User>>(
       `${BASE_URL}/unblock/${userId}`,
       {},
       { withCredentials: true }

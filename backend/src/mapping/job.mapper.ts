@@ -1,9 +1,7 @@
-// src/modules/job/mappers/JobMapper.ts
-
 import { JobResponseDto } from "../core/dtos/company/job.dto";
-import { ICompany } from "../models/company.modal";
-import { IJob } from "../models/job.modal";
-import { ISkill } from "../models/skill.modal";
+import { IJob } from "../repositories/entities/job.entity";
+import { ISkill } from "../repositories/entities/skill.entity";
+
 import { IJobWithCompanyAndSkills } from "./user/jobmapper";
 export interface IJobWithSkills extends Omit<IJob, "skillsRequired"> {
   skillsRequired: ISkill[];

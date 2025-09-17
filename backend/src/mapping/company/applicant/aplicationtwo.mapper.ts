@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { ApplicationStatus } from "../../../core/enums/applicationStatus";
-import { IApplication } from "../../../models/application.modal";
+
 import { Types } from "mongoose";
+import { IApplication } from "../../../repositories/entities/application.entity";
 
 export const UpdateApplicationStatusSchema = z.object({
   status: z.nativeEnum(ApplicationStatus),

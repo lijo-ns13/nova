@@ -1,9 +1,5 @@
-import mongoose, { Types } from "mongoose";
-import {
-  CreateEducationInputDTO,
-  EducationResponseDTO,
-} from "../../core/dtos/user/UserEducation.dto";
-import { IUserEducation } from "../../models/userEducation.model";
+import { EducationResponseDTO } from "../../core/dtos/user/UserEducation.dto";
+import { IUserEducation } from "../../repositories/entities/education.entity";
 
 export class EducationMapper {
   static toDTO(edu: IUserEducation): EducationResponseDTO {

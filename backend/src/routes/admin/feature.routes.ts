@@ -13,10 +13,10 @@ const featureController = container.get<IFeatureController>(
 const router = Router();
 router.use(authMiddleware.authenticate("admin"));
 
-router.post("/", (req, res) => featureController.create(req, res));
-router.get("/", (req, res) => featureController.getAll(req, res));
-router.get("/:id", (req, res) => featureController.getById(req, res));
-router.put("/:id", (req, res) => featureController.update(req, res));
-router.delete("/:id", (req, res) => featureController.delete(req, res));
+router.post("/", (req, res) => featureController.createFeature(req, res));
+router.get("/", (req, res) => featureController.getAllFeature(req, res));
+router.get("/:id", (req, res) => featureController.getByIdFeature(req, res));
+router.put("/:id", (req, res) => featureController.updateFeature(req, res));
+router.delete("/:id", (req, res) => featureController.deleteFeature(req, res));
 
 export default router;

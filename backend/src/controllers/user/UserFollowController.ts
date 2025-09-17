@@ -6,12 +6,7 @@ import { TYPES } from "../../di/types";
 import { handleControllerError } from "../../utils/errorHandler";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { UserIdSchema } from "../../core/validations/user/userfollow.validator";
-
-interface UserPayload {
-  id: string;
-  email: string;
-  role: string;
-}
+import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.interface";
 
 @injectable()
 export class UserFollowController implements IUserFollowController {
@@ -22,7 +17,7 @@ export class UserFollowController implements IUserFollowController {
 
   async followUser(req: Request, res: Response): Promise<void> {
     try {
-      const followerId = (req.user as UserPayload).id;
+      const followerId = (req.user as AuthenticatedUser).id;
       const { userId: followingId } = UserIdSchema.parse(req.params);
 
       const dto = await this._userFollowService.followUser(
@@ -39,7 +34,7 @@ export class UserFollowController implements IUserFollowController {
 
   async unfollowUser(req: Request, res: Response): Promise<void> {
     try {
-      const followerId = (req.user as UserPayload).id;
+      const followerId = (req.user as AuthenticatedUser).id;
       const { userId: followingId } = UserIdSchema.parse(req.params);
 
       const dto = await this._userFollowService.unfollowUser(
@@ -56,7 +51,7 @@ export class UserFollowController implements IUserFollowController {
 
   async getFollowers(req: Request, res: Response): Promise<void> {
     try {
-      const currentUserId = (req.user as UserPayload).id;
+      const currentUserId = (req.user as AuthenticatedUser).id;
       const { userId } = UserIdSchema.parse(req.params);
 
       const followers = await this._userFollowService.getFollowers(
@@ -71,7 +66,7 @@ export class UserFollowController implements IUserFollowController {
 
   async getFollowing(req: Request, res: Response): Promise<void> {
     try {
-      const currentUserId = (req.user as UserPayload).id;
+      const currentUserId = (req.user as AuthenticatedUser).id;
       const { userId } = UserIdSchema.parse(req.params);
 
       const following = await this._userFollowService.getFollowing(
@@ -86,7 +81,7 @@ export class UserFollowController implements IUserFollowController {
 
   async checkFollowStatus(req: Request, res: Response): Promise<void> {
     try {
-      const followerId = (req.user as UserPayload).id;
+      const followerId = (req.user as AuthenticatedUser).id;
       const { userId: followingId } = UserIdSchema.parse(req.params);
 
       const isFollowing = await this._userFollowService.isFollowing(
@@ -105,7 +100,7 @@ export class UserFollowController implements IUserFollowController {
 
   async getNetworkUsers(req: Request, res: Response): Promise<void> {
     try {
-      const currentUserId = (req.user as UserPayload).id;
+      const currentUserId = (req.user as AuthenticatedUser).id;
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const search = (req.query.search as string) || "";

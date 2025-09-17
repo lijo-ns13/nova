@@ -1,8 +1,5 @@
+import { ApplicationStatus } from "../../core/enums/applicationStatus";
 import { ApplicationStatusResponseDTO } from "../../mapping/user/userapplication.mapper";
-import {
-  ApplicationStatus,
-  IApplication,
-} from "../../models/application.modal";
 
 export interface IUserInterviewService {
   updateStatus(

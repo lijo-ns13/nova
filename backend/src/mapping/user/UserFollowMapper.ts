@@ -1,4 +1,4 @@
-import { IUser } from "../../models/user.modal";
+import { IUser } from "../../repositories/entities/user.entity";
 import { IUserWithStatus } from "../../repositories/mongo/UserRepository";
 
 export type FollowResultDTO = {

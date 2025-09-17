@@ -1,17 +1,18 @@
 import { PopulateOptions, Types } from "mongoose";
-import { IJob } from "../../models/job.modal";
-import { IUser } from "../../models/user.modal";
-import { IUserCertificate } from "../../models/userCertificate.model";
-import { IUserEducation } from "../../models/userEducation.model";
-import { IUserExperience } from "../../models/userExperience.model";
-import { IUserProject } from "../../models/userProject.model";
-import { ISkill } from "../../models/skill.modal";
+
 import { IUserWithStatus } from "../../repositories/mongo/UserRepository";
 import { IBaseRepository } from "./IBaseRepository";
 import { CreateEducationInputDTO } from "../../core/dtos/user/UserEducation.dto";
 import { CreateExperienceInputDTO } from "../../core/dtos/user/userExperience";
 import { CreateProjectInputDTO } from "../../core/dtos/user/userproject";
 import { CreateCertificateInputDTO } from "../../core/dtos/user/certificate.dto";
+import { IUser } from "../../repositories/entities/user.entity";
+import { ISkill } from "../../repositories/entities/skill.entity";
+import { IJob } from "../../repositories/entities/job.entity";
+import { IUserEducation } from "../../repositories/entities/education.entity";
+import { IUserExperience } from "../../repositories/entities/experience.entity";
+import { IUserProject } from "../../repositories/entities/project.entity";
+import { IUserCertificate } from "../../repositories/entities/certificate.entity";
 
 export interface IUserRepository extends IBaseRepository<IUser> {
   // Core user operations
@@ -156,4 +157,14 @@ export interface IUserRepository extends IBaseRepository<IUser> {
   // new for amdindash
   countAllUsers(): Promise<number>;
   countActiveUsers(): Promise<number>;
+  // updated
+  clearExpiredPaymentSessions(): Promise<UpdateResult>;
+  resetExpiredSubscriptions(): Promise<UpdateResult>;
+  clearCancelledFlags(): Promise<UpdateResult>;
+}
+export interface UpdateResult {
+  acknowledged: boolean;
+  modifiedCount: number;
+  upsertedCount?: number;
+  upsertedId?: Types.ObjectId | null;
 }

@@ -1,8 +1,6 @@
-// src/components/CompanyDashboard.tsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { format, subDays, subMonths, subWeeks } from "date-fns";
 
+import { format, subDays } from "date-fns";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -17,8 +15,11 @@ import {
 } from "chart.js";
 import { Pie, Bar, Line } from "react-chartjs-2";
 import { useAppSelector } from "../../../hooks/useAppSelector";
+import {
+  DashboardStats,
+  getCompanyDashboardStats,
+} from "../services/dashboard";
 
-// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -30,43 +31,6 @@ ChartJS.register(
   PointElement,
   LineElement
 );
-
-interface DashboardStats {
-  summary: {
-    totalJobs: number;
-    openJobs: number;
-    closedJobs: number;
-    totalApplications: number;
-    recentApplications: number;
-    applicationChange: {
-      weekly: number;
-      monthly: number;
-    };
-  };
-  statusDistribution: Array<{
-    status: string;
-    count: number;
-    percentage: number;
-  }>;
-  trends: {
-    daily: Array<{
-      date: Date;
-      total: number;
-      statuses: Record<string, number>;
-    }>;
-    weekly: Array<{
-      weekStart: Date;
-      total: number;
-      statuses: Record<string, number>;
-    }>;
-    monthly: Array<{
-      monthStart: Date;
-      total: number;
-      statuses: Record<string, number>;
-    }>;
-    jobStatus: any;
-  };
-}
 
 const CompanyDashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -81,11 +45,13 @@ const CompanyDashboard: React.FC = () => {
     const fetchDashboardStats = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/stats?companyId=${id}`
-        );
-
-        setStats(response.data);
+        if (!id) {
+          setError("Company ID is missing");
+          return;
+        }
+        const data = await getCompanyDashboardStats(id);
+        console.log("data", data);
+        setStats(data);
       } catch (err) {
         setError("Failed to load dashboard data");
         console.error(err);
@@ -95,7 +61,7 @@ const CompanyDashboard: React.FC = () => {
     };
 
     fetchDashboardStats();
-  }, []);
+  }, [id]);
 
   if (loading) {
     return (
@@ -123,8 +89,17 @@ const CompanyDashboard: React.FC = () => {
     shortlisted: "#10B981",
     rejected: "#EF4444",
     interview_scheduled: "#F59E0B",
-    interview_completed: "#8B5CF6",
+    interview_cancelled: "#EF4444",
+    interview_accepted_by_user: "#8B5CF6",
+    interview_rejected_by_user: "#F97316",
+    interview_reschedule_proposed: "#D97706",
+    interview_reschedule_accepted: "#8B5CF6",
+    interview_reschedule_rejected: "#EF4444",
+    interview_completed: "#10B981",
+    interview_passed: "#22C55E",
+    interview_failed: "#DC2626",
     offered: "#EC4899",
+    selected: "#6366F1",
     hired: "#059669",
     withdrawn: "#6B7280",
   };
@@ -435,70 +410,6 @@ const CompanyDashboard: React.FC = () => {
               },
             }}
           />
-        </div>
-      </div>
-
-      {/* Recent Applications Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Recent Applications
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Job Title
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Applicant
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Applied At
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {/* You would replace this with actual recent applications data */}
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    Senior Developer
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    John Doe
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                      Applied
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(new Date(), "MMM d, yyyy")}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    UX Designer
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    Jane Smith
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      Shortlisted
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(subDays(new Date(), 1), "MMM d, yyyy")}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
       </div>
     </div>

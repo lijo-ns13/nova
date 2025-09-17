@@ -1,14 +1,7 @@
-// src/core/interfaces/repositories/IPasswordResetTokenRepository.ts
+import { IPasswordResetToken } from "../../repositories/entities/password.reset.entity";
 import { IBaseRepository } from "./IBaseRepository";
-import { IPasswordResetToken } from "../../models/PasswordResetToken";
-import { Types } from "mongoose";
 
-export interface CreatePasswordResetTokenDto {
-  token: string;
-  accountId: Types.ObjectId;
-  accountType: "user" | "company";
-  expiresAt: Date;
-}
+import { Types } from "mongoose";
 
 export interface IPasswordResetTokenRepository
   extends IBaseRepository<IPasswordResetToken> {
@@ -23,4 +16,11 @@ export interface IPasswordResetTokenRepository
     accountId: Types.ObjectId,
     accountType: "user" | "company"
   ): Promise<boolean>;
+}
+
+export interface CreatePasswordResetTokenDto {
+  token: string;
+  accountId: Types.ObjectId;
+  accountType: "user" | "company";
+  expiresAt: Date;
 }

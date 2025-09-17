@@ -1,5 +1,3 @@
-// src/interfaces/services/ISkillService.ts
-
 import { SkillResponseDTO } from "../../dtos/response/skill.response.dto";
 
 export interface ISkillService {

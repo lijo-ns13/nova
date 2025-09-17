@@ -1,4 +1,4 @@
-import { ISubscriptionPlan } from "../../models/subscription.modal";
+import { ISubscriptionPlan } from "../../repositories/entities/subscription.entity";
 
 export interface UserCurrentSubscriptionDTO {
   subscription: ISubscriptionPlan;

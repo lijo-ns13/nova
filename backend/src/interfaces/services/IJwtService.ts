@@ -1,5 +1,3 @@
-// src/services/interfaces/jwt-service.interface.ts
-
 import { Secret } from "jsonwebtoken";
 import { JwtPayload } from "../../shared/util/jwt.service";
 

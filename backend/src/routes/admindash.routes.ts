@@ -31,22 +31,3 @@ router.get("/transactions", (req, res) =>
   AdminDashController.getTransactions(req, res)
 );
 export default router;
-
-// import {
-//   getRevenueStats,
-//   getTopPlans,
-//   downloadTransactionReport,
-//   getUserGrowth,
-//   getUserStats,
-//   getFullReport,
-//   getTransactions,
-// } from "../controllers/admin/dash/AdminAnalysticsController";
-
-// Revenue and plan analytics
-// router.get("/revenue-stats", getRevenueStats);
-// router.get("/top-plans", getTopPlans);
-// router.get("/user-growth", getUserGrowth);
-// router.get("/user-stats", getUserStats);
-// router.get("/download-report", downloadTransactionReport);
-// router.get("/full-report", getFullReport);
-// router.get("/transactions", getTransactions)

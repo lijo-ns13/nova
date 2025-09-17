@@ -1,6 +1,6 @@
 import { APIResponse } from "../../../types/api";
+import apiAxios from "../../../utils/apiAxios";
 import { handleApiError } from "../../../utils/apiError";
-import userAxios from "../../../utils/userAxios";
 
 export interface ApplicationStatusResponseDTO {
   id: string;
@@ -21,7 +21,7 @@ export const acceptReschedule = async (
   selectedSlot?: string
 ): Promise<APIResponse<null>> => {
   try {
-    const response = await userAxios.put<APIResponse<null>>(
+    const response = await apiAxios.put<APIResponse<null>>(
       `/application/${applicationId}/reschedule-response`,
       { status, selectedSlot }
     );
@@ -35,7 +35,7 @@ export const getRescheduleSlots = async (
   applicationId: string
 ): Promise<APIResponse<string[]>> => {
   try {
-    const response = await userAxios.get<APIResponse<string[]>>(
+    const response = await apiAxios.get<APIResponse<string[]>>(
       `/application/${applicationId}/reschedule-slots`
     );
 
@@ -50,7 +50,7 @@ export const updateInterviewStatus = async (
   status: string
 ): Promise<APIResponse<ApplicationStatusResponseDTO>> => {
   try {
-    const response = await userAxios.patch<
+    const response = await apiAxios.patch<
       APIResponse<ApplicationStatusResponseDTO>
     >(`/interview/updatestatus/${applicationId}/${status}`);
 

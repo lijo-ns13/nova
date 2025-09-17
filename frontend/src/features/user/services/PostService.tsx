@@ -1,4 +1,3 @@
-import userAxios from "../../../utils/userAxios";
 import { APIResponse } from "../../../types/api";
 
 import { handleApiError } from "../../../utils/apiError";
@@ -8,6 +7,7 @@ import {
   CreateCommentInput,
   LikeResponseDTO,
 } from "../types/commentlike";
+import apiAxios from "../../../utils/apiAxios";
 
 // Fetch paginated posts
 export const getAllPosts = async ({
@@ -15,7 +15,7 @@ export const getAllPosts = async ({
   limit = 10,
 }): Promise<PostResponseDTO[]> => {
   try {
-    const response = await userAxios.get(`/post`, {
+    const response = await apiAxios.get(`/post`, {
       params: { page, limit },
       withCredentials: true,
     });
@@ -29,7 +29,7 @@ export const getAllUserPosts = async ({
   limit = 10,
 }): Promise<PostResponseDTO[]> => {
   try {
-    const response = await userAxios.get("/post/user", {
+    const response = await apiAxios.get("/post/user", {
       params: { page, limit },
       withCredentials: true,
     });
@@ -44,7 +44,7 @@ export const getPostById = async (
   postId: string
 ): Promise<APIResponse<PostResponseDTO>> => {
   try {
-    const response = await userAxios.get(`/post/${postId}`, {
+    const response = await apiAxios.get(`/post/${postId}`, {
       withCredentials: true,
     });
     return response.data;
@@ -63,7 +63,7 @@ export const createPost = async (
     formData.append("description", description);
     files.forEach((file) => formData.append("media", file));
 
-    const response = await userAxios.post(`/post`, formData, {
+    const response = await apiAxios.post(`/post`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -81,7 +81,7 @@ export const updatePost = async (
   description: string
 ): Promise<APIResponse<PostResponseDTO>> => {
   try {
-    const response = await userAxios.put(
+    const response = await apiAxios.put(
       `/post/${postId}`,
       { description },
       { withCredentials: true }
@@ -97,7 +97,7 @@ export const deletePost = async (
   postId: string
 ): Promise<APIResponse<true>> => {
   try {
-    const response = await userAxios.delete(`/post/${postId}`, {
+    const response = await apiAxios.delete(`/post/${postId}`, {
       withCredentials: true,
     });
     return response.data;
@@ -110,7 +110,7 @@ export const likeOrUnlikePost = async (
   postId: string
 ): Promise<APIResponse<{ liked: boolean }>> => {
   try {
-    const response = await userAxios.post(`/post/like/${postId}`, null, {
+    const response = await apiAxios.post(`/post/like/${postId}`, null, {
       withCredentials: true,
     });
     return response.data.data;
@@ -122,7 +122,7 @@ export const getPostLikes = async (
   postId: string
 ): Promise<LikeResponseDTO[]> => {
   try {
-    const response = await userAxios.get(`/post/like/${postId}`, {
+    const response = await apiAxios.get(`/post/like/${postId}`, {
       withCredentials: true,
     });
     return response.data.data;
@@ -134,7 +134,7 @@ export const createComment = async (
   data: CreateCommentInput
 ): Promise<APIResponse<CommentResponseDTO>> => {
   try {
-    const response = await userAxios.post("/post/comment", data, {
+    const response = await apiAxios.post("/post/comment", data, {
       withCredentials: true,
     });
     return response.data.data;
@@ -147,7 +147,7 @@ export const updateComment = async (
   content: string
 ): Promise<APIResponse<CommentResponseDTO>> => {
   try {
-    const response = await userAxios.put(
+    const response = await apiAxios.put(
       `/post/comment/${commentId}`,
       { content },
       {
@@ -163,7 +163,7 @@ export const deleteComment = async (
   commentId: string
 ): Promise<APIResponse<true>> => {
   try {
-    const response = await userAxios.delete(`/post/comment/${commentId}`, {
+    const response = await apiAxios.delete(`/post/comment/${commentId}`, {
       withCredentials: true,
     });
     return response.data.data;
@@ -177,7 +177,7 @@ export const getPostComments = async (
   limit = 10
 ): Promise<CommentResponseDTO[]> => {
   try {
-    const response = await userAxios.get(`/post/comment/${postId}`, {
+    const response = await apiAxios.get(`/post/comment/${postId}`, {
       params: { page, limit },
       withCredentials: true,
     });
