@@ -1,5 +1,6 @@
 import { GetUserProfileResponseDTO } from "../../core/dtos/user/getuserresponse.dto";
-import { IUser } from "../../models/user.modal";
+import { IUser } from "../../repositories/entities/user.entity";
+
 export class UserProfileMapper {
   static toProfileDTO(
     user: IUser,

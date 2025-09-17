@@ -1,9 +1,7 @@
-import { CreateInterviewInput } from "../../core/dtos/company/interview.dto";
 import { IInterview } from "../../repositories/entities/interview.entity";
 import { IJob } from "../../repositories/entities/job.entity";
 import { IUser } from "../../repositories/entities/user.entity";
 
-// src/core/dtos/company/interview.response.dto.ts
 export type InterviewResponseDTO = {
   id: string;
   roomId: string;

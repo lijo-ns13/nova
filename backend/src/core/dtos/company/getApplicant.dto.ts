@@ -1,6 +1,3 @@
-import { ApplicationStatus } from "../../enums/applicationStatus";
-
-// src/core/dtos/job/ApplicantDetailDTO.ts
 import { z } from "zod";
 
 export const ApplicantDetailSchema = z.object({

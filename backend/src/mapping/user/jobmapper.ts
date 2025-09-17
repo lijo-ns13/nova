@@ -1,8 +1,8 @@
-import { IApplication } from "../../models/application.modal";
-import { ICompany } from "../../models/company.modal";
-import { IJob } from "../../models/job.modal";
-import { ISkill } from "../../models/skill.modal";
-// src/dtos/job/GetJobResponseDTO.ts
+import { IApplication } from "../../repositories/entities/application.entity";
+import { ICompany } from "../../repositories/entities/company.entity";
+import { IJob } from "../../repositories/entities/job.entity";
+import { ISkill } from "../../repositories/entities/skill.entity";
+
 export interface GetJobResponseDTO {
   id: string;
   title: string;

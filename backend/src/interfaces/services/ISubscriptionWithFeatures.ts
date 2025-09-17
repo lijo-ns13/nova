@@ -1,5 +1,3 @@
-// src/interfaces/services/ISubscriptionWithFeaturesService.ts
-
 import { UserCurrentSubscriptionDTO } from "../../dtos/response/subfeat.dto";
 import { ISubscriptionWithFeatures } from "../repositories/ISubscriptionWithFeatures";
 

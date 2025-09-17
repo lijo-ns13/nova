@@ -1,8 +1,8 @@
-import { Date, Types } from "mongoose";
-import { IUser } from "../../models/user.modal";
-import { ILike } from "../../models/like.modal";
+import { Types } from "mongoose";
+import { IUser } from "../../repositories/entities/user.entity";
+import { ILike } from "../../repositories/entities/like.entity";
 
-interface creatorIdUser {
+export interface creatorIdUser {
   _id: string;
   name: string;
   profilePicture: string;

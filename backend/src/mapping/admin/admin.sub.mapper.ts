@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { TransactionResponseDTO } from "../../core/dtos/admin/admin.sub.dto";
-import { ITransaction } from "../../models/tranasction.modal";
+import { ITransaction } from "../../repositories/entities/transaction.entity";
+
 export interface PopulatedUser {
   _id: Types.ObjectId;
   name: string;

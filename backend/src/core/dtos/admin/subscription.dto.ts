@@ -1,7 +1,4 @@
-// src/schemas/subscriptionPlan.schema.ts
 import { z } from "zod";
-import { ISubscriptionPlan } from "../../../models/subscription.modal";
-import { Document } from "mongoose";
 
 // Base subscription plan schema
 export const SubscriptionPlanCreateSchema = z.object({

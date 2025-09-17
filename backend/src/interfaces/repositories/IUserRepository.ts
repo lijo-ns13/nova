@@ -1,4 +1,4 @@
-import { ObjectId, PopulateOptions, Types } from "mongoose";
+import { PopulateOptions, Types } from "mongoose";
 
 import { IUserWithStatus } from "../../repositories/mongo/UserRepository";
 import { IBaseRepository } from "./IBaseRepository";

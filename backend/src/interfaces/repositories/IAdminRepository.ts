@@ -1,6 +1,4 @@
-// src/core/interfaces/repositories/IAdminRepository.ts
-
-import { IAdmin } from "../../models/admin.modal";
+import { IAdmin } from "../../repositories/entities/admin.entity";
 import { IBaseRepository } from "./IBaseRepository";
 
 export interface IAdminRepository extends IBaseRepository<IAdmin> {

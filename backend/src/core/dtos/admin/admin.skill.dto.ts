@@ -1,4 +1,3 @@
-// src/core/dtos/admin/admin.skill.dto.ts
 import { z } from "zod";
 
 export const CreateSkillSchema = z.object({

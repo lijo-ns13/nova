@@ -1,6 +1,4 @@
-import { IPost } from "../../models/post.modal";
-import { IUser } from "../../models/user.modal";
-// src/dtos/post/PostResponseDTO.ts
+import { IPost } from "../../repositories/entities/post.entity";
 
 export interface LikeDTO {
   _id: string;

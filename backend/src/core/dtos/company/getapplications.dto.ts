@@ -1,4 +1,3 @@
-// src/core/dtos/application.dto.ts
 import { z } from "zod";
 import { ApplicationStatus } from "../../enums/applicationStatus";
 

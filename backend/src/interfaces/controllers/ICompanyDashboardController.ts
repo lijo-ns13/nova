@@ -1,4 +1,3 @@
-// src/interfaces/controllers/ICompanyDashboardController.ts
 import { Request, Response } from "express";
 
 export interface ICompanyDashboardController {

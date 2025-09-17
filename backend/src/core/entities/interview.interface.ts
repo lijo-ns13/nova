@@ -1,7 +1,3 @@
-import { Document } from "mongoose";
-import { IJob } from "../../models/job.modal";
-import { IUser } from "../../models/user.modal";
-
 export interface IInterview {
   _id: string;
   companyId: string;
@@ -11,8 +7,6 @@ export interface IInterview {
   roomId: string;
   result?: "pending" | "pass" | "fail";
 }
-
-// export interface IInterviewDocument extends IInterview, Document {}
 
 export interface IInterviewResult {
   result: "pass" | "fail";

@@ -1,5 +1,5 @@
 import { ProjectResponseDTO } from "../../core/dtos/user/userproject";
-import { IUserProject } from "../../models/userProject.model";
+import { IUserProject } from "../../repositories/entities/project.entity";
 
 export class ProjectMapper {
   static toDTO(project: IUserProject): ProjectResponseDTO {

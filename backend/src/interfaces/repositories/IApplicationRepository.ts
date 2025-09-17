@@ -5,7 +5,6 @@ import {
   GetApplicationsQuery,
 } from "../../core/dtos/company/getapplications.dto";
 import { PopulatedApplication } from "../../mapping/company/applicant/aplicationtwo.mapper";
-import { ApplyToJobInput } from "../../repositories/mongo/JobApplicationRepository";
 
 import {
   IApplicationPopulatedJob,
@@ -13,6 +12,13 @@ import {
 } from "../../repositories/entities/applicationPopulated.entity";
 import { IApplication } from "../../repositories/entities/application.entity";
 import { ApplicationStatus } from "../../core/enums/applicationStatus";
+import { ApplyToJobInput } from "../../repositories/mongo/UserApplicationRepository";
+import {
+  ApplicationStatusCount,
+  DailyTrend,
+  MonthlyTrend,
+  WeeklyTrend,
+} from "../../core/entities/dashbaord.interface";
 
 export interface IApplicationRepository extends IBaseRepository<IApplication> {
   findAppliedJobs(userId: string): Promise<IApplicationPopulatedJob[]>;
@@ -41,4 +47,17 @@ export interface IApplicationRepository extends IBaseRepository<IApplication> {
   findByIdWithUserAndJob(
     applicationId: string
   ): Promise<PopulatedApplication | null>;
+  // new udpated
+  countApplications(jobIds: string[]): Promise<number>;
+  countApplicationsSince(jobIds: string[], date: Date): Promise<number>;
+  aggregateStatusCounts(jobIds: string[]): Promise<ApplicationStatusCount[]>;
+  aggregateDailyTrend(jobIds: string[], fromDate: Date): Promise<DailyTrend[]>;
+  aggregateWeeklyTrend(
+    jobIds: string[],
+    fromDate: Date
+  ): Promise<WeeklyTrend[]>;
+  aggregateMonthlyTrend(
+    jobIds: string[],
+    fromDate: Date
+  ): Promise<MonthlyTrend[]>;
 }

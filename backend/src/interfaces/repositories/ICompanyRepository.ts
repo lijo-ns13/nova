@@ -1,4 +1,3 @@
-// src/core/interfaces/repositories/ICompanyRepository.ts
 import { ICompany } from "../../repositories/entities/company.entity";
 import { IBaseRepository } from "./IBaseRepository";
 

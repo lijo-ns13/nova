@@ -1,6 +1,5 @@
-// src/mapping/skill.mapper.ts
 import { SkillResponseDTO } from "../dtos/response/skill.response.dto";
-import { ISkill } from "../models/skill.modal";
+import { ISkill } from "../repositories/entities/skill.entity";
 
 export class SkillMapper {
   static toResponseDTO(skill: ISkill): SkillResponseDTO {

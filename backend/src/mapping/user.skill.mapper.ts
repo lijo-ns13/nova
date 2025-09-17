@@ -1,5 +1,5 @@
 import { SkillUserResponseDTO } from "../dtos/response/user.skill.response.dto";
-import { ISkill } from "../models/skill.modal";
+import { ISkill } from "../repositories/entities/skill.entity";
 
 export class SkillUserMapper {
   static toDTO(skill: ISkill): SkillUserResponseDTO {

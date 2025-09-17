@@ -1,5 +1,3 @@
-// src/core/dtos/admin/admin.sub.dto.ts
-
 import { z } from "zod";
 
 // --- Transaction Status Enum ---

@@ -1,5 +1,4 @@
-// src/interface/service/ICompanyProfileService.ts
-import { ICompany } from "../../models/company.modal";
+import { ICompany } from "../../repositories/entities/company.entity";
 
 export interface ICompanyProfileService {
   getCompanyProfile(companyId: string): Promise<ICompany>;

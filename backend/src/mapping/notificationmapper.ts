@@ -1,5 +1,5 @@
 import { NotificationResponseDTO } from "../core/dtos/response/notification.response.dto";
-import { INotification } from "../models/notification.modal";
+import { INotification } from "../repositories/entities/notification.entity";
 
 export class NotificationMapper {
   static toDTO(notification: INotification): NotificationResponseDTO {

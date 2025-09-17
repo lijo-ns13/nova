@@ -1,9 +1,5 @@
-import { Types } from "mongoose";
-import { IUserExperience } from "../../models/userExperience.model";
-import {
-  CreateExperienceInputDTO,
-  ExperienceResponseDTO,
-} from "../../core/dtos/user/userExperience";
+import { ExperienceResponseDTO } from "../../core/dtos/user/userExperience";
+import { IUserExperience } from "../../repositories/entities/experience.entity";
 
 export class ExperienceMapper {
   static toDTO(doc: IUserExperience): ExperienceResponseDTO {

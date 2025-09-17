@@ -18,6 +18,12 @@ import { IApplication, IStatusHistory } from "../entities/application.entity";
 import { IJob } from "../entities/job.entity";
 import jobModel from "../models/job.model";
 import applicationModel from "../models/application.model";
+import {
+  ApplicationStatusCount,
+  DailyTrend,
+  MonthlyTrend,
+  WeeklyTrend,
+} from "../../core/entities/dashbaord.interface";
 export interface ApplyToJobInput {
   jobId: string;
   userId: string;
@@ -44,6 +50,156 @@ export class ApplicationRepository
     @inject(TYPES.applicationModel) applicationModel: Model<IApplication>
   ) {
     super(applicationModel);
+  }
+  async countApplications(jobIds: string[]): Promise<number> {
+    const ids = jobIds.map((id) => new Types.ObjectId(id));
+    return this.model.countDocuments({ job: { $in: ids } });
+  }
+
+  async countApplicationsSince(jobIds: string[], date: Date): Promise<number> {
+    const ids = jobIds.map((id) => new Types.ObjectId(id));
+    return this.model.countDocuments({
+      job: { $in: ids },
+      appliedAt: { $gte: date },
+    });
+  }
+
+  async aggregateStatusCounts(
+    jobIds: string[]
+  ): Promise<ApplicationStatusCount[]> {
+    const ids = jobIds.map((id) => new Types.ObjectId(id));
+    return this.model.aggregate([
+      { $match: { job: { $in: ids } } },
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+  }
+
+  async aggregateDailyTrend(
+    jobIds: string[],
+    fromDate: Date
+  ): Promise<DailyTrend[]> {
+    const ids = jobIds.map((id) => new Types.ObjectId(id));
+    return this.model.aggregate([
+      {
+        $match: {
+          job: { $in: ids },
+          appliedAt: { $gte: fromDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$appliedAt" },
+            month: { $month: "$appliedAt" },
+            day: { $dayOfMonth: "$appliedAt" },
+          },
+          count: { $sum: 1 },
+          statuses: { $push: "$status" },
+        },
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } },
+      {
+        $project: {
+          date: {
+            $dateFromParts: {
+              year: "$_id.year",
+              month: "$_id.month",
+              day: "$_id.day",
+            },
+          },
+          count: 1,
+          statuses: 1,
+          _id: 0,
+        },
+      },
+    ]);
+  }
+
+  async aggregateWeeklyTrend(
+    jobIds: string[],
+    fromDate: Date
+  ): Promise<WeeklyTrend[]> {
+    const ids = jobIds.map((id) => new Types.ObjectId(id));
+    return this.model.aggregate([
+      {
+        $match: {
+          job: { $in: ids },
+          appliedAt: { $gte: fromDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $isoWeekYear: "$appliedAt" },
+            week: { $isoWeek: "$appliedAt" },
+          },
+          count: { $sum: 1 },
+          statuses: { $push: "$status" },
+        },
+      },
+      { $sort: { "_id.year": 1, "_id.week": 1 } },
+      {
+        $project: {
+          weekStart: {
+            $dateFromParts: {
+              isoWeekYear: "$_id.year",
+              isoWeek: "$_id.week",
+              isoDayOfWeek: 1,
+            },
+          },
+          count: 1,
+          statuses: 1,
+          _id: 0,
+        },
+      },
+      { $limit: 12 },
+    ]);
+  }
+
+  async aggregateMonthlyTrend(
+    jobIds: string[],
+    fromDate: Date
+  ): Promise<MonthlyTrend[]> {
+    const ids = jobIds.map((id) => new Types.ObjectId(id));
+    return this.model.aggregate([
+      {
+        $match: {
+          job: { $in: ids },
+          appliedAt: { $gte: fromDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$appliedAt" },
+            month: { $month: "$appliedAt" },
+          },
+          count: { $sum: 1 },
+          statuses: { $push: "$status" },
+        },
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
+      {
+        $project: {
+          monthStart: {
+            $dateFromParts: {
+              year: "$_id.year",
+              month: "$_id.month",
+              day: 1,
+            },
+          },
+          count: 1,
+          statuses: 1,
+          _id: 0,
+        },
+      },
+      { $limit: 12 },
+    ]);
   }
   async findAppliedJobs(userId: string): Promise<IApplicationPopulatedJob[]> {
     const objectId = new Types.ObjectId(userId);

@@ -1,7 +1,5 @@
-// src/mapping/user/CertificateMapper.ts
-
 import { CertificateResponseDTO } from "../../core/dtos/user/certificate.dto";
-import { IUserCertificate } from "../../models/userCertificate.model";
+import { IUserCertificate } from "../../repositories/entities/certificate.entity";
 
 export class CertificateMapper {
   static toDTO(certificate: IUserCertificate): CertificateResponseDTO {

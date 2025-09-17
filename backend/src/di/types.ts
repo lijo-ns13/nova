@@ -1,6 +1,3 @@
-import { AdminDashboardController } from "../controllers/admin/AdminDashboardController";
-import { AdminDashboardService } from "../services/admin/AdminDashboardService";
-
 export const TYPES = {
   // Repositories
   UserModel: Symbol.for("UserModel"),

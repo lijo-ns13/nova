@@ -22,6 +22,7 @@ import { ICompany } from "../entities/company.entity";
 import applicationModel from "../models/application.model";
 import { ApplicationStatus } from "../../core/enums/applicationStatus";
 import { IPopulatedApplicationWithUserAndResume } from "../entities/user.entity";
+import { JobStatusTrend } from "../../core/entities/dashbaord.interface";
 
 export class JobRepository
   extends BaseRepository<IJob>
@@ -29,6 +30,45 @@ export class JobRepository
 {
   constructor(@inject(TYPES.jobModel) jobModel: Model<IJob>) {
     super(jobModel);
+  }
+  async countJobsByCompany(companyId: string): Promise<number> {
+    return this.model.countDocuments({
+      company: new Types.ObjectId(companyId),
+    });
+  }
+
+  async countJobsByCompanyAndStatus(
+    companyId: string,
+    status: IJob["status"]
+  ): Promise<number> {
+    return this.model.countDocuments({
+      company: new Types.ObjectId(companyId),
+      status,
+    });
+  }
+
+  async findJobIdsByCompany(companyId: string): Promise<string[]> {
+    const jobs = await this.model
+      .find({ company: new Types.ObjectId(companyId) })
+      .select("_id");
+    return jobs.map((job) => job._id.toString());
+  }
+
+  async aggregateJobStatusTrend(companyId: string): Promise<JobStatusTrend[]> {
+    return this.model.aggregate([
+      { $match: { company: new Types.ObjectId(companyId) } },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+            status: "$status",
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
+    ]);
   }
   async createJob(
     createJobDto: CreateJobDto,

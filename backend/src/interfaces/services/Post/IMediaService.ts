@@ -1,6 +1,4 @@
-// core/interfaces/services/IMediaService.ts
-import { Express } from "express";
-import { IMedia } from "../../../models/media.modal";
+import { IMedia } from "../../../repositories/entities/media.entity";
 import { MediaUrlDTO } from "../../../services/user/MediaService";
 
 export interface IMediaService {

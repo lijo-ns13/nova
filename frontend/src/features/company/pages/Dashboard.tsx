@@ -1,4 +1,3 @@
-// src/pages/CompanyDashboardPage.tsx
 import React from "react";
 import CompanyDashboard from "../components/CompanyDashboard";
 

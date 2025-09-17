@@ -1,5 +1,5 @@
 import { CommentResponseDTO } from "../../../core/dtos/user/post/comment.dto";
-import { IComment } from "../../../models/comment.modal";
+import { IComment } from "../../../repositories/entities/comment.entity";
 
 export class CommentMapper {
   static toDTO(comment: IComment): CommentResponseDTO {

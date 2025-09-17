@@ -2,11 +2,8 @@ import {
   CreateInterviewInput,
   ProposeRescheduleInput,
 } from "../../core/dtos/company/interview.dto";
-import {
-  InterviewResponseDTO,
-  UpcomingInterviewResponseDTO,
-} from "../../mapping/company/interview.mapper";
-import { IInterview } from "../../models/interview.modal";
+import { InterviewResponseDTO } from "../../mapping/company/interview.mapper";
+import { IInterview } from "../../repositories/entities/interview.entity";
 
 export interface ICompanyInterviewService {
   createInterview(input: CreateInterviewInput): Promise<InterviewResponseDTO>;

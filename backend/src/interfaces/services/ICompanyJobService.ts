@@ -10,7 +10,6 @@ import {
   JobResponseDto,
   UpdateJobInput,
 } from "../../core/dtos/company/job.dto";
-import { IJob } from "../../models/job.modal";
 
 export interface ICompanyJobService {
   createJob(input: CreateJobInput, companyId: string): Promise<JobResponseDto>;

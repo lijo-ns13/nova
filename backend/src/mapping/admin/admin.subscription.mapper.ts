@@ -1,5 +1,5 @@
 import { SubscriptionPlanResponse } from "../../core/dtos/admin/subscription.dto";
-import { ISubscriptionPlan } from "../../models/subscription.modal";
+import { ISubscriptionPlan } from "../../repositories/entities/subscription.entity";
 
 export class SubscriptionPlanMapper {
   static toResponse(plan: ISubscriptionPlan): SubscriptionPlanResponse {

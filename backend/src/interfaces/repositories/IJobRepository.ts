@@ -1,11 +1,9 @@
+import { JobStatusTrend } from "../../core/entities/dashbaord.interface";
 import { IJobWithSkills } from "../../mapping/job.mapper";
-import {
-  IJobPopulated,
-  IJobWithCompanyAndSkills,
-} from "../../mapping/user/jobmapper";
+import { IJobPopulated } from "../../mapping/user/jobmapper";
 import { IJob } from "../../repositories/entities/job.entity";
+import { IPopulatedApplicationWithUserAndResume } from "../../repositories/entities/user.entity";
 
-import { PopulatedApplicationWithUserAndResume } from "../../repositories/mongo/JobRepository";
 import { IBaseRepository } from "./IBaseRepository";
 export interface JobFilters {
   title?: string;
@@ -88,5 +86,13 @@ export interface IJobRepository extends IBaseRepository<IJob> {
 
   getApplicantDetails(
     applicantId: string
-  ): Promise<PopulatedApplicationWithUserAndResume | null>;
+  ): Promise<IPopulatedApplicationWithUserAndResume | null>;
+  // new updated
+  countJobsByCompany(companyId: string): Promise<number>;
+  countJobsByCompanyAndStatus(
+    companyId: string,
+    status: IJob["status"]
+  ): Promise<number>;
+  findJobIdsByCompany(companyId: string): Promise<string[]>;
+  aggregateJobStatusTrend(companyId: string): Promise<JobStatusTrend[]>;
 }
