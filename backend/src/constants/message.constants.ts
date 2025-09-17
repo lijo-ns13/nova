@@ -1,5 +1,3 @@
-import { INVALID } from "zod";
-
 export const USER_MESSAGES = {
   USER_INTERVIEW: {
     SUCCESS: {
