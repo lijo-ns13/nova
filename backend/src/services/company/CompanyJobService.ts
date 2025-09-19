@@ -3,7 +3,7 @@ import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import { TYPES } from "../../di/types";
 import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
-import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
+import { IApplicationRepository } from "../../interfaces/repositories/IUserApplicationRepository";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";

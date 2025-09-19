@@ -3,6 +3,7 @@ import container from "../../di/container";
 import { TYPES } from "../../di/types";
 import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 import { ICompanyJobController } from "../../interfaces/controllers/ICompanyJobController";
+import { COMPANY_JOB_ROUTES } from "../../constants/routes/companyRoutes";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const jobController = container.get<ICompanyJobController>(
@@ -12,22 +13,23 @@ const jobController = container.get<ICompanyJobController>(
 const router = Router();
 router.use(authMiddleware.authenticate("company"));
 router.use(authMiddleware.check());
-router.get("/job/application/:applicationId/details", (req, res, next) =>
+router.get(COMPANY_JOB_ROUTES.APPLICATION_DETAILS, (req, res, next) =>
   jobController.getApplicantDetails(req, res).catch(next)
 );
-router.get("/job/:jobId/applicants", (req, res, next) =>
+router.get(COMPANY_JOB_ROUTES.APPLICANTS, (req, res, next) =>
   jobController.getApplications(req, res).catch(next)
 );
-router.patch("/job/shortlist/:applicationId", (req, res, next) =>
+router.patch(COMPANY_JOB_ROUTES.SHORTLIST, (req, res, next) =>
   jobController.shortlistApplication(req, res).catch(next)
 );
-router.patch("/job/reject/:applicationId", (req, res, next) =>
+router.patch(COMPANY_JOB_ROUTES.REJECT, (req, res, next) =>
   jobController.rejectApplication(req, res).catch(next)
 );
-router.post("/job", jobController.createJob);
-router.put("/job/:jobId", jobController.updateJob);
-router.delete("/job/:jobId", jobController.deleteJob);
-router.get("/job", jobController.getJobs);
-// router.get("/job/:jobId/applications", jobController.getJobApplications);
-router.get("/job/:jobId", jobController.getJob);
+router.post(COMPANY_JOB_ROUTES.ROOT, jobController.createJob);
+router.get(COMPANY_JOB_ROUTES.ROOT, jobController.getJobs);
+
+router.get(COMPANY_JOB_ROUTES.BY_ID, jobController.getJob);
+router.put(COMPANY_JOB_ROUTES.BY_ID, jobController.updateJob);
+router.delete(COMPANY_JOB_ROUTES.BY_ID, jobController.deleteJob);
+
 export default router;

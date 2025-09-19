@@ -2,8 +2,8 @@ import { Router } from "express";
 import container from "../../di/container";
 import { TYPES } from "../../di/types";
 import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
-
 import { IAdminCompanyManagementController } from "../../interfaces/controllers/IAdminCompanyManagementController";
+import { ADMIN_COMPANY_ROUTES } from "../../constants/routes/adminRoutes";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const AdminCompanyManagerController =
@@ -12,30 +12,31 @@ const AdminCompanyManagerController =
   );
 
 const router = Router();
-// router.get("/companies", (req, res) =>
-//   AdminCompanyManagerController.getCompanies
-// );
-router.get("/companies", AdminCompanyManagerController.getCompanies);
+
 router.get(
-  "/companies/unverified",
+  ADMIN_COMPANY_ROUTES.ROOT,
+  AdminCompanyManagerController.getCompanies
+);
+router.get(
+  ADMIN_COMPANY_ROUTES.UNVERIFIED,
   AdminCompanyManagerController.getUnverifiedCompaniesHandler
 );
 router.use(authMiddleware.authenticate("admin"));
 
 router.get(
-  "/companies/:companyId",
+  ADMIN_COMPANY_ROUTES.BY_ID,
   AdminCompanyManagerController.getCompanyById
 );
 router.patch(
-  "/companies/block/:companyId",
+  ADMIN_COMPANY_ROUTES.BLOCK,
   AdminCompanyManagerController.blockCompany
 );
 router.patch(
-  "/companies/unblock/:companyId",
+  ADMIN_COMPANY_ROUTES.UNBLOCK,
   AdminCompanyManagerController.unblockCompany
 );
 router.patch(
-  "/companies/verify/:companyId",
+  ADMIN_COMPANY_ROUTES.VERIFY,
   AdminCompanyManagerController.verifyCompany
 );
 

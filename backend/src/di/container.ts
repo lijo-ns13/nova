@@ -103,7 +103,7 @@ import { CompanyProfileService } from "../services/company/CompanyProfileService
 import { ICompanyProfileController } from "../interfaces/controllers/ICompanyProfileController";
 import { CompanyProfileController } from "../controllers/company/CompanyProfileController";
 
-import { IApplicationRepository } from "../interfaces/repositories/IApplicationRepository";
+import { IApplicationRepository } from "../interfaces/repositories/IUserApplicationRepository";
 import { InterviewRepository } from "../repositories/mongo/InterviewRepository";
 import { ICompanyInterviewController } from "../interfaces/controllers/ICompanyInterviewController";
 import { CompanyInterviewController } from "../controllers/company/CompanyInterviewController";
@@ -208,6 +208,14 @@ import { ICompanyDashboardService } from "../interfaces/services/ICompanyDashboa
 import { CompanyDashboardService } from "../services/company/CompanyDashboardService";
 import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 import { CompanyDashboardController } from "../controllers/company/Company.dashbaordController";
+import { IMessage } from "../repositories/entities/message.entity";
+import messageModel from "../repositories/models/message.model";
+import { IMessageService } from "../interfaces/services/IMessageService";
+import { MessageService } from "../services/user/MessageService";
+import { IMessageController } from "../interfaces/controllers/IMessageController";
+import { MessageController } from "../controllers/user/MessageController";
+import { IMessageRepository } from "../interfaces/repositories/IMessageRepository";
+import { MessageRepository } from "../repositories/mongo/MessageRepository";
 // import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
@@ -258,6 +266,9 @@ container
 // job
 container.bind<IJobRepository>(TYPES.JobRepository).to(JobRepository);
 container.bind<Model<IJob>>(TYPES.jobModel).toConstantValue(jobModel);
+container
+  .bind<Model<IMessage>>(TYPES.MessageModel)
+  .toConstantValue(messageModel);
 container
   .bind<Model<ITransaction>>(TYPES.tranasctionModel)
   .toConstantValue(transactionModel);
@@ -444,6 +455,9 @@ container
   .bind<ISubscriptionPlanRepository>(TYPES.SubscriptionPlanRepository)
   .to(SubscriptionPlanRepository);
 container
+  .bind<IMessageRepository>(TYPES.MessageRepository)
+  .to(MessageRepository);
+container
   .bind<Model<ISubscriptionPlan>>(TYPES.subscriptionModel)
   .toConstantValue(subscriptionModel);
 container
@@ -506,5 +520,10 @@ container
 container
   .bind<ICompanyDashboardController>(TYPES.CompanyDashboardController)
   .to(CompanyDashboardController);
+// chat
 
+container.bind<IMessageService>(TYPES.MessageService).to(MessageService);
+container
+  .bind<IMessageController>(TYPES.MessageController)
+  .to(MessageController);
 export default container;

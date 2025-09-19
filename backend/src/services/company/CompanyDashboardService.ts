@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
 import { ICompanyDashboardService } from "../../interfaces/services/ICompanyDashboardService";
-import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
+import { IApplicationRepository } from "../../interfaces/repositories/IUserApplicationRepository";
 import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import {
   DailyTrend,

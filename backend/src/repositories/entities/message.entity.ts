@@ -1,7 +1,7 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
-export interface IMessage {
-  _id?: Types.ObjectId; // optional because MongoDB assigns it
+export interface IMessage extends Document {
+  _id: Types.ObjectId; // optional because MongoDB assigns it
   sender: Types.ObjectId; // reference to User
   receiver: Types.ObjectId; // reference to User
   content: string;
