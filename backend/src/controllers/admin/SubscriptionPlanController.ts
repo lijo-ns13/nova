@@ -27,7 +27,7 @@ export class SubscriptionPlanController implements ISubscriptionPlanController {
       const filter = transactionFilterSchema.parse(req.query);
       const result =
         await this._subscriptionPlanService.getFilteredTransactions(filter);
-      res.status(200).json({
+      res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: ADMIN_MESSAGES.SUBSCRIPTION.FETCH_FILTERED_TRANSACTIONS,
         data: result,

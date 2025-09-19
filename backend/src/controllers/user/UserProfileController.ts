@@ -74,7 +74,7 @@ export class UserProfileController implements IUserProfileController {
       const file = req.file;
 
       if (!file) {
-        res.status(400).json({
+        res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
           success: false,
           message: "No file provided",
         });
