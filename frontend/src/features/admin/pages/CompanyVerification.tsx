@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import adminAxios from "../../../utils/adminAxios";
-import { getUnverifiedCompanies } from "../services/companyServices";
+import {
+  getUnverifiedCompanies,
+  verifyCompany,
+} from "../services/companyServices";
 import {
   CompanyDocumentDTO,
   UnverifiedCompaniesResponse,
@@ -9,28 +11,7 @@ import SecureDocViewer from "../../../components/SecureDocViewer";
 import { toast } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
-export const predefinedRejectionReasons = [
-  "Incomplete documentation provided",
-  "Documents are not clear or legible",
-  "Information provided is invalid or inaccurate",
-  "Documents appear to be tampered with or fake",
-  "Mismatched information across documents",
-  "Expired or outdated documentation",
-  "Business registration details are missing or incorrect",
-  "Unable to verify company identity",
-  "Insufficient proof of address or ownership",
-  "Supporting documents do not meet the required criteria",
-  "Company appears to be inactive or dissolved",
-  "Industry type does not align with submitted documents",
-  "Duplicate registration attempt detected",
-  "Failed to meet minimum compliance requirements",
-  "Suspicious activity or potential fraud detected",
-  "Contact details are invalid or unreachable",
-
-  "Mismatch between uploaded documents and form entries",
-  "Unauthorized representative submitted the application",
-  "Unverified or unverifiable tax/business registration numbers",
-];
+import { predefinedRejectionReasons } from "../constants/company.reject.constant";
 
 const CompanyVerificationPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -98,13 +79,7 @@ const CompanyVerificationPage: React.FC = () => {
 
     setActionLoading(true);
     try {
-      await adminAxios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/companies/verify/${
-          selectedCompany.id
-        }`,
-        { status, rejectionReason: finalReason }
-      );
-
+      await verifyCompany(selectedCompany.id, status, finalReason);
       toast.success(
         `Company ${
           status === "accepted" ? "verified" : "rejected"

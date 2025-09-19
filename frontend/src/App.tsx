@@ -12,25 +12,54 @@ import { useEffect } from "react";
 function App() {
   const { id: userId } = useAppSelector((state) => state.auth);
 
+  // useEffect(() => {
+  //   if (!userId) return;
+
+  //   // Always try to connect
+  //   connectSocket();
+
+  //   // Login once when mounted
+  //   socket.emit("login", userId);
+
+  //   // On reconnect, emit login again
+  //   const handleReconnect = () => {
+  //     console.log("Reconnected. Re-logging in...");
+  //     socket.emit("login", userId);
+  //   };
+
+  //   socket.on("connect", handleReconnect);
+
+  //   return () => {
+  //     socket.off("connect", handleReconnect);
+  //   };
+  // }, [userId]);
   useEffect(() => {
     if (!userId) return;
 
-    // Always try to connect
+    // Connect the socket (if not connected)
     connectSocket();
 
-    // Login once when mounted
-    socket.emit("login", userId);
-
-    // On reconnect, emit login again
-    const handleReconnect = () => {
-      console.log("Reconnected. Re-logging in...");
+    const handleConnect = () => {
+      console.log("Socket connected with id:", socket.id);
       socket.emit("login", userId);
     };
 
-    socket.on("connect", handleReconnect);
+    // Fire login on initial connection
+    if (!socket.connected) {
+      socket.on("connect", handleConnect);
+    } else {
+      // Already connected, emit login immediately
+      socket.emit("login", userId);
+    }
+
+    // Handle reconnection automatically
+    socket.io.on("reconnect", () => {
+      console.log("Socket reconnected, re-logging in...");
+      socket.emit("login", userId);
+    });
 
     return () => {
-      socket.off("connect", handleReconnect);
+      socket.off("connect", handleConnect);
     };
   }, [userId]);
 

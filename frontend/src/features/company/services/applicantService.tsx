@@ -30,7 +30,9 @@ export type ApplicationDetailDTO = {
   }[];
 };
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/company/applicant`;
+const BASE_URL = `${
+  import.meta.env.VITE_API_BASE_URL
+}/api/v1/company/applicant`;
 
 export const ApplicantService = {
   async getApplicationDetails(

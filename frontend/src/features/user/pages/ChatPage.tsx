@@ -4,9 +4,8 @@ import { useAppSelector } from "../../../hooks/useAppSelector";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { PaperPlaneRight, Spinner } from "@phosphor-icons/react";
-import userAxios from "../../../utils/userAxios";
 import debounce from "lodash.debounce";
-import Avatar from "../componets/ui/Avatar";
+import apiAxios from "../../../utils/apiAxios";
 
 const ChatPage = () => {
   const { otherUserId } = useParams();
@@ -28,7 +27,7 @@ const ChatPage = () => {
     const fetchMessages = async () => {
       try {
         setIsLoading(true);
-        const res = await userAxios.get(
+        const res = await apiAxios.get(
           `${
             import.meta.env.VITE_API_BASE_URL
           }/api/messages/${userId}/${otherUserId}`,
@@ -43,7 +42,7 @@ const ChatPage = () => {
     };
     const fetchOtherUser = async () => {
       try {
-        const res = await userAxios.get(
+        const res = await apiAxios.get(
           `${import.meta.env.VITE_API_BASE_URL}/api/username/${otherUserId}`,
           { withCredentials: true }
         );

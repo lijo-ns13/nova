@@ -12,5 +12,5 @@ router.use("/companies", CompanyManagementRouter);
 router.use("/skills", SkillRouter);
 router.use("/subscription", SubscriptionPlanRouter);
 router.use("/feature", FeatureRouter);
-router.use("/api/analytics", AdminDashboardRouter);
+router.use("/analytics", AdminDashboardRouter);
 export default router;

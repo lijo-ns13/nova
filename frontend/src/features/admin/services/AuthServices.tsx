@@ -2,7 +2,7 @@ import axios from "axios";
 import { AdminSignInInput, AdminSignInResponse } from "../types/adminAuth";
 import { handleApiError } from "../../../utils/apiError";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1`;
 const BASE_URL = `${API_BASE_URL}/auth/admin`;
 
 export const AdminAuthService = {

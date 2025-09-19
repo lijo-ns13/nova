@@ -24,6 +24,7 @@ import { CommentResponseDTO } from "../../types/commentlike";
 import CommentSection from "./CommentSection";
 import ConfirmDeleteModal from "../../../../components/ConfirmDeleteModal";
 import toast from "react-hot-toast";
+import { useAppSelector } from "../../../../hooks/useAppSelector";
 
 interface PostProps {
   post: PostResponseDTO;
@@ -36,6 +37,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
   const [liked, setLiked] = useState<boolean>(
     post.likes.some((like) => like.userId === currentUserId)
   );
+  const { name: CurrentUserName } = useAppSelector((state) => state.auth);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
@@ -459,7 +461,7 @@ const FinalPost: React.FC<PostProps> = ({ post, currentUserId, onLike }) => {
           <CommentSection
             postId={post.id}
             currentUserId={currentUserId}
-            currentUserName={post.creatorId.name}
+            currentUserName={CurrentUserName}
             currentUserAvatar={"/default.png"}
           />
           {/* )} */}

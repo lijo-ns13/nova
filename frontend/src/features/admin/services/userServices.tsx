@@ -4,7 +4,7 @@ import { getErrorMessage, handleApiError } from "../../../utils/apiError";
 import { PaginatedUserData, User } from "../types/user";
 import apiAxios from "../../../utils/apiAxios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1`;
 const BASE_URL = `${API_BASE_URL}/admin/users`;
 
 // Get users with pagination + optional search

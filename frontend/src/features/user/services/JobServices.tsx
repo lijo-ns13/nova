@@ -79,9 +79,8 @@ export interface PaginatedJobResponse {
 import { APIResponse } from "../../../types/api";
 import apiAxios from "../../../utils/apiAxios";
 import { handleApiError } from "../../../utils/apiError";
-import userAxios from "../../../utils/userAxios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1`;
 
 // ✅ Get all jobs with filters + pagination
 export const getJobs = async (

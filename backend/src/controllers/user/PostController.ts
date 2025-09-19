@@ -137,9 +137,11 @@ export class PostController implements IPostController {
   }
 
   async createComment(req: Request, res: Response): Promise<void> {
+    console.log("chekcing creat comemnt");
     try {
       const { postId, content, parentId, authorName } =
         CreateCommentSchema.parse(req.body);
+
       const authorId = (req.user as AuthenticatedUser).id;
 
       const comment = await this._commentService.createComment({
@@ -163,7 +165,7 @@ export class PostController implements IPostController {
   async updateComment(req: Request, res: Response): Promise<void> {
     try {
       const { commentId } = req.params;
-      const { content } = UpdateCommentSchema.parse(req.body);
+      const { content } = req.body;
       const userId = (req.user as AuthenticatedUser).id;
 
       const updatedComment = await this._commentService.updateComment({

@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { setUnreadCount } from "../../../store/slice/notificationSlice";
-import adminAxios from "../../../utils/adminAxios";
 import socket from "../../../socket/socket";
 import toast from "react-hot-toast";
 import { FiMenu, FiX } from "react-icons/fi";
+import { getUnreadNotificationCount } from "../services/notificationService";
 
 interface NotificationPayload {
   _id: string;
@@ -27,9 +27,6 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const BASE_URL = `${API_BASE_URL}`;
-
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
@@ -48,13 +45,8 @@ const Sidebar = () => {
   // Fetch unread count once on mount
   const fetchUnreadCount = async () => {
     try {
-      const res = await adminAxios.get(
-        `${BASE_URL}/notification/unread-count`,
-        {
-          withCredentials: true,
-        }
-      );
-      dispatch(setUnreadCount(res.data.count));
+      const count = await getUnreadNotificationCount();
+      dispatch(setUnreadCount(count));
     } catch (err) {
       console.error("Failed to fetch unread count:", err);
     }

@@ -23,7 +23,7 @@ export class CommentRepository
   }
 
   async createComment(input: CreateCommentDTO): Promise<IComment> {
-    const { postId, content, parentId, authorId, authorName } = input;
+    const { postId, content, authorId, authorName, parentId } = input;
 
     const path = parentId
       ? [

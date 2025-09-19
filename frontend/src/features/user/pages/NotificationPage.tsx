@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import userAxios from "../../../utils/userAxios";
+
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
 import { setUnreadCount } from "../../../store/slice/notificationSlice";
 import socket from "../../../socket/socket";
@@ -9,6 +9,7 @@ import { Bell, Check, Loader2, RefreshCw } from "lucide-react";
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
 import { NotificationSkeleton } from "../componets/NotificationSkeleton";
 import { Notification as Noty } from "../../../types/notification";
+import apiAxios from "../../../utils/apiAxios";
 // import { SecureCloudinaryImage } from "../../../components/SecureCloudinaryImage";
 dayjs.extend(relativeTime);
 
@@ -29,10 +30,10 @@ const NotificationPage: React.FC = () => {
         if (refresh) setRefreshing(true);
         else if (pageNum === 1) setLoading(true);
 
-        const res = await userAxios.get(
+        const res = await apiAxios.get(
           `${
             import.meta.env.VITE_API_BASE_URL
-          }/notification?page=${pageNum}&limit=${PAGE_SIZE}`
+          }/api/v1/notification?page=${pageNum}&limit=${PAGE_SIZE}`
         );
 
         if (refresh) {
@@ -57,8 +58,8 @@ const NotificationPage: React.FC = () => {
   );
   const deleteAllFn = async () => {
     try {
-      await userAxios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}/notification/delete-all`
+      await apiAxios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}/api/v1/notification/delete-all`
       );
       dispatch(setUnreadCount(0));
       setNotifications([]); // clear UI
@@ -70,8 +71,8 @@ const NotificationPage: React.FC = () => {
   // Mark all as read
   const readAllFn = async () => {
     try {
-      await userAxios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/notification/read-all`
+      await apiAxios.patch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/v1/notification/read-all`
       );
       dispatch(setUnreadCount(0));
       // Update local state to mark all as read
@@ -133,8 +134,8 @@ const NotificationPage: React.FC = () => {
   // Mark single notification as read
   const markAsRead = async (id: string) => {
     try {
-      await userAxios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/notification/read/${id}`
+      await apiAxios.patch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/v1/notification/read/${id}`
       );
       setNotifications((prev) =>
         prev.map((notif) =>

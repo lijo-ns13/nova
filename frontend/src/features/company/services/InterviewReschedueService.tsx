@@ -12,7 +12,9 @@ export type InterviewResponseDTO = {
   rescheduleProposedSlots?: string[];
   rescheduleSelectedSlot?: string;
 };
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/company/interview`;
+const BASE_URL = `${
+  import.meta.env.VITE_API_BASE_URL
+}/api/v1/company/interview`;
 
 export type UpcomingInterviewResponseDTO = {
   id: string;

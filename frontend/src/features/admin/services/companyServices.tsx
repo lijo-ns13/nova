@@ -7,7 +7,7 @@ import {
 } from "../types/company";
 import apiAxios from "../../../utils/apiAxios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1`;
 const BASE_URL = `${API_BASE_URL}/admin/companies`;
 
 // Get paginated companies (optionally search)
@@ -105,7 +105,7 @@ export const getUnverifiedCompanies = async (
 // Verify or reject company
 export const verifyCompany = async (
   companyId: string,
-  status: "approved" | "rejected",
+  status: "accepted" | "rejected",
   rejectionReason?: string
 ): Promise<CompanyResponse> => {
   try {

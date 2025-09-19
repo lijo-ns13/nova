@@ -1,19 +1,10 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import userAxios from "../utils/userAxios";
+
 import { CheckCircle, XCircle, Clock } from "lucide-react";
 import { updateSubscriptionStatus } from "../features/auth/auth.slice";
 import { useAppDispatch } from "../hooks/useAppDispatch";
-
-interface PaymentInfo {
-  orderId: string;
-  amount: number;
-  currency: string;
-  planName: string;
-  sessionId: string;
-  expiresAt: string;
-  receiptUrl?: string;
-}
+import { confirmPaymentSession, PaymentInfo } from "../services/paymentService";
 
 type Status = "loading" | "success" | "already-confirmed" | "error";
 
@@ -32,10 +23,7 @@ const PaymentSuccess = () => {
 
     const confirmPayment = async () => {
       try {
-        const res = await userAxios.get(
-          `/api/stripe/confirm-session/${sessionId}`
-        );
-        const { message, data } = res.data;
+        const { message, data } = await confirmPaymentSession(sessionId);
 
         if (message === "Payment already confirmed") {
           setStatus("already-confirmed");

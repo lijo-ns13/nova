@@ -1,0 +1,22 @@
+export const predefinedRejectionReasons = [
+  "Incomplete documentation provided",
+  "Documents are not clear or legible",
+  "Information provided is invalid or inaccurate",
+  "Documents appear to be tampered with or fake",
+  "Mismatched information across documents",
+  "Expired or outdated documentation",
+  "Business registration details are missing or incorrect",
+  "Unable to verify company identity",
+  "Insufficient proof of address or ownership",
+  "Supporting documents do not meet the required criteria",
+  "Company appears to be inactive or dissolved",
+  "Industry type does not align with submitted documents",
+  "Duplicate registration attempt detected",
+  "Failed to meet minimum compliance requirements",
+  "Suspicious activity or potential fraud detected",
+  "Contact details are invalid or unreachable",
+
+  "Mismatch between uploaded documents and form entries",
+  "Unauthorized representative submitted the application",
+  "Unverified or unverifiable tax/business registration numbers",
+];

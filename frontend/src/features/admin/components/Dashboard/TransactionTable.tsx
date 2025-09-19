@@ -60,8 +60,8 @@ export const TransactionsTable = () => {
             <tbody>
               {transactions.map((t) => (
                 <tr key={t.id}>
-                  <td className="px-4 py-2 border">{t.user}</td>
-                  <td className="px-4 py-2 border">{t.plan}</td>
+                  <td className="px-4 py-2 border">{t.userId.name}</td>
+                  <td className="px-4 py-2 border">{t.planName}</td>
                   <td className="px-4 py-2 border">
                     {t.amount} {t.currency}
                   </td>

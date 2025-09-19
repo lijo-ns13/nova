@@ -10,7 +10,7 @@ import { store } from "../store/store";
 import toast from "react-hot-toast";
 
 // Backend base URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1`;
 
 // Create universal Axios instance
 const apiAxios: AxiosInstance = axios.create({

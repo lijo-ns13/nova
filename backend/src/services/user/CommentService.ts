@@ -9,16 +9,32 @@ import {
   UpdateCommentDTO,
 } from "../../core/dtos/user/post/comment.dto";
 import { ICommentService } from "../../interfaces/services/Post/ICommentService";
+import { NotificationType } from "../../constants/notification.type.constant";
+import { IPostRepository } from "../../interfaces/repositories/IPostRepository";
+import logger from "../../utils/logger";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 
 @injectable()
 export class CommentService implements ICommentService {
+  private logger = logger.child({ service: "AdminAuthService" });
   constructor(
     @inject(TYPES.CommentRepository) private _commentRepo: ICommentRepository,
+    @inject(TYPES.PostRepository) private _postRepo: IPostRepository,
     @inject(TYPES.NotificationService)
-    private notificationService: INotificationService
+    private _notificationService: INotificationService
   ) {}
   async createComment(input: CreateCommentDTO): Promise<CommentResponseDTO> {
     const comment = await this._commentRepo.createComment(input);
+    const post = await this._postRepo.findById(input.postId);
+    if (!post) {
+      throw new Error("post not found");
+    }
+    await this._notificationService.sendNotification(
+      post?.creatorId.toString(),
+      `${input.authorName} Commented on your post`,
+      NotificationType.LIKE,
+      input.authorId.toString()
+    );
     return CommentMapper.toDTO(comment);
   }
 

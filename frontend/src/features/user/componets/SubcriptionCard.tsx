@@ -4,10 +4,9 @@ import { format, differenceInDays, isBefore } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
 import { Calendar, CheckCircle2, AlertCircle } from "lucide-react";
-import toast from "react-hot-toast";
-import userAxios from "../../../utils/userAxios";
 import Button from "./ui/Button";
 import { useAppSelector } from "../../../hooks/useAppSelector";
+import apiAxios from "../../../utils/apiAxios";
 
 interface Subscription {
   name: string;
@@ -33,7 +32,7 @@ export default function CurrentSubscriptionCard() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await userAxios.get("/subfeat/usersub");
+        const res = await apiAxios.get("/subfeat/usersub");
         console.log("resy sub", res);
         if (res.data?.data?.subcription) {
           setData(res.data.data);
