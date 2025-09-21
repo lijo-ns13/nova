@@ -1,10 +1,9 @@
-// src/routes/userFollowRoutes.ts
-
 import { Router } from "express";
 import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 import container from "../../di/container";
 import { TYPES } from "../../di/types";
 import { IUserFollowController } from "../../interfaces/controllers/IUserFollowController";
+import { USER_FOLLOW_ROUTES } from "../../constants/routes/userRoutes";
 
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 const userFollowController = container.get<IUserFollowController>(
@@ -13,35 +12,30 @@ const userFollowController = container.get<IUserFollowController>(
 
 const router = Router();
 
-// Apply authentication middleware to all routes
 router.use(authMiddleware.authenticate("user"));
 router.use(authMiddleware.check());
 
-router.get("/network-users", (req, res) =>
+router.get(USER_FOLLOW_ROUTES.NETWORK_USERS, (req, res) =>
   userFollowController.getNetworkUsers(req, res)
 );
-// Follow a user
-router.post("/:userId/follow", (req, res) =>
+
+router.post(USER_FOLLOW_ROUTES.FOLLOW, (req, res) =>
   userFollowController.followUser(req, res)
 );
 
-// Unfollow a user
-router.post("/:userId/unfollow", (req, res) =>
+router.post(USER_FOLLOW_ROUTES.UNFOLLOW, (req, res) =>
   userFollowController.unfollowUser(req, res)
 );
 
-// Get a user's followers
-router.get("/:userId/followers", (req, res) =>
+router.get(USER_FOLLOW_ROUTES.FOLLOWERS, (req, res) =>
   userFollowController.getFollowers(req, res)
 );
 
-// Get users a user is following
-router.get("/:userId/following", (req, res) =>
+router.get(USER_FOLLOW_ROUTES.FOLLOWING, (req, res) =>
   userFollowController.getFollowing(req, res)
 );
 
-// Check if current user is following another user
-router.get("/:userId/follow-status", (req, res) =>
+router.get(USER_FOLLOW_ROUTES.FOLLOW_STATUS, (req, res) =>
   userFollowController.checkFollowStatus(req, res)
 );
 

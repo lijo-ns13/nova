@@ -41,7 +41,7 @@ export class CompanyProfileController implements ICompanyProfileController {
       const profile = await this._companyProfileService.getCompanyProfile(
         companyId
       );
-      res.status(200).json({ success: true, data: profile });
+      res.status(HTTP_STATUS_CODES.OK).json({ success: true, data: profile });
     } catch (err) {
       console.log("error", err);
       res
@@ -60,7 +60,7 @@ export class CompanyProfileController implements ICompanyProfileController {
         await this._companyProfileService.getCompanyProfileWithDetails(
           companyId
         );
-      res.status(200).json({ success: true, data: profile });
+      res.status(HTTP_STATUS_CODES.OK).json({ success: true, data: profile });
     } catch (err) {
       console.log("error", err);
       res
@@ -80,7 +80,7 @@ export class CompanyProfileController implements ICompanyProfileController {
         companyId,
         validatedData
       );
-      res.status(200).json({ success: true, data: updated });
+      res.status(HTTP_STATUS_CODES.OK).json({ success: true, data: updated });
     } catch (err) {
       if (err instanceof ZodError) {
         res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
@@ -105,7 +105,7 @@ export class CompanyProfileController implements ICompanyProfileController {
         companyId,
         validatedData.imageUrl
       );
-      res.status(200).json({ success: true, data: updated });
+      res.status(HTTP_STATUS_CODES.OK).json({ success: true, data: updated });
     } catch (err) {
       if (err instanceof ZodError) {
         res.status(HTTP_STATUS_CODES.BAD_REQUEST).json({
@@ -124,7 +124,7 @@ export class CompanyProfileController implements ICompanyProfileController {
     try {
       const companyId = (req.user as AuthenticatedUser)?.id;
       await this._companyProfileService.deleteProfileImage(companyId);
-      res.status(200).json({ success: true, message: "Profile image removed" });
+      res.status(HTTP_STATUS_CODES.OK).json({ success: true, message: "Profile image removed" });
     } catch (err) {
       console.log("error", err);
       res
@@ -145,7 +145,7 @@ export class CompanyProfileController implements ICompanyProfileController {
         validatedData.confirmPassword
       );
       res
-        .status(200)
+        .status(HTTP_STATUS_CODES.OK)
         .json({ success: true, message: "Password changed successfully" });
     } catch (err) {
       if (err instanceof ZodError) {

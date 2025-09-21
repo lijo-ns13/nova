@@ -18,8 +18,8 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import socket from "../../../socket/socket";
-import userAxios from "../../../utils/userAxios";
 import { setUnreadCount } from "../../../store/slice/notificationSlice";
+import apiAxios from "../../../utils/apiAxios";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,9 +35,10 @@ const Navbar = () => {
 
   const fetchUnreadCountFn = async () => {
     try {
-      const res = await userAxios.get("/notification/unread-count", {
+      const res = await apiAxios.get("/notification/unread-count", {
         withCredentials: true,
       });
+      console.log("feathunreadcountfn", res);
       dispatch(setUnreadCount(res.data.count));
     } catch (error) {
       console.error("Error fetching unread count:", error);
@@ -222,16 +223,16 @@ const Navbar = () => {
                 <div className="flex items-center">
                   {profilePicture ? (
                     <img
-                      src={profilePicture||"/default.png"}
+                      src={profilePicture || "/default.png"}
                       alt={name || "User"}
                       className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
                     />
+                  ) : (
                     // <SecureCloudinaryImage
                     //   publicId={profilePicture}
                     //   alt={"user"}
                     //   className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
                     // />
-                  ) : (
                     <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 font-semibold">
                       {getInitials(name || "")}
                     </div>

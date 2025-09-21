@@ -6,11 +6,12 @@ import { TYPES } from "../../di/types";
 import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 import multer from "multer";
+import { USER_JOB_ROUTES } from "../../constants/routes/userRoutes";
 
-const storage = multer.memoryStorage(); // Suitable for cloud uploads like S3
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-export const uploadMedia = upload.single("resume"); // 'media' should match your form field name
+export const uploadMedia = upload.single("resume");
 
 const jobController = container.get<IUserJobController>(
   TYPES.UserJobController
@@ -19,18 +20,14 @@ const jobController = container.get<IUserJobController>(
 const router = Router();
 router.use(authMiddleware.authenticate("user"));
 router.use(authMiddleware.check());
-// Get all jobs
-router.get("/jobs", jobController.getAllJobs);
-// Get all jobs the user has applied to
-router.get("/jobs/applied-jobs", jobController.getAppliedJobs);
 
-// Get a specific job by ID
-router.get("/jobs/:jobId", jobController.getJob);
+router.get(USER_JOB_ROUTES.ROOT, jobController.getAllJobs);
+router.get(USER_JOB_ROUTES.APPLIED_JOBS, jobController.getAppliedJobs);
+router.get(USER_JOB_ROUTES.JOB_DETAIL, jobController.getJob);
 router.get(
-  "/jobs/:jobId/check-application",
+  USER_JOB_ROUTES.CHECK_APPLICATION,
   jobController.checkApplicationStatus
 );
-// Apply to a job
-router.post("/jobs/:jobId/apply", uploadMedia, jobController.applyToJob);
+router.post(USER_JOB_ROUTES.APPLY, uploadMedia, jobController.applyToJob);
 
 export default router;

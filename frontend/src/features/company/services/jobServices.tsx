@@ -115,7 +115,7 @@ export type PaginationMeta = {
   totalPages: number;
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1`;
 const BASE_URL = `${API_BASE_URL}/company/job`;
 export const JobService = {
   async createJob(data: CreateJobInput): Promise<JobResponseDto> {

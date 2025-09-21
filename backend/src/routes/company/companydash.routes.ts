@@ -13,16 +13,19 @@
 
 import express from "express";
 
-import container from "../di/container";
-import { TYPES } from "../di/types";
-import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
+import container from "../../di/container";
+import { TYPES } from "../../di/types";
+import { ICompanyDashboardController } from "../../interfaces/controllers/ICompanyDashboardController";
+import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
+import { COMMON_ROUTES } from "../../constants/routes/commonRoutes";
 const CompanyDashboardController = container.get<ICompanyDashboardController>(
   TYPES.CompanyDashboardController
 );
+const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const router = express.Router();
-
-router.get("/stats", (req, res) =>
+router.use(authMiddleware.authenticate("company"));
+router.get(COMMON_ROUTES.STATS, (req, res) =>
   CompanyDashboardController.getCompanyDashboardStats(req, res)
 );
 

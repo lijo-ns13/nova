@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { BaseRepository } from "./BaseRepository";
-import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
+import { IApplicationRepository } from "../../interfaces/repositories/IUserApplicationRepository";
 import mongoose, { Model, PipelineStage, Types } from "mongoose";
 import { TYPES } from "../../di/types";
 import { MongoServerError } from "mongodb";

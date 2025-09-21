@@ -1,6 +1,6 @@
 import { inject } from "inversify";
 import { TYPES } from "../../di/types";
-import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
+import { IApplicationRepository } from "../../interfaces/repositories/IUserApplicationRepository";
 import { v4 as uuidv4 } from "uuid";
 import { ICompanyInterviewService } from "../../interfaces/services/ICompanyInterviewService";
 import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRepository";

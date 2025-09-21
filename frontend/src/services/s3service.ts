@@ -1,5 +1,6 @@
 // services/mediaService.ts
-import userAxios from "../utils/userAxios";
+
+import apiAxios from "../utils/apiAxios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const MEDIA_URL = `${API_BASE_URL}`; // Adjust if base path changes
@@ -12,7 +13,7 @@ export interface MediaResponse {
 class MediaService {
   async getSignedMediaUrl(s3key: string): Promise<MediaResponse> {
     try {
-      const res = await userAxios.get<MediaResponse>(
+      const res = await apiAxios.get<MediaResponse>(
         `${MEDIA_URL}/media/view/${s3key}`,
         { withCredentials: true }
       );

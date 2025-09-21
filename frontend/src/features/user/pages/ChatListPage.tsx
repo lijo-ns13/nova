@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../../hooks/useAppSelector";
-import userAxios from "../../../utils/userAxios";
+
 import { formatDistanceToNow } from "date-fns";
 import Navbar from "../componets/NavBar";
 import { Search, MoreVertical, MessageSquare, ArrowLeft } from "lucide-react";
+import apiAxios from "../../../utils/apiAxios";
 
 const ChatListPage = () => {
   const { id: userId } = useAppSelector((state) => state.auth);
@@ -17,7 +18,7 @@ const ChatListPage = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await userAxios.get(
+        const res = await apiAxios.get(
           `${import.meta.env.VITE_API_BASE_URL}/api/chat/users/${userId}`,
           { withCredentials: true }
         );

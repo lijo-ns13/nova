@@ -88,8 +88,18 @@ function SignInPage() {
         })
       );
 
+      // if (!socket.connected) {
+      //   socket.connect();
+      //   socket.emit("login", user.id);
+      // }
       if (!socket.connected) {
         socket.connect();
+
+        socket.on("connect", () => {
+          console.log("Socket connected with id:", socket.id);
+          socket.emit("login", user.id); // <-- now socket.id is valid
+        });
+      } else {
         socket.emit("login", user.id);
       }
 

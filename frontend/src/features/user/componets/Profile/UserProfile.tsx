@@ -112,8 +112,8 @@ function UserProfile() {
         setIsEditModalOpen(false);
         dispatch(
           updateSlice({
-            name: userData.name,
-            headline: userData.headline,
+            name: updatingUserData.name,
+            headline: updatingUserData.headline,
           })
         );
       }

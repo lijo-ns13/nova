@@ -5,9 +5,8 @@ import toast from "react-hot-toast";
 import { setUnreadCount } from "../../../store/slice/notificationSlice";
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "../../../hooks/useAppDispatch";
-import companyAxios from "../../../utils/companyAxios";
-import { Menu, X } from "lucide-react"; // Icons for mobile toggle
-
+import { Menu, X } from "lucide-react";
+import { getUnreadNotificationCount } from "../services/notificationService";
 const Sidebar = () => {
   const dispatch = useAppDispatch();
   const { unreadCount } = useAppSelector((state) => state.notification);
@@ -15,17 +14,10 @@ const Sidebar = () => {
 
   const location = useLocation();
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const BASE_URL = `${API_BASE_URL}`;
-
   const fetchUnreadCountFn = async () => {
-    const res = await companyAxios.get(
-      `${BASE_URL}/notification/unread-count`,
-      {
-        withCredentials: true,
-      }
-    );
-    dispatch(setUnreadCount(res.data.count));
+    const res = await getUnreadNotificationCount();
+
+    dispatch(setUnreadCount(res));
     return res;
   };
 

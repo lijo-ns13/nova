@@ -1,5 +1,5 @@
-import userAxios from "../utils/userAxios";
 import axios from "axios";
+import apiAxios from "../utils/apiAxios";
 
 export interface CreateCheckoutSessionInput {
   userId: string;
@@ -36,7 +36,7 @@ export const createCheckoutSession = async (
   };
 
   try {
-    const response = await userAxios.post<CreateCheckoutSessionSuccessResponse>(
+    const response = await apiAxios.post<CreateCheckoutSessionSuccessResponse>(
       `${import.meta.env.VITE_API_BASE_URL}/api/stripe/create-checkout-session`,
       payload
     );
@@ -51,9 +51,10 @@ export const createCheckoutSession = async (
     }
 
     return {
-      error: error instanceof Error
-        ? error.message
-        : "Something went wrong while creating checkout session.",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Something went wrong while creating checkout session.",
     };
   }
 };

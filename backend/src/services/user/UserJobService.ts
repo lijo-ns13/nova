@@ -3,7 +3,7 @@ import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { IUserJobService } from "../../interfaces/services/IUserJobService";
 import { TYPES } from "../../di/types";
 import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
-import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
+import { IApplicationRepository } from "../../interfaces/repositories/IUserApplicationRepository";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { GetAllJobsQueryInput } from "../../core/validations/user/user.jobschema";

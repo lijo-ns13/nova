@@ -3,6 +3,7 @@ import { IUserSkillController } from "../../interfaces/controllers/IUserSkillCon
 import { TYPES } from "../../di/types";
 import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 import container from "../../di/container";
+import { COMMON_ROUTES } from "../../constants/routes/commonRoutes";
 
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
@@ -14,9 +15,15 @@ const router = Router();
 router.use(authMiddleware.authenticate("user"));
 router.use(authMiddleware.check());
 
-router.get("/user", skillController.getUserSkills.bind(skillController));
-router.post("/", skillController.addSkill.bind(skillController));
+router.get(
+  COMMON_ROUTES.USER,
+  skillController.getUserSkills.bind(skillController)
+);
+router.post(COMMON_ROUTES.ROOT, skillController.addSkill.bind(skillController));
 
-router.delete("/:skillId", skillController.removeSkill.bind(skillController));
+router.delete(
+  COMMON_ROUTES.SKILL_BY_ID,
+  skillController.removeSkill.bind(skillController)
+);
 
 export default router;

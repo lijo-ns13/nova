@@ -145,4 +145,11 @@ export const TYPES = {
   // SubscriptionPlanRepository: Symbol.for("SubscriptionPlanRepository"),
   StripeService: Symbol.for("StripeService"),
   StripeController: Symbol.for("StripeController"),
+  // chat
+  MessageRepository: Symbol.for("MessageRepository"),
+  UserChatService: Symbol.for("UserChatService"),
+  UserChatController: Symbol.for("UserChatController"),
+  MessageModel: Symbol.for("MessageModel"),
+  MessageService: Symbol("MessageService"),
+  MessageController: Symbol("MessageController"),
 };

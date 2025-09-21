@@ -1,6 +1,6 @@
 import { handleApiError } from "../../../utils/apiError";
 import apiAxios from "../../../utils/apiAxios";
-const BASE_PATH = "/api/admin/analytics";
+const BASE_PATH = "/admin/analytics";
 
 export interface UserGrowthDTO {
   month: string;
@@ -92,8 +92,11 @@ export const getUserStats = async (): Promise<UserStats> => {
 // Transaction DTO
 export interface Transaction {
   id: string;
-  user: string;
-  plan: string;
+  userId: {
+    id: string;
+    name: string;
+  };
+  planName: string;
   amount: number;
   date: string;
   currency: string;

@@ -1,6 +1,6 @@
 import apiAxios from "../../../utils/apiAxios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1`;
 const BASE_URL = `${API_BASE_URL}/company/applicant`;
 
 export interface ApplicantUser {

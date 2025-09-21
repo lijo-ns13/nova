@@ -4,6 +4,7 @@ import { TYPES } from "../../di/types";
 import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 import container from "../../di/container";
 import { ISubscriptionWithFeaturesController } from "../../interfaces/controllers/ISubscriptionWithFeatures";
+import { COMMON_ROUTES } from "../../constants/routes/commonRoutes";
 
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
@@ -16,11 +17,10 @@ const router = Router();
 router.use(authMiddleware.authenticate("user"));
 router.use(authMiddleware.check());
 
-// Get all skills for the authenticated user
-router.get("/", (req, res) =>
+router.get(COMMON_ROUTES.ROOT, (req, res) =>
   subWithFeatController.getActiveSubscriptionsWithFeatures(req, res)
 );
-router.get("/usersub", (req, res) =>
+router.get(COMMON_ROUTES.USERSUB, (req, res) =>
   subWithFeatController.userCurrentSubscription(req, res)
 );
 

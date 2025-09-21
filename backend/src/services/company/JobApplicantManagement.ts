@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../di/types";
-import { IApplicationRepository } from "../../interfaces/repositories/IApplicationRepository";
+import { IApplicationRepository } from "../../interfaces/repositories/IUserApplicationRepository";
 import { IJobApplicantManagementService } from "../../interfaces/services/IJobApplicantManagement";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { INotificationService } from "../../interfaces/services/INotificationService";
