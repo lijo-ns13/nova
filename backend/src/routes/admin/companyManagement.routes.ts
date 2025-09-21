@@ -4,6 +4,7 @@ import { TYPES } from "../../di/types";
 import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 import { IAdminCompanyManagementController } from "../../interfaces/controllers/IAdminCompanyManagementController";
 import { ADMIN_COMPANY_ROUTES } from "../../constants/routes/adminRoutes";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const AdminCompanyManagerController =
@@ -21,7 +22,7 @@ router.get(
   ADMIN_COMPANY_ROUTES.UNVERIFIED,
   AdminCompanyManagerController.getUnverifiedCompaniesHandler
 );
-router.use(authMiddleware.authenticate("admin"));
+router.use(authMiddleware.authenticate(AUTH_ROLES.ADMIN));
 
 router.get(
   ADMIN_COMPANY_ROUTES.BY_ID,

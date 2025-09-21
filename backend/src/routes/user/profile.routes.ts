@@ -5,6 +5,7 @@ import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 import { IUserProfileController } from "../../interfaces/controllers/IUserProfileController";
 import multer from "multer";
 import { USER_PROFILE_ROUTES } from "../../constants/routes/userRoutes";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 
 const storage = multer.memoryStorage(); // Suitable for cloud uploads like S3
 const upload = multer({ storage });
@@ -18,7 +19,7 @@ const userProfileController = container.get<IUserProfileController>(
 );
 
 const router = Router();
-router.use(authMiddleware.authenticate("user"));
+router.use(authMiddleware.authenticate(AUTH_ROLES.USER));
 router.use(authMiddleware.check());
 router.patch(USER_PROFILE_ROUTES.CHANGE_PASSWORD, (req, res) =>
   userProfileController.changePassword(req, res)

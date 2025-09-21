@@ -5,6 +5,7 @@ import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 
 import { IAdminUserManagementController } from "../../interfaces/controllers/IAdminUserManagementController ";
 import { ADMIN_USER_ROUTES } from "../../constants/routes/adminRoutes";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const AdminUserManagerController =
@@ -13,7 +14,7 @@ const AdminUserManagerController =
   );
 
 const router = Router();
-router.use(authMiddleware.authenticate("admin"));
+router.use(authMiddleware.authenticate(AUTH_ROLES.ADMIN));
 
 // ==== User Management Routes ====
 router.patch(ADMIN_USER_ROUTES.BLOCK, AdminUserManagerController.blockUser);

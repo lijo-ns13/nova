@@ -14,3 +14,10 @@ export const JOB_APPLICANT_ROUTES = {
   BY_ID: "/:applicationId",
   STATUS: "/:applicationId/status",
 };
+export const COMPANY_ROUTES = {
+  JOB: "/job",
+  PROFILE: "/profile",
+  INTERVIEW: "/interview",
+  APPLICANT: "/applicant",
+  DASHBOARD: "/", // default dashboard
+} as const;

@@ -7,6 +7,7 @@ import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 import multer from "multer";
 import { USER_JOB_ROUTES } from "../../constants/routes/userRoutes";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -18,7 +19,7 @@ const jobController = container.get<IUserJobController>(
 );
 
 const router = Router();
-router.use(authMiddleware.authenticate("user"));
+router.use(authMiddleware.authenticate(AUTH_ROLES.USER));
 router.use(authMiddleware.check());
 
 router.get(USER_JOB_ROUTES.ROOT, jobController.getAllJobs);

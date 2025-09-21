@@ -48,3 +48,13 @@ export const USER_PROFILE_ROUTES = {
   CERTIFICATE_ID: "/certificate/:certificateId",
   CERTIFICATES: "/certificates",
 } as const;
+
+export const USER_ROUTES = {
+  JOB: "/",
+  PROFILE: "/user-profile",
+  POST: "/post",
+  INTERVIEW: "/",
+  USER_SKILLS: "/userskills",
+  USERS: "/users",
+  SUBSCRIPTION_FEATURE: "/subfeat",
+} as const;

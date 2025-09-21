@@ -4,6 +4,7 @@ import { TYPES } from "../../di/types";
 import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 import { IAdminSkillController } from "../../interfaces/controllers/IAdminSkillController";
 import { COMMON_ROUTES } from "../../constants/routes/commonRoutes";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
@@ -12,7 +13,7 @@ const skillController = container.get<IAdminSkillController>(
 );
 
 const router = Router();
-router.use(authMiddleware.authenticate("admin"));
+router.use(authMiddleware.authenticate(AUTH_ROLES.ADMIN));
 
 router.post(COMMON_ROUTES.ROOT, (req, res, next) =>
   skillController.createSkill(req, res, next)

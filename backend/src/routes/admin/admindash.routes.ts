@@ -5,13 +5,14 @@ import { IAdminDashboardController } from "../../interfaces/controllers/IAdminDa
 import { TYPES } from "../../di/types";
 import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 import { ADMIN_DASHBOARD_ROUTES } from "../../constants/routes/adminRoutes";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 const AdminDashController = container.get<IAdminDashboardController>(
   TYPES.AdminDashboardController
 );
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const router = express.Router();
-router.use(authMiddleware.authenticate("admin"));
+router.use(authMiddleware.authenticate(AUTH_ROLES.ADMIN));
 router.get(ADMIN_DASHBOARD_ROUTES.REVENUE_STATS, (req, res) =>
   AdminDashController.getRevenueStats(req, res)
 );

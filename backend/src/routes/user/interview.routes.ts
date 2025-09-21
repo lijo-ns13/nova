@@ -4,6 +4,7 @@ import { TYPES } from "../../di/types";
 import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 import { IUserInterviewController } from "../../interfaces/controllers/IUserInterviewController";
 import { USER_INTERVIEW_ROUTES } from "../../constants/routes/userRoutes";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
 const interviewController = container.get<IUserInterviewController>(
@@ -11,7 +12,7 @@ const interviewController = container.get<IUserInterviewController>(
 );
 
 const router = Router();
-router.use(authMiddleware.authenticate("user"));
+router.use(authMiddleware.authenticate(AUTH_ROLES.USER));
 router.use(authMiddleware.check());
 
 router.patch(USER_INTERVIEW_ROUTES.UPDATE_STATUS, (req, res, next) =>
