@@ -38,15 +38,15 @@ export interface AppliedJobDTO {
 export class UserJobService implements IUserJobService {
   constructor(
     @inject(TYPES.JobRepository)
-    private _jobRepository: IJobRepository,
+    private readonly _jobRepository: IJobRepository,
     @inject(TYPES.UserRepository)
-    private _userRepository: IUserRepository,
+    private readonly _userRepository: IUserRepository,
     @inject(TYPES.ApplicationRepository)
-    private _applicationRepo: IApplicationRepository,
+    private readonly _applicationRepo: IApplicationRepository,
     @inject(TYPES.MediaService)
-    private _mediaService: IMediaService,
+    private readonly _mediaService: IMediaService,
     @inject(TYPES.NotificationService)
-    private notificationService: INotificationService
+    private readonly notificationService: INotificationService
   ) {}
 
   async getAllJobs(

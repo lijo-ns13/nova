@@ -14,7 +14,7 @@ import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.i
 export class UserSkillController {
   constructor(
     @inject(TYPES.UserSkillService)
-    private _skillService: IUserSkillService
+    private readonly _skillService: IUserSkillService
   ) {}
 
   async addSkill(req: Request, res: Response): Promise<void> {

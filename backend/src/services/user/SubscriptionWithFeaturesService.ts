@@ -12,12 +12,13 @@ export class SubscriptionWithFeaturesService
   implements ISubscriptionWithFeaturesService
 {
   constructor(
-    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
-    @inject(TYPES.FeatureRepository) private _featRepo: IFeatureRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepo: IUserRepository,
+    @inject(TYPES.FeatureRepository)
+    private readonly _featRepo: IFeatureRepository,
     @inject(TYPES.SubscriptionPlanRepository)
-    private _subRepo: ISubscriptionPlanRepository,
+    private readonly _subRepo: ISubscriptionPlanRepository,
     @inject(TYPES.SubscriptionWithFeaturesRepository)
-    private _subWithFeatRepo: ISubscriptionWithFeaturesRepository
+    private readonly _subWithFeatRepo: ISubscriptionWithFeaturesRepository
   ) {}
   async getUserCurrentSubscription(
     userId: string

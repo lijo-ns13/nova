@@ -18,10 +18,11 @@ import { COMMON_MESSAGES } from "../../constants/message.constants";
 export class CommentService implements ICommentService {
   private logger = logger.child({ service: "AdminAuthService" });
   constructor(
-    @inject(TYPES.CommentRepository) private _commentRepo: ICommentRepository,
-    @inject(TYPES.PostRepository) private _postRepo: IPostRepository,
+    @inject(TYPES.CommentRepository)
+    private readonly _commentRepo: ICommentRepository,
+    @inject(TYPES.PostRepository) private readonly _postRepo: IPostRepository,
     @inject(TYPES.NotificationService)
-    private _notificationService: INotificationService
+    private readonly _notificationService: INotificationService
   ) {}
   async createComment(input: CreateCommentDTO): Promise<CommentResponseDTO> {
     const comment = await this._commentRepo.createComment(input);

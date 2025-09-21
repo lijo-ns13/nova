@@ -34,7 +34,7 @@ export class UserProfileController implements IUserProfileController {
   constructor(
     @inject(TYPES.UserProfileService)
     private _userProfileService: IUserProfileService,
-    @inject(TYPES.MediaService) private _mediaService: IMediaService
+    @inject(TYPES.MediaService) private readonly _mediaService: IMediaService
   ) {}
   async getUserProfile(req: Request, res: Response) {
     try {

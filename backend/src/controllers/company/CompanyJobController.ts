@@ -34,8 +34,9 @@ const rejectApplicationBodySchema = z.object({
 
 export class CompanyJobController implements ICompanyJobController {
   constructor(
-    @inject(TYPES.CompanyJobService) private _jobService: ICompanyJobService,
-    @inject(TYPES.SkillService) private _skillService: ISkillService
+    @inject(TYPES.CompanyJobService)
+    private readonly _jobService: ICompanyJobService,
+    @inject(TYPES.SkillService) private readonly _skillService: ISkillService
   ) {}
   createJob: RequestHandler = async (req: Request, res: Response) => {
     try {

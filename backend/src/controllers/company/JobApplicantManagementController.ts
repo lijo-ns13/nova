@@ -16,7 +16,7 @@ export class JobApplicantManagementController
 {
   constructor(
     @inject(TYPES.JobApplicantManagementService)
-    private _jobApplicantManagementService: IJobApplicantManagementService
+    private readonly _jobApplicantManagementService: IJobApplicantManagementService
   ) {}
 
   async getApplicationById(req: Request, res: Response): Promise<void> {

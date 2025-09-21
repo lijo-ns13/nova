@@ -40,19 +40,21 @@ import { NotificationType } from "../../constants/notification.type.constant";
 export class CompanyAuthService implements ICompanyAuthService {
   constructor(
     @inject(TYPES.CompanyRepository)
-    private _companyRepository: ICompanyRepository,
+    private readonly _companyRepository: ICompanyRepository,
     @inject(TYPES.TempCompanyRepository)
-    private _tempCompanyRepository: ITempCompanyRepository,
-    @inject(TYPES.OTPRepository) private _otpRepository: IOTPRepository,
-    @inject(TYPES.EmailService) private _emailService: IEmailService,
+    private readonly _tempCompanyRepository: ITempCompanyRepository,
+    @inject(TYPES.OTPRepository)
+    private readonly _otpRepository: IOTPRepository,
+    @inject(TYPES.EmailService) private readonly _emailService: IEmailService,
     @inject(TYPES.JWTService)
-    private _jwtService: IJWTService,
+    private readonly _jwtService: IJWTService,
     @inject(TYPES.PasswordResetTokenRepository)
-    private _passwordResetTokenRepository: IPasswordResetTokenRepository,
+    private readonly _passwordResetTokenRepository: IPasswordResetTokenRepository,
     @inject(TYPES.NotificationService)
-    private notificationService: INotificationService,
-    @inject(TYPES.AdminRepository) private _adminRepo: IAdminRepository,
-    @inject(TYPES.MediaService) private _mediaService: IMediaService
+    private readonly notificationService: INotificationService,
+    @inject(TYPES.AdminRepository)
+    private readonly _adminRepo: IAdminRepository,
+    @inject(TYPES.MediaService) private readonly _mediaService: IMediaService
   ) {}
 
   async signUp(

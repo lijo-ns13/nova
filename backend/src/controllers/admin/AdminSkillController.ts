@@ -19,7 +19,7 @@ import { SkillMapper } from "../../mapping/admin/admin.skill.mapper";
 export class AdminSkillController implements IAdminSkillController {
   constructor(
     @inject(TYPES.AdminSkillService)
-    private _adminSkillService: IAdminSkillService
+    private readonly _adminSkillService: IAdminSkillService
   ) {}
 
   createSkill = async (req: Request, res: Response) => {

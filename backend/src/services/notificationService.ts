@@ -12,7 +12,7 @@ export class NotificationService implements INotificationService {
   private io?: Server;
   constructor(
     @inject(TYPES.NotificationRepository)
-    private notificationRepository: INotificationRepository
+    private readonly notificationRepository: INotificationRepository
   ) {}
   public setSocketIO(io: Server) {
     this.io = io;

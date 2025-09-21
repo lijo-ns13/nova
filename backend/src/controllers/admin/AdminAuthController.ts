@@ -15,7 +15,8 @@ import { AdminAuthMapper } from "../../mapping/admin/admin.auth.mapper";
 @injectable()
 export class AdminAuthController implements IAdminAuthController {
   constructor(
-    @inject(TYPES.AdminAuthService) private _authService: IAdminAuthService
+    @inject(TYPES.AdminAuthService)
+    private readonly _authService: IAdminAuthService
   ) {}
   async signIn(req: Request, res: Response): Promise<void> {
     try {

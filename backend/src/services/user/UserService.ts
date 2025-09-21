@@ -7,7 +7,7 @@ import { IUser } from "../../repositories/entities/user.entity";
 export class UserService implements IUserService {
   constructor(
     @inject(TYPES.UserRepository)
-    private _userRepo: IUserRepository
+    private readonly _userRepo: IUserRepository
   ) {}
   async getUserData(userId: string): Promise<IUser | null> {
     return await this._userRepo.findById(userId);

@@ -15,9 +15,9 @@ import { MediaUrlDTO } from "./MediaService";
 export class PostService {
   private logger = logger.child({ context: "userpostservice" });
   constructor(
-    @inject(TYPES.PostRepository) private _postRepo: IPostRepository,
-    @inject(TYPES.MediaService) private _mediaService: IMediaService,
-    @inject(TYPES.UserRepository) private _userRepo: IUserRepository
+    @inject(TYPES.PostRepository) private readonly _postRepo: IPostRepository,
+    @inject(TYPES.MediaService) private readonly _mediaService: IMediaService,
+    @inject(TYPES.UserRepository) private readonly _userRepo: IUserRepository
   ) {}
 
   private async resolveCreatorDTO(creatorId: string): Promise<CreatorDTO> {

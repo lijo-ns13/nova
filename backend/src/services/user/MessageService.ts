@@ -8,7 +8,8 @@ import { IMessageService } from "../../interfaces/services/IMessageService";
 @injectable()
 export class MessageService implements IMessageService {
   constructor(
-    @inject(TYPES.MessageRepository) private _messageRepo: IMessageRepository
+    @inject(TYPES.MessageRepository)
+    private readonly _messageRepo: IMessageRepository
   ) {}
 
   async getConversation(

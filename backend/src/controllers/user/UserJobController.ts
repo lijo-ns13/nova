@@ -17,7 +17,7 @@ import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.i
 @injectable()
 export class UserJobController implements IUserJobController {
   constructor(
-    @inject(TYPES.UserJobService) private _jobService: IUserJobService
+    @inject(TYPES.UserJobService) private readonly _jobService: IUserJobService
   ) {}
   getAllJobs: RequestHandler = async (req: Request, res: Response) => {
     try {

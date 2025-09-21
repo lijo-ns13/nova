@@ -6,7 +6,7 @@ import { ICompany } from "../../repositories/entities/company.entity";
 export class CompanyService implements ICompanyService {
   constructor(
     @inject(TYPES.CompanyRepository)
-    private _companyRepo: ICompanyRepository
+    private readonly _companyRepo: ICompanyRepository
   ) {}
   async getCompanyData(companyId: string): Promise<ICompany | null> {
     return await this._companyRepo.findById(companyId);

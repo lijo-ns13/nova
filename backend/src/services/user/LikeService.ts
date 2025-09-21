@@ -16,12 +16,12 @@ import { NotificationType } from "../../constants/notification.type.constant";
 @injectable()
 export class LikeService implements ILikeService {
   constructor(
-    @inject(TYPES.LikeRepository) private _likeRepo: ILikeRepository,
+    @inject(TYPES.LikeRepository) private readonly _likeRepo: ILikeRepository,
     @inject(TYPES.NotificationService)
     private notificationService: INotificationService,
-    @inject(TYPES.PostRepository) private _postRepo: IPostRepository,
-    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
-    @inject(TYPES.MediaService) private _mediaService: IMediaService
+    @inject(TYPES.PostRepository) private readonly _postRepo: IPostRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepo: IUserRepository,
+    @inject(TYPES.MediaService) private readonly _mediaService: IMediaService
   ) {}
 
   async likeOrUnlikePost(

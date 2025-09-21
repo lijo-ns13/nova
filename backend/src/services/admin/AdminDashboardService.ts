@@ -38,7 +38,8 @@ export class AdminDashboardService implements IAdminDashboardService {
   constructor(
     @inject(TYPES.TransactionRepository)
     private readonly _transactionRepository: ITransactionRepository,
-    @inject(TYPES.UserRepository) private _userRepository: IUserRepository
+    @inject(TYPES.UserRepository)
+    private readonly _userRepository: IUserRepository
   ) {}
 
   async getRevenueStats(

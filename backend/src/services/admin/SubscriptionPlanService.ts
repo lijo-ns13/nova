@@ -27,9 +27,9 @@ export class SubscriptionPlanService implements ISubscriptionPlanService {
 
   constructor(
     @inject(TYPES.SubscriptionPlanRepository)
-    private _subscriptionPlanRepository: ISubscriptionPlanRepository,
+    private readonly _subscriptionPlanRepository: ISubscriptionPlanRepository,
     @inject(TYPES.TransactionRepository)
-    private _transactionRepo: ITransactionRepository
+    private readonly _transactionRepo: ITransactionRepository
   ) {}
   async getFilteredTransactions(
     filter: TransactionFilterInput

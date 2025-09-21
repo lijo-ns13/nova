@@ -17,9 +17,10 @@ import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.i
 @injectable()
 export class PostController implements IPostController {
   constructor(
-    @inject(TYPES.PostService) private _postService: IPostService,
-    @inject(TYPES.LikeService) private _likeService: ILikeService,
-    @inject(TYPES.CommentService) private _commentService: ICommentService
+    @inject(TYPES.PostService) private readonly _postService: IPostService,
+    @inject(TYPES.LikeService) private readonly _likeService: ILikeService,
+    @inject(TYPES.CommentService)
+    private readonly _commentService: ICommentService
   ) {}
 
   async create(req: Request, res: Response) {

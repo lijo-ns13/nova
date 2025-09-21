@@ -16,8 +16,8 @@ export class AdminUserManagementService implements IAdminUserManagementService {
 
   constructor(
     @inject(TYPES.UserRepository)
-    private _userRepository: IUserRepository,
-    @inject(TYPES.UserMapper) private _userMapper: IUserMapper
+    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.UserMapper) private readonly _userMapper: IUserMapper
   ) {}
 
   async blockUser(userId: string): Promise<UserSummaryDTO> {

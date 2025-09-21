@@ -21,7 +21,7 @@ import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.i
 export class CompanyInterviewController implements ICompanyInterviewController {
   constructor(
     @inject(TYPES.CompanyInterviewService)
-    private _interviewService: ICompanyInterviewService
+    private readonly _interviewService: ICompanyInterviewService
   ) {}
 
   async createInterview(req: Request, res: Response): Promise<void> {

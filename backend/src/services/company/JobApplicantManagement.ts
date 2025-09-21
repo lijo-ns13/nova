@@ -20,13 +20,13 @@ export class JobApplicantManagementService
 {
   constructor(
     @inject(TYPES.ApplicationRepository)
-    private _applicationRepo: IApplicationRepository,
+    private readonly _applicationRepo: IApplicationRepository,
 
     @inject(TYPES.MediaService)
-    private _mediaService: IMediaService,
+    private readonly _mediaService: IMediaService,
     @inject(TYPES.NotificationService)
-    private _notificationService: INotificationService,
-    @inject(TYPES.JobRepository) private _jobRepo: IJobRepository
+    private readonly _notificationService: INotificationService,
+    @inject(TYPES.JobRepository) private readonly _jobRepo: IJobRepository
   ) {}
 
   async getApplicationWithDetails(

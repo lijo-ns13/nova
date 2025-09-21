@@ -23,14 +23,14 @@ export class UserInterviewService implements IUserInterviewService {
   private logger = logger.child({ context: "userinterviewService" });
   constructor(
     @inject(TYPES.ApplicationRepository)
-    private _applicationRepo: IApplicationRepository,
+    private readonly _applicationRepo: IApplicationRepository,
     @inject(TYPES.InterviewRepository)
-    private _interviewRepo: IInterviewRepository,
+    private readonly _interviewRepo: IInterviewRepository,
     @inject(TYPES.NotificationService)
     private notificationService: INotificationService,
-    @inject(TYPES.JobRepository) private _jobRepo: IJobRepository,
-    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
-    @inject(TYPES.EmailService) private _emailService: IEmailService
+    @inject(TYPES.JobRepository) private readonly _jobRepo: IJobRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepo: IUserRepository,
+    @inject(TYPES.EmailService) private readonly _emailService: IEmailService
   ) {}
   async findInterview(applicationId: string, userId: string): Promise<any> {
     return this._interviewRepo.findOne({ applicationId, userId });
