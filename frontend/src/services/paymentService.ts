@@ -18,6 +18,6 @@ export type PaymentResponse =
 export const confirmPaymentSession = async (
   sessionId: string
 ): Promise<PaymentResponse> => {
-  const res = await apiAxios.get(`/api/stripe/confirm-session/${sessionId}`);
+  const res = await apiAxios.get(`/stripe/confirm-session/${sessionId}`);
   return res.data;
 };

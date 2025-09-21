@@ -6,6 +6,7 @@ import interviewRouter from "./interview.routes";
 import followRouter from "./follow.routes";
 import userSkillRouter from "./skill.routes";
 import subWithFeatRouter from "./subWithFeat.routes";
+import stripeRouter from "./transaction.routes";
 import { USER_ROUTES } from "../../constants/routes/userRoutes";
 
 const router = Router();
@@ -17,4 +18,5 @@ router.use(USER_ROUTES.INTERVIEW, interviewRouter);
 router.use(USER_ROUTES.USER_SKILLS, userSkillRouter);
 router.use(USER_ROUTES.USERS, followRouter);
 router.use(USER_ROUTES.SUBSCRIPTION_FEATURE, subWithFeatRouter);
+router.use("/stripe", stripeRouter);
 export default router;

@@ -33,6 +33,7 @@ const RefundPage: React.FC = () => {
       try {
         const data = await getLatestSession(userId);
         setSessionData(data);
+        console.log("sessiondata", sessionData);
       } catch (err: any) {
         setSubmitStatus(
           err?.response?.data?.message ||

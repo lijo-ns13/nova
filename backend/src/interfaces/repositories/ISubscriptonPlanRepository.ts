@@ -3,6 +3,7 @@ import { IBaseRepository } from "./IBaseRepository";
 
 export interface ISubscriptionPlanRepository
   extends IBaseRepository<ISubscriptionPlan> {
+  findSubscriptionByName(name: string): Promise<ISubscriptionPlan | null>;
   create(plan: Partial<ISubscriptionPlan>): Promise<ISubscriptionPlan>;
   update(
     id: string,

@@ -7,6 +7,14 @@ import { TransactionQueryParams } from "../../types/dashboardTypes";
 import { TopPlanDTO, UserGrowthDTO } from "../services/IAdminDashboardService";
 
 export interface ITransactionRepository {
+  findTransactionBySession(sessionId: string): Promise<ITransaction | null>;
+  createTransaction(data: Partial<ITransaction>): Promise<ITransaction>;
+  findByStripeSessionId(sessionId: string): Promise<ITransaction | null>;
+  findLatestTransactionByUser(userId: string): Promise<ITransaction | null>;
+  updateTransaction(
+    transactionId: string,
+    update: Partial<ITransaction>
+  ): Promise<void>;
   find(query: TransactionQueryParams): Promise<ITransaction[]>;
   count(query?: TransactionQueryParams): Promise<number>;
   getTotalRevenue(query?: TransactionQueryParams): Promise<number>;

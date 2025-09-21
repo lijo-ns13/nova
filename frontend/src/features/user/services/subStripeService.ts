@@ -1,7 +1,7 @@
 import apiAxios from "../../../utils/apiAxios";
 
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1`;
-const BASE_URL = `${API_BASE_URL}/api/stripe`;
+const BASE_URL = `${API_BASE_URL}/stripe`;
 
 export interface StripeSessionRequest {
   userId: string;
@@ -41,7 +41,7 @@ export const createCheckoutSession = async (
     );
     return result.data;
   } catch (error) {
-    console.error("Create checkout session failed:", error);
+    console.log("Create checkout session failed:", error);
     throw {
       message: getErrorMessage(error) || "Failed to create Stripe session",
     };
@@ -52,11 +52,11 @@ export const getLatestSession = async (
   userId: string
 ): Promise<RefundSessionData> => {
   try {
-    const result = await apiAxios.get<RefundSessionData>(
-      `${BASE_URL}/session/${userId}`,
-      { withCredentials: true }
-    );
-    return result.data;
+    const result = await apiAxios.get(`${BASE_URL}/session/${userId}`, {
+      withCredentials: true,
+    });
+    console.log("results from getlatestsession service", result);
+    return result.data.data;
   } catch (error) {
     console.error("Fetching Stripe session failed:", error);
     throw {

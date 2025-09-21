@@ -16,7 +16,7 @@ import googleRouter from "./routes/google.routes";
 
 // import dashRouter from "./routes/companydash.routes";
 
-import stripeRoutes from "./routes/stripe.routes";
+// import stripeRoutes from "./routes/stripe.routes";
 
 import { HTTP_STATUS_CODES } from "./core/enums/httpStatusCode";
 // import adminAnalyticsRoutes from "./routes/admin/admindash.routes";
@@ -47,7 +47,7 @@ app.use("/api/auth", googleRouter);
 // app.use("/api/admin/analytics", adminAnalyticsRoutes);
 // app.use("/auth", authRouter);
 // app.use("/", dashRouter);
-app.use("/api/stripe", stripeRoutes);
+// app.use("/api/stripe", stripeRoutes);
 app.use("/api/v1", mainRouter);
 // app.use("/", sharedRouter);
 
