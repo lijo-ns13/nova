@@ -100,4 +100,21 @@ export class SkillRepository
     const skills = await this.model.find({ title: regex }).limit(limit);
     return skills;
   }
+  async updateSKill(
+    id: string,
+    updateData: Partial<ISkill>
+  ): Promise<ISkill | null> {
+    // const res = await this.model.findByIdAndUpdate(
+    //   id,
+    //   { $set: updateData }, // <-- pass the object directly
+    //   { new: true }
+    // );
+    // return res;
+    const res = await this.model.findByIdAndUpdate(
+      id,
+      { $set: { title: updateData.title } },
+      { new: true }
+    );
+    return res;
+  }
 }

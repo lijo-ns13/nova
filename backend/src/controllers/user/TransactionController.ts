@@ -5,9 +5,10 @@ import { ITransactionService } from "../../interfaces/services/ITransactionServi
 import { handleControllerError } from "../../utils/errorHandler";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 import { RefundRequestSchema } from "../../core/dtos/user/tranasction/refund.request.dto";
+import { ITransactionController } from "../../interfaces/controllers/ITransactionController";
 
 @injectable()
-export class TransactionController {
+export class TransactionController implements ITransactionController {
   constructor(
     @inject(TYPES.TransactionService)
     private readonly _transactionService: ITransactionService

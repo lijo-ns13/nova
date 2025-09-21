@@ -155,4 +155,5 @@ export const TYPES = {
   // transaction
   TransactionService: Symbol.for("TransactionServive"),
   TransactionController: Symbol.for("TransactionController"),
+  UserController: Symbol.for("UserController"),
 };

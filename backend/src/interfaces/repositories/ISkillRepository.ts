@@ -17,7 +17,7 @@ export interface ISkillRepository extends IBaseRepository<ISkill> {
   ): Promise<ISkill>;
 
   findByTitle(title: string): Promise<ISkill | null>;
-
+  updateSKill(id: string, updateData: Partial<ISkill>): Promise<ISkill | null>;
   createSkillWith(
     title: string,
     createdById: string,

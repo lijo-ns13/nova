@@ -14,6 +14,7 @@ import {
   SkillResponseDto,
 } from "../../dtos/response/admin/admin.skill.reponse.dto";
 import { COMMON_MESSAGES } from "../../constants/message.constants";
+import { title } from "process";
 
 @injectable()
 export class AdminSkillService implements IAdminSkillService {
@@ -50,7 +51,7 @@ export class AdminSkillService implements IAdminSkillService {
         throw new Error(COMMON_MESSAGES.SKILL_ALREADY_EXISTS);
     }
 
-    const updated = await this.skillRepository.update(id, dto);
+    const updated = await this.skillRepository.updateSKill(id, dto);
     if (!updated) throw new Error(COMMON_MESSAGES.SKILL_NOT_FOUND);
 
     return SkillMapper.toDTO(updated);

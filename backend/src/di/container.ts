@@ -220,6 +220,8 @@ import { ITransactionService } from "../interfaces/services/ITransactionService"
 import { TransactionService } from "../services/user/TransactionService";
 import { ITransactionController } from "../interfaces/controllers/ITransactionController";
 import { TransactionController } from "../controllers/user/TransactionController";
+import { IUserController } from "../interfaces/controllers/IUserController";
+import { UserController } from "../controllers/user/UserController";
 // import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
@@ -537,4 +539,5 @@ container
 container
   .bind<ITransactionController>(TYPES.TransactionController)
   .to(TransactionController);
+container.bind<IUserController>(TYPES.UserController).to(UserController);
 export default container;
