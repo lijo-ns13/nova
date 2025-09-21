@@ -30,7 +30,7 @@ export interface MediaUrlDTO {
 @injectable()
 export class MediaService implements IMediaService {
   constructor(
-    @inject(TYPES.MediaRepository) private _mediaRepo: IMediaRepository
+    @inject(TYPES.MediaRepository) private readonly _mediaRepo: IMediaRepository
   ) {}
   private readonly MAX_FILE_SIZE = 1024 * 1024 * 100; // 100MB
   private readonly ALLOWED_MIME_TYPES = [

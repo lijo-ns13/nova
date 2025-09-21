@@ -9,7 +9,7 @@ import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 export class CompanyDashboardController implements ICompanyDashboardController {
   constructor(
     @inject(TYPES.CompanyDashboardService)
-    private dashboardService: ICompanyDashboardService
+    private readonly dashboardService: ICompanyDashboardService
   ) {}
 
   async getCompanyDashboardStats(req: Request, res: Response): Promise<void> {

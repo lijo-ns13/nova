@@ -11,9 +11,11 @@ import { IPost } from "../../repositories/entities/post.entity";
 @injectable()
 export class ProfileViewService implements IProfileViewService {
   constructor(
-    @inject(TYPES.UserRepository) private _userRepository: IUserRepository,
-    @inject(TYPES.PostRepository) private _postRepository: IPostRepository,
-    @inject(TYPES.MediaService) private _mediaService: IMediaService
+    @inject(TYPES.UserRepository)
+    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.PostRepository)
+    private readonly _postRepository: IPostRepository,
+    @inject(TYPES.MediaService) private readonly _mediaService: IMediaService
   ) {}
   async getUserBasicData(username: string): Promise<IUser> {
     try {

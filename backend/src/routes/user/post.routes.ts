@@ -10,6 +10,7 @@ const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 const postController = container.get<IPostController>(TYPES.PostController);
 import multer from "multer";
 import { POST_ROUTES } from "../../constants/routes/userRoutes";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -17,7 +18,7 @@ const upload = multer({ storage });
 export const uploadMedia = upload.array("media");
 
 const router = Router();
-router.use(authMiddleware.authenticate("user"));
+router.use(authMiddleware.authenticate(AUTH_ROLES.USER));
 router.use(authMiddleware.check());
 
 router.post(POST_ROUTES.ROOT, uploadMedia, (req, res, next) => {

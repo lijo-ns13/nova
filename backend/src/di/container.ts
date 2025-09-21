@@ -216,6 +216,12 @@ import { IMessageController } from "../interfaces/controllers/IMessageController
 import { MessageController } from "../controllers/user/MessageController";
 import { IMessageRepository } from "../interfaces/repositories/IMessageRepository";
 import { MessageRepository } from "../repositories/mongo/MessageRepository";
+import { ITransactionService } from "../interfaces/services/ITransactionService";
+import { TransactionService } from "../services/user/TransactionService";
+import { ITransactionController } from "../interfaces/controllers/ITransactionController";
+import { TransactionController } from "../controllers/user/TransactionController";
+import { IUserController } from "../interfaces/controllers/IUserController";
+import { UserController } from "../controllers/user/UserController";
 // import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
@@ -526,4 +532,12 @@ container.bind<IMessageService>(TYPES.MessageService).to(MessageService);
 container
   .bind<IMessageController>(TYPES.MessageController)
   .to(MessageController);
+//
+container
+  .bind<ITransactionService>(TYPES.TransactionService)
+  .to(TransactionService);
+container
+  .bind<ITransactionController>(TYPES.TransactionController)
+  .to(TransactionController);
+container.bind<IUserController>(TYPES.UserController).to(UserController);
 export default container;

@@ -17,7 +17,7 @@ export class FeatureService implements IFeatureService {
   private logger = logger.child({ context: "AdminFeatureService" });
   constructor(
     @inject(TYPES.FeatureRepository)
-    private _featureRepository: IFeatureRepository
+    private readonly _featureRepository: IFeatureRepository
   ) {}
 
   async create(input: FeatureInput): Promise<FeatureSummaryDTO> {

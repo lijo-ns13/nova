@@ -20,7 +20,7 @@ import {
 export class SubscriptionPlanController implements ISubscriptionPlanController {
   constructor(
     @inject(TYPES.SubscriptionPlanService)
-    private _subscriptionPlanService: ISubscriptionPlanService
+    private readonly _subscriptionPlanService: ISubscriptionPlanService
   ) {}
   async getFilteredTransactions(req: Request, res: Response): Promise<void> {
     try {

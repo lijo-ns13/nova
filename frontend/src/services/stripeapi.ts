@@ -37,7 +37,7 @@ export const createCheckoutSession = async (
 
   try {
     const response = await apiAxios.post<CreateCheckoutSessionSuccessResponse>(
-      `${import.meta.env.VITE_API_BASE_URL}/api/stripe/create-checkout-session`,
+      `/stripe/create-checkout-session`,
       payload
     );
 
@@ -46,8 +46,9 @@ export const createCheckoutSession = async (
       sessionId: response.data.sessionId, // optional: if backend returns this
     };
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.data?.message) {
-      return { error: error.response.data.message };
+    console.log("error stripe checkout", error);
+    if (axios.isAxiosError(error) && error.response?.data.error) {
+      return { error: error.response.data.error };
     }
 
     return {

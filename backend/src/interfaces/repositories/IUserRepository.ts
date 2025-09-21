@@ -161,6 +161,17 @@ export interface IUserRepository extends IBaseRepository<IUser> {
   clearExpiredPaymentSessions(): Promise<UpdateResult>;
   resetExpiredSubscriptions(): Promise<UpdateResult>;
   clearCancelledFlags(): Promise<UpdateResult>;
+  updateUserPaymentSession(
+    userId: string,
+    sessionId: string,
+    expiresAt: Date
+  ): Promise<void>;
+  updateUserSubscription(
+    userId: string,
+    subscriptionData: Partial<IUser>,
+    unsetFields?: Record<string, 1>
+  ): Promise<void>;
+  updateSubscription(userId: string, update: Partial<IUser>): Promise<void>;
 }
 export interface UpdateResult {
   acknowledged: boolean;

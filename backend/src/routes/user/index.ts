@@ -6,14 +6,17 @@ import interviewRouter from "./interview.routes";
 import followRouter from "./follow.routes";
 import userSkillRouter from "./skill.routes";
 import subWithFeatRouter from "./subWithFeat.routes";
+import stripeRouter from "./transaction.routes";
+import { USER_ROUTES } from "../../constants/routes/userRoutes";
 
 const router = Router();
 
-router.use("/", JobRouter);
-router.use("/user-profile", profileRouter);
-router.use("/post", postRouter);
-router.use("/", interviewRouter);
-router.use("/userskills", userSkillRouter);
-router.use("/users", followRouter);
-router.use("/subfeat", subWithFeatRouter);
+router.use(USER_ROUTES.JOB, JobRouter);
+router.use(USER_ROUTES.PROFILE, profileRouter);
+router.use(USER_ROUTES.POST, postRouter);
+router.use(USER_ROUTES.INTERVIEW, interviewRouter);
+router.use(USER_ROUTES.USER_SKILLS, userSkillRouter);
+router.use(USER_ROUTES.USERS, followRouter);
+router.use(USER_ROUTES.SUBSCRIPTION_FEATURE, subWithFeatRouter);
+router.use("/stripe", stripeRouter);
 export default router;

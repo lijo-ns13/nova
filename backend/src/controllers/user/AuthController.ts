@@ -26,7 +26,8 @@ import { ResetMapper } from "../../mapping/auth/reset.mapper";
 
 export class AuthController implements IAuthController {
   constructor(
-    @inject(TYPES.UserAuthService) private _authService: IUserAuthService
+    @inject(TYPES.UserAuthService)
+    private readonly _authService: IUserAuthService
   ) {}
   signUp = async (req: Request, res: Response) => {
     try {

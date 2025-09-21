@@ -27,13 +27,10 @@ const ChatPage = () => {
     const fetchMessages = async () => {
       try {
         setIsLoading(true);
-        const res = await apiAxios.get(
-          `${
-            import.meta.env.VITE_API_BASE_URL
-          }/api/messages/${userId}/${otherUserId}`,
-          { withCredentials: true }
-        );
-        setMessages(res.data);
+        const res = await apiAxios.get(`/messages/${userId}/${otherUserId}`, {
+          withCredentials: true,
+        });
+        setMessages(res.data.data);
       } catch (error) {
         console.error("Error fetching messages:", error);
       } finally {
@@ -42,12 +39,11 @@ const ChatPage = () => {
     };
     const fetchOtherUser = async () => {
       try {
-        const res = await apiAxios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/username/${otherUserId}`,
-          { withCredentials: true }
-        );
-        console.log("data", res.data);
-        const { name, profilePicture } = res.data;
+        const res = await apiAxios.get(`/messages/username/${otherUserId}`, {
+          withCredentials: true,
+        });
+        console.log("data", res.data.data);
+        const { name, profilePicture } = res.data.data;
         setOtherUserName(name);
         setOtherUserProfilePicture(profilePicture);
         // setOtherUserName(name);
@@ -178,24 +174,55 @@ const ChatPage = () => {
       </div>
     );
   }
-
+  // w-full max-w-screen overflow-x-hidden
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
-      <div className="bg-white p-4 shadow-sm">
-        <h1 className="text-xl font-semibold text-gray-800">
-          Chat with {otherUserName || "unknown"}
-        </h1>
-        {/* <Avatar src={otherUserProfilePicture} alt={otherUserName} /> */}
-        {/* <SecureCloudinaryImage
-          publicId={otherUserProfilePicture}
-          className="rounded-full w-10 h-10 object-cover"
-        /> */}
+    <div className="w-full h-[calc(100vh-90px)] overflow-hidden  flex flex-col bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      {/* ===== HEADER ===== */}
+      <div
+        className="shrink-0 sticky top-0 z-20 flex items-center justify-between
+                    px-4 py-3 bg-white dark:bg-gray-800 shadow-sm
+                    border-b border-gray-200 dark:border-gray-700"
+      >
+        <button
+          onClick={() => window.history.back()}
+          className="flex items-center gap-2 text-blue-600 dark:text-blue-400 
+                   hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          <span className="hidden sm:inline text-sm font-medium">Back</span>
+        </button>
+
+        <div className="flex items-center gap-3">
+          {otherUserProfilePicture && (
+            <img
+              src={otherUserProfilePicture}
+              alt={otherUserName}
+              className="w-10 h-10 rounded-full object-cover shadow-sm border border-gray-200 dark:border-gray-600"
+            />
+          )}
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
+            {otherUserName || "Unknown User"}
+          </h1>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {/* ===== MESSAGES ===== */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-500">
-            <div className="text-center p-8 max-w-md">
+            <div className="text-center p-6 sm:p-8 max-w-md">
               <h2 className="text-2xl font-light mb-2">No messages yet</h2>
               <p className="text-gray-400">
                 Start the conversation by sending your first message
@@ -211,50 +238,55 @@ const ChatPage = () => {
               }`}
             >
               <div
-                className={`max-w-xs md:max-w-md lg:max-w-lg rounded-lg p-3 ${
+                className={`relative max-w-xs sm:max-w-md lg:max-w-lg rounded-2xl px-4 py-2 text-sm break-words shadow-md ${
                   msg.sender === userId
-                    ? "bg-blue-500 text-white rounded-br-none"
-                    : "bg-white text-gray-800 rounded-bl-none shadow"
+                    ? "bg-blue-600 text-white rounded-br-none"
+                    : "bg-white dark:bg-gray-700 dark:text-gray-100 rounded-bl-none"
                 }`}
               >
-                <p className="text-sm">{msg.content}</p>
-                <p
-                  className={`text-xs mt-1 flex items-center gap-1 ${
-                    msg.sender === userId ? "text-blue-100" : "text-gray-500"
+                {msg.content}
+                <div
+                  className={`mt-1 text-xs flex items-center gap-1 opacity-70 ${
+                    msg.sender === userId
+                      ? "text-blue-100"
+                      : "text-gray-500 dark:text-gray-300"
                   }`}
                 >
                   {format(new Date(msg.createdAt), "h:mm a")}
                   {msg.sender === userId && msg.isRead && <span>✓</span>}
-                </p>
+                </div>
               </div>
             </div>
           ))
         )}
 
         {isTyping && (
-          <div className="text-sm text-gray-500 ml-2">Typing...</div>
+          <div className="ml-2 text-sm text-blue-500 animate-pulse">
+            Typing…
+          </div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="bg-white p-4 border-t">
-        <div className="flex items-center rounded-full bg-gray-100 px-4 py-2">
+      {/* ===== INPUT ===== */}
+      <div className="shrink-0 px-4 py-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-full px-4 py-2 shadow-inner">
           <input
             type="text"
             value={newMessage}
             onChange={handleTyping}
             onKeyPress={handleKeyPress}
-            placeholder="Type your message..."
-            className="flex-1 bg-transparent outline-none text-gray-800 placeholder-gray-400"
+            placeholder="Type your message…"
+            className="flex-1 bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-400 text-sm sm:text-base"
           />
           <button
             onClick={handleSend}
             disabled={!newMessage.trim()}
-            className={`ml-2 p-2 rounded-full ${
+            className={`ml-2 p-2 rounded-full transition-colors ${
               newMessage.trim()
-                ? "bg-blue-500 text-white"
-                : "bg-gray-300 text-gray-500"
+                ? "bg-blue-600 hover:bg-blue-700 text-white"
+                : "bg-gray-300 dark:bg-gray-600 text-gray-500 cursor-not-allowed"
             }`}
           >
             <PaperPlaneRight size={20} />

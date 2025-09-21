@@ -1,7 +1,8 @@
-import { IMessage } from "../../repositories/entities/message.entity";
+import { MessageDTO } from "../../core/dtos/user/message.response.dto";
 
 export interface IMessageService {
-  getConversation(userId: string, otherUserId: string): Promise<IMessage[]>;
+  getChatUsers(userId: string): Promise<any>;
+  getConversation(userId: string, otherUserId: string): Promise<MessageDTO[]>;
   //   sendMessage(data: { sender: string; receiver: string; content: string }): Promise<IMessage>;
   //   markMessageAsRead(messageId: string): Promise<void>;
 }

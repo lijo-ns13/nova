@@ -11,7 +11,7 @@ import { AuthenticatedUser } from "../interfaces/request/authenticated.user.inte
 export class NotificationController implements INotificationController {
   constructor(
     @inject(TYPES.NotificationService)
-    private _notificationService: INotificationService
+    private readonly _notificationService: INotificationService
   ) {}
 
   async getNotifications(req: Request, res: Response): Promise<void> {

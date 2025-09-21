@@ -21,7 +21,7 @@ import { FeatureMapper } from "../../mapping/admin/admin.feature.mapper";
 export class FeatureController implements IFeatureController {
   constructor(
     @inject(TYPES.FeatureService)
-    private _featureService: IFeatureService
+    private readonly _featureService: IFeatureService
   ) {}
 
   async createFeature(req: Request, res: Response): Promise<void> {

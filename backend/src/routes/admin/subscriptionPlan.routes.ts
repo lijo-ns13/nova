@@ -6,6 +6,7 @@ import { TYPES } from "../../di/types";
 import { ISubscriptionPlanController } from "../../interfaces/controllers/ISubscriptionPlanController";
 import { COMMON_ROUTES } from "../../constants/routes/commonRoutes";
 import { SUBSCRIPTION_PLAN_ROUTES } from "../../constants/routes/adminRoutes";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 const subscriptionPlanController = container.get<ISubscriptionPlanController>(
@@ -13,7 +14,7 @@ const subscriptionPlanController = container.get<ISubscriptionPlanController>(
 );
 
 const router = Router();
-router.use(authMiddleware.authenticate("admin"));
+router.use(authMiddleware.authenticate(AUTH_ROLES.ADMIN));
 router.use(authMiddleware.check());
 
 // Create a new subscription plan

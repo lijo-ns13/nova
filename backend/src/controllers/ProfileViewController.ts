@@ -9,7 +9,7 @@ import { IProfileViewController } from "../interfaces/controllers/IProfileViewCo
 export class ProfileViewController implements IProfileViewController {
   constructor(
     @inject(TYPES.ProfileViewService)
-    private _profileViewService: IProfileViewService
+    private readonly _profileViewService: IProfileViewService
   ) {}
 
   async getUserBasicData(req: Request, res: Response): Promise<void> {

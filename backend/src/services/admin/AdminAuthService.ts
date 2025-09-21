@@ -14,9 +14,9 @@ export class AdminAuthService implements IAdminAuthService {
   private logger = logger.child({ service: "AdminAuthService" });
   constructor(
     @inject(TYPES.AdminRepository)
-    private _admiRepository: IAdminRepository,
+    private readonly _admiRepository: IAdminRepository,
     @inject(TYPES.JWTService)
-    private _jwtService: IJWTService
+    private readonly _jwtService: IJWTService
   ) {}
   async signIn(
     payload: AdminSignInRequestDTO

@@ -19,7 +19,7 @@ import { SkillMapper } from "../../mapping/admin/admin.skill.mapper";
 export class AdminSkillController implements IAdminSkillController {
   constructor(
     @inject(TYPES.AdminSkillService)
-    private _adminSkillService: IAdminSkillService
+    private readonly _adminSkillService: IAdminSkillService
   ) {}
 
   createSkill = async (req: Request, res: Response) => {
@@ -47,11 +47,11 @@ export class AdminSkillController implements IAdminSkillController {
   updateSkill = async (req: Request, res: Response) => {
     try {
       const id = req.params.id;
-
+      const { title } = req.body;
       const entity = SkillMapper.idFromDTO({ id });
-      const data = UpdateSkillSchema.parse(entity.id);
+      const data = UpdateSkillSchema.parse({ title });
 
-      const updatedDto = await this._adminSkillService.update(id, data);
+      const updatedDto = await this._adminSkillService.update(entity.id, data);
 
       res.status(HTTP_STATUS_CODES.OK).json({
         success: true,

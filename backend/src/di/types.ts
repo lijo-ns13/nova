@@ -150,6 +150,10 @@ export const TYPES = {
   UserChatService: Symbol.for("UserChatService"),
   UserChatController: Symbol.for("UserChatController"),
   MessageModel: Symbol.for("MessageModel"),
-  MessageService: Symbol("MessageService"),
-  MessageController: Symbol("MessageController"),
+  MessageService: Symbol.for("MessageService"),
+  MessageController: Symbol.for("MessageController"),
+  // transaction
+  TransactionService: Symbol.for("TransactionServive"),
+  TransactionController: Symbol.for("TransactionController"),
+  UserController: Symbol.for("UserController"),
 };

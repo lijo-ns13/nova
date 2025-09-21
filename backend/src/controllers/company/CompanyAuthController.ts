@@ -24,7 +24,8 @@ import { ResendMapper } from "../../mapping/auth/resend.mapper";
 import { VerifyMapper } from "../../mapping/auth/verify.mapper";
 export class CompanyAuthController implements ICompanyAuthController {
   constructor(
-    @inject(TYPES.CompanyAuthService) private _authService: ICompanyAuthService
+    @inject(TYPES.CompanyAuthService)
+    private readonly _authService: ICompanyAuthService
   ) {}
 
   async signUp(req: Request, res: Response): Promise<void> {

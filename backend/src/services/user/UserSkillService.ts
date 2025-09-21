@@ -9,8 +9,8 @@ import { SkillUserMapper } from "../../mapping/user.skill.mapper";
 @injectable()
 export class UserSkillService implements IUserSkillService {
   constructor(
-    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
-    @inject(TYPES.SkillRepository) private _skillRepo: ISkillRepository
+    @inject(TYPES.UserRepository) private readonly _userRepo: IUserRepository,
+    @inject(TYPES.SkillRepository) private readonly _skillRepo: ISkillRepository
   ) {}
 
   async addSkillToUser(

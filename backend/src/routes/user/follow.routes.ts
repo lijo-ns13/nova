@@ -4,6 +4,7 @@ import container from "../../di/container";
 import { TYPES } from "../../di/types";
 import { IUserFollowController } from "../../interfaces/controllers/IUserFollowController";
 import { USER_FOLLOW_ROUTES } from "../../constants/routes/userRoutes";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 const userFollowController = container.get<IUserFollowController>(
@@ -12,7 +13,7 @@ const userFollowController = container.get<IUserFollowController>(
 
 const router = Router();
 
-router.use(authMiddleware.authenticate("user"));
+router.use(authMiddleware.authenticate(AUTH_ROLES.USER));
 router.use(authMiddleware.check());
 
 router.get(USER_FOLLOW_ROUTES.NETWORK_USERS, (req, res) =>

@@ -29,3 +29,12 @@ export const ADMIN_DASHBOARD_ROUTES = {
   FULL_REPORT: "/full-report",
   TRANSACTIONS: "/transactions",
 } as const;
+
+export const ADMIN_ROUTES = {
+  USERS: "/users",
+  COMPANIES: "/companies",
+  SKILLS: "/skills",
+  SUBSCRIPTION: "/subscription",
+  FEATURE: "/feature",
+  ANALYTICS: "/analytics",
+} as const;

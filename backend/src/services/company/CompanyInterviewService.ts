@@ -23,14 +23,15 @@ import { IInterview } from "../../repositories/entities/interview.entity";
 export class CompanyInterviewService implements ICompanyInterviewService {
   constructor(
     @inject(TYPES.InterviewRepository)
-    private _interviewRepo: IInterviewRepository,
+    private readonly _interviewRepo: IInterviewRepository,
     @inject(TYPES.ApplicationRepository)
-    private _applicationRepo: IApplicationRepository,
+    private readonly _applicationRepo: IApplicationRepository,
     @inject(TYPES.NotificationService)
     private _notificationService: INotificationService,
-    @inject(TYPES.CompanyRepository) private _companyRepo: ICompanyRepository,
-    @inject(TYPES.JobRepository) private _jobRepo: IJobRepository,
-    @inject(TYPES.UserRepository) private _userRepo: IUserRepository
+    @inject(TYPES.CompanyRepository)
+    private readonly _companyRepo: ICompanyRepository,
+    @inject(TYPES.JobRepository) private readonly _jobRepo: IJobRepository,
+    @inject(TYPES.UserRepository) private readonly _userRepo: IUserRepository
   ) {}
   async createInterview(
     input: CreateInterviewInput

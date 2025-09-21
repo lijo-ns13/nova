@@ -8,7 +8,7 @@ import { ICompany } from "../../repositories/entities/company.entity";
 export class CompanyProfileService implements ICompanyProfileService {
   constructor(
     @inject(TYPES.CompanyRepository)
-    private _companyRepository: ICompanyRepository
+    private readonly _companyRepository: ICompanyRepository
   ) {}
 
   async getCompanyProfile(companyId: string): Promise<ICompany> {

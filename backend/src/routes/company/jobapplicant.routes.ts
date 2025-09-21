@@ -5,6 +5,7 @@ import { TYPES } from "../../di/types";
 import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 import { IJobApplicantManagementController } from "../../interfaces/controllers/IJobApplicantManagementController";
 import { JOB_APPLICANT_ROUTES } from "../../constants/routes/companyRoutes";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 const controller = container.get<IJobApplicantManagementController>(
@@ -13,7 +14,7 @@ const controller = container.get<IJobApplicantManagementController>(
 
 const router = Router();
 
-router.use(authMiddleware.authenticate("company"));
+router.use(authMiddleware.authenticate(AUTH_ROLES.COMPANY));
 router.use(authMiddleware.check());
 
 router.patch(JOB_APPLICANT_ROUTES.STATUS, (req, res, next) =>

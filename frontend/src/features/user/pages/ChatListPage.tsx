@@ -18,11 +18,10 @@ const ChatListPage = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await apiAxios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/chat/users/${userId}`,
-          { withCredentials: true }
-        );
-        setUsers(res.data);
+        const res = await apiAxios.get(`/messages/chat/users/${userId}`, {
+          withCredentials: true,
+        });
+        setUsers(res.data.data);
       } catch (error) {
         console.error("Error fetching chat users:", error);
       } finally {
@@ -82,11 +81,11 @@ const ChatListPage = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <div className="flex flex-col h-screen bg-gray-50">
       <Navbar />
 
       {/* Header */}
-      <div className="border-b border-gray-100 p-4 sticky top-10 z-10 bg-white">
+      <div className="border-b border-gray-200 px-4 py-3 sticky top-0 z-20 bg-white shadow-sm">
         <div className="max-w-md mx-auto flex items-center justify-between">
           {isSearching ? (
             <div className="flex items-center w-full">
@@ -95,7 +94,8 @@ const ChatListPage = () => {
                   setSearchQuery("");
                   setIsSearching(false);
                 }}
-                className="mr-2 p-1 rounded-full hover:bg-gray-100"
+                className="mr-3 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                aria-label="Exit search"
               >
                 <ArrowLeft size={20} className="text-gray-600" />
               </button>
@@ -103,28 +103,32 @@ const ChatListPage = () => {
                 <input
                   type="text"
                   placeholder="Search conversations"
-                  className="w-full pl-4 pr-10 py-2 bg-gray-50 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                  className="w-full pl-4 pr-10 py-2.5 bg-gray-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 border border-transparent focus:border-blue-500 transition-colors duration-200"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   autoFocus
                 />
                 <Search
-                  size={16}
-                  className="absolute right-3 top-2.5 text-gray-400"
+                  size={18}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/5 text-gray-400 pointer-events-none"
                 />
               </div>
             </div>
           ) : (
             <>
-              <h1 className="text-xl font-bold text-gray-900">Messages</h1>
-              <div className="flex items-center gap-2">
+              <h1 className="text-xl font-semibold text-gray-900">Messages</h1>
+              <div className="flex items-center gap-1">
                 <button
                   onClick={() => setIsSearching(true)}
-                  className="p-2 rounded-full hover:bg-gray-100"
+                  className="p-2.5 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                  aria-label="Search conversations"
                 >
                   <Search size={20} className="text-gray-600" />
                 </button>
-                <button className="p-2 rounded-full hover:bg-gray-100">
+                <button
+                  className="p-2.5 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                  aria-label="More options"
+                >
                   <MoreVertical size={20} className="text-gray-600" />
                 </button>
               </div>
@@ -134,39 +138,39 @@ const ChatListPage = () => {
       </div>
 
       {/* Chat List Content */}
-      <div className="flex-1 overflow-y-auto mt-10">
-        <div className="max-w-md mx-auto">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-md mx-auto w-full px-4 py-2">
           {filteredUsers.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center p-8">
-              <div className="p-4 rounded-full bg-gray-50 mb-4">
-                <MessageSquare size={32} className="text-gray-400" />
+            <div className="flex flex-col items-center justify-center h-full text-center p-8 mt-8">
+              <div className="p-4 rounded-full bg-gray-100 mb-5">
+                <MessageSquare size={36} className="text-gray-500" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-1">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
                 {searchQuery ? "No matches found" : "No messages yet"}
               </h3>
-              <p className="text-gray-500 max-w-xs">
+              <p className="text-gray-500 max-w-xs text-sm leading-5">
                 {searchQuery
-                  ? "Try a different search term"
-                  : "Start a conversation with someone"}
+                  ? "Try a different search term or check your spelling"
+                  : "Start a conversation with someone to see your messages here"}
               </p>
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="mt-4 text-blue-500 hover:text-blue-600 text-sm font-medium"
+                  className="mt-5 px-4 py-2 text-blue-600 hover:text-blue-700 text-sm font-medium hover:bg-blue-50 rounded-lg transition-colors duration-200"
                 >
                   Clear search
                 </button>
               )}
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 rounded-lg overflow-hidden bg-white shadow-sm">
               {filteredUsers.map((user) => (
                 <div
                   key={user._id}
-                  className="flex items-center p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="flex items-center p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200 active:bg-gray-100"
                   onClick={() => navigate(`/message/${user._id}`)}
                 >
-                  <div className="relative mr-3">
+                  <div className="relative mr-4">
                     {getAvatarContent(user)}
                     {user.online && (
                       <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
@@ -174,12 +178,12 @@ const ChatListPage = () => {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-sm font-semibold text-gray-900 truncate">
+                    <div className="flex justify-between items-center mb-1">
+                      <h3 className="text-sm font-semibold text-gray-900 truncate pr-2">
                         {user.name}
                       </h3>
                       {user.lastMessage && (
-                        <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                        <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
                           {formatDistanceToNow(
                             new Date(user.lastMessage.createdAt),
                             {
@@ -191,7 +195,7 @@ const ChatListPage = () => {
                     </div>
 
                     {user.lastMessage && (
-                      <p className="text-sm text-gray-500 truncate mt-1">
+                      <p className="text-sm text-gray-500 truncate leading-tight">
                         {user.lastMessage.content}
                       </p>
                     )}

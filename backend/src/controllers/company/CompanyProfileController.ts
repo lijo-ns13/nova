@@ -30,7 +30,7 @@ const formatZodError = (error: ZodError): Record<string, string> => {
 export class CompanyProfileController implements ICompanyProfileController {
   constructor(
     @inject(TYPES.CompanyProfileService)
-    private _companyProfileService: ICompanyProfileService
+    private readonly _companyProfileService: ICompanyProfileService
   ) {
     // console.log("companyProfileService:", this.companyProfileService);
   }
@@ -124,7 +124,9 @@ export class CompanyProfileController implements ICompanyProfileController {
     try {
       const companyId = (req.user as AuthenticatedUser)?.id;
       await this._companyProfileService.deleteProfileImage(companyId);
-      res.status(HTTP_STATUS_CODES.OK).json({ success: true, message: "Profile image removed" });
+      res
+        .status(HTTP_STATUS_CODES.OK)
+        .json({ success: true, message: "Profile image removed" });
     } catch (err) {
       console.log("error", err);
       res

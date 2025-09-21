@@ -18,7 +18,7 @@ export class AdminUserManagementController
 {
   constructor(
     @inject(TYPES.AdminUserManagementService)
-    private _adminUserService: IAdminUserManagementService
+    private readonly _adminUserService: IAdminUserManagementService
   ) {}
 
   blockUser: RequestHandler = async (req, res) => {

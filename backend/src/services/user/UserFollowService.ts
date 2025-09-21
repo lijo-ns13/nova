@@ -17,10 +17,10 @@ import { NotificationType } from "../../constants/notification.type.constant";
 export class UserFollowService implements IUserFollowService {
   constructor(
     @inject(TYPES.UserRepository)
-    private _userRepository: IUserRepository,
+    private readonly _userRepository: IUserRepository,
     @inject(TYPES.NotificationService)
-    private _notificationService: INotificationService,
-    @inject(TYPES.MediaService) private _mediaService: IMediaService
+    private readonly _notificationService: INotificationService,
+    @inject(TYPES.MediaService) private readonly _mediaService: IMediaService
   ) {}
 
   async followUser(

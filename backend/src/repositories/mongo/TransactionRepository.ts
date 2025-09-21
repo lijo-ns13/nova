@@ -24,6 +24,31 @@ export class TransactionRepository
   ) {
     super(transactionModel);
   }
+  async findTransactionBySession(
+    sessionId: string
+  ): Promise<ITransaction | null> {
+    return transactionModel.findOne({ stripeSessionId: sessionId });
+  }
+  async findByStripeSessionId(sessionId: string): Promise<ITransaction | null> {
+    return transactionModel.findOne({ stripeSessionId: sessionId });
+  }
+
+  async updateTransaction(
+    transactionId: string,
+    update: Partial<ITransaction>
+  ): Promise<void> {
+    await transactionModel.findByIdAndUpdate(transactionId, update);
+  }
+  async findLatestTransactionByUser(
+    userId: string
+  ): Promise<ITransaction | null> {
+    return transactionModel
+      .findOne({ userId, status: "completed" })
+      .sort({ createdAt: -1 });
+  }
+  async createTransaction(data: Partial<ITransaction>): Promise<ITransaction> {
+    return transactionModel.create(data);
+  }
   async find(query: any): Promise<ITransaction[]> {
     return await this.model
       .find(query)

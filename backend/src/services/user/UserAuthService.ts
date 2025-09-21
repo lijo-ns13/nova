@@ -25,16 +25,18 @@ import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 @injectable()
 export class UserAuthService implements IUserAuthService {
   constructor(
-    @inject(TYPES.EmailService) private _emailService: IEmailService,
-    @inject(TYPES.UserRepository) private _userRepository: IUserRepository,
-    @inject(TYPES.OTPRepository) private _otpRepository: IOTPRepository,
+    @inject(TYPES.EmailService) private readonly _emailService: IEmailService,
+    @inject(TYPES.UserRepository)
+    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.OTPRepository)
+    private readonly _otpRepository: IOTPRepository,
     @inject(TYPES.TempUserRepository)
-    private _tempUserRepository: ITempUserRepository,
+    private readonly _tempUserRepository: ITempUserRepository,
     @inject(TYPES.PasswordResetTokenRepository)
-    private _passwordResetTokenRepository: IPasswordResetTokenRepository,
+    private readonly _passwordResetTokenRepository: IPasswordResetTokenRepository,
     @inject(TYPES.JWTService)
-    private _jwtService: IJWTService,
-    @inject(TYPES.MediaService) private _mediaService: IMediaService
+    private readonly _jwtService: IJWTService,
+    @inject(TYPES.MediaService) private readonly _mediaService: IMediaService
   ) {}
 
   async signUp(payload: SignupRequestDTO): Promise<SignUpResponseDTO> {

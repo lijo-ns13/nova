@@ -22,8 +22,8 @@ export class AdminCompanyManagementService
   private logger = logger.child({ service: "AdminCompanyManagementService" });
   constructor(
     @inject(TYPES.CompanyRepository)
-    private _companyRepository: ICompanyRepository,
-    @inject(TYPES.MediaService) private _mediaService: IMediaService
+    private readonly _companyRepository: ICompanyRepository,
+    @inject(TYPES.MediaService) private readonly _mediaService: IMediaService
   ) {}
   async deleteCompany(companyId: string) {
     return this._companyRepository.delete(companyId);

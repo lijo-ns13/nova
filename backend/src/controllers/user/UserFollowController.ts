@@ -12,7 +12,7 @@ import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.i
 export class UserFollowController implements IUserFollowController {
   constructor(
     @inject(TYPES.UserFollowService)
-    private _userFollowService: IUserFollowService
+    private readonly _userFollowService: IUserFollowService
   ) {}
 
   async followUser(req: Request, res: Response): Promise<void> {

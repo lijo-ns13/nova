@@ -12,7 +12,7 @@ export class SubscriptionWithFeaturesController
 {
   constructor(
     @inject(TYPES.SubscriptionWithFeaturesService)
-    private _subscriptionFeatService: ISubscriptionWithFeaturesService
+    private readonly _subscriptionFeatService: ISubscriptionWithFeaturesService
   ) {}
   async userCurrentSubscription(req: Request, res: Response): Promise<void> {
     try {

@@ -16,9 +16,9 @@ import { ApplicationStatus } from "../../core/enums/applicationStatus";
 @injectable()
 export class CompanyDashboardService implements ICompanyDashboardService {
   constructor(
-    @inject(TYPES.JobRepository) private jobRepository: IJobRepository,
+    @inject(TYPES.JobRepository) private readonly jobRepository: IJobRepository,
     @inject(TYPES.ApplicationRepository)
-    private applicationRepository: IApplicationRepository
+    private readonly applicationRepository: IApplicationRepository
   ) {}
 
   async getCompanyDashboardStats(companyId: string): Promise<{

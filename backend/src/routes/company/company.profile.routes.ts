@@ -4,6 +4,7 @@ import { TYPES } from "../../di/types";
 import { IAuthMiddleware } from "../../interfaces/middlewares/IAuthMiddleware";
 import { ICompanyProfileController } from "../../interfaces/controllers/ICompanyProfileController";
 import { COMMON_ROUTES } from "../../constants/routes/commonRoutes";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 
 const authMiddleware = container.get<IAuthMiddleware>(TYPES.AuthMiddleware);
 
@@ -12,7 +13,7 @@ const profileController = container.get<ICompanyProfileController>(
 );
 
 const router = Router();
-router.use(authMiddleware.authenticate("company"));
+router.use(authMiddleware.authenticate(AUTH_ROLES.COMPANY));
 router.use(authMiddleware.check());
 
 router.get(COMMON_ROUTES.ROOT, (req, res, next) =>

@@ -17,7 +17,11 @@ export class SubscriptionPlanRepository
   ) {
     super(subscriptionModel);
   }
-
+  async findSubscriptionByName(
+    name: string
+  ): Promise<ISubscriptionPlan | null> {
+    return this.model.findOne({ name });
+  }
   async getByName(name: string): Promise<ISubscriptionPlan | null> {
     return await this.model.findOne({ name });
   }

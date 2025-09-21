@@ -680,5 +680,29 @@ export class UserRepository
     };
   }
   // updated
- 
+  async updateUserPaymentSession(
+    userId: string,
+    sessionId: string,
+    expiresAt: Date
+  ): Promise<void> {
+    await this.model.findByIdAndUpdate(userId, {
+      activePaymentSession: sessionId,
+      activePaymentSessionExpiresAt: expiresAt,
+    });
+  }
+  async updateUserSubscription(
+    userId: string,
+    subscriptionData: Partial<IUser>,
+    unsetFields?: Record<string, 1>
+  ): Promise<void> {
+    const update: any = { ...subscriptionData }; // MongoDB update object
+    if (unsetFields) update.$unset = unsetFields;
+    await this.model.findByIdAndUpdate(userId, update);
+  }
+  async updateSubscription(
+    userId: string,
+    update: Partial<IUser>
+  ): Promise<void> {
+    await this.model.findByIdAndUpdate(userId, update);
+  }
 }

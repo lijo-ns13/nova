@@ -23,3 +23,14 @@ export const NOTIFICATION_ROUTES = {
   DELETE_ALL: "/delete-all",
   DELETE: "/:notificationId",
 } as const;
+export const COMMON_MAIN_ROUTES = {
+  SKILL: "/skill",
+  PROFILE: "/api",
+  MESSAGES: "/messages",
+  NOTIFICATION: "/notification",
+} as const;
+export const MESSAGE_ROUTES = {
+  CHAT_USERS: "/chat/users/:userId",
+  USERNAME: "/username/:otherUserId",
+  CONVERSATION: "/:userId/:otherUserId",
+} as const;

@@ -28,14 +28,15 @@ export class CompanyJobService implements ICompanyJobService {
   private logger = logger.child({ context: "companyjobservice" });
   constructor(
     @inject(TYPES.JobRepository)
-    private _jobRepository: IJobRepository,
-    @inject(TYPES.MediaService) private _mediaService: IMediaService,
+    private readonly _jobRepository: IJobRepository,
+    @inject(TYPES.MediaService) private readonly _mediaService: IMediaService,
     @inject(TYPES.ApplicationRepository)
-    private _applicationRepo: IApplicationRepository,
+    private readonly _applicationRepo: IApplicationRepository,
     @inject(TYPES.NotificationService)
-    private _notificationService: INotificationService,
-    @inject(TYPES.UserRepository) private _userRepo: IUserRepository,
-    @inject(TYPES.SkillRepository) private _skillRepository: ISkillRepository
+    private readonly _notificationService: INotificationService,
+    @inject(TYPES.UserRepository) private readonly _userRepo: IUserRepository,
+    @inject(TYPES.SkillRepository)
+    private readonly _skillRepository: ISkillRepository
   ) {}
   async createJob(
     input: CreateJobInput,

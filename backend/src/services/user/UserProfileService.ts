@@ -31,8 +31,8 @@ import { GetUserProfileResponseDTO } from "../../core/dtos/user/getuserresponse.
 export class UserProfileService implements IUserProfileService {
   constructor(
     @inject(TYPES.UserRepository)
-    private _userRepository: IUserRepository,
-    @inject(TYPES.MediaService) private _mediaService: IMediaService
+    private readonly _userRepository: IUserRepository,
+    @inject(TYPES.MediaService) private readonly _mediaService: IMediaService
   ) {}
   // async getUserProfile(userId: string): Promise<GetUserProfileResponseDTO> {
   //   const user = await this._userRepository.getUserProfile(userId);

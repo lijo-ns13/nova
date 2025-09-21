@@ -18,7 +18,7 @@ import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.i
 export class UserInterviewController {
   constructor(
     @inject(TYPES.UserInterviewService)
-    private _userInterviewService: IUserInterviewService
+    private readonly _userInterviewService: IUserInterviewService
   ) {}
 
   async updateInterviewStatus(req: Request, res: Response): Promise<void> {
