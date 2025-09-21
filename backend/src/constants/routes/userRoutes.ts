@@ -58,3 +58,10 @@ export const USER_ROUTES = {
   USERS: "/users",
   SUBSCRIPTION_FEATURE: "/subfeat",
 } as const;
+export const TRANSACTION_ROUTES = {
+  CREATE_CHECKOUT_SESSION: "/create-checkout-session",
+  REFUND: "/refund",
+  CONFIRM_SESSION: "/confirm-session/:sessionId",
+  GET_SESSION: "/session/:userId",
+  GET_SESSION_DETAILS: "/session-details/:sessionId",
+} as const;
