@@ -9,7 +9,7 @@ import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
 export class CompanyDashboardController implements ICompanyDashboardController {
   constructor(
     @inject(TYPES.CompanyDashboardService)
-    private readonly dashboardService: ICompanyDashboardService
+    private readonly _dashboardService: ICompanyDashboardService
   ) {}
 
   async getCompanyDashboardStats(req: Request, res: Response): Promise<void> {
@@ -21,7 +21,7 @@ export class CompanyDashboardController implements ICompanyDashboardController {
           .json({ message: "Company ID missing" });
         return;
       }
-      const result = await this.dashboardService.getCompanyDashboardStats(
+      const result = await this._dashboardService.getCompanyDashboardStats(
         companyId
       );
       res.json(result);

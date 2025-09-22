@@ -111,7 +111,7 @@ export class UserFollowController implements IUserFollowController {
         search
       );
 
-      res.status(200).json({
+      res.status(HTTP_STATUS_CODES.OK).json({
         success: true,
         message: "Network users fetched",
         data: {

@@ -76,7 +76,6 @@ export class AdminCompanyManagementController
 
   getUnverifiedCompaniesHandler: RequestHandler = async (req, res) => {
     try {
-      // no revrese mapping needed already validated and primtiv
       const { page, limit } = paginationSchema.parse(req.query);
 
       const result = await this._adminCompanyService.getUnverifiedCompanies(
@@ -144,7 +143,6 @@ export class AdminCompanyManagementController
 
   getCompanies: RequestHandler = async (req, res) => {
     try {
-      // no revrese mapping needed already validated and primtiv
       const { page, limit, search } = paginationSchema.parse(req.query);
       const companies = await this._adminCompanyService.getCompanies(
         page,

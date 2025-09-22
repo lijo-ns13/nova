@@ -10,9 +10,10 @@ export const connectDB = async () => {
     if (!MONGODB_URI) {
       throw new Error("MongoDB connection string is missing!");
     }
-    await mongoose.connect(MONGODB_URI, {
-      dbName: process.env.DB_NAME || "test_db",
-    });
+    await mongoose.connect(MONGODB_URI);
+    // await mongoose.connect(MONGODB_URI, {
+    //   dbName: process.env.DB_NAME || "test_db",
+    // });
     console.log("MongoDB connnected successfully✅");
   } catch (error) {
     console.log("❌MongoDB connection error:", error);

@@ -17,20 +17,6 @@ import {
 import { paginationSchema } from "../../core/validations/admin/admin.company.validation";
 import { z } from "zod";
 import { AuthenticatedUser } from "../../interfaces/request/authenticated.user.interface";
-export const getApplicationsQuerySchema = z.object({
-  page: z.string().optional(),
-  limit: z.string().optional(),
-  status: z.string().optional(),
-  userId: z.string().optional(),
-  companyId: z.string().optional(),
-  dateFrom: z.string().optional(),
-  dateTo: z.string().optional(),
-  search: z.string().optional(),
-});
-
-const rejectApplicationBodySchema = z.object({
-  rejectionReason: z.string().optional(),
-});
 
 export class CompanyJobController implements ICompanyJobController {
   constructor(
@@ -288,3 +274,17 @@ export class CompanyJobController implements ICompanyJobController {
     }
   }
 }
+export const getApplicationsQuerySchema = z.object({
+  page: z.string().optional(),
+  limit: z.string().optional(),
+  status: z.string().optional(),
+  userId: z.string().optional(),
+  companyId: z.string().optional(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+  search: z.string().optional(),
+});
+
+const rejectApplicationBodySchema = z.object({
+  rejectionReason: z.string().optional(),
+});

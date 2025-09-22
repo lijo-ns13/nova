@@ -41,9 +41,12 @@ apiAxios.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        await axios.get(`${API_BASE_URL}/api/auth/refresh`, {
-          withCredentials: true,
-        });
+        await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh`,
+          {
+            withCredentials: true,
+          }
+        );
         return apiAxios(originalRequest);
       } catch (refreshError) {
         console.error("Token refresh failed:", refreshError);
