@@ -13,6 +13,7 @@ import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import { ApplicationStatus } from "../../core/enums/applicationStatus";
 import { IApplication } from "../../repositories/entities/application.entity";
 import { NotificationType } from "../../constants/notification.type.constant";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 
 @injectable()
 export class JobApplicantManagementService
@@ -38,8 +39,6 @@ export class JobApplicantManagementService
     const newProfilePictureSignedUrl = doc?.user.profilePicture
       ? await this._mediaService.getMediaUrl(doc?.user.profilePicture)
       : "";
-
-    console.log("docky dock", doc);
     if (!doc) return null;
 
     const dto = ApplicationMapper.toUserAndJobDTO(
@@ -71,7 +70,7 @@ export class JobApplicantManagementService
     const jobData = await this._jobRepo.findById(job.toString());
 
     if (!jobData) {
-      throw new Error("job not found");
+      throw new Error(COMMON_MESSAGES.JOB_NOT_FOUND);
     }
     const currentStatus = application.status;
     const allowed = allowedTransitions[currentStatus];
@@ -100,19 +99,4 @@ export class JobApplicantManagementService
 
     return this._applicationRepo.updateStatus(applicationId, newStatus, reason);
   }
-
-  // async createApplication(data: {
-  //   job: string;
-  //   user: string;
-  //   resumeMediaId: string;
-  // }): Promise<IApplication> {
-  //   return this._applicationRepo.create(data);
-  // }
-  // async getApplicationsByJob(jobId: string): Promise<IApplication[]> {
-  //   return this._applicationRepo.findByJobId(jobId);
-  // }
-
-  // async getApplicationsByUser(userId: string): Promise<IApplication[]> {
-  //   return this._applicationRepo.findByUserId(userId);
-  // }
 }

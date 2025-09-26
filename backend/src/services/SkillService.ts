@@ -10,8 +10,7 @@ import { IUserRepository } from "../interfaces/repositories/IUserRepository";
 export class SkillService implements ISkillService {
   constructor(
     @inject(TYPES.SkillRepository)
-    private readonly _skillRepository: ISkillRepository,
-    @inject(TYPES.UserRepository) private readonly _userRepo: IUserRepository
+    private readonly _skillRepository: ISkillRepository
   ) {}
 
   async searchSkills(query: string): Promise<SkillResponseDTO[]> {

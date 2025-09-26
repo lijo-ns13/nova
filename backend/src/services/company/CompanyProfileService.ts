@@ -3,6 +3,7 @@ import { TYPES } from "../../di/types";
 import { ICompanyRepository } from "../../interfaces/repositories/ICompanyRepository";
 import { ICompanyProfileService } from "../../interfaces/services/ICompanyProfileService";
 import { ICompany } from "../../repositories/entities/company.entity";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 
 @injectable()
 export class CompanyProfileService implements ICompanyProfileService {
@@ -13,7 +14,7 @@ export class CompanyProfileService implements ICompanyProfileService {
 
   async getCompanyProfile(companyId: string): Promise<ICompany> {
     const company = await this._companyRepository.getCompanyProfile(companyId);
-    if (!company) throw new Error("Company not found");
+    if (!company) throw new Error(COMMON_MESSAGES.COMPANY_NOT_FOUND);
     return company;
   }
 
@@ -21,7 +22,7 @@ export class CompanyProfileService implements ICompanyProfileService {
     const company = await this._companyRepository.getCompanyProfileWithDetails(
       companyId
     );
-    if (!company) throw new Error("Company not found");
+    if (!company) throw new Error(COMMON_MESSAGES.COMPANY_NOT_FOUND);
     return company;
   }
 

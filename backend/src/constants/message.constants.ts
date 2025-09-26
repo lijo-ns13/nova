@@ -27,9 +27,42 @@ export const USER_MESSAGES = {
       FAILED_CHECK_APPLICATION_STATUS: "checkApplicationStatus",
     },
   },
+  SUB: {
+    NO_COMPLETE_TRANS_FOUND: "No completed transaction found",
+    REFUND_SUCCESS: "Refund successful",
+    NO_ACTIVE_SUB: "No active subscription found.",
+    INVALID_OR_ALREADY_REFUNDED: "Invalid or already refunded transaction.",
+    PLAN_NOT_FOUND: "Subscription plan not found",
+    DATES_NOT_FOUND: "Subscription dates not found",
+    DATA_NOT_FOUND: "subscription data not found",
+    ALREADY_CANCELLED_ONCETHIS_MONTH:
+      "You already subscribed and cancelled once this month. Please try again next month.",
+    ALREADY_HAVE_ACTIVE_ONE: "You already have an active subscription",
+    PAYMENT_NOT_COMPLETE_YET: "payment not complete yet",
+    USERID_MISSING_IN_SESSION_METADATA: "User ID missing in session metadata",
+  },
+  FOLLOW: {
+    SELF_FOLLOW_NOT_ALLOWED: "You cannot follow yourself",
+    ALREADY_FOLLOWING: "You are already following this user",
+    FOLLOW_FAILED: "Failed to follow user",
+    FOLLOW_SUCCESS: "Successfully followed user",
+
+    SELF_UNFOLLOW_NOT_ALLOWED: "You cannot unfollow yourself",
+    NOT_FOLLOWING: "You are not following this user",
+    UNFOLLOW_FAILED: "Failed to unfollow user",
+    UNFOLLOW_SUCCESS: "Successfully unfollowed user",
+  },
 };
 
 export const COMMON_MESSAGES = {
+  GOOGLE_USERS_DONT_HAVE_PASSWORD: "Google signin users dont have password",
+  TEMP_USER_EXISTS:
+    "You tried too many times. Please try again later.**temp user exists**",
+  EMAIL_ALREADY_EXISTS: "Email alrady exists",
+  TRANSACTION_NOT_FOUND: "Transaction not found",
+  USER_NOP_SUB: "User has no subscription",
+  USERDATA_NOT_FOUND: "Users data not found",
+  POST_NOT_FOUND: "post not found",
   NOT_AUTHORIZED: "User not authenticated",
   RESUME_FILE_REQUIRED: "Resume file is required",
   ONLY_PDF: "Only PDF files are accepted for resumes",
@@ -59,10 +92,20 @@ export const COMMON_MESSAGES = {
     NOT_UPDATED: "Feature not updated",
     NOT_FOUND: "Feature not found",
   },
+  USERNOTFOUND_OR_ALREADYVERIFIED: "User not found or already verified",
   SUB: {
     NOT_FOUND: "Subscription plan not found",
   },
+  OTP_EXPIRED: "OTP EXIPIRED",
+  TOKEN_INVALID_OR_EXPIRED: "Token is invalid or has expired",
+  PASSWORD_NOT_MATCH: "Passwords do not match",
+  SUCCESS: {
+    USER_VERIFY: "User verified successfully",
+    OTP_SENT: "OTP resent successfully. Please check your email.",
+  },
   INVALID: {
+    ACCOUNTTYPE_FOR_THIS_OPERATION: "Invalid account type for this operation",
+    PASSWORD: "Invalid password",
     APPLICATIONID: "application id is not valid",
     USERID: "userid is not valid",
     JOBID: "jobid is not valid",

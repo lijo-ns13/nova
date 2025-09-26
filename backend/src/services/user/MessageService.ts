@@ -15,15 +15,6 @@ export class MessageService implements IMessageService {
     @inject(TYPES.MediaService) private readonly _mediaService: IMediaService
   ) {}
 
-  // async getConversation(
-  //   userId: string,
-  //   otherUserId: string
-  // ): Promise<IMessage[]> {
-  //   return this._messageRepo.getConversation(
-  //     new Types.ObjectId(userId),
-  //     new Types.ObjectId(otherUserId)
-  //   );
-  // }
   async getChatUsers(userId: string) {
     const users = await this._messageRepo.getChatUsersWithLastMessage(
       userId,
@@ -69,8 +60,6 @@ export class MessageService implements IMessageService {
       userId,
       otherUserId
     );
-
-    // Map IMessage to DTO
     return messages.map((msg) => ({
       _id: msg._id,
       sender: msg.sender,
@@ -81,18 +70,4 @@ export class MessageService implements IMessageService {
       updatedAt: msg.updatedAt!,
     }));
   }
-  //   async sendMessage(data: { sender: string; receiver: string; content: string }): Promise<IMessage> {
-  //     return this._messageRepo.createMessage({
-  //       sender: new Types.ObjectId(data.sender),
-  //       receiver: new Types.ObjectId(data.receiver),
-  //       content: data.content,
-  //       isRead: false,
-  //       createdAt: new Date(),
-  //       updatedAt: new Date(),
-  //     });
-  //   }
-
-  //   async markMessageAsRead(messageId: string): Promise<void> {
-  //     await this._messageRepo.markAsRead(new Types.ObjectId(messageId));
-  //   }
 }

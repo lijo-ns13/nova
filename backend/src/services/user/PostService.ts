@@ -11,6 +11,7 @@ import {
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import logger from "../../utils/logger";
 import { MediaUrlDTO } from "./MediaService";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 @injectable()
 export class PostService {
   private logger = logger.child({ context: "userpostservice" });
@@ -23,8 +24,8 @@ export class PostService {
   private async resolveCreatorDTO(creatorId: string): Promise<CreatorDTO> {
     const user = await this._userRepo.findById(creatorId);
     if (!user) {
-      this.logger.error("User not found");
-      throw new Error("User not found");
+      this.logger.error(COMMON_MESSAGES.USER_NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.USER_NOT_FOUND);
     }
 
     let profilePictureUrl: string | null = null;
@@ -80,7 +81,6 @@ export class PostService {
     );
     const media = await this.resolveMedia(mediaIds.map((id) => id.toString()));
     const creator = await this.resolveCreatorDTO(creatorId);
-    // ✅ Fetch user to get current post count
     const user = await this._userRepo.findById(creatorId);
     const createdPostCount = user?.createdPostCount ?? 0;
 
@@ -108,8 +108,8 @@ export class PostService {
   async getPost(postId: string): Promise<PostResponseDTO | null> {
     const post = await this._postRepo.getPostById(postId);
     if (!post) {
-      this.logger.error("Post not found");
-      throw new Error("Post not found");
+      this.logger.error(COMMON_MESSAGES.POST_NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.POST_NOT_FOUND);
     }
 
     const media = await this.resolveMedia(
@@ -170,16 +170,14 @@ export class PostService {
     const posts = await this._postRepo.findByCreator(skip, limit, userId);
     const user = await this._userRepo.findById(userId);
     if (!user) {
-      throw new Error("user not found");
+      throw new Error(COMMON_MESSAGES.USER_NOT_FOUND);
     }
     const mediaCache = new Map<string, MediaUrlDTO>();
 
     return await Promise.all(
       posts.map(async (post) => {
-        console.log("posts=>", post);
         const mediaUrls: MediaUrlDTO[] = await Promise.all(
           post.mediaIds.map(async (id) => {
-            console.log("Post mediaID", post.mediaIds);
             const key = id.toString();
             if (mediaCache.has(key)) return mediaCache.get(key)!;
 
@@ -208,8 +206,6 @@ export class PostService {
           headline: user.headline || "",
           username: user.username,
         };
-
-        console.log("creatory", creator);
         return PostMapper.toDTO(post, mediaUrls, creator);
       })
     );

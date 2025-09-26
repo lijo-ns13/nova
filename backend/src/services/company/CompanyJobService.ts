@@ -23,6 +23,7 @@ import { ApplicationJobMapper } from "../../mapping/company/job.application.mapp
 import { ApplicationGetMapper } from "../../mapping/company/getApplicant.mapper";
 import { ApplicantDetailDTO } from "../../core/dtos/company/getApplicant.dto";
 import { NotificationType } from "../../constants/notification.type.constant";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 
 export class CompanyJobService implements ICompanyJobService {
   private logger = logger.child({ context: "companyjobservice" });
@@ -33,10 +34,7 @@ export class CompanyJobService implements ICompanyJobService {
     @inject(TYPES.ApplicationRepository)
     private readonly _applicationRepo: IApplicationRepository,
     @inject(TYPES.NotificationService)
-    private readonly _notificationService: INotificationService,
-    @inject(TYPES.UserRepository) private readonly _userRepo: IUserRepository,
-    @inject(TYPES.SkillRepository)
-    private readonly _skillRepository: ISkillRepository
+    private readonly _notificationService: INotificationService
   ) {}
   async createJob(
     input: CreateJobInput,
@@ -76,8 +74,8 @@ export class CompanyJobService implements ICompanyJobService {
   async getJob(jobId: string): Promise<JobResponseDto> {
     const job = await this._jobRepository.getJob(jobId);
     if (!job) {
-      this.logger.warn("job not found");
-      throw new Error("job not found");
+      this.logger.warn(COMMON_MESSAGES.JOB_NOT_FOUND);
+      throw new Error(COMMON_MESSAGES.JOB_NOT_FOUND);
     }
     return JobMapper.toResponseWithSkillDto(job);
   }

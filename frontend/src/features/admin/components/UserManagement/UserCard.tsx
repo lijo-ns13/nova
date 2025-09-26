@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { User } from "../../types/user";
 import StatusBadge from "./StatusBadge";
 import UserAvatar from "./UserAvatar";
@@ -10,6 +10,26 @@ interface UserCardProps {
 }
 
 const UserCard: React.FC<UserCardProps> = ({ user, onBlock, onUnblock }) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleBlock = async () => {
+    setLoading(true);
+    try {
+      await onBlock(user.id);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnblock = async () => {
+    setLoading(true);
+    try {
+      await onUnblock(user.id);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
       <div className="flex items-center space-x-4">
@@ -30,17 +50,27 @@ const UserCard: React.FC<UserCardProps> = ({ user, onBlock, onUnblock }) => {
         <div>
           {user.isBlocked ? (
             <button
-              onClick={() => onUnblock(user.id)}
-              className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+              onClick={handleUnblock}
+              disabled={loading}
+              className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-md text-white ${
+                loading
+                  ? "bg-green-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors`}
             >
-              Unblock
+              {loading ? "Loading..." : "Unblock"}
             </button>
           ) : (
             <button
-              onClick={() => onBlock(user.id)}
-              className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+              onClick={handleBlock}
+              disabled={loading}
+              className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-md text-white ${
+                loading
+                  ? "bg-red-400 cursor-not-allowed"
+                  : "bg-red-600 hover:bg-red-700"
+              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors`}
             >
-              Block
+              {loading ? "Loading..." : "Block"}
             </button>
           )}
         </div>

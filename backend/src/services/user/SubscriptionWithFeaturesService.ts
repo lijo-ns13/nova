@@ -6,6 +6,10 @@ import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { ISubscriptionPlanRepository } from "../../interfaces/repositories/ISubscriptonPlanRepository";
 import { IFeatureRepository } from "../../interfaces/repositories/IFeatureRepository";
 import { UserCurrentSubscriptionDTO } from "../../dtos/response/subfeat.dto";
+import {
+  COMMON_MESSAGES,
+  USER_MESSAGES,
+} from "../../constants/message.constants";
 
 @injectable()
 export class SubscriptionWithFeaturesService
@@ -24,15 +28,15 @@ export class SubscriptionWithFeaturesService
     userId: string
   ): Promise<UserCurrentSubscriptionDTO> {
     const user = await this._userRepo.findById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error(COMMON_MESSAGES.USER_NOT_FOUND);
 
-    if (!user.subscription) throw new Error("User has no subscription");
+    if (!user.subscription) throw new Error(COMMON_MESSAGES.USER_NOP_SUB);
 
     if (!user.subscriptionStartDate || !user.subscriptionEndDate)
-      throw new Error("Subscription dates not found");
+      throw new Error(USER_MESSAGES.SUB.DATES_NOT_FOUND);
 
     const subData = await this._subRepo.findById(user.subscription.toString());
-    if (!subData) throw new Error("Subscription data not found");
+    if (!subData) throw new Error(USER_MESSAGES.SUB.DATA_NOT_FOUND);
 
     const features = await this._featRepo.findAll();
     const featName = features.map((feat) => feat.name);

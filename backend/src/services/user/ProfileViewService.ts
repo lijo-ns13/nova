@@ -7,6 +7,7 @@ import { IPostServiceResponse } from "../../core/entities/post";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { IUser } from "../../repositories/entities/user.entity";
 import { IPost } from "../../repositories/entities/post.entity";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 
 @injectable()
 export class ProfileViewService implements IProfileViewService {
@@ -26,11 +27,11 @@ export class ProfileViewService implements IProfileViewService {
         { path: "educations" },
       ]);
       if (!userData) {
-        throw new Error("Users data not found");
+        throw new Error(COMMON_MESSAGES.USERDATA_NOT_FOUND);
       }
       return userData;
     } catch (error) {
-      console.log("error occured in profileviewservice", error);
+      // console.log("error occured in profileviewservice", error);
       throw new Error((error as Error).message || "error occured");
     }
   }
@@ -42,12 +43,12 @@ export class ProfileViewService implements IProfileViewService {
     try {
       const user = await this._userRepository.findOne({ username });
       if (!user) {
-        throw new Error("User not found");
+        throw new Error(COMMON_MESSAGES.USER_NOT_FOUND);
       }
       const userId = user._id;
-      console.log("userId", userId, "jldsk");
+      // console.log("userId", userId, "jldsk");
       if (!userId) {
-        throw new Error("User id not found");
+        throw new Error(COMMON_MESSAGES.USERID_NOT_FOUND);
       }
       const posts: IPost[] = await this._postRepository.findByCreator(
         page,

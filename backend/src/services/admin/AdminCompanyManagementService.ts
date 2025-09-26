@@ -25,9 +25,7 @@ export class AdminCompanyManagementService
     private readonly _companyRepository: ICompanyRepository,
     @inject(TYPES.MediaService) private readonly _mediaService: IMediaService
   ) {}
-  async deleteCompany(companyId: string) {
-    return this._companyRepository.delete(companyId);
-  }
+  
   async getCompanyById(companyId: string): Promise<CompanySummaryDTO> {
     const company = await this._companyRepository.findById(companyId);
     if (!company) {
@@ -100,6 +98,7 @@ export class AdminCompanyManagementService
   ): Promise<CompanyPaginatedResponse> {
     const { companies, totalCompanies } =
       await this._companyRepository.findCompanies(page, limit, searchQuery);
+      // mapping
     const summary = companies.map(CompanyMapper.toSummaryDTO);
 
     const totalPages = Math.ceil(totalCompanies / limit);
@@ -162,5 +161,8 @@ export class AdminCompanyManagementService
         companiesPerPage: limit,
       },
     };
+  }
+  async deleteCompany(companyId: string) {
+    return this._companyRepository.delete(companyId);
   }
 }

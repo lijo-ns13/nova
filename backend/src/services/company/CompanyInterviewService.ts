@@ -19,6 +19,7 @@ import {
 import { ApplicationStatus } from "../../core/enums/applicationStatus";
 import { NotificationType } from "../../constants/notification.type.constant";
 import { IInterview } from "../../repositories/entities/interview.entity";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 
 export class CompanyInterviewService implements ICompanyInterviewService {
   constructor(
@@ -30,8 +31,7 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     private _notificationService: INotificationService,
     @inject(TYPES.CompanyRepository)
     private readonly _companyRepo: ICompanyRepository,
-    @inject(TYPES.JobRepository) private readonly _jobRepo: IJobRepository,
-    @inject(TYPES.UserRepository) private readonly _userRepo: IUserRepository
+    @inject(TYPES.JobRepository) private readonly _jobRepo: IJobRepository
   ) {}
   async createInterview(
     input: CreateInterviewInput
@@ -39,7 +39,7 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     const { companyId, userId, applicationId, jobId, scheduledAt } = input;
 
     const application = await this._applicationRepo.findById(applicationId);
-    if (!application) throw new Error("Application not found");
+    if (!application) throw new Error(COMMON_MESSAGES.APPLICATION_NOT_FOUND);
     if (application.status !== ApplicationStatus.SHORTLISTED) {
       throw new Error(
         "Only shortlisted applications can be scheduled for interviews"
@@ -105,10 +105,10 @@ export class CompanyInterviewService implements ICompanyInterviewService {
       companyId,
       applicationId,
     });
-    if (!interview) throw new Error("Interview not found");
+    if (!interview) throw new Error(COMMON_MESSAGES.INTERVIEW_NOT_FOUND);
 
     const application = await this._applicationRepo.findById(applicationId);
-    if (!application) throw new Error("Application not found");
+    if (!application) throw new Error(COMMON_MESSAGES.APPLICATION_NOT_FOUND);
 
     if (
       application.status !== ApplicationStatus.INTERVIEW_SCHEDULED &&
@@ -167,7 +167,4 @@ export class CompanyInterviewService implements ICompanyInterviewService {
     );
     return interviews;
   }
-}
-function uuid4() {
-  throw new Error("Function not implemented.");
 }
