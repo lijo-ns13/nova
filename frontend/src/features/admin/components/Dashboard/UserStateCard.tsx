@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getUserStats, UserStats } from "../../services/DashboardService";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
 
 export const UserStatsCard = () => {
   const [stats, setStats] = useState<UserStats | null>(null);
@@ -21,7 +22,7 @@ export const UserStatsCard = () => {
     fetchStats();
   }, []);
 
-  if (loading) return <p>Loading user stats...</p>;
+  if (loading) return <LoadingSpinner />;
   if (!stats) return <p>No data available.</p>;
 
   return (

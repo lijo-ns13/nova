@@ -12,6 +12,7 @@ import {
   Legend,
 } from "chart.js";
 import { getUserGrowth, UserGrowthDTO } from "../../services/DashboardService";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
 
 ChartJS.register(
   CategoryScale,
@@ -46,7 +47,7 @@ export const UserGrowthChart = () => {
     fetchGrowth();
   }, [range]);
 
-  if (loading) return <p>Loading user growth...</p>;
+  if (loading) return <LoadingSpinner />;
   if (!growth.length) return <p>No data available.</p>;
 
   const chartData = {

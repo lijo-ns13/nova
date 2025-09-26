@@ -11,6 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import { getRevenueStats, RevenueStats } from "../../services/DashboardService";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
 
 ChartJS.register(
   CategoryScale,
@@ -44,7 +45,7 @@ export const RevenueStatsCard = () => {
     fetchRevenue();
   }, [range]);
 
-  if (loading) return <p>Loading revenue stats...</p>;
+  if (loading) return <LoadingSpinner />;
   if (!revenue) return <p>No revenue data available.</p>;
 
   const chartData = {

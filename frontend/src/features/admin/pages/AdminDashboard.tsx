@@ -22,6 +22,8 @@ import toast from "react-hot-toast";
 import { RevenueStatsCard } from "../components/Dashboard/RevenueStatesCard";
 import { UserStatsCard } from "../components/Dashboard/UserStateCard";
 import { TransactionsTable } from "../components/Dashboard/TransactionTable";
+import LoadingSpinner from "../../../components/LoadingSpinner";
+import LoadingIndicator from "../components/UserManagement/LoadingIndicator";
 
 const AdminDashboard = () => {
   const [revenue, setRevenue] = useState<RevenueStats | null>(null);
@@ -67,7 +69,7 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading) return <p className="p-6 text-center">Loading dashboard...</p>;
+  if (loading) return <LoadingIndicator />;
 
   return (
     <div className="p-6 space-y-6">

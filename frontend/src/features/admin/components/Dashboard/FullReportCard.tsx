@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 import toast from "react-hot-toast";
 import { FullReport, getFullReport } from "../../services/DashboardService";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
 
 type Range = "daily" | "weekly" | "monthly" | "yearly";
 
@@ -28,7 +29,7 @@ export const FullReportCard = () => {
     fetchReport();
   }, [range]);
 
-  if (loading) return <p>Loading full report...</p>;
+  if (loading) return <LoadingSpinner />;
   if (!report) return <p>No data available.</p>;
 
   const growthData = {
