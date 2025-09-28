@@ -1,5 +1,5 @@
-import React from "react";
-import { User as UserIcon, UserPlus, UserMinus } from "lucide-react";
+import React, { useState } from "react";
+import { User as UserIcon, UserPlus, UserMinus, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export interface User {
@@ -28,19 +28,30 @@ const NetworkCard: React.FC<NetworkCardProps> = ({
   onUnfollow,
 }) => {
   const { user, isFollowing } = networkUser;
-
-  const handleFollowClick = (e: React.MouseEvent) => {
+  const [loading, setLoading] = useState(false);
+  const handleFollowClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onFollow(user.id);
+    if (loading) return;
+    setLoading(true);
+    try {
+      await onFollow(user.id);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleUnfollowClick = (e: React.MouseEvent) => {
+  const handleUnfollowClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onUnfollow(user.id);
+    if (loading) return;
+    setLoading(true);
+    try {
+      await onUnfollow(user.id);
+    } finally {
+      setLoading(false);
+    }
   };
-
   return (
     <div className="h-full flex">
       <Link
@@ -89,20 +100,30 @@ const NetworkCard: React.FC<NetworkCardProps> = ({
             {isFollowing ? (
               <button
                 onClick={handleUnfollowClick}
-                className="flex items-center justify-center space-x-1 px-4 py-2 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 w-[110px]"
+                disabled={loading}
+                className="flex items-center justify-center space-x-1 px-4 py-2 bg-red-50 text-red-600 rounded-md hover:bg-red-100 disabled:opacity-60 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 w-[110px]"
                 aria-label={`Unfollow ${user.name}`}
               >
-                <UserMinus size={16} />
-                <span>Unfollow</span>
+                {loading ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <UserMinus size={16} />
+                )}
+                <span>{loading ? "..." : "Unfollow"}</span>
               </button>
             ) : (
               <button
                 onClick={handleFollowClick}
-                className="flex items-center justify-center space-x-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 w-[110px]"
+                disabled={loading}
+                className="flex items-center justify-center space-x-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 disabled:opacity-60 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 w-[110px]"
                 aria-label={`Follow ${user.name}`}
               >
-                <UserPlus size={16} />
-                <span>Follow</span>
+                {loading ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <UserPlus size={16} />
+                )}
+                <span>{loading ? "..." : "Follow"}</span>
               </button>
             )}
           </div>

@@ -5,6 +5,8 @@ import FilterPanel from "../componets/job/FilterPanel";
 import Pagination from "../componets/job/Pagination";
 import { getJobs, JobResponseDTO } from "../services/JobServices";
 import { PaginationState } from "../types/jobTypes";
+import LoadingSpinner from "../componets/viewableProfile/LoadingSpinner";
+import LoadingIndicator from "../../admin/components/UserManagement/LoadingIndicator";
 
 interface FilterOptions {
   jobType: string[];
@@ -151,18 +153,19 @@ function JobPage() {
 
       {/* Job listing */}
       {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-pulse flex space-x-4">
-            <div className="flex-1 space-y-4 py-1">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded"></div>
-                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : jobs.length === 0 ? (
+        <LoadingIndicator />
+      ) : // <div className="flex justify-center items-center h-64">
+      //   <div className="animate-pulse flex space-x-4">
+      //     <div className="flex-1 space-y-4 py-1">
+      //       <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+      //       <div className="space-y-2">
+      //         <div className="h-4 bg-gray-200 rounded"></div>
+      //         <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+      //       </div>
+      //     </div>
+      //   </div>
+      // </div>
+      jobs.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900">No jobs found</h3>
           <p className="mt-2 text-gray-500">

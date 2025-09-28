@@ -29,6 +29,7 @@ const UserListModal: React.FC<UserListModalProps> = ({
   refetch,
   setUserData,
 }) => {
+  console.log("users", users);
   const [pending, setPending] = useState<string | null>(null);
   const handleFollowToggle = async (userId: string, isFollowing?: boolean) => {
     try {

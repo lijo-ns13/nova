@@ -3,6 +3,7 @@ import { AppliedJobResponseDTO, getAppliedJobs } from "../services/JobServices";
 
 import { Loader, ChevronsLeft, ChevronsRight } from "lucide-react";
 import ApplicationCard from "../componets/application/ApplicationCard";
+import LoadingIndicator from "../../admin/components/UserManagement/LoadingIndicator";
 
 const LIMIT = 5;
 
@@ -18,8 +19,8 @@ function AppliedJobsPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await getAppliedJobs(); // Fetch all jobs once
-      setAllJobs(res.data); // assuming data is array
+      const res = await getAppliedJobs();
+      setAllJobs(res.data);
     } catch (err) {
       setError("Failed to fetch applied jobs. Please try again.");
     } finally {
@@ -41,27 +42,34 @@ function AppliedJobsPage() {
   );
 
   return (
-    <div className="p-4 space-y-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-semibold text-gray-800 text-center">
-        Your Applications
+    <div className="p-6 max-w-6xl mx-auto space-y-8">
+      <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 text-center">
+        My Applications
       </h1>
 
+      {/* Loader */}
       {loading && (
-        <div className="flex justify-center py-10">
-          <Loader className="animate-spin w-6 h-6 text-gray-600" />
+        <div className="flex justify-center py-20">
+          <LoadingIndicator />
         </div>
       )}
 
-      {error && <div className="text-center text-red-500">{error}</div>}
-
-      {!loading && !error && allJobs.length === 0 && (
-        <div className="text-center text-gray-500">No applications found.</div>
+      {/* Error */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md text-center">
+          {error}
+        </div>
       )}
 
-      <div
-        className="grid gap-4 sm:grid-cols-1 md:grid-cols-2"
-        style={{ minHeight: "300px" }}
-      >
+      {/* No applications */}
+      {!loading && !error && allJobs.length === 0 && (
+        <div className="text-center text-gray-500 py-10">
+          You have not applied to any jobs yet.
+        </div>
+      )}
+
+      {/* Applications Grid */}
+      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {paginatedJobs.map((job) => (
           <ApplicationCard
             key={job._id}
@@ -71,19 +79,19 @@ function AppliedJobsPage() {
         ))}
       </div>
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       {!loading && allJobs.length > 0 && (
-        <div className="flex justify-center items-center gap-4 mt-6">
+        <div className="flex justify-center items-center gap-4 mt-10 flex-wrap">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="flex items-center gap-2 px-4 py-2 text-sm rounded-md border bg-white hover:bg-gray-100 disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-2 text-sm font-medium rounded-lg border bg-white shadow-sm hover:bg-gray-50 disabled:opacity-50 transition"
           >
-            <ChevronsLeft className="w-4 h-4" />
+            <ChevronsLeft className="w-5 h-5" />
             Previous
           </button>
 
-          <span className="text-gray-600 text-sm font-medium">
+          <span className="text-gray-700 font-medium">
             Page {currentPage} of {totalPages}
           </span>
 
@@ -92,10 +100,10 @@ function AppliedJobsPage() {
               setCurrentPage((prev) => (prev < totalPages ? prev + 1 : prev))
             }
             disabled={currentPage === totalPages}
-            className="flex items-center gap-2 px-4 py-2 text-sm rounded-md border bg-white hover:bg-gray-100 disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-2 text-sm font-medium rounded-lg border bg-white shadow-sm hover:bg-gray-50 disabled:opacity-50 transition"
           >
             Next
-            <ChevronsRight className="w-4 h-4" />
+            <ChevronsRight className="w-5 h-5" />
           </button>
         </div>
       )}

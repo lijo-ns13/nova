@@ -12,6 +12,7 @@ import ProjectSectionViewable from "./tabs/ProjectSectionViewable";
 import LoadingSpinner from "./LoadingSpinner";
 import MobileMenu from "./MobileMenu";
 import { useAppSelector } from "../../../../hooks/useAppSelector";
+import Navbar from "../NavBar";
 
 interface UserProfileProps {
   username: string;
@@ -58,7 +59,7 @@ const UserProfile = ({ username }: UserProfileProps) => {
 
   return (
     <div className="min-h-screen bg-white text-black">
-      {/* Navbar */}
+      <Navbar />
       {/* <Navbar transparent /> */}
 
       {/* Mobile menu */}

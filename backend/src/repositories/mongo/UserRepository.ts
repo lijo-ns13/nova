@@ -497,7 +497,7 @@ export class UserRepository
     targetUserId: string,
     currentUserId: string
   ): Promise<IUserWithStatus[]> {
-    const targetUser = await this.model.findById(currentUserId).populate<{
+    const targetUser = await this.model.findById(targetUserId).populate<{
       followers: IUser[];
     }>({
       path: "followers",
@@ -505,7 +505,7 @@ export class UserRepository
     });
 
     const currentUser = await this.model
-      .findById(targetUserId)
+      .findById(currentUserId)
       .select("following");
     const currentUserFollowingIds =
       currentUser?.following.map((id) => id.toString()) ?? [];
@@ -522,12 +522,12 @@ export class UserRepository
       isCurrentUser: follower._id.toString() === targetUserId, // 👈 NEW
     }));
   }
-
+  // getFollowingWithFollowingStatus
   async getFollowingWithFollowingStatus(
     targetUserId: string,
     currentUserId: string
   ): Promise<IUserWithStatus[]> {
-    const targetUser = await this.model.findById(currentUserId).populate<{
+    const targetUser = await this.model.findById(targetUserId).populate<{
       following: IUser[];
     }>({
       path: "following",
@@ -535,7 +535,7 @@ export class UserRepository
     });
 
     const currentUser = await this.model
-      .findById(targetUserId)
+      .findById(currentUserId)
       .select("following");
     const currentUserFollowingIds =
       currentUser?.following.map((id) => id.toString()) ?? [];

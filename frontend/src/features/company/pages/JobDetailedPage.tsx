@@ -16,6 +16,7 @@ import UpdateJobForm from "../components/Job/UpdateJobForm";
 
 import { JobResponseDto, JobService } from "../services/jobServices";
 import { handleApiError } from "../../../utils/apiError";
+import LoadingIndicator from "../../admin/components/UserManagement/LoadingIndicator";
 
 function JobDetailedPage() {
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ function JobDetailedPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Spinner />
+        <LoadingIndicator />
       </div>
     );
   }

@@ -2,8 +2,8 @@ export const USER_FOLLOW_ROUTES = {
   NETWORK_USERS: "/network-users",
   FOLLOW: "/:userId/follow",
   UNFOLLOW: "/:userId/unfollow",
-  FOLLOWERS: "/:userId/followers",
-  FOLLOWING: "/:userId/following",
+  FOLLOWERS: "/followers/:userId",
+  FOLLOWING: "/following/:userId",
   FOLLOW_STATUS: "/:userId/follow-status",
 };
 export const USER_INTERVIEW_ROUTES = {

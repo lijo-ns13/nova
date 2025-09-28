@@ -4,6 +4,7 @@ import Spinner from "../components/Spinner";
 import CreateJobPage from "./CreateJobPage";
 import { JobResponseDto, JobService } from "../services/jobServices";
 import { handleApiError } from "../../../utils/apiError";
+import LoadingIndicator from "../../admin/components/UserManagement/LoadingIndicator";
 
 function ManageJobsPage() {
   const [jobs, setJobs] = useState<JobResponseDto[]>([]);
@@ -41,7 +42,7 @@ function ManageJobsPage() {
     setRefreshTrigger((prev) => prev + 1);
   }, []);
 
-  if (loading) return <Spinner />;
+  if (loading) return <LoadingIndicator />;
   if (error) return <div className="text-red-500 p-4">{error}</div>;
 
   return (
