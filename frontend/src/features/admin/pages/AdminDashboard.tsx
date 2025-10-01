@@ -86,7 +86,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Full Report Card */}
-      <FullReportCard />
+      {/* <FullReportCard /> */}
 
       {/* Transactions Table + Download */}
       <div className="flex flex-col space-y-2">

@@ -16,6 +16,7 @@ export const FullReportCard = () => {
     try {
       setLoading(true);
       const data = await getFullReport(range);
+      console.log("data", data);
       setReport(data);
     } catch (err) {
       toast.error("Failed to fetch full report");

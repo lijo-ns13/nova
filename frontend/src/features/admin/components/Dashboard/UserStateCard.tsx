@@ -31,10 +31,10 @@ export const UserStatsCard = () => {
         <p className="text-lg font-semibold">Total Users</p>
         <p className="text-2xl font-bold">{stats.totalUsers}</p>
       </div>
-      <div className="flex flex-col items-center justify-center">
+      {/* <div className="flex flex-col items-center justify-center">
         <p className="text-lg font-semibold">Active Users</p>
         <p className="text-2xl font-bold">{stats.activeUsers}</p>
-      </div>
+      </div> */}
     </div>
   );
 };

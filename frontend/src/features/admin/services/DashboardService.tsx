@@ -3,6 +3,8 @@ import apiAxios from "../../../utils/apiAxios";
 const BASE_PATH = "/admin/analytics";
 
 export interface UserGrowthDTO {
+  count: string;
+  date: string | number | Date;
   month: string;
   newUsers: number;
 }
@@ -35,6 +37,9 @@ export const getRevenueStats = async (
 };
 
 export interface TopPlan {
+  totalRevenue: string;
+  count: string;
+  planName: string;
   id: string;
   name: string;
   subscribers: number;
@@ -91,6 +96,7 @@ export const getUserStats = async (): Promise<UserStats> => {
 };
 // Transaction DTO
 export interface Transaction {
+  createdAt: string | number | Date;
   id: string;
   userId: {
     id: string;
