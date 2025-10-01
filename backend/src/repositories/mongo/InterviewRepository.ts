@@ -40,10 +40,13 @@ export class InterviewRepository
     return !!result;
   }
   async findByCompanyIdforPop(companyId: string): Promise<IInterview[]> {
+    const now = new Date();
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000); // 1 hour ago
+
     return this.model
       .find({
         companyId: new Types.ObjectId(companyId),
-        scheduledAt: { $gte: new Date() },
+        scheduledAt: { $gte: oneHourAgo }, // includes last 1 hour + future
       })
       .populate({
         path: "applicationId",
@@ -52,6 +55,7 @@ export class InterviewRepository
       .sort({ scheduledAt: 1 })
       .exec();
   }
+
   async findConflictingInterviewSlotIncludingProposals(
     companyId: string,
     slot: Date,

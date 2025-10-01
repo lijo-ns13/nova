@@ -91,10 +91,10 @@ export class JobApplicantManagementService
       throw new Error(`Reason is required for status: ${newStatus}`);
     }
     await this._notificationService.sendNotification(
-      jobData.company.toString(),
+      user.toString(),
       `application status updated for ${jobData.title} and status is ${newStatus}`,
       NotificationType.JOB,
-      user.toString()
+      jobData.company.toString()
     );
 
     return this._applicationRepo.updateStatus(applicationId, newStatus, reason);

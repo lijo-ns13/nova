@@ -72,14 +72,14 @@ export class TransactionService implements ITransactionService {
       user.activePaymentSessionExpiresAt &&
       user.activePaymentSessionExpiresAt > now
     ) {
-      const existingSession = await stripe.checkout.sessions.retrieve(
-        user.activePaymentSession
-      );
-      if (existingSession?.metadata?.planName === metadata.planName) {
-        return { url: existingSession.url!, sessionId: existingSession.id };
-      }
+      // const existingSession = await stripe.checkout.sessions.retrieve(
+      //   user.activePaymentSession
+      // );
+      // if (existingSession?.metadata?.planName === metadata.planName) {
+      //   return { url: existingSession.url!, sessionId: existingSession.id };
+      // }
       throw new Error(
-        `You already have a pending payment session for a different plan. Session URL: ${existingSession.url}`
+        `You already have a pending payment session for a different plan.`
       );
     }
 

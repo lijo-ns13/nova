@@ -78,7 +78,7 @@ const ScheduleInterviewModal: React.FC<ScheduleInterviewModalProps> = ({
     }
 
     if (!isValid) {
-      setError("Interview must be scheduled at least 5 days from today.");
+      setError("Interview must be scheduled at least 1 days from today.");
       return;
     }
 
