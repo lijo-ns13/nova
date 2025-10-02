@@ -156,9 +156,9 @@ function JobDetailedPage() {
           {/* Delete Modal */}
           <ConfirmSoftDeleteModal
             isOpen={showDeleteModal}
-            onConfirm={() => {
+            onConfirm={async () => {
               setShowDeleteModal(false);
-              void handleDelete(jobId!);
+              await handleDelete(jobId!);
             }}
             onCancel={() => setShowDeleteModal(false)}
             itemType="job"
