@@ -33,12 +33,11 @@ router.get(POST_ROUTES.BY_ID, (req, res, next) => {
 router.delete(POST_ROUTES.BY_ID, (req, res, next) =>
   postController.delete(req, res).catch(next)
 );
-
-router.get(POST_ROUTES.ROOT, (req, res, next) => {
-  postController.getAllPost(req, res).catch(next);
-});
 router.post(POST_ROUTES.LIKE, (req, res, next) => {
   postController.likeOrUnlikePost(req, res).catch(next);
+});
+router.get(POST_ROUTES.ROOT, (req, res, next) => {
+  postController.getAllPost(req, res).catch(next);
 });
 
 // Get all likes for a post

@@ -12,6 +12,7 @@ import {
 } from "../../mapping/user/UserFollowMapper";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { NotificationType } from "../../constants/notification.type.constant";
+import { USER_MESSAGES } from "../../constants/message.constants";
 
 @injectable()
 export class UserFollowService implements IUserFollowService {
@@ -28,7 +29,7 @@ export class UserFollowService implements IUserFollowService {
     followingId: string
   ): Promise<FollowResultDTO> {
     if (followerId === followingId) {
-      throw new Error("You cannot follow yourself");
+      throw new Error(USER_MESSAGES.FOLLOW.SELF_FOLLOW_NOT_ALLOWED);
     }
 
     const alreadyFollowing = await this._userRepository.isFollowing(
@@ -36,7 +37,7 @@ export class UserFollowService implements IUserFollowService {
       followingId
     );
     if (alreadyFollowing) {
-      throw new Error("You are already following this user");
+      throw new Error(USER_MESSAGES.FOLLOW.ALREADY_FOLLOWING);
     }
 
     const { follower, following } = await this._userRepository.followUser(
@@ -45,7 +46,7 @@ export class UserFollowService implements IUserFollowService {
     );
 
     if (!follower || !following) {
-      throw new Error("Failed to follow user");
+      throw new Error(USER_MESSAGES.FOLLOW.FOLLOW_FAILED);
     }
 
     const followerUser = await this._userRepository.findById(followerId);
@@ -58,7 +59,7 @@ export class UserFollowService implements IUserFollowService {
       );
     }
 
-    return { message: "Successfully followed user" };
+    return { message: USER_MESSAGES.FOLLOW.FOLLOW_SUCCESS };
   }
 
   async unfollowUser(
@@ -66,7 +67,7 @@ export class UserFollowService implements IUserFollowService {
     followingId: string
   ): Promise<FollowResultDTO> {
     if (followerId === followingId) {
-      throw new Error("You cannot unfollow yourself");
+      throw new Error(USER_MESSAGES.FOLLOW.SELF_UNFOLLOW_NOT_ALLOWED);
     }
 
     const isFollowing = await this._userRepository.isFollowing(
@@ -74,7 +75,7 @@ export class UserFollowService implements IUserFollowService {
       followingId
     );
     if (!isFollowing) {
-      throw new Error("You are not following this user");
+      throw new Error(USER_MESSAGES.FOLLOW.NOT_FOLLOWING);
     }
 
     const { follower, following } = await this._userRepository.unfollowUser(
@@ -83,10 +84,10 @@ export class UserFollowService implements IUserFollowService {
     );
 
     if (!follower || !following) {
-      throw new Error("Failed to unfollow user");
+      throw new Error(USER_MESSAGES.FOLLOW.UNFOLLOW_FAILED);
     }
 
-    return { message: "Successfully unfollowed user" };
+    return { message: USER_MESSAGES.FOLLOW.UNFOLLOW_SUCCESS };
   }
 
   async getFollowers(

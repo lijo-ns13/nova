@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
 import { predefinedRejectionReasons } from "../constants/company.reject.constant";
+import LoadingSpinner from "../../../components/LoadingSpinner";
 
 const CompanyVerificationPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -102,7 +103,7 @@ const CompanyVerificationPage: React.FC = () => {
       </h2>
 
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <LoadingSpinner />
       ) : companies.length === 0 ? (
         <p className="text-center text-gray-500">
           No unverified companies found.

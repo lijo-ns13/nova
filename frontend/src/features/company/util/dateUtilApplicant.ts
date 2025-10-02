@@ -19,7 +19,7 @@ export const formatInterviewDate = (dateString: string): string => {
 
 export const getMinValidDate = (): string => {
   const today = new Date();
-  const fiveDaysFromNow = new Date(today.setDate(today.getDate() + 5));
+  const fiveDaysFromNow = new Date(today.setDate(today.getDate() + 1));
 
   // Format for datetime-local input
   return fiveDaysFromNow.toISOString().slice(0, 16);
@@ -31,7 +31,7 @@ export const isDateValid = (dateString: string): boolean => {
   const selectedDate = new Date(dateString);
   const today = new Date();
   const fiveDaysFromNow = new Date(today);
-  fiveDaysFromNow.setDate(today.getDate() + 5);
+  fiveDaysFromNow.setDate(today.getDate() + 1);
 
   return selectedDate >= fiveDaysFromNow;
 };

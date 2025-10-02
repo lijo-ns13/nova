@@ -104,7 +104,8 @@ function SignUp() {
 
     if (!formData.businessNumber || formData.businessNumber <= 0)
       newErrors.businessNumber = "Business number must be a positive number";
-
+    // if (!formData.businessNumber >= 9999999999)
+    // newErrors.businessNumber = "bussiness number between ";
     if (!formData.industryType.trim())
       newErrors.industryType = "Industry type is required";
 
@@ -156,13 +157,16 @@ function SignUp() {
         navigate(`/company/verify?email=${response.data.email}`);
       }, 2000);
     } catch (error) {
-      const parsedError = handleApiError(error);
-      if (parsedError.errors) {
-        setErrors(parsedError.errors);
-      } else {
-        setServerError(parsedError.message);
-        toast.error(parsedError.message);
-      }
+      console.log("error signup", error);
+      // const parsedError = handleApiError(error);
+      // console.log("pareserooor", parsedError);
+      setErrors(error.errors);
+      // if (error.errors) {
+      //   setErrors(error.errors);
+      // } else {
+      // setServerError(parsedError.message);
+      // toast.error(parsedError.message);
+      // }
     } finally {
       setLoading(false);
     }
@@ -438,7 +442,7 @@ function SignUp() {
                 {/* Documents */}
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Company Documents (Images only, max 5MB each)
+                    Company Documents (PDF only, max 5MB each)
                   </label>
                   <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                     <div className="space-y-1 text-center">

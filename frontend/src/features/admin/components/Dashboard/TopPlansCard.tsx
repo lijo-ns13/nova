@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -11,6 +10,7 @@ import {
   Legend,
 } from "chart.js";
 import { getTopPlans, TopPlan } from "../../services/DashboardService";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
 
 ChartJS.register(
   CategoryScale,
@@ -32,6 +32,7 @@ export const TopPlansCard = () => {
     try {
       setLoading(true);
       const data = await getTopPlans(range);
+      console.log("topplan", data);
       setTopPlans(data);
     } catch (err) {
       console.error(err);
@@ -44,16 +45,21 @@ export const TopPlansCard = () => {
     fetchTopPlans();
   }, [range]);
 
-  if (loading) return <p>Loading top plans...</p>;
+  if (loading) return <LoadingSpinner />;
   if (!topPlans.length) return <p>No top plans available.</p>;
 
   const chartData = {
-    labels: topPlans.map((plan) => plan.name),
+    labels: topPlans.map((plan) => plan.planName), // ✅ fixed
     datasets: [
       {
         label: "Subscribers",
-        data: topPlans.map((plan) => plan.subscribers),
+        data: topPlans.map((plan) => plan.count), // ✅ fixed
         backgroundColor: "rgba(255, 99, 132, 0.6)",
+      },
+      {
+        label: "Revenue ($)",
+        data: topPlans.map((plan) => plan.totalRevenue), // ✅ optional extra
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
       },
     ],
   };
@@ -79,8 +85,8 @@ export const TopPlansCard = () => {
         options={{
           responsive: true,
           plugins: {
-            legend: { display: false },
-            title: { display: true, text: "Subscribers per Plan" },
+            legend: { position: "top" },
+            title: { display: true, text: "Top Plans (Subscribers & Revenue)" },
           },
         }}
       />

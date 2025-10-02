@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 
 import { ISkill } from "../types/skills";
 import { ParsedAPIError } from "../../../types/api";
+import ConfirmSoftDeleteModal from "../../user/componets/modals/ConfirmSoftDeleteModal";
 
 export default function SkillList() {
   const [skills, setSkills] = useState<ISkill[]>([]);
@@ -32,6 +33,7 @@ export default function SkillList() {
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [skillToDelete, setSkillToDelete] = useState<ISkill | null>(null);
 
   useEffect(() => {
     fetchSkills();
@@ -116,21 +118,15 @@ export default function SkillList() {
       setIsLoading(false);
     }
   };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this skill?")) return;
-    setIsDeleting(id);
-
+  const confirmDelete = async () => {
+    if (!skillToDelete) return;
+    setIsDeleting(skillToDelete.id);
     try {
-      await SkillService.deleteSkill(id);
+      await SkillService.deleteSkill(skillToDelete.id);
       toast.success("Skill deleted successfully");
+      setSkills(skills.filter((s) => s.id !== skillToDelete.id));
 
-      // Optimistic update
-      const newSkills = skills.filter((skill) => skill.id !== id);
-      setSkills(newSkills);
-
-      // Update pagination if needed
-      if (newSkills.length === 0 && currentPage > 1) {
+      if (skills.length === 1 && currentPage > 1) {
         setCurrentPage((prev) => prev - 1);
       } else {
         setTotalItems((prev) => prev - 1);
@@ -139,8 +135,34 @@ export default function SkillList() {
       toast.error("Failed to delete skill");
     } finally {
       setIsDeleting(null);
+      setSkillToDelete(null);
     }
   };
+
+  // const handleDelete = async (id: string) => {
+  //   if (!window.confirm("Are you sure you want to delete this skill?")) return;
+  //   setIsDeleting(id);
+
+  //   try {
+  //     await SkillService.deleteSkill(id);
+  //     toast.success("Skill deleted successfully");
+
+  //     // Optimistic update
+  //     const newSkills = skills.filter((skill) => skill.id !== id);
+  //     setSkills(newSkills);
+
+  //     // Update pagination if needed
+  //     if (newSkills.length === 0 && currentPage > 1) {
+  //       setCurrentPage((prev) => prev - 1);
+  //     } else {
+  //       setTotalItems((prev) => prev - 1);
+  //     }
+  //   } catch (error) {
+  //     toast.error("Failed to delete skill");
+  //   } finally {
+  //     setIsDeleting(null);
+  //   }
+  // };
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
@@ -186,20 +208,15 @@ export default function SkillList() {
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full"
                 />
               </div>
-              <button
+              {/* <button
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
                 type="submit"
                 disabled={isSearching}
               >
                 {isSearching ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <>
-                    <Search className="w-4 h-4" />
-                    Search
-                  </>
-                )}
-              </button>
+                ) }
+              </button> */}
               <button
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
                 onClick={() => setCreateSkillModal(true)}
@@ -261,7 +278,7 @@ export default function SkillList() {
                           </button>
                           <button
                             className="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 transition-colors"
-                            onClick={() => handleDelete(skill.id)}
+                            onClick={() => setSkillToDelete(skill)}
                             disabled={isDeleting === skill.id}
                             title="Delete"
                           >
@@ -390,6 +407,8 @@ export default function SkillList() {
               placeholder="Enter skill name"
               className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               required
+              minLength={3}
+              maxLength={15}
               autoFocus
             />
           </div>
@@ -439,6 +458,8 @@ export default function SkillList() {
               placeholder="Enter skill name"
               className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               required
+              minLength={3}
+              maxLength={15}
               autoFocus
             />
           </div>
@@ -465,6 +486,14 @@ export default function SkillList() {
           </div>
         </form>
       </BaseModal>
+      <ConfirmSoftDeleteModal
+        isOpen={!!skillToDelete}
+        onConfirm={confirmDelete}
+        onCancel={() => setSkillToDelete(null)}
+        itemType="skill"
+        itemName={skillToDelete?.title}
+        extraMessage="This action cannot be undone"
+      />
     </div>
   );
 }

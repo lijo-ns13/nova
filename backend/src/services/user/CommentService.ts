@@ -28,7 +28,7 @@ export class CommentService implements ICommentService {
     const comment = await this._commentRepo.createComment(input);
     const post = await this._postRepo.findById(input.postId);
     if (!post) {
-      throw new Error("post not found");
+      throw new Error(COMMON_MESSAGES.POST_NOT_FOUND);
     }
     await this._notificationService.sendNotification(
       post?.creatorId.toString(),

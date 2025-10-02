@@ -16,9 +16,9 @@ import { ApplicationStatus } from "../../core/enums/applicationStatus";
 @injectable()
 export class CompanyDashboardService implements ICompanyDashboardService {
   constructor(
-    @inject(TYPES.JobRepository) private readonly jobRepository: IJobRepository,
+    @inject(TYPES.JobRepository) private readonly _jobRepository: IJobRepository,
     @inject(TYPES.ApplicationRepository)
-    private readonly applicationRepository: IApplicationRepository
+    private readonly _applicationRepository: IApplicationRepository
   ) {}
 
   async getCompanyDashboardStats(companyId: string): Promise<{
@@ -26,7 +26,7 @@ export class CompanyDashboardService implements ICompanyDashboardService {
     statusDistribution: StatusDistribution[];
     trends: Trends;
   }> {
-    const jobIds = await this.jobRepository.findJobIdsByCompany(companyId);
+    const jobIds = await this._jobRepository.findJobIdsByCompany(companyId);
 
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -52,16 +52,16 @@ export class CompanyDashboardService implements ICompanyDashboardService {
       monthlyTrend,
       jobStatusTrend,
     ] = await Promise.all([
-      this.jobRepository.countJobsByCompany(companyId),
-      this.jobRepository.countJobsByCompanyAndStatus(companyId, "open"),
-      this.jobRepository.countJobsByCompanyAndStatus(companyId, "closed"),
-      this.applicationRepository.countApplications(jobIds),
-      this.applicationRepository.countApplicationsSince(jobIds, oneWeekAgo),
-      this.applicationRepository.aggregateStatusCounts(jobIds),
-      this.applicationRepository.aggregateDailyTrend(jobIds, oneWeekAgo),
-      this.applicationRepository.aggregateWeeklyTrend(jobIds, threeMonthsAgo),
-      this.applicationRepository.aggregateMonthlyTrend(jobIds, oneYearAgo),
-      this.jobRepository.aggregateJobStatusTrend(companyId),
+      this._jobRepository.countJobsByCompany(companyId),
+      this._jobRepository.countJobsByCompanyAndStatus(companyId, "open"),
+      this._jobRepository.countJobsByCompanyAndStatus(companyId, "closed"),
+      this._applicationRepository.countApplications(jobIds),
+      this._applicationRepository.countApplicationsSince(jobIds, oneWeekAgo),
+      this._applicationRepository.aggregateStatusCounts(jobIds),
+      this._applicationRepository.aggregateDailyTrend(jobIds, oneWeekAgo),
+      this._applicationRepository.aggregateWeeklyTrend(jobIds, threeMonthsAgo),
+      this._applicationRepository.aggregateMonthlyTrend(jobIds, oneYearAgo),
+      this._jobRepository.aggregateJobStatusTrend(companyId),
     ]);
 
     const formattedStatusCounts: StatusDistribution[] = Object.values(

@@ -63,7 +63,7 @@ const Sidebar = () => {
     <>
       {/* Mobile Menu Toggle */}
       <div className="md:hidden flex items-center justify-between bg-gray-800 text-white p-4">
-        <h2 className="text-lg font-semibold">NOVA</h2>
+        {/* <h2 className="text-lg font-semibold">NOVA</h2> */}
         <button onClick={toggleSidebar}>
           {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -76,7 +76,7 @@ const Sidebar = () => {
         } md:translate-x-0 transition-transform duration-200 ease-in-out z-40`}
       >
         <div className="p-4">
-          <h2 className="text-lg font-semibold mb-6 hidden md:block">NOVA</h2>
+          {/* <h2 className="text-lg font-semibold mb-6 hidden md:block">NOVA</h2> */}
           <ul>
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;

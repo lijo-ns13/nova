@@ -14,7 +14,6 @@ import {
   SkillResponseDto,
 } from "../../dtos/response/admin/admin.skill.reponse.dto";
 import { COMMON_MESSAGES } from "../../constants/message.constants";
-import { title } from "process";
 
 @injectable()
 export class AdminSkillService implements IAdminSkillService {

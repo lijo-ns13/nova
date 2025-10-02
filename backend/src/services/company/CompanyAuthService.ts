@@ -35,6 +35,7 @@ import {
 } from "../../mapping/company/auth/company.auth.mapper";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { NotificationType } from "../../constants/notification.type.constant";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 
 @injectable()
 export class CompanyAuthService implements ICompanyAuthService {
@@ -82,7 +83,7 @@ export class CompanyAuthService implements ICompanyAuthService {
     const expiresAt = new Date(Date.now() + 60 * 1000);
     await this._otpRepository.createOTP({
       accountId: createdTemp._id,
-      accountType: "company",
+      accountType: AUTH_ROLES.COMPANY,
       otp,
       expiresAt,
     });
@@ -103,17 +104,23 @@ export class CompanyAuthService implements ICompanyAuthService {
     );
     if (!isPasswordValid) throw new Error("Invalid password");
 
-    const accessToken = this._jwtService.generateAccessToken("company", {
-      id: company._id.toString(),
-      email: company.email,
-      role: "company",
-    });
+    const accessToken = this._jwtService.generateAccessToken(
+      AUTH_ROLES.COMPANY,
+      {
+        id: company._id.toString(),
+        email: company.email,
+        role: AUTH_ROLES.COMPANY,
+      }
+    );
 
-    const refreshToken = this._jwtService.generateRefreshToken("company", {
-      id: company._id.toString(),
-      email: company.email,
-      role: "company",
-    });
+    const refreshToken = this._jwtService.generateRefreshToken(
+      AUTH_ROLES.COMPANY,
+      {
+        id: company._id.toString(),
+        email: company.email,
+        role: AUTH_ROLES.COMPANY,
+      }
+    );
 
     const admins = await this._adminRepo.findAll();
     for (const admin of admins) {
@@ -197,7 +204,7 @@ export class CompanyAuthService implements ICompanyAuthService {
     } else {
       await this._otpRepository.createOTP({
         accountId: tempCompany._id,
-        accountType: "company",
+        accountType: AUTH_ROLES.COMPANY,
         otp: hashedOtp,
         expiresAt,
       });
@@ -214,7 +221,7 @@ export class CompanyAuthService implements ICompanyAuthService {
 
     await this._passwordResetTokenRepository.deleteByAccount(
       company._id,
-      "company"
+      AUTH_ROLES.COMPANY
     );
 
     const { rawToken, hashedToken, expiresAt } = generatePasswordResetToken();
@@ -222,7 +229,7 @@ export class CompanyAuthService implements ICompanyAuthService {
     await this._passwordResetTokenRepository.createToken({
       token: hashedToken,
       accountId: company._id,
-      accountType: "company",
+      accountType: AUTH_ROLES.COMPANY,
       expiresAt,
     });
 
@@ -246,7 +253,7 @@ export class CompanyAuthService implements ICompanyAuthService {
       throw new Error("Token is invalid or has expired");
     }
 
-    if (tokenDoc.accountType !== "company") {
+    if (tokenDoc.accountType !== AUTH_ROLES.COMPANY) {
       throw new Error("Invalid account type for this operation");
     }
 

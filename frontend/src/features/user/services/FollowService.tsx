@@ -87,7 +87,7 @@ export const unfollowUser = async (userId: string): Promise<BasicResponse> => {
 export const getFollowers = async (userId: string): Promise<NetworkUser[]> => {
   try {
     const res = await apiAxios.get<APIResponse<NetworkUser[]>>(
-      `${BASE_URL}/${userId}/followers`
+      `${BASE_URL}/followers/${userId}`
     );
     return res.data.data;
   } catch (error) {
@@ -98,7 +98,7 @@ export const getFollowers = async (userId: string): Promise<NetworkUser[]> => {
 export const getFollowing = async (userId: string): Promise<NetworkUser[]> => {
   try {
     const res = await apiAxios.get<APIResponse<NetworkUser[]>>(
-      `${BASE_URL}/${userId}/following`
+      `${BASE_URL}/following/${userId}`
     );
     return res.data.data;
   } catch (error) {

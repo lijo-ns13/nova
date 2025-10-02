@@ -20,7 +20,7 @@ import googleRouter from "./routes/google.routes";
 
 import { HTTP_STATUS_CODES } from "./core/enums/httpStatusCode";
 // import adminAnalyticsRoutes from "./routes/admin/admindash.routes";
-import "./cron/userCronJob";
+// import "./cron/userCronJob";
 import { requestLogger } from "./middlewares/requestLogger";
 import logger from "./utils/logger";
 

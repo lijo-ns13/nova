@@ -21,6 +21,10 @@ import {
   RefundRequestInput,
   RefundResponseDTO,
 } from "../../core/dtos/user/tranasction/refund.request.dto";
+import {
+  COMMON_MESSAGES,
+  USER_MESSAGES,
+} from "../../constants/message.constants";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-05-28.basil",
@@ -44,15 +48,13 @@ export class TransactionService implements ITransactionService {
     metadata,
   }: CreateCheckoutSessionInput): Promise<CreateCheckoutSessionOutput> {
     const user = await this._userRepo.findById(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error(COMMON_MESSAGES.USER_NOT_FOUND);
 
     const now = new Date();
 
     // ✅ Subscription cancelled check
     if (user.subscriptionCancelled) {
-      throw new Error(
-        "You already subscribed and cancelled once this month. Please try again next month."
-      );
+      throw new Error(USER_MESSAGES.SUB.ALREADY_CANCELLED_ONCETHIS_MONTH);
     }
 
     // ✅ Active subscription check
@@ -61,7 +63,7 @@ export class TransactionService implements ITransactionService {
       user.subscriptionEndDate &&
       user.subscriptionEndDate > now
     ) {
-      throw new Error("You already have an active subscription");
+      throw new Error(USER_MESSAGES.SUB.ALREADY_HAVE_ACTIVE_ONE);
     }
 
     // ✅ Active payment session check
@@ -70,14 +72,14 @@ export class TransactionService implements ITransactionService {
       user.activePaymentSessionExpiresAt &&
       user.activePaymentSessionExpiresAt > now
     ) {
-      const existingSession = await stripe.checkout.sessions.retrieve(
-        user.activePaymentSession
-      );
-      if (existingSession?.metadata?.planName === metadata.planName) {
-        return { url: existingSession.url!, sessionId: existingSession.id };
-      }
+      // const existingSession = await stripe.checkout.sessions.retrieve(
+      //   user.activePaymentSession
+      // );
+      // if (existingSession?.metadata?.planName === metadata.planName) {
+      //   return { url: existingSession.url!, sessionId: existingSession.id };
+      // }
       throw new Error(
-        `You already have a pending payment session for a different plan. Session URL: ${existingSession.url}`
+        `You already have a pending payment session for a different plan.`
       );
     }
 
@@ -134,9 +136,9 @@ export class TransactionService implements ITransactionService {
     const planName = session.metadata?.planName || "Unknown Plan";
     const orderId = session.metadata?.orderId || uuidv4();
 
-    if (!userId) throw new Error("User ID missing in session metadata");
+    if (!userId)
+      throw new Error(USER_MESSAGES.SUB.USERID_MISSING_IN_SESSION_METADATA);
 
-    // 1. Check if transaction already exists
     const existingTxn = await this._transRepository.findTransactionBySession(
       sessionId
     );
@@ -158,14 +160,12 @@ export class TransactionService implements ITransactionService {
       };
     }
 
-    // 2. Find subscription
     const subscription = await this._subRepo.findSubscriptionByName(planName);
-    if (!subscription) throw new Error("Subscription plan not found");
+    if (!subscription) throw new Error(USER_MESSAGES.SUB.PLAN_NOT_FOUND);
 
     const now = new Date();
     const endDate = moment(now).add(subscription.validityDays, "days").toDate();
 
-    // 3. Create transaction
     await this._transRepository.createTransaction({
       userId: new Types.ObjectId(userId),
       orderId,
@@ -179,7 +179,6 @@ export class TransactionService implements ITransactionService {
       createdAt: now,
     });
 
-    // 4. Update user subscription
     await this._userRepo.updateUserSubscription(
       userId,
       {
@@ -208,19 +207,16 @@ export class TransactionService implements ITransactionService {
   async processRefund(input: RefundRequestInput): Promise<RefundResponseDTO> {
     const { stripeSessionId, reason } = input;
 
-    // 1️⃣ Fetch transaction
     const transaction = await this._transRepository.findByStripeSessionId(
       stripeSessionId
     );
     if (!transaction || transaction.status !== "completed") {
-      throw new Error("Invalid or already refunded transaction.");
+      throw new Error(USER_MESSAGES.SUB.INVALID_OR_ALREADY_REFUNDED);
     }
 
-    // 2️⃣ Fetch user
     const user = await this._userRepo.findById(transaction.userId.toString());
-    if (!user) throw new Error("User not found.");
+    if (!user) throw new Error(COMMON_MESSAGES.USER_NOT_FOUND);
 
-    // 3️⃣ Usage checks
     if (
       user.appliedJobCount >= MAX_JOB_LIMIT ||
       user.createdPostCount >= MAX_POST_LIMIT
@@ -231,7 +227,7 @@ export class TransactionService implements ITransactionService {
     }
 
     if (!user.subscriptionStartDate) {
-      throw new Error("No active subscription found.");
+      throw new Error(USER_MESSAGES.SUB.NO_ACTIVE_SUB);
     }
 
     const daysSincePurchase = moment().diff(
@@ -244,7 +240,6 @@ export class TransactionService implements ITransactionService {
       );
     }
 
-    // 4️⃣ Refund via Stripe
     const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
     const paymentIntentId = session.payment_intent as string;
     const refund = await stripe.refunds.create({
@@ -254,7 +249,6 @@ export class TransactionService implements ITransactionService {
 
     const now = new Date();
 
-    // 5️⃣ Update transaction
     await this._transRepository.updateTransaction(transaction._id.toString(), {
       status: "refunded",
       refundReason: reason || "Requested by user",
@@ -262,7 +256,6 @@ export class TransactionService implements ITransactionService {
       stripeRefundId: refund.id,
     });
 
-    // 6️⃣ Update user subscription
     await this._userRepo.updateSubscription(user._id.toString(), {
       isSubscriptionActive: false,
       subscriptionStartDate: null,
@@ -271,14 +264,14 @@ export class TransactionService implements ITransactionService {
       subscription: null,
     });
 
-    return { message: "Refund successful", refundId: refund.id };
+    return { message: USER_MESSAGES.SUB.REFUND_SUCCESS, refundId: refund.id };
   }
   async getLatestTransactionByUser(
     userId: string
   ): Promise<LatestTransactionDTO> {
     const txn = await this._transRepository.findLatestTransactionByUser(userId);
 
-    if (!txn) throw new Error("No completed transaction found");
+    if (!txn) throw new Error(USER_MESSAGES.SUB.NO_COMPLETE_TRANS_FOUND);
 
     return {
       stripeSessionId: txn.stripeSessionId,
@@ -292,7 +285,7 @@ export class TransactionService implements ITransactionService {
     sessionId: string
   ): Promise<TransactionDetailsDTO> {
     const txn = await this._transRepository.findByStripeSessionId(sessionId);
-    if (!txn) throw new Error("Transaction not found");
+    if (!txn) throw new Error(COMMON_MESSAGES.TRANSACTION_NOT_FOUND);
 
     return {
       stripeSessionId: txn.stripeSessionId,

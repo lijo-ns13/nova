@@ -10,6 +10,7 @@ import SearchBar from "../../admin/components/UserManagement/SearchBar";
 import Pagination from "../../admin/components/UserManagement/Pagination";
 import ApplicantCard from "../components/ApplicantCard";
 import ApplicantCardCompany from "../components/applicant/ApplicantCardCompany";
+import LoadingIndicator from "../../admin/components/UserManagement/LoadingIndicator";
 
 export default function ApplicantList() {
   const { jobId } = useParams();
@@ -95,7 +96,7 @@ export default function ApplicantList() {
     fetchApplicants();
   }, [page, jobId]);
 
-  if (loading) return <Spinner />;
+  if (loading) return <LoadingIndicator />;
 
   return (
     <div className="container mx-auto px-4 py-8">

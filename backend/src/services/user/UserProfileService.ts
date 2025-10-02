@@ -26,6 +26,7 @@ import { CertificateMapper } from "../../mapping/user/certificate.mapper";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { UserProfileMapper } from "../../mapping/user/userprofilemapper";
 import { GetUserProfileResponseDTO } from "../../core/dtos/user/getuserresponse.dto";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
 
 @injectable()
 export class UserProfileService implements IUserProfileService {
@@ -44,7 +45,7 @@ export class UserProfileService implements IUserProfileService {
   async getUserProfile(userId: string): Promise<GetUserProfileResponseDTO> {
     const user = await this._userRepository.getUserProfile(userId);
     if (!user) {
-      throw new Error("User not found"); // Use your custom error class
+      throw new Error(COMMON_MESSAGES.USER_NOT_FOUND); // Use your custom error class
     }
 
     const signedUrl = user.profilePicture

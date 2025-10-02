@@ -15,6 +15,7 @@ import {
   ApplicantService,
   ApplicationDetailDTO,
 } from "../services/applicantService";
+import LoadingIndicator from "../../admin/components/UserManagement/LoadingIndicator";
 
 function ApplicantDetails() {
   const [loading, setLoading] = useState(true);
@@ -47,7 +48,7 @@ function ApplicantDetails() {
     fetchApplicantData();
   }, [applicationId]);
 
-  if (loading) return <LoadingState />;
+  if (loading) return <LoadingIndicator />;
   if (error) return <ErrorState message={error} onRetry={fetchApplicantData} />;
   if (!applicant)
     return (

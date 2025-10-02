@@ -45,7 +45,7 @@ export const getCompanyDashboardStats = async (
 ): Promise<DashboardStats> => {
   try {
     const result = await apiAxios.get<DashboardStats>(
-      `${import.meta.env.VITE_API_BASE_URL}/api/v1/stats`,
+      `${import.meta.env.VITE_API_BASE_URL}/api/v1/company/stats`,
       {
         params: { companyId },
         withCredentials: true,

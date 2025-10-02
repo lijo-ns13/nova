@@ -68,7 +68,7 @@ export const TransactionsTable = () => {
                   <td className="px-4 py-2 border">{t.status}</td>
                   <td className="px-4 py-2 border">{t.paymentMethod}</td>
                   <td className="px-4 py-2 border">
-                    {new Date(t.date).toLocaleDateString()}
+                    {new Date(t.createdAt).toLocaleDateString()}
                   </td>
                 </tr>
               ))}

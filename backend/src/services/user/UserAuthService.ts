@@ -21,6 +21,8 @@ import { IUserAuthService } from "../../interfaces/services/IUserAuthService";
 import { IJWTService } from "../../interfaces/services/IJwtService";
 import { generateUsername } from "../../shared/util/GenerateUserName";
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
+import { COMMON_MESSAGES } from "../../constants/message.constants";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 
 @injectable()
 export class UserAuthService implements IUserAuthService {
@@ -45,11 +47,8 @@ export class UserAuthService implements IUserAuthService {
       payload.email
     );
 
-    if (existingUser) throw new Error("Email already exists");
-    if (existingTempUser)
-      throw new Error(
-        "You tried too many times. Please try again later.**temp user exists**"
-      );
+    if (existingUser) throw new Error(COMMON_MESSAGES.EMAIL_ALREADY_EXISTS);
+    if (existingTempUser) throw new Error(COMMON_MESSAGES.TEMP_USER_EXISTS);
 
     const tempUser = await this._tempUserRepository.createTempUser({
       name: payload.name,
@@ -62,7 +61,7 @@ export class UserAuthService implements IUserAuthService {
 
     await this._otpRepository.createOTP({
       accountId: tempUser._id,
-      accountType: "user",
+      accountType: AUTH_ROLES.USER,
       otp: otp,
       expiresAt: expiresAt,
     });
@@ -80,27 +79,33 @@ export class UserAuthService implements IUserAuthService {
 
   async signIn(payload: SigninRequestDTO): Promise<SignInResponseDTO> {
     const user = await this._userRepository.findByEmail(payload.email, true);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error(COMMON_MESSAGES.USER_NOT_FOUND);
     if (!user.password) {
-      throw new Error("Google signin users dont have");
+      throw new Error(COMMON_MESSAGES.GOOGLE_USERS_DONT_HAVE_PASSWORD);
     }
     const isPasswordValid = await bcrypt.compare(
       payload.password,
       user.password
     );
-    if (!isPasswordValid) throw new Error("Invalid password");
+    if (!isPasswordValid) throw new Error(COMMON_MESSAGES.INVALID.PASSWORD);
 
-    const userAccessToken = this._jwtService.generateAccessToken("user", {
-      id: user._id.toString(),
-      email: user.email,
-      role: "user",
-    });
+    const userAccessToken = this._jwtService.generateAccessToken(
+      AUTH_ROLES.USER,
+      {
+        id: user._id.toString(),
+        email: user.email,
+        role: AUTH_ROLES.USER,
+      }
+    );
 
-    const userRefreshToken = this._jwtService.generateRefreshToken("user", {
-      id: user._id.toString(),
-      email: user.email,
-      role: "user",
-    });
+    const userRefreshToken = this._jwtService.generateRefreshToken(
+      AUTH_ROLES.USER,
+      {
+        id: user._id.toString(),
+        email: user.email,
+        role: AUTH_ROLES.USER,
+      }
+    );
 
     const signedProfilePicture = user.profilePicture
       ? await this._mediaService.getMediaUrl(user.profilePicture)
@@ -129,14 +134,16 @@ export class UserAuthService implements IUserAuthService {
   }
   async verifyOTP(email: string, otp: string): Promise<{ message: string }> {
     const tempUser = await this._tempUserRepository.findByEmail(email);
-    if (!tempUser) throw new Error("User not found or already verified");
+    if (!tempUser)
+      throw new Error(COMMON_MESSAGES.USERNOTFOUND_OR_ALREADYVERIFIED);
 
     const otpRecord = await this._otpRepository.findOTPByAccount(
       tempUser._id,
       "user"
     );
     if (!otpRecord) throw new Error("OTP not found");
-    if (otpRecord.expiresAt < new Date()) throw new Error("OTP expired");
+    if (otpRecord.expiresAt < new Date())
+      throw new Error(COMMON_MESSAGES.OTP_EXPIRED);
 
     const isMatch = await bcrypt.compare(otp, otpRecord.otp);
     if (!isMatch) throw new Error("Invalid OTP");
@@ -151,16 +158,17 @@ export class UserAuthService implements IUserAuthService {
       password: tempUser.password,
     });
 
-    return { message: "User verified successfully" };
+    return { message: COMMON_MESSAGES.SUCCESS.USER_VERIFY };
   }
 
   async resendOTP(email: string): Promise<{ message: string }> {
     const tempUser = await this._tempUserRepository.findByEmail(email);
-    if (!tempUser) throw new Error("User not found or already verified");
+    if (!tempUser)
+      throw new Error(COMMON_MESSAGES.USERNOTFOUND_OR_ALREADYVERIFIED);
 
     const otpRecord = await this._otpRepository.findOTPByAccount(
       tempUser._id,
-      "user"
+      AUTH_ROLES.USER
     );
 
     const newOTP = generateOTP();
@@ -176,7 +184,7 @@ export class UserAuthService implements IUserAuthService {
     } else {
       await this._otpRepository.createOTP({
         accountId: tempUser._id,
-        accountType: "user",
+        accountType: AUTH_ROLES.USER,
         otp: hashedOTP,
         expiresAt: expiresAt,
       });
@@ -184,23 +192,26 @@ export class UserAuthService implements IUserAuthService {
 
     await this._emailService.sendOTP(tempUser.email, newOTP);
 
-    return { message: "OTP resent successfully. Please check your email." };
+    return { message: COMMON_MESSAGES.SUCCESS.OTP_SENT };
   }
 
   async forgetPassword(email: string): Promise<{ rawToken: string }> {
     const user = await this._userRepository.findByEmail(email);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error(COMMON_MESSAGES.USER_NOT_FOUND);
 
     const userId = user._id;
 
-    await this._passwordResetTokenRepository.deleteByAccount(userId, "user");
+    await this._passwordResetTokenRepository.deleteByAccount(
+      userId,
+      AUTH_ROLES.USER
+    );
 
     const { rawToken, hashedToken, expiresAt } = generatePasswordResetToken();
 
     await this._passwordResetTokenRepository.createToken({
       token: hashedToken,
       accountId: userId,
-      accountType: "user",
+      accountType: AUTH_ROLES.USER,
       expiresAt,
     });
 
@@ -214,7 +225,8 @@ export class UserAuthService implements IUserAuthService {
     password: string,
     confirmPassword: string
   ): Promise<void> {
-    if (password !== confirmPassword) throw new Error("Passwords do not match");
+    if (password !== confirmPassword)
+      throw new Error(COMMON_MESSAGES.PASSWORD_NOT_MATCH);
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -222,11 +234,11 @@ export class UserAuthService implements IUserAuthService {
       hashedToken
     );
     if (!tokenDoc || tokenDoc.expiresAt < new Date())
-      throw new Error("Token is invalid or has expired");
+      throw new Error(COMMON_MESSAGES.TOKEN_INVALID_OR_EXPIRED);
 
     const { accountId, accountType } = tokenDoc;
-    if (accountType !== "user")
-      throw new Error("Invalid account type for this operation");
+    if (accountType !== AUTH_ROLES.USER)
+      throw new Error(COMMON_MESSAGES.INVALID.ACCOUNTTYPE_FOR_THIS_OPERATION);
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await this._userRepository.updatePassword(

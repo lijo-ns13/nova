@@ -50,6 +50,7 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
     // Initialize counts from userData
     setFollowersCount(userData.followers?.length || 0);
     setFollowingCount(userData.following?.length || 0);
+    console.log("usersprofileheader", users, userData, "userdat");
   }, [userData]);
   const fetchUsers = async (type: "followers" | "following") => {
     setIsLoading(true);
@@ -58,8 +59,8 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
         type === "followers"
           ? await getFollowers(userData._id)
           : await getFollowing(userData._id);
-      // console.log(response.data, "bla");
-      // setUsers(response.data);
+      console.log(response, "fetchusersrepsonse");
+      setUsers(response);
       setModalType(type);
     } catch (error) {
       console.error(`Error fetching ${type}:`, error);

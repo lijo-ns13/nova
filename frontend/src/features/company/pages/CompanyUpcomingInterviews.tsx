@@ -24,6 +24,7 @@ import {
   companyInterviewService,
   UpcomingInterviewResponseDTO,
 } from "../services/InterviewReschedueService";
+import { ApplicationStatus } from "../../../constants/applicationStatus";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -39,6 +40,7 @@ const CompanyUpcomingInterviews: React.FC = () => {
       try {
         const data = await companyInterviewService.getUpcomingInterviews();
         setInterviews(data);
+        console.log("interviews", data);
         setError(null);
       } catch (err) {
         console.error(err);
@@ -70,6 +72,69 @@ const CompanyUpcomingInterviews: React.FC = () => {
   const handleViewApplication = (applicationId: string) => {
     navigate(`/company/job/application/${applicationId}`);
   };
+
+  const getJoinButtonOrStatus = (interview: any) => {
+    const now = new Date();
+    const scheduled = new Date(interview.scheduledAt);
+
+    const joinStart = new Date(scheduled);
+    joinStart.setMinutes(scheduled.getMinutes() - 5);
+
+    const joinEnd = new Date(scheduled);
+    joinEnd.setHours(scheduled.getHours() + 1);
+
+    const status = interview.applicationId.status;
+
+    if (
+      status === ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER ||
+      status === ApplicationStatus.INTERVIEW_RESCHEDULE_ACCEPTED
+    ) {
+      if (now < joinStart) {
+        return (
+          <Typography variant="body2" color="textSecondary">
+            Interview not started yet
+          </Typography>
+        );
+      } else if (now > joinEnd) {
+        return (
+          <Typography variant="body2" color="textSecondary">
+            Interview ended
+          </Typography>
+        );
+      } else {
+        return (
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<VideoCall />}
+            onClick={() => handleStartInterview(interview.roomId)}
+          >
+            Join
+          </Button>
+        );
+      }
+    } else {
+      return (
+        <Typography variant="body2" color="error">
+          User has not accepted interview
+        </Typography>
+      );
+    }
+  };
+
+  // --- Helper to check Join button visibility ---
+  // const isJoinAvailable = (scheduledAt: string) => {
+  //   const now = new Date();
+  //   const start = new Date(scheduledAt);
+
+  //   const joinStart = new Date(start);
+  //   joinStart.setMinutes(start.getMinutes() - 5); // 5 minutes before start
+
+  //   const joinEnd = new Date(start);
+  //   joinEnd.setHours(start.getHours() + 1); // 1 hour after start
+
+  //   return now >= joinStart && now <= joinEnd;
+  // };
 
   if (loading) {
     return (
@@ -152,16 +217,33 @@ const CompanyUpcomingInterviews: React.FC = () => {
                     >
                       Application
                     </Button>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      startIcon={<VideoCall />}
-                      onClick={() => handleStartInterview(interview.roomId)}
-                      disabled={new Date(interview.scheduledAt) > new Date()}
-                    >
-                      Join
-                    </Button>
+
+                    {getJoinButtonOrStatus(interview)}
                   </Stack>
+
+                  {/* <Stack direction="row" spacing={1}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<Person />}
+                      onClick={() =>
+                        handleViewApplication(interview.applicationId._id)
+                      }
+                    >
+                      Application
+                    </Button>
+
+                    {isJoinAvailable(interview.scheduledAt) && (
+                      <Button
+                        variant="contained"
+                        size="small"
+                        startIcon={<VideoCall />}
+                        onClick={() => handleStartInterview(interview.roomId)}
+                      >
+                        Join
+                      </Button>
+                    )}
+                  </Stack> */}
                 </TableCell>
               </TableRow>
             ))}
@@ -173,12 +255,12 @@ const CompanyUpcomingInterviews: React.FC = () => {
       <Box sx={{ display: { xs: "block", md: "none" } }}>
         {paginatedInterviews.map((interview) => (
           <Card key={interview.id} sx={{ mb: 2 }}>
-            <CardHeader title={`@${interview.companyId}`} />
+            <CardHeader title={`@${interview.applicationId.user.name}`} />
             <CardContent>
               <Typography variant="body2" sx={{ mb: 1 }}>
                 {format(new Date(interview.scheduledAt), "PPpp")}
               </Typography>
-              <Stack direction="row" spacing={1}>
+              {/* <Stack direction="row" spacing={1}>
                 <Button
                   variant="outlined"
                   size="small"
@@ -189,15 +271,33 @@ const CompanyUpcomingInterviews: React.FC = () => {
                 >
                   Application
                 </Button>
+
+                {isJoinAvailable(interview.scheduledAt) && (
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => handleStartInterview(interview.roomId)}
+                    fullWidth
+                  >
+                    Join
+                  </Button>
+                )}
+                
+
+              </Stack> */}
+              <Stack direction="row" spacing={1}>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   size="small"
-                  onClick={() => handleStartInterview(interview.roomId)}
-                  disabled={new Date(interview.scheduledAt) > new Date()}
-                  fullWidth
+                  startIcon={<Person />}
+                  onClick={() =>
+                    handleViewApplication(interview.applicationId._id)
+                  }
                 >
-                  Join
+                  Application
                 </Button>
+
+                {getJoinButtonOrStatus(interview)}
               </Stack>
             </CardContent>
           </Card>

@@ -44,8 +44,6 @@ export class LikeService implements ILikeService {
       });
       const getPost = await this._postRepo.getPost(postId);
       const userData = await this._userRepo.findById(userId);
-      console.log("userData", userData);
-      console.log("getPostssssssssssssss", getPost);
       if (
         getPost?.creatorId?._id &&
         getPost?.creatorId._id.toString() != userId.toString()

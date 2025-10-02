@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import StatusBadge from "../UserManagement/StatusBadge";
 import { CompanyResponse } from "../../types/company";
 
@@ -8,6 +8,17 @@ interface CompanyCardProps {
 }
 
 const CompanyCard: React.FC<CompanyCardProps> = ({ company, onBlock }) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleBlock = async () => {
+    setLoading(true);
+    try {
+      await onBlock(company);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-3 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between space-x-3">
@@ -27,14 +38,19 @@ const CompanyCard: React.FC<CompanyCardProps> = ({ company, onBlock }) => {
 
         <div>
           <button
-            onClick={() => onBlock(company)}
-            className={`inline-flex items-center justify-center px-2 py-1 border border-transparent text-xs font-medium rounded-md text-white ${
-              company.isBlocked
+            onClick={handleBlock}
+            disabled={loading}
+            className={`inline-flex items-center justify-center px-2 py-1 border border-transparent text-xs font-medium rounded-md text-white focus:outline-none transition-colors ${
+              loading
+                ? company.isBlocked
+                  ? "bg-green-400 cursor-not-allowed"
+                  : "bg-red-400 cursor-not-allowed"
+                : company.isBlocked
                 ? "bg-green-600 hover:bg-green-700"
                 : "bg-red-600 hover:bg-red-700"
-            } focus:outline-none transition-colors`}
+            }`}
           >
-            {company.isBlocked ? "Unblock" : "Block"}
+            {loading ? "Loading..." : company.isBlocked ? "Unblock" : "Block"}
           </button>
         </div>
       </div>

@@ -5,6 +5,7 @@ import {
   TransactionResponseDTO,
   TransactionStatus,
 } from "../services/SubscriptionService";
+import LoadingIndicator from "../components/UserManagement/LoadingIndicator";
 
 const TRANSACTION_STATUSES: TransactionStatus[] = [
   "pending",
@@ -129,7 +130,7 @@ function SubHistory() {
 
       {/* Table */}
       {loading ? (
-        <div className="text-center text-gray-600">Loading...</div>
+        <LoadingIndicator />
       ) : transactions.length === 0 ? (
         <div className="text-center text-gray-500">No transactions found.</div>
       ) : (
