@@ -8,7 +8,7 @@ interface ApplicantListProps {
     id: string,
     status: "applied" | "shortlisted" | "rejected",
     reason?: string
-  ) => void;
+  ) => Promise<void>; // Assume it's async to handle API without refresh
 }
 
 const ApplicantList: React.FC<ApplicantListProps> = ({
