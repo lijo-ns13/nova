@@ -9,7 +9,7 @@ import { TYPES } from "../di/types";
 const now = () => new Date();
 const userRepository = container.get<IUserRepository>(TYPES.UserRepository);
 // ⏰ Every 10 minutes: Remove expired Stripe sessions
-cron.schedule("*/10 * * * *", async () => {
+cron.schedule("*/3 * * * *", async () => {
   try {
     const result = await userRepository.clearExpiredPaymentSessions();
 

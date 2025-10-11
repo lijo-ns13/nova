@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom"; // Import Link for SPA navigation without refresh
 import { format } from "date-fns";
 import {
   Download,
@@ -13,7 +14,6 @@ import {
   XSquare,
 } from "lucide-react";
 import StatusBadge from "./StatusBadge";
-import UserAvatar from "../../admin/components/UserManagement/UserAvatar";
 import { ApplicantListResponse } from "../types/applicant";
 import { ApplicationStatus } from "../../../constants/applicationStatus";
 
@@ -23,7 +23,7 @@ interface ApplicantCardProps {
     id: string,
     status: "applied" | "shortlisted" | "rejected",
     reason?: string
-  ) => void;
+  ) => Promise<void>; // Make it async to handle updates without refresh
 }
 
 const ApplicantCard: React.FC<ApplicantCardProps> = ({
@@ -34,6 +34,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
   const [rejectionReason, setRejectionReason] = useState("");
   const [showFullDetails, setShowFullDetails] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Add loading state for better UX
   const menuRef = useRef<HTMLDivElement>(null);
 
   const formatDate = (
@@ -42,26 +43,28 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
   ) => {
     return format(new Date(dateString), formatString);
   };
-  // export interface ApplicantListResponse {
-  //    applicationId: String,
-  //    status: String,
-  //    appliedAt: String,
-  //    name: String,
-  //    profilePicture: String,
-  //    email: String
-  // }
 
-  const handleReject = () => {
-    onStatusChange(applicant.applicationId, "rejected", rejectionReason);
-    setIsRejectModalOpen(false);
-    setRejectionReason("");
+  const handleStatusChange = async (
+    status: "applied" | "shortlisted" | "rejected",
+    reason?: string
+  ) => {
+    setIsLoading(true);
+    try {
+      await onStatusChange(applicant.applicationId, status, reason);
+    } catch (error) {
+      console.error("Status change failed:", error);
+      // Optionally add error toast or feedback
+    } finally {
+      setIsLoading(false);
+      setIsRejectModalOpen(false);
+      setRejectionReason("");
+    }
   };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -81,42 +84,35 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
         <div className="flex flex-col gap-4">
           {/* Profile Picture and Basic Info */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-            <div className="relative group">
-              {/* <UserAvatar
-                name={applicant.name || "/default.png"}
-                imageSrc={applicant.profilePicture || "/default.png"}
-                size="lg"
-              /> */}
-              {/* <img src={applicant.profilePicture || "/default.png"} /> */}
-              {/* <SecureCloudinaryImage
-                publicId={applicant.user.avatar}
-                alt={applicant.user.name}
-                className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover"
-              /> */}
-
+            <div className="relative group flex-shrink-0">
+              <img
+                src={applicant.profilePicture || "/default.png"}
+                alt={applicant.name}
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-gray-200"
+              />
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-full transition-all duration-200" />
             </div>
 
             <div className="flex-1 min-w-0 text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
                 <h2 className="text-xl font-bold text-gray-900">
                   {applicant.name}
                 </h2>
-                <a
-                  href={`/company/job/application/${applicant.applicationId}`}
+                <Link
+                  to={`/company/job/application/${applicant.applicationId}`}
                   className="inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700 transition-colors"
                 >
                   <ExternalLink size={14} />
                   <span>View Applicant</span>
-                </a>
+                </Link>
               </div>
 
-              <div className="mt-2 flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-2 text-sm">
+              <div className="mt-2 flex flex-col sm:flex-row flex-wrap justify-center sm:justify-start gap-x-4 gap-y-2 text-sm">
                 <div className="flex items-center gap-2 text-gray-600">
                   <Mail size={16} className="flex-shrink-0" />
                   <a
                     href={`mailto:${applicant.email}`}
-                    className="hover:text-indigo-600 transition-colors"
+                    className="hover:text-indigo-600 transition-colors truncate"
                   >
                     {applicant.email}
                   </a>
@@ -124,7 +120,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
 
                 <div className="flex items-center gap-2 text-gray-500">
                   <Clock size={16} className="flex-shrink-0" />
-                  <div>
+                  <div className="truncate">
                     <span className="font-medium">
                       {formatDate(applicant.appliedAt)}
                     </span>
@@ -133,15 +129,6 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                   </div>
                 </div>
               </div>
-
-              {/* <div className="mt-3">
-                <p className="text-sm text-gray-500">
-                  Applied for:{" "}
-                  <span className="font-medium text-gray-700">
-                    {applicant.job.title}
-                  </span>
-                </p>
-              </div> */}
             </div>
           </div>
 
@@ -150,30 +137,20 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
             <StatusBadge status={applicant.status as ApplicationStatus} />
 
             <div className="flex gap-2 w-full sm:w-auto justify-center sm:justify-end">
-              {/* <a
-                href={applicant.resumeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm"
-              >
-                <Download size={16} className="flex-shrink-0" />
-                <span>Resume*</span>
-              </a> */}
-
               {applicant.status === "applied" && (
                 <div className="hidden sm:flex gap-2">
                   <button
-                    onClick={() =>
-                      onStatusChange(applicant.applicationId, "shortlisted")
-                    }
-                    className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium shadow-sm"
+                    onClick={() => handleStatusChange("shortlisted")}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <CheckSquare size={16} className="flex-shrink-0" />
                     <span>Shortlist</span>
                   </button>
                   <button
                     onClick={() => setIsRejectModalOpen(true)}
-                    className="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium shadow-sm"
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <XSquare size={16} className="flex-shrink-0" />
                     <span>Reject</span>
@@ -185,7 +162,8 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
               <div className="relative sm:hidden" ref={menuRef}>
                 <button
                   onClick={toggleMenu}
-                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  disabled={isLoading}
+                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
                   aria-label="More options"
                 >
                   <MoreVertical size={18} />
@@ -196,10 +174,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                     {applicant.status === "applied" && (
                       <button
                         onClick={() => {
-                          onStatusChange(
-                            applicant.applicationId,
-                            "shortlisted"
-                          );
+                          handleStatusChange("shortlisted");
                           setIsMenuOpen(false);
                         }}
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
@@ -227,92 +202,27 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
             </div>
           </div>
 
-          {/* Cover Letter Section */}
-          {/* {applicant.coverLetter && (
-            <div className="pt-4 border-t border-gray-100">
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-sm font-semibold text-gray-700">
-                  Cover Letter
-                </h3>
-                <button
-                  onClick={() => setShowFullDetails(!showFullDetails)}
-                  className="flex items-center text-xs text-indigo-600 hover:text-indigo-700"
-                >
-                  {showFullDetails ? (
-                    <>
-                      Hide <ChevronUp size={14} />
-                    </>
-                  ) : (
-                    <>
-                      Show <ChevronDown size={14} />
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {showFullDetails && (
-                <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-700">
-                  {applicant.coverLetter}
-                </div>
-              )}
-            </div>
-          )} */}
-
-          {/* Status History Section */}
-          {/* {showFullDetails &&
-            applicant.statusHistory &&
-            applicant.statusHistory.length > 0 && (
-              <div className="pt-4 border-t border-gray-100">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                  Status History
-                </h3>
-                <div className="space-y-2">
-                  {applicant.statusHistory.map((history, index) => (
-                    <div
-                      key={index}
-                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 bg-gray-50 rounded-lg gap-2"
-                    >
-                      <div className="flex items-center gap-2">
-                        <StatusBadge status={history.status as any} />
-                        {history.note && (
-                          <span className="text-xs text-gray-600">
-                            {history.note.length > 50
-                              ? `${history.note.substring(0, 50)}...`
-                              : history.note}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-xs text-gray-500">
-                        {formatDate(history.date, "MMM d, yyyy h:mm a")}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )} */}
-
-          {/* {!applicant.statusHistory && !applicant.coverLetter && (
-            <button
-              onClick={() => setShowFullDetails(!showFullDetails)}
-              className="mt-4 text-sm text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-1"
-            >
-              {showFullDetails ? (
-                <>
-                  Show Less <ChevronUp size={14} />
-                </>
-              ) : (
-                <>
-                  Show More <ChevronDown size={14} />
-                </>
-              )}
-            </button>
-          )} */}
+          {/* Optional: Toggle for more details - uncomment and adapt if needed */}
+          {/* <button
+            onClick={() => setShowFullDetails(!showFullDetails)}
+            className="mt-4 text-sm text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-1 mx-auto sm:mx-0"
+          >
+            {showFullDetails ? (
+              <>
+                Show Less <ChevronUp size={14} />
+              </>
+            ) : (
+              <>
+                Show More <ChevronDown size={14} />
+              </>
+            )}
+          </button> */}
         </div>
       </div>
 
-      {/* Rejection Modal */}
+      {/* Rejection Modal - Improved with better responsiveness */}
       {isRejectModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn overflow-y-auto">
           <div
             className="bg-white rounded-lg p-5 max-w-md w-full mx-auto animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
@@ -339,21 +249,23 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
               placeholder="Enter rejection reason (optional)"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[100px] text-sm"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[100px] text-sm resize-vertical"
             />
 
             <div className="mt-4 flex flex-col sm:flex-row justify-end gap-3">
               <button
                 onClick={() => setIsRejectModalOpen(false)}
-                className="px-4 py-2 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors order-2 sm:order-1"
+                disabled={isLoading}
+                className="px-4 py-2 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors order-2 sm:order-1 disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
-                onClick={handleReject}
-                className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-sm order-1 sm:order-2"
+                onClick={() => handleStatusChange("rejected", rejectionReason)}
+                disabled={isLoading}
+                className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shadow-sm order-1 sm:order-2 disabled:opacity-50"
               >
-                Reject Application
+                {isLoading ? "Rejecting..." : "Reject Application"}
               </button>
             </div>
           </div>
