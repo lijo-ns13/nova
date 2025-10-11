@@ -1,4 +1,40 @@
+# Node modules
 node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build output
 dist
+build
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
 *.log
-nginx.default.conf
+
+# Git
+.git
+.gitignore
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+*.sublime*
+*.swp
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+
+# Tests / coverage (optional)
+coverage
+tests
+*.test.ts
+*.spec.ts
