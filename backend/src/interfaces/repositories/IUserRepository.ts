@@ -163,8 +163,8 @@ export interface IUserRepository extends IBaseRepository<IUser> {
   clearCancelledFlags(): Promise<UpdateResult>;
   updateUserPaymentSession(
     userId: string,
-    sessionId: string,
-    expiresAt: Date
+    sessionId: string | null,
+    expiresAt: Date | null
   ): Promise<void>;
   updateUserSubscription(
     userId: string,

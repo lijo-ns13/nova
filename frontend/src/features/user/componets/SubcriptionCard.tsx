@@ -18,7 +18,7 @@ interface Subscription {
 }
 
 interface SubscriptionResponse {
-  subcription: Subscription;
+  subscription: Subscription;
   features: string[];
   subStartDate: string;
   subEndDate: string;
@@ -33,12 +33,15 @@ export default function CurrentSubscriptionCard() {
     (async () => {
       try {
         const res = await apiAxios.get("/subfeat/usersub");
-        console.log("resy sub", res);
-        if (res.data?.data?.subcription) {
-          setData(res.data.data);
+        console.log("resy sub", res.data);
+        if (res.data?.data?.subscription) {
+          const { subscription, features, subStartDate, subEndDate } =
+            res.data.data;
+          setData({ subscription, features, subStartDate, subEndDate });
         } else {
           setData(null); // not active or missing
         }
+        console.log("subdaa", data);
       } catch (err) {
         console.error(err);
         // toast.error("Failed to fetch subscription data.");
@@ -73,7 +76,7 @@ export default function CurrentSubscriptionCard() {
     );
   }
 
-  const { subcription, subStartDate, subEndDate, features } = data;
+  const { subscription, subStartDate, subEndDate, features } = data;
   const now = new Date();
   const end = new Date(subEndDate);
   const daysLeft = differenceInDays(end, now);
@@ -89,7 +92,7 @@ export default function CurrentSubscriptionCard() {
         <div>
           <p className="text-sm text-gray-500">Plan</p>
           <p className="text-lg font-medium text-gray-900">
-            {subcription.name}
+            {subscription.name}
           </p>
         </div>
 
