@@ -682,8 +682,8 @@ export class UserRepository
   // updated
   async updateUserPaymentSession(
     userId: string,
-    sessionId: string,
-    expiresAt: Date
+    sessionId: string | null,
+    expiresAt: Date | null
   ): Promise<void> {
     await this.model.findByIdAndUpdate(userId, {
       activePaymentSession: sessionId,
