@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../../hooks/useAppSelector";
-
 import { formatDistanceToNow } from "date-fns";
 import Navbar from "../componets/NavBar";
-import { Search, MoreVertical, MessageSquare, ArrowLeft } from "lucide-react";
+import { Search, X, MessageSquare, Heart } from "lucide-react";
 import apiAxios from "../../../utils/apiAxios";
 
 const ChatListPage = () => {
   const { id: userId } = useAppSelector((state) => state.auth);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [likedUsers, setLikedUsers] = useState(new Set());
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,27 +32,35 @@ const ChatListPage = () => {
     fetchUsers();
   }, [userId]);
 
+  const toggleLike = (userId) => {
+    setLikedUsers((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(userId)) {
+        newSet.delete(userId);
+      } else {
+        newSet.add(userId);
+      }
+      return newSet;
+    });
+  };
+
   const filteredUsers = users.filter((user) =>
     user.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const getAvatarContent = (user: any) => {
+  const getAvatarContent = (user) => {
     if (user.profilePicture) {
       return (
         <img
           src={user.profilePicture || "default.png"}
           alt={user.name}
-          className="w-12 h-12 rounded-full object-cover"
+          className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
         />
-        // <SecureCloudinaryImage
-        //   publicId={user.profilePicture}
-        //   className="w-12 h-12 rounded-full object-cover"
-        // />
       );
     }
     return (
-      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-        <span className="text-blue-600 font-medium text-lg">
+      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+        <span className="text-white font-medium text-base">
           {user.name.charAt(0).toUpperCase()}
         </span>
       </div>
@@ -63,14 +71,14 @@ const ChatListPage = () => {
     return (
       <div className="flex flex-col h-screen bg-white">
         <Navbar />
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="max-w-md mx-auto space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="max-w-3xl mx-auto space-y-3">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="flex items-center gap-3 animate-pulse">
-                <div className="w-12 h-12 rounded-full bg-gray-200"></div>
+                <div className="w-10 h-10 rounded-full bg-gray-200"></div>
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-2 bg-gray-200 rounded w-1/2"></div>
                 </div>
               </div>
             ))}
@@ -81,121 +89,112 @@ const ChatListPage = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-white">
       <Navbar />
-
       {/* Header */}
-      <div className="border-b border-gray-200 px-4 py-3 sticky top-0 z-20 bg-white shadow-sm">
-        <div className="max-w-md mx-auto flex items-center justify-between">
+      <div className="border-b border-gray-200 px-4 sm:px-6 py-3 sticky top-[4rem] z-30 bg-white shadow-sm">
+        <div className="max-w-3xl mx-auto flex items-center justify-between">
           {isSearching ? (
-            <div className="flex items-center w-full">
-              <button
-                onClick={() => {
-                  setSearchQuery("");
-                  setIsSearching(false);
-                }}
-                className="mr-3 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                aria-label="Exit search"
-              >
-                <ArrowLeft size={20} className="text-gray-600" />
-              </button>
+            <div className="flex items-center w-full gap-2">
               <div className="flex-1 relative">
                 <input
                   type="text"
-                  placeholder="Search conversations"
-                  className="w-full pl-4 pr-10 py-2.5 bg-gray-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 border border-transparent focus:border-blue-500 transition-colors duration-200"
+                  placeholder="Search conversations..."
+                  className="w-full pl-9 pr-8 py-1.5 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 text-gray-900 placeholder-gray-400 text-sm border border-gray-200 shadow-sm transition-all duration-200"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   autoFocus
                 />
                 <Search
-                  size={18}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/5 text-gray-400 pointer-events-none"
+                  size={16}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
                 />
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setIsSearching(false);
+                  }}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-gray-200 transition-colors duration-200"
+                  aria-label="Clear search"
+                >
+                  <X size={14} className="text-gray-500" />
+                </button>
               </div>
             </div>
           ) : (
             <>
-              <h1 className="text-xl font-semibold text-gray-900">Messages</h1>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setIsSearching(true)}
-                  className="p-2.5 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                  aria-label="Search conversations"
-                >
-                  <Search size={20} className="text-gray-600" />
-                </button>
-                <button
-                  className="p-2.5 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                  aria-label="More options"
-                >
-                  <MoreVertical size={20} className="text-gray-600" />
-                </button>
-              </div>
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-900">
+                Messages
+              </h1>
+              <button
+                onClick={() => setIsSearching(true)}
+                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                aria-label="Search conversations"
+              >
+                <Search size={18} className="text-gray-600" />
+              </button>
             </>
           )}
         </div>
       </div>
 
       {/* Chat List Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-md mx-auto w-full px-4 py-2">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 pt-16 sm:pt-20">
+        <div className="max-w-3xl mx-auto w-full">
           {filteredUsers.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center p-8 mt-8">
-              <div className="p-4 rounded-full bg-gray-100 mb-5">
-                <MessageSquare size={36} className="text-gray-500" />
+            <div className="flex flex-col items-center justify-center h-full text-center p-6 sm:p-8 bg-white rounded-lg shadow-sm border border-gray-100">
+              <div className="p-3 rounded-full bg-indigo-50 mb-3">
+                <MessageSquare size={24} className="text-indigo-500" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-1">
                 {searchQuery ? "No matches found" : "No messages yet"}
               </h3>
-              <p className="text-gray-500 max-w-xs text-sm leading-5">
+              <p className="text-gray-500 max-w-md text-xs sm:text-sm leading-5">
                 {searchQuery
-                  ? "Try a different search term or check your spelling"
-                  : "Start a conversation with someone to see your messages here"}
+                  ? "Try a different search term or check your spelling."
+                  : "Start a conversation with someone to see your messages here."}
               </p>
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="mt-5 px-4 py-2 text-blue-600 hover:text-blue-700 text-sm font-medium hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                  className="mt-3 px-4 py-1.5 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 text-xs font-medium transition-colors duration-200"
                 >
-                  Clear search
+                  Clear Search
                 </button>
               )}
             </div>
           ) : (
-            <div className="divide-y divide-gray-100 rounded-lg overflow-hidden bg-white shadow-sm">
+            <div className="divide-y divide-gray-100 rounded-lg overflow-hidden bg-white shadow-sm border border-gray-100">
               {filteredUsers.map((user) => (
                 <div
                   key={user._id}
-                  className="flex items-center p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200 active:bg-gray-100"
+                  className="flex items-center p-3 sm:p-4 hover:bg-indigo-50/50 cursor-pointer transition-all duration-200 ease-in-out active:bg-indigo-100"
                   onClick={() => navigate(`/message/${user._id}`)}
                 >
-                  <div className="relative mr-4">
+                  <div className="relative mr-3">
                     {getAvatarContent(user)}
                     {user.online && (
-                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-1.5 border-white shadow-sm"></div>
                     )}
                   </div>
-
                   <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-center mb-1">
-                      <h3 className="text-sm font-semibold text-gray-900 truncate pr-2">
+                    <div className="flex justify-between items-center mb-0.5">
+                      <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate pr-4">
                         {user.name}
                       </h3>
-                      {user.lastMessage && (
-                        <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
-                          {formatDistanceToNow(
-                            new Date(user.lastMessage.createdAt),
-                            {
-                              addSuffix: true,
-                            }
-                          )}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {user.lastMessage && (
+                          <span className="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">
+                            {formatDistanceToNow(
+                              new Date(user.lastMessage.createdAt),
+                              { addSuffix: true }
+                            )}
+                          </span>
+                        )}
+                      </div>
                     </div>
-
                     {user.lastMessage && (
-                      <p className="text-sm text-gray-500 truncate leading-tight">
+                      <p className="text-xs text-gray-500 truncate leading-tight">
                         {user.lastMessage.content}
                       </p>
                     )}
