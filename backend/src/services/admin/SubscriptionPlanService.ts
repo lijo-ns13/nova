@@ -71,6 +71,7 @@ export class SubscriptionPlanService implements ISubscriptionPlanService {
 
   async getAllPlans(): Promise<SubscriptionPlanResponse[]> {
     const plans = await this._subscriptionPlanRepository.getAll();
+    // mapper *****
     return plans.map(SubscriptionPlanMapper.toResponse);
   }
 
