@@ -40,7 +40,7 @@ export class JobApplicantManagementService
       ? await this._mediaService.getMediaUrl(doc?.user.profilePicture)
       : "";
     if (!doc) return null;
-
+    // *******
     const dto = ApplicationMapper.toUserAndJobDTO(
       doc,
       newProfilePictureSignedUrl
