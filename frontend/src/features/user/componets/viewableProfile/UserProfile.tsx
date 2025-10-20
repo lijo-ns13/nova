@@ -107,18 +107,18 @@ const UserProfile = ({ username }: UserProfileProps) => {
           )}
 
           {/* Certifications section */}
-          {activeTab === "certifications" && (
+          {/* {activeTab === "certifications" && (
             <CertificationSectionViewable userData={userData} />
-          )}
+          )} */}
 
           {/* Projects section */}
           {activeTab === "projects" && (
             <ProjectSectionViewable userData={userData} />
           )}
-          {/* Post section */}
+          {/* Post section
           {activeTab === "posts" && (
             <ProjectSectionViewable userData={userData} />
-          )}
+          )} */}
         </div>
       </main>
 

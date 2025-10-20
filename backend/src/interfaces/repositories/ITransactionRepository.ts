@@ -2,6 +2,10 @@ import { TransactionFilterInput } from "../../core/dtos/admin/admin.sub.dto";
 import { TransactionDTO } from "../../dtos/request/admin/admin.dashbaord.dto";
 import { ITransactionPopulated } from "../../mapping/admin/admin.sub.mapper";
 import { ITransaction } from "../../repositories/entities/transaction.entity";
+import {
+  ITopPlanAggregation,
+  IUserGrowthAggregation,
+} from "../../repositories/mongo/TransactionRepository";
 
 import { TransactionQueryParams } from "../../types/dashboardTypes";
 import { TopPlanDTO, UserGrowthDTO } from "../services/IAdminDashboardService";
@@ -29,9 +33,13 @@ export interface ITransactionRepository {
   }>;
   // new one
   getRevenue(startDate: Date, endDate: Date): Promise<number>;
-  getTopPlans(startDate: Date, endDate: Date): Promise<TopPlanDTO[]>;
-  getUserGrowth(startDate: Date, endDate: Date): Promise<UserGrowthDTO[]>;
-
+  // getTopPlans(startDate: Date, endDate: Date): Promise<TopPlanDTO[]>;
+  getTopPlans(startDate: Date, endDate: Date): Promise<ITopPlanAggregation[]>;
+  // getUserGrowth(startDate: Date, endDate: Date): Promise<UserGrowthDTO[]>;
+  getUserGrowth(
+    startDate: Date,
+    endDate: Date
+  ): Promise<IUserGrowthAggregation[]>;
   findTransactions(startDate: Date, endDate: Date): Promise<ITransaction[]>;
   getTransactions(startDate: Date, endDate: Date): Promise<TransactionDTO[]>;
 }

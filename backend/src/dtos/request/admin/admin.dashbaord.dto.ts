@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+  TopPlanDTO,
+  UserGrowthDTO,
+  UserStatsDTO,
+} from "../../../interfaces/services/IAdminDashboardService";
 
 export const getRevenueStatsSchema = z.object({
   range: z.enum(["daily", "weekly", "monthly", "yearly", "custom"]).optional(),
@@ -57,4 +62,16 @@ export interface TransactionDTO {
   stripeSessionId: string;
   planName: string;
   createdAt: Date;
+}
+export interface IFullReportDTO {
+  metadata: {
+    generatedAt: string; // ISO formatted
+    timeRange: string;
+    startDate?: string;
+    endDate?: string;
+  };
+  revenue: Record<string, number>;
+  topPlans: TopPlanDTO[];
+  userGrowth: UserGrowthDTO[];
+  userStats: UserStatsDTO;
 }

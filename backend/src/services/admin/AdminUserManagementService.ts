@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { TYPES } from "../../di/types";
 import { IAdminUserManagementService } from "../../interfaces/services/IAdminUserManagementService";
-import { IUserMapper, UserMapper } from "../../mapping/admin/admin.user.mapper";
+import { IUserMapper } from "../../mapping/admin/admin.user.mapper";
 import {
   UserPaginatedResponse,
   UserSummaryDTO,
@@ -87,14 +87,15 @@ export class AdminUserManagementService implements IAdminUserManagementService {
       search
     );
 
-    const summary = await Promise.all(
+    // *** mapper
+    const entities = await Promise.all(
       users.map((user) => this._userMapper.toSummaryDTO(user))
     );
 
     const totalPages = Math.ceil(totalUsers / limit);
 
     return {
-      users: summary,
+      users: entities,
       pagination: {
         totalUsers,
         totalPages,

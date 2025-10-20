@@ -13,6 +13,15 @@ import {
 import { TransactionDTO } from "../../dtos/request/admin/admin.dashbaord.dto";
 import { ITransaction } from "../entities/transaction.entity";
 import transactionModel from "../models/transaction.model";
+export interface ITopPlanAggregation {
+  _id: string; // since you group by "$planName"
+  count: number;
+  totalRevenue: number;
+}
+export interface IUserGrowthAggregation {
+  _id: string; // date string in "YYYY-MM-DD"
+  count: number;
+}
 
 @injectable()
 export class TransactionRepository
@@ -136,8 +145,36 @@ export class TransactionRepository
 
     return result[0]?.totalRevenue || 0;
   }
-  async getTopPlans(startDate: Date, endDate: Date): Promise<TopPlanDTO[]> {
-    const result = await this.model.aggregate([
+  // async getTopPlans(startDate: Date, endDate: Date): Promise<TopPlanDTO[]> {
+  //   const result = await this.model.aggregate([
+  //     {
+  //       $match: {
+  //         status: "completed",
+  //         createdAt: { $gte: startDate, $lte: endDate },
+  //       },
+  //     },
+  //     {
+  //       $group: {
+  //         _id: "$planName",
+  //         count: { $sum: 1 },
+  //         totalRevenue: { $sum: "$amount" },
+  //       },
+  //     },
+  //     { $sort: { count: -1 } },
+  //     { $limit: 10 },
+  //   ]);
+
+  //   return result.map((r) => ({
+  //     planName: r._id,
+  //     count: r.count,
+  //     totalRevenue: r.totalRevenue,
+  //   }));
+  // }
+  async getTopPlans(
+    startDate: Date,
+    endDate: Date
+  ): Promise<ITopPlanAggregation[]> {
+    const result = await this.model.aggregate<ITopPlanAggregation>([
       {
         $match: {
           status: "completed",
@@ -155,19 +192,13 @@ export class TransactionRepository
       { $limit: 10 },
     ]);
 
-    return result.map((r) => ({
-      planName: r._id,
-      count: r.count,
-      totalRevenue: r.totalRevenue,
-    }));
+    return result; // no mapping here — just return typed raw aggregation
   }
   async getUserGrowth(
     startDate: Date,
     endDate: Date
-  ): Promise<UserGrowthDTO[]> {
-    const days = eachDayOfInterval({ start: startDate, end: endDate });
-
-    const result = await this.model.aggregate([
+  ): Promise<IUserGrowthAggregation[]> {
+    const result = await this.model.aggregate<IUserGrowthAggregation>([
       {
         $match: {
           status: "completed",
@@ -176,24 +207,14 @@ export class TransactionRepository
       },
       {
         $group: {
-          _id: {
-            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
-          },
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
           count: { $sum: 1 },
         },
       },
       { $sort: { _id: 1 } },
     ]);
 
-    // Fill in missing dates with 0
-    return days.map((day) => {
-      const dateStr = format(day, "yyyy-MM-dd");
-      const found = result.find((item) => item._id === dateStr);
-      return {
-        date: dateStr,
-        count: found ? found.count : 0,
-      };
-    });
+    return result;
   }
   async findTransactions(
     startDate: Date,

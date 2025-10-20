@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
-import { inject, injectable } from "inversify";
-import { ICompanyDashboardService } from "../../interfaces/services/ICompanyDashboardService";
 import { ICompanyDashboardController } from "../../interfaces/controllers/ICompanyDashboardController";
-import { TYPES } from "../../di/types";
+import { ICompanyDashboardService } from "../../interfaces/services/ICompanyDashboardService";
 import { HTTP_STATUS_CODES } from "../../core/enums/httpStatusCode";
-
+import { inject, injectable } from "inversify";
+import { TYPES } from "../../di/types";
 @injectable()
 export class CompanyDashboardController implements ICompanyDashboardController {
   constructor(

@@ -13,7 +13,6 @@ import {
 } from "../../services/FollowService";
 import UserListModal from "../modals/UserListModal";
 import toast from "react-hot-toast";
-// import { SecureCloudinaryImage } from "../../../../components/SecureCloudinaryImage";
 
 interface ProfileHeaderProps {
   userData: UserData;
@@ -50,7 +49,7 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
     // Initialize counts from userData
     setFollowersCount(userData.followers?.length || 0);
     setFollowingCount(userData.following?.length || 0);
-    console.log("usersprofileheader", users, userData, "userdat");
+    console.log("usersprofileheader", userData, "userdat");
   }, [userData]);
   const fetchUsers = async (type: "followers" | "following") => {
     setIsLoading(true);
@@ -116,6 +115,7 @@ const ProfileHeader = ({ userData, currentUserId }: ProfileHeaderProps) => {
       toast.error("Failed to unfollow the user");
     }
   };
+  // console.log("ciockme ", userData);
   return (
     <>
       <section className="relative pt-20 pb-4 overflow-hidden transition-all duration-300">

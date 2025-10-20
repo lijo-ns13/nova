@@ -3,12 +3,7 @@ import { TYPES } from "../../di/types";
 import { IFeatureService } from "../../interfaces/services/IFeatureService";
 import { IFeatureRepository } from "../../interfaces/repositories/IFeatureRepository";
 import { FeatureSummaryDTO } from "../../dtos/response/admin/admin.feature.response.dto";
-import {
-  FeatureCreateSchema,
-  FeatureInput,
-  FeatureUpdateInput,
-  FeatureUpdateSchema,
-} from "../../core/dtos/admin/feature.dto";
+import { FeatureInput } from "../../core/dtos/admin/feature.dto";
 import { FeatureMapper } from "../../mapping/admin/admin.feature.mapper";
 import logger from "../../utils/logger";
 import { COMMON_MESSAGES } from "../../constants/message.constants";

@@ -1,6 +1,6 @@
+// src/components/company/CompanyDashboard.tsx
 import React, { useEffect, useState } from "react";
-
-import { format, subDays } from "date-fns";
+import { format } from "date-fns";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,9 +16,10 @@ import {
 import { Pie, Bar, Line } from "react-chartjs-2";
 import { useAppSelector } from "../../../hooks/useAppSelector";
 import {
-  DashboardStats,
+  CompanyDashboardStats,
   getCompanyDashboardStats,
 } from "../services/dashboard";
+import { ApplicationStatus } from "../../../constants/applicationStatus";
 
 ChartJS.register(
   CategoryScale,
@@ -33,7 +34,7 @@ ChartJS.register(
 );
 
 const CompanyDashboard: React.FC = () => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [stats, setStats] = useState<CompanyDashboardStats | null>(null);
   const { id } = useAppSelector((state) => state.auth);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,37 +85,34 @@ const CompanyDashboard: React.FC = () => {
   }
 
   // Prepare data for charts
-  const statusColors = {
-    applied: "#3B82F6",
-    shortlisted: "#10B981",
-    rejected: "#EF4444",
-    interview_scheduled: "#F59E0B",
-    interview_cancelled: "#EF4444",
-    interview_accepted_by_user: "#8B5CF6",
-    interview_rejected_by_user: "#F97316",
-    interview_reschedule_proposed: "#D97706",
-    interview_reschedule_accepted: "#8B5CF6",
-    interview_reschedule_rejected: "#EF4444",
-    interview_completed: "#10B981",
-    interview_passed: "#22C55E",
-    interview_failed: "#DC2626",
-    offered: "#EC4899",
-    selected: "#6366F1",
-    hired: "#059669",
-    withdrawn: "#6B7280",
+  const statusColors: Record<ApplicationStatus, string> = {
+    [ApplicationStatus.APPLIED]: "#3B82F6",
+    [ApplicationStatus.SHORTLISTED]: "#10B981",
+    [ApplicationStatus.REJECTED]: "#EF4444",
+    [ApplicationStatus.INTERVIEW_SCHEDULED]: "#F59E0B",
+    [ApplicationStatus.INTERVIEW_CANCELLED]: "#EF4444",
+    [ApplicationStatus.INTERVIEW_ACCEPTED_BY_USER]: "#8B5CF6",
+    [ApplicationStatus.INTERVIEW_REJECTED_BY_USER]: "#F97316",
+    [ApplicationStatus.INTERVIEW_RESCHEDULE_PROPOSED]: "#D97706",
+    [ApplicationStatus.INTERVIEW_RESCHEDULE_ACCEPTED]: "#8B5CF6",
+    [ApplicationStatus.INTERVIEW_RESCHEDULE_REJECTED]: "#EF4444",
+    [ApplicationStatus.INTERVIEW_COMPLETED]: "#10B981",
+    [ApplicationStatus.INTERVIEW_PASSED]: "#22C55E",
+    [ApplicationStatus.INTERVIEW_FAILED]: "#DC2626",
+    [ApplicationStatus.OFFERED]: "#EC4899",
+    [ApplicationStatus.SELECTED]: "#6366F1",
+    [ApplicationStatus.HIRED]: "#059669",
+    [ApplicationStatus.WITHDRAWN]: "#6B7280",
   };
 
   // Status distribution pie chart data
   const pieData = {
-    labels: stats.statusDistribution.map((item) =>
-      item.status.replace(/_/g, " ")
-    ),
+    labels: stats.statusBreakdown.map((item) => item.status.replace(/_/g, " ")),
     datasets: [
       {
-        data: stats.statusDistribution.map((item) => item.count),
-        backgroundColor: stats.statusDistribution.map(
-          (item) =>
-            statusColors[item.status as keyof typeof statusColors] || "#9CA3AF"
+        data: stats.statusBreakdown.map((item) => item.count),
+        backgroundColor: stats.statusBreakdown.map(
+          (item) => statusColors[item.status] || "#9CA3AF"
         ),
         borderWidth: 1,
       },
@@ -124,12 +122,16 @@ const CompanyDashboard: React.FC = () => {
   // Application trend data
   const getTrendLabels = () => {
     if (timeRange === "daily") {
-      return stats.trends.daily.map((item) => format(item.date, "MMM d"));
+      return stats.trends.daily.map((item) =>
+        format(new Date(item.date), "MMM d")
+      );
     } else if (timeRange === "weekly") {
-      return stats.trends.weekly.map((item) => format(item.weekStart, "MMM d"));
+      return stats.trends.weekly.map((item) =>
+        format(new Date(item.weekStart), "MMM d")
+      );
     } else {
       return stats.trends.monthly.map((item) =>
-        format(item.monthStart, "MMM yyyy")
+        format(new Date(item.monthStart), "MMM yyyy")
       );
     }
   };
@@ -161,7 +163,7 @@ const CompanyDashboard: React.FC = () => {
   // Status trend data (stacked bar chart)
   const statusTrendData = {
     labels: getTrendLabels(),
-    datasets: Object.keys(statusColors).map((status) => ({
+    datasets: Object.values(ApplicationStatus).map((status) => ({
       label: status.replace(/_/g, " "),
       data:
         timeRange === "daily"
@@ -169,7 +171,7 @@ const CompanyDashboard: React.FC = () => {
           : timeRange === "weekly"
           ? stats.trends.weekly.map((item) => item.statuses[status] || 0)
           : stats.trends.monthly.map((item) => item.statuses[status] || 0),
-      backgroundColor: statusColors[status as keyof typeof statusColors],
+      backgroundColor: statusColors[status],
     })),
   };
 
@@ -184,15 +186,15 @@ const CompanyDashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-gray-500 text-sm font-medium">Total Jobs</h3>
           <p className="text-3xl font-bold text-gray-800">
-            {stats.summary.totalJobs}
+            {stats.overview.jobs.total}
           </p>
           <div className="flex items-center mt-2">
             <span className="text-sm text-gray-500">
-              Open: {stats.summary.openJobs}
+              Open: {stats.overview.jobs.open}
             </span>
             <span className="mx-2 text-gray-300">|</span>
             <span className="text-sm text-gray-500">
-              Closed: {stats.summary.closedJobs}
+              Closed: {stats.overview.jobs.closed}
             </span>
           </div>
         </div>
@@ -202,11 +204,11 @@ const CompanyDashboard: React.FC = () => {
             Total Applications
           </h3>
           <p className="text-3xl font-bold text-gray-800">
-            {stats.summary.totalApplications}
+            {stats.overview.applications.total}
           </p>
           <div className="flex items-center mt-2">
             <span className="text-sm text-gray-500">
-              Recent (7 days): {stats.summary.recentApplications}
+              Recent (7 days): {stats.overview.applications.recent}
             </span>
           </div>
         </div>
@@ -215,10 +217,10 @@ const CompanyDashboard: React.FC = () => {
           <h3 className="text-gray-500 text-sm font-medium">Weekly Change</h3>
           <div className="flex items-center">
             <p className="text-3xl font-bold text-gray-800">
-              {stats.summary.applicationChange.weekly > 0 ? "+" : ""}
-              {stats.summary.applicationChange.weekly}%
+              {stats.overview.applications.weeklyChange > 0 ? "+" : ""}
+              {stats.overview.applications.weeklyChange}%
             </p>
-            {stats.summary.applicationChange.weekly >= 0 ? (
+            {stats.overview.applications.weeklyChange >= 0 ? (
               <svg
                 className="w-6 h-6 text-green-500 ml-2"
                 fill="none"
@@ -254,10 +256,10 @@ const CompanyDashboard: React.FC = () => {
           <h3 className="text-gray-500 text-sm font-medium">Monthly Change</h3>
           <div className="flex items-center">
             <p className="text-3xl font-bold text-gray-800">
-              {stats.summary.applicationChange.monthly > 0 ? "+" : ""}
-              {stats.summary.applicationChange.monthly}%
+              {stats.overview.applications.monthlyChange > 0 ? "+" : ""}
+              {stats.overview.applications.monthlyChange}%
             </p>
-            {stats.summary.applicationChange.monthly >= 0 ? (
+            {stats.overview.applications.monthlyChange >= 0 ? (
               <svg
                 className="w-6 h-6 text-green-500 ml-2"
                 fill="none"

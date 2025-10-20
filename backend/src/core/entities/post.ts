@@ -33,10 +33,26 @@ export interface IUserMiniProfile {
   profilePicture: string;
 }
 
+// export interface IPostServiceResponse {
+//   _id: string | Types.ObjectId; // Ensure _id is a string, not unknown
+//   creatorId: Types.ObjectId | IUser; // Assuming creatorId should also be a string
+//   description?: string; // Optional description
+//   mediaUrls: { mediaUrl: string; mimeType: string }[];
+//   createdAt: string;
+//   Likes?: ILike[] | null;
+// }
+
+// export interface IPostServiceResponsePaginated {
+//   posts: IPostServiceResponse[];
+//   totalPosts?: number;
+//   totalPages?: number;
+//   currentPage?: number;
+// }
+
 export interface IPostServiceResponse {
-  _id: string | Types.ObjectId; // Ensure _id is a string, not unknown
-  creatorId: Types.ObjectId | IUser; // Assuming creatorId should also be a string
-  description?: string; // Optional description
+  _id: Types.ObjectId;
+  creatorId: Types.ObjectId | IUser;
+  description?: string;
   mediaUrls: { mediaUrl: string; mimeType: string }[];
   createdAt: string;
   Likes?: ILike[] | null;
@@ -47,4 +63,21 @@ export interface IPostServiceResponsePaginated {
   totalPosts?: number;
   totalPages?: number;
   currentPage?: number;
+}
+export interface IUserProfileDTO {
+  _id: string;
+  name: string;
+  username: string;
+  email: string;
+  profilePicture?: string;
+  headline?: string;
+  about?: string;
+  skills: string[];
+  isVerified: boolean;
+  isBlocked: boolean;
+  followersCount: number;
+  followingCount: number;
+  appliedJobCount: number;
+  createdPostCount: number;
+  subscriptionActive: boolean;
 }

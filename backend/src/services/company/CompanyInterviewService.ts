@@ -7,7 +7,6 @@ import { IInterviewRepository } from "../../interfaces/repositories/IInterviewRe
 import { INotificationService } from "../../interfaces/services/INotificationService";
 import { ICompanyRepository } from "../../interfaces/repositories/ICompanyRepository";
 import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
-import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import {
   InterviewMapper,
   InterviewResponseDTO,

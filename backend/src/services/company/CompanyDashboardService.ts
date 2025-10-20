@@ -1,32 +1,32 @@
-import { inject, injectable } from "inversify";
-import { TYPES } from "../../di/types";
-import { ICompanyDashboardService } from "../../interfaces/services/ICompanyDashboardService";
-import { IApplicationRepository } from "../../interfaces/repositories/IUserApplicationRepository";
-import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
 import {
-  DailyTrend,
-  DashboardSummary,
   MonthlyTrend,
   StatusDistribution,
-  Trends,
   WeeklyTrend,
+  JobStatusTrend,
+  ApplicationStatusCount,
 } from "../../core/entities/dashbaord.interface";
+import { inject, injectable } from "inversify";
 import { ApplicationStatus } from "../../core/enums/applicationStatus";
+import { IJobRepository } from "../../interfaces/repositories/IJobRepository";
+import { IApplicationRepository } from "../../interfaces/repositories/IUserApplicationRepository";
+import { ICompanyDashboardService } from "../../interfaces/services/ICompanyDashboardService";
+import {
+  CompanyDashboardDTO,
+  CompanyDashboardMapper,
+} from "../../mapping/company/company.dash.mapper";
+import { TYPES } from "../../di/types";
 
-@injectable()
+injectable();
 export class CompanyDashboardService implements ICompanyDashboardService {
   constructor(
-    @inject(TYPES.JobRepository) private readonly _jobRepository: IJobRepository,
+    @inject(TYPES.JobRepository) private readonly _JobRepo: IJobRepository,
     @inject(TYPES.ApplicationRepository)
-    private readonly _applicationRepository: IApplicationRepository
+    private readonly _applicationRepo: IApplicationRepository
   ) {}
-
-  async getCompanyDashboardStats(companyId: string): Promise<{
-    summary: DashboardSummary;
-    statusDistribution: StatusDistribution[];
-    trends: Trends;
-  }> {
-    const jobIds = await this._jobRepository.findJobIdsByCompany(companyId);
+  async getCompanyDashboardStats(
+    companyId: string
+  ): Promise<CompanyDashboardDTO> {
+    const jobIds = await this._JobRepo.findJobIdsByCompany(companyId);
 
     const now = new Date();
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -52,22 +52,24 @@ export class CompanyDashboardService implements ICompanyDashboardService {
       monthlyTrend,
       jobStatusTrend,
     ] = await Promise.all([
-      this._jobRepository.countJobsByCompany(companyId),
-      this._jobRepository.countJobsByCompanyAndStatus(companyId, "open"),
-      this._jobRepository.countJobsByCompanyAndStatus(companyId, "closed"),
-      this._applicationRepository.countApplications(jobIds),
-      this._applicationRepository.countApplicationsSince(jobIds, oneWeekAgo),
-      this._applicationRepository.aggregateStatusCounts(jobIds),
-      this._applicationRepository.aggregateDailyTrend(jobIds, oneWeekAgo),
-      this._applicationRepository.aggregateWeeklyTrend(jobIds, threeMonthsAgo),
-      this._applicationRepository.aggregateMonthlyTrend(jobIds, oneYearAgo),
-      this._jobRepository.aggregateJobStatusTrend(companyId),
+      this._JobRepo.countJobsByCompany(companyId),
+      this._JobRepo.countJobsByCompanyAndStatus(companyId, "open"),
+      this._JobRepo.countJobsByCompanyAndStatus(companyId, "closed"),
+      this._applicationRepo.countApplications(jobIds),
+      this._applicationRepo.countApplicationsSince(jobIds, oneWeekAgo),
+      this._applicationRepo.aggregateStatusCounts(jobIds),
+      this._applicationRepo.aggregateDailyTrend(jobIds, oneWeekAgo),
+      this._applicationRepo.aggregateWeeklyTrend(jobIds, threeMonthsAgo),
+      this._applicationRepo.aggregateMonthlyTrend(jobIds, oneYearAgo),
+      this._JobRepo.aggregateJobStatusTrend(companyId),
     ]);
 
     const formattedStatusCounts: StatusDistribution[] = Object.values(
       ApplicationStatus
     ).map((status) => {
-      const found = statusCounts.find((s) => s._id === status);
+      const found = statusCounts.find(
+        (s: ApplicationStatusCount) => s._id === status
+      );
       return {
         status,
         count: found ? found.count : 0,
@@ -82,7 +84,7 @@ export class CompanyDashboardService implements ICompanyDashboardService {
     const monthlyPercentageChange =
       this.calculatePercentageChange(monthlyTrend);
 
-    return {
+    const rawData = {
       summary: {
         totalJobs,
         openJobs,
@@ -96,10 +98,10 @@ export class CompanyDashboardService implements ICompanyDashboardService {
       },
       statusDistribution: formattedStatusCounts,
       trends: {
-        daily: this.formatDailyTrend(dailyTrend),
-        weekly: this.formatWeeklyTrend(weeklyTrend),
-        monthly: this.formatMonthlyTrend(monthlyTrend),
-        jobStatus: jobStatusTrend.map((trend) => ({
+        daily: dailyTrend,
+        weekly: weeklyTrend,
+        monthly: monthlyTrend,
+        jobStatus: jobStatusTrend.map((trend: JobStatusTrend) => ({
           year: trend.year,
           month: trend.month,
           status: trend.status,
@@ -107,38 +109,19 @@ export class CompanyDashboardService implements ICompanyDashboardService {
         })),
       },
     };
+    ////*
+    return CompanyDashboardMapper.toDTO(rawData);
   }
-  private calculatePercentageChange(data: any[]): number {
+
+  private calculatePercentageChange(
+    data: WeeklyTrend[] | MonthlyTrend[]
+  ): number {
     if (data.length < 2) return 0;
-    const recent = data[data.length - 1].count;
-    const previous = data[data.length - 2].count;
+    const recent = data[data.length - 1].total;
+    const previous = data[data.length - 2].total;
     return previous > 0
       ? Math.round(((recent - previous) / previous) * 100)
       : 0;
-  }
-
-  private formatDailyTrend(data: any[]): DailyTrend[] {
-    return data.map((day) => ({
-      date: day.date,
-      total: day.count,
-      statuses: this.countStatuses(day.statuses),
-    }));
-  }
-
-  private formatWeeklyTrend(data: any[]): WeeklyTrend[] {
-    return data.map((week) => ({
-      weekStart: week.weekStart,
-      total: week.count,
-      statuses: this.countStatuses(week.statuses),
-    }));
-  }
-
-  private formatMonthlyTrend(data: any[]): MonthlyTrend[] {
-    return data.map((month) => ({
-      monthStart: month.monthStart,
-      total: month.count,
-      statuses: this.countStatuses(month.statuses),
-    }));
   }
 
   private countStatuses(

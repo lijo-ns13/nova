@@ -10,10 +10,7 @@ import {
 
 import logger from "../../utils/logger";
 import { SubscriptionPlanMapper } from "../../mapping/admin/admin.subscription.mapper";
-import {
-  TransactionFilterInput,
-  TransactionResponseDTO,
-} from "../../core/dtos/admin/admin.sub.dto";
+import { TransactionFilterInput } from "../../core/dtos/admin/admin.sub.dto";
 import { ITransactionRepository } from "../../interfaces/repositories/ITransactionRepository";
 import {
   mapTransactionToDTO,
@@ -74,6 +71,7 @@ export class SubscriptionPlanService implements ISubscriptionPlanService {
 
   async getAllPlans(): Promise<SubscriptionPlanResponse[]> {
     const plans = await this._subscriptionPlanRepository.getAll();
+    // mapper *****
     return plans.map(SubscriptionPlanMapper.toResponse);
   }
 

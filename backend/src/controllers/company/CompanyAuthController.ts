@@ -1,4 +1,4 @@
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { ICompanyAuthController } from "../../interfaces/controllers/ICompanyAuthController";
 import { ICompanyAuthService } from "../../interfaces/services/ICompanyAuthService";
 import { TYPES } from "../../di/types";
@@ -22,6 +22,7 @@ import { ResetMapper } from "../../mapping/auth/reset.mapper";
 import { ForgetMapper } from "../../mapping/auth/forget.mapper";
 import { ResendMapper } from "../../mapping/auth/resend.mapper";
 import { VerifyMapper } from "../../mapping/auth/verify.mapper";
+@injectable()
 export class CompanyAuthController implements ICompanyAuthController {
   constructor(
     @inject(TYPES.CompanyAuthService)
