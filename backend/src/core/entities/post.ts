@@ -69,7 +69,7 @@ export interface IUserProfileDTO {
   name: string;
   username: string;
   email: string;
-  profilePictureUrl?: string;
+  profilePicture?: string;
   headline?: string;
   about?: string;
   skills: string[];

@@ -9,9 +9,9 @@ const tabItems = [
   "about",
   "experience",
   "education",
-  "certifications",
+  // "certifications",
   "projects",
-  "posts",
+  // "posts",
 ];
 
 const ProfileTabs = ({ activeTab, setActiveTab }: ProfileTabsProps) => {

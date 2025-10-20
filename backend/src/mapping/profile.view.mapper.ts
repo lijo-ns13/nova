@@ -61,7 +61,7 @@ export class ProfileViewMapper {
       name: user.name,
       username: user.username,
       email: user.email,
-      profilePictureUrl,
+      profilePicture: profilePictureUrl,
       headline: user.headline,
       about: user.about,
       skills: Array.isArray(user.skills) ? user.skills : [],
