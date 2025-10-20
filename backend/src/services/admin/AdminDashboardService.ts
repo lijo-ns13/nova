@@ -32,6 +32,7 @@ import {
 } from "../../dtos/request/admin/admin.dashbaord.dto";
 import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
 import { Parser } from "json2csv";
+import { TransactionMapper } from "../../mapping/admin/admin.transation.mapper";
 
 @injectable()
 export class AdminDashboardService implements IAdminDashboardService {
@@ -42,71 +43,8 @@ export class AdminDashboardService implements IAdminDashboardService {
     private readonly _userRepository: IUserRepository
   ) {}
 
-  async getRevenueStats(
-    input: GetRevenueStatsInput
-  ): Promise<Record<string, number>> {
-    const now = new Date();
-
-    let start: Date;
-    let end: Date;
-    const range = input.range || "weekly";
-
-    if (range === "custom" && input.startDate && input.endDate) {
-      start = parseISO(input.startDate);
-      end = parseISO(input.endDate);
-    } else {
-      switch (range) {
-        case "daily":
-          start = startOfDay(now);
-          end = endOfDay(now);
-          break;
-        case "weekly":
-          start = startOfWeek(now);
-          end = endOfWeek(now);
-          break;
-        case "monthly":
-          start = startOfMonth(now);
-          end = endOfMonth(now);
-          break;
-        case "yearly":
-          start = startOfYear(now);
-          end = endOfYear(now);
-          break;
-        default:
-          start = startOfWeek(now);
-          end = endOfWeek(now);
-      }
-    }
-
-    const getRevenue = async (s: Date, e: Date) => {
-      return this._transactionRepository.getRevenue(s, e);
-    };
-
-    const total = await getRevenue(start, end);
-
-    return {
-      [range]: total,
-      daily:
-        range === "daily"
-          ? total
-          : await getRevenue(startOfDay(now), endOfDay(now)),
-      weekly:
-        range === "weekly"
-          ? total
-          : await getRevenue(startOfWeek(now), endOfWeek(now)),
-      monthly:
-        range === "monthly"
-          ? total
-          : await getRevenue(startOfMonth(now), endOfMonth(now)),
-      yearly:
-        range === "yearly"
-          ? total
-          : await getRevenue(startOfYear(now), endOfYear(now)),
-    };
-  }
   async getTopPlans(input: GetTopPlansInput): Promise<TopPlanDTO[]> {
     const now = new Date();
-
     let start: Date;
     let end: Date;
     const range = input.range || "weekly";
@@ -138,11 +76,14 @@ export class AdminDashboardService implements IAdminDashboardService {
       }
     }
 
-    return this._transactionRepository.getTopPlans(start, end);
+    const rawTopPlans = await this._transactionRepository.getTopPlans(
+      start,
+      end
+    );
+    return TransactionMapper.toTopPlanDTOList(rawTopPlans);
   }
   async getUserGrowth(input: GetUserGrowthInput): Promise<UserGrowthDTO[]> {
     const now = new Date();
-
     let start: Date;
     let end: Date;
     const range = input.range || "weekly";
@@ -174,7 +115,11 @@ export class AdminDashboardService implements IAdminDashboardService {
       }
     }
 
-    return this._transactionRepository.getUserGrowth(start, end);
+    const rawGrowth = await this._transactionRepository.getUserGrowth(
+      start,
+      end
+    );
+    return TransactionMapper.toUserGrowthDTOList(rawGrowth, start, end);
   }
   async getUserStats(): Promise<UserStatsDTO> {
     const [totalUsers, activeUsers] = await Promise.all([
@@ -312,5 +257,67 @@ export class AdminDashboardService implements IAdminDashboardService {
     }
 
     return this._transactionRepository.getTransactions(start, end);
+  }
+  async getRevenueStats(
+    input: GetRevenueStatsInput
+  ): Promise<Record<string, number>> {
+    const now = new Date();
+
+    let start: Date;
+    let end: Date;
+    const range = input.range || "weekly";
+
+    if (range === "custom" && input.startDate && input.endDate) {
+      start = parseISO(input.startDate);
+      end = parseISO(input.endDate);
+    } else {
+      switch (range) {
+        case "daily":
+          start = startOfDay(now);
+          end = endOfDay(now);
+          break;
+        case "weekly":
+          start = startOfWeek(now);
+          end = endOfWeek(now);
+          break;
+        case "monthly":
+          start = startOfMonth(now);
+          end = endOfMonth(now);
+          break;
+        case "yearly":
+          start = startOfYear(now);
+          end = endOfYear(now);
+          break;
+        default:
+          start = startOfWeek(now);
+          end = endOfWeek(now);
+      }
+    }
+
+    const getRevenue = async (s: Date, e: Date) => {
+      return this._transactionRepository.getRevenue(s, e);
+    };
+
+    const total = await getRevenue(start, end);
+
+    return {
+      [range]: total,
+      daily:
+        range === "daily"
+          ? total
+          : await getRevenue(startOfDay(now), endOfDay(now)),
+      weekly:
+        range === "weekly"
+          ? total
+          : await getRevenue(startOfWeek(now), endOfWeek(now)),
+      monthly:
+        range === "monthly"
+          ? total
+          : await getRevenue(startOfMonth(now), endOfMonth(now)),
+      yearly:
+        range === "yearly"
+          ? total
+          : await getRevenue(startOfYear(now), endOfYear(now)),
+    };
   }
 }
