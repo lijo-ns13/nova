@@ -1,13 +1,5 @@
-import {
-  DashboardSummary,
-  StatusDistribution,
-  Trends,
-} from "../../core/entities/dashbaord.interface";
+import { CompanyDashboardDTO } from "../../mapping/company/company.dash.mapper";
 
 export interface ICompanyDashboardService {
-  getCompanyDashboardStats(companyId: string): Promise<{
-    summary: DashboardSummary;
-    statusDistribution: StatusDistribution[];
-    trends: Trends;
-  }>;
+  getCompanyDashboardStats(companyId: string): Promise<CompanyDashboardDTO>;
 }
