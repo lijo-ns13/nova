@@ -10,10 +10,7 @@ import {
 
 import logger from "../../utils/logger";
 import { SubscriptionPlanMapper } from "../../mapping/admin/admin.subscription.mapper";
-import {
-  TransactionFilterInput,
-  TransactionResponseDTO,
-} from "../../core/dtos/admin/admin.sub.dto";
+import { TransactionFilterInput } from "../../core/dtos/admin/admin.sub.dto";
 import { ITransactionRepository } from "../../interfaces/repositories/ITransactionRepository";
 import {
   mapTransactionToDTO,

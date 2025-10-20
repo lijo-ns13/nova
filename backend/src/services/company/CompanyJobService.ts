@@ -5,8 +5,6 @@ import { ICompanyJobService } from "../../interfaces/services/ICompanyJobService
 import { IMediaService } from "../../interfaces/services/Post/IMediaService";
 import { IApplicationRepository } from "../../interfaces/repositories/IUserApplicationRepository";
 import { INotificationService } from "../../interfaces/services/INotificationService";
-import { IUserRepository } from "../../interfaces/repositories/IUserRepository";
-import { ISkillRepository } from "../../interfaces/repositories/ISkillRepository";
 import { JobMapper } from "../../mapping/job.mapper";
 import {
   CreateJobInput,
