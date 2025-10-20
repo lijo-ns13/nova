@@ -20,6 +20,7 @@ import NetworkCard from "../componets/network/NetworkCard";
 import LoadingSpinner from "../componets/viewableProfile/LoadingSpinner";
 import EmptyState from "../componets/EmptyState";
 import Navbar from "../componets/NavBar";
+import LoadingIndicator from "../../admin/components/UserManagement/LoadingIndicator";
 
 const ITEMS_PER_PAGE = 4;
 
@@ -141,7 +142,9 @@ const NetworkPage: React.FC = () => {
         {loading ? (
           <div className="flex flex-col justify-center items-center min-h-[300px]">
             {/* <LoadingSpinner /> */}
-            <p className="mt-4 text-gray-500">Loading network connections...</p>
+            {/* <p className="mt-4 text-gray-500">Loading network connections...</p>
+             */}
+            <LoadingIndicator />
           </div>
         ) : networkUsers.length > 0 ? (
           <>
