@@ -25,6 +25,7 @@ import {
   COMMON_MESSAGES,
   USER_MESSAGES,
 } from "../../constants/message.constants";
+import { TransactionMapper } from "../../mapping/tranasaction.mapper";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-05-28.basil",
@@ -116,7 +117,7 @@ export class TransactionService implements ITransactionService {
       new Date(session.expires_at! * 1000)
     );
 
-    return { url: session.url!, sessionId: session.id };
+    return TransactionMapper.toCreateCheckoutSessionOutput(session);
   }
   async confirmPaymentSession({
     sessionId,
@@ -195,15 +196,7 @@ export class TransactionService implements ITransactionService {
       }
     );
 
-    return {
-      orderId,
-      amount: session.amount_total! / 100,
-      currency: session.currency || "inr",
-      planName,
-      sessionId,
-      expiresAt: endDate,
-      receiptUrl,
-    };
+    return TransactionMapper.toConfirmPaymentOutput(session);
   }
   async processRefund(input: RefundRequestInput): Promise<RefundResponseDTO> {
     const { stripeSessionId, reason } = input;
@@ -274,13 +267,7 @@ export class TransactionService implements ITransactionService {
 
     if (!txn) throw new Error(USER_MESSAGES.SUB.NO_COMPLETE_TRANS_FOUND);
 
-    return {
-      stripeSessionId: txn.stripeSessionId,
-      planName: txn.planName,
-      amount: txn.amount,
-      currency: txn.currency,
-      createdAt: txn.createdAt!,
-    };
+    return TransactionMapper.toLatestTransactionDTO(txn);
   }
   async getTransactionDetails(
     sessionId: string
@@ -288,19 +275,6 @@ export class TransactionService implements ITransactionService {
     const txn = await this._transRepository.findByStripeSessionId(sessionId);
     if (!txn) throw new Error(COMMON_MESSAGES.TRANSACTION_NOT_FOUND);
 
-    return {
-      stripeSessionId: txn.stripeSessionId,
-      userId: txn.userId,
-      planName: txn.planName,
-      amount: txn.amount,
-      currency: txn.currency,
-      status: txn.status,
-      paymentMethod: txn.paymentMethod,
-      createdAt: txn.createdAt!,
-      updatedAt: txn.updatedAt!,
-      refundDate: txn.refundDate || null,
-      refundReason: txn.refundReason || null,
-      stripeRefundId: txn.stripeRefundId || null,
-    };
+    return TransactionMapper.toTransactionDetailsDTO(txn);
   }
 }
