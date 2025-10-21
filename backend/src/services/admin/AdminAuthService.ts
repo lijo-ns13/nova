@@ -9,6 +9,7 @@ import logger from "../../utils/logger";
 import { AdminSignInResponseDTO } from "../../dtos/response/admin/admin.auth.response.dto";
 import { AdminAuthMapper } from "../../mapping/admin/admin.auth.mapper";
 import { COMMON_MESSAGES } from "../../constants/message.constants";
+import { AUTH_ROLES } from "../../constants/auth.roles.constant";
 @injectable()
 export class AdminAuthService implements IAdminAuthService {
   private logger = logger.child({ service: "AdminAuthService" });
@@ -34,16 +35,19 @@ export class AdminAuthService implements IAdminAuthService {
       this.logger.warn(COMMON_MESSAGES.INVALID_PASSWORD);
       throw new Error(COMMON_MESSAGES.INVALID_PASSWORD);
     }
-    const accessToken = this._jwtService.generateAccessToken("admin", {
+    const accessToken = this._jwtService.generateAccessToken(AUTH_ROLES.ADMIN, {
       id: admin.id.toString(),
       email: admin.email,
-      role: "admin",
+      role: AUTH_ROLES.ADMIN,
     });
-    const refreshToken = this._jwtService.generateRefreshToken("admin", {
-      id: admin.id.toString(),
-      email: admin.email,
-      role: "admin",
-    });
+    const refreshToken = this._jwtService.generateRefreshToken(
+      AUTH_ROLES.ADMIN,
+      {
+        id: admin.id.toString(),
+        email: admin.email,
+        role: AUTH_ROLES.ADMIN,
+      }
+    );
 
     return AdminAuthMapper.toDTO(admin, {
       accessToken,

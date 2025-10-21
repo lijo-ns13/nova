@@ -139,7 +139,7 @@ export class UserAuthService implements IUserAuthService {
 
     const otpRecord = await this._otpRepository.findOTPByAccount(
       tempUser._id,
-      "user"
+      AUTH_ROLES.USER
     );
     if (!otpRecord) throw new Error("OTP not found");
     if (otpRecord.expiresAt < new Date())

@@ -8,7 +8,8 @@ import "./cron/userCronJob";
 dotenv.config();
 
 import mainRouter from "./routes/index";
-import googleRouter from "./routes/google.routes";
+// import googleRouter from "./routes/google.routes";
+import googleRouter from "./routes/googleAuth.routes";
 import { HTTP_STATUS_CODES } from "./core/enums/httpStatusCode";
 import { requestLogger } from "./middlewares/requestLogger";
 import logger from "./utils/logger";

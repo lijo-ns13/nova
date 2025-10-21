@@ -222,6 +222,10 @@ import { ITransactionController } from "../interfaces/controllers/ITransactionCo
 import { TransactionController } from "../controllers/user/TransactionController";
 import { IUserController } from "../interfaces/controllers/IUserController";
 import { UserController } from "../controllers/user/UserController";
+import { IUserGoogleService } from "../interfaces/services/IUserGoogleService";
+import { UserGoogleService } from "../services/user/UserGoogleService";
+import { IUserGoogleController } from "../interfaces/controllers/IUserGoogleController";
+import { UserGoogleController } from "../controllers/user/userGoogleController";
 // import { StripeController } from "../controllers/StripeController";
 // import { ICompanyDashboardController } from "../interfaces/controllers/ICompanyDashboardController";
 // import { CompanyDashboardController } from "../controllers/company/CompanyDashboardController";
@@ -540,4 +544,12 @@ container
   .bind<ITransactionController>(TYPES.TransactionController)
   .to(TransactionController);
 container.bind<IUserController>(TYPES.UserController).to(UserController);
+
+// goog
+container
+  .bind<IUserGoogleService>(TYPES.UserGoogleService)
+  .to(UserGoogleService);
+container
+  .bind<IUserGoogleController>(TYPES.UserGoogleController)
+  .to(UserGoogleController);
 export default container;

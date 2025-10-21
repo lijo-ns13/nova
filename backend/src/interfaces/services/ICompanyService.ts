@@ -1,5 +1,5 @@
-import { ICompany } from "../../repositories/entities/company.entity";
+import { CompanyProfileDTO } from "../../core/dtos/company/company.profile.dto";
 
 export interface ICompanyService {
-  getCompanyData(companyId: string): Promise<ICompany | null>;
+  getCompanyData(companyId: string): Promise<CompanyProfileDTO | null>;
 }
