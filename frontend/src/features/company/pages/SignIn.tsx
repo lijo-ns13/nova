@@ -249,7 +249,7 @@ function SignInPage() {
 
         {/* <Googlebutton /> */}
       </div>
-      <SiteInfoFooter />
+      {/* <SiteInfoFooter /> */}
     </div>
   );
 }

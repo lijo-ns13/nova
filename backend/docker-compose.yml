@@ -50,12 +50,11 @@ services:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     entrypoint: >
-      sh -c "sleep 15 && 
-             certbot certonly --webroot --webroot-path=/var/www/certbot 
-             --email lijons13@gmail.com 
-             --agree-tos 
-             --no-eff-email 
-             -d api.lijons.shop"
+      sh -c "sleep 15 && certbot certonly --webroot --webroot-path=/var/www/certbot \
+      --email lijons13@gmail.com --agree-tos --no-eff-email -d apinova.ddns.net"
+    depends_on:
+      - backend
+    restart: unless-stopped
 
 volumes:
   mongo_data:
