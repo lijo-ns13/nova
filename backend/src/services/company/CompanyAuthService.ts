@@ -141,7 +141,7 @@ export class CompanyAuthService implements ICompanyAuthService {
 
     const otpRecord = await this._otpRepository.findOTPByAccount(
       tempCompany._id,
-      "company"
+      AUTH_ROLES.COMPANY
     );
     if (!otpRecord || otpRecord.expiresAt < new Date()) {
       throw new Error("OTP expired or invalid");
@@ -189,7 +189,7 @@ export class CompanyAuthService implements ICompanyAuthService {
 
     const otpRecord = await this._otpRepository.findOTPByAccount(
       tempCompany._id,
-      "company"
+      AUTH_ROLES.COMPANY
     );
 
     const otp = generateOTP();

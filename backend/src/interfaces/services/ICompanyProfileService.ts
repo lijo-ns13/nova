@@ -1,13 +1,19 @@
-import { ICompany } from "../../repositories/entities/company.entity";
+import {
+  CompanyProfileDTO,
+  UpdateCompanyProfileInputType,
+} from "../../core/dtos/company/company.profile.dto";
 
 export interface ICompanyProfileService {
-  getCompanyProfile(companyId: string): Promise<ICompany>;
-  getCompanyProfileWithDetails(companyId: string): Promise<ICompany>;
+  getCompanyProfile(companyId: string): Promise<CompanyProfileDTO>;
+  getCompanyProfileWithDetails(companyId: string): Promise<CompanyProfileDTO>;
   updateCompanyProfile(
     companyId: string,
-    data: Partial<ICompany>
-  ): Promise<ICompany>;
-  updateProfileImage(companyId: string, imageUrl: string): Promise<ICompany>;
+    data: UpdateCompanyProfileInputType
+  ): Promise<CompanyProfileDTO>;
+  updateProfileImage(
+    companyId: string,
+    imageUrl: string
+  ): Promise<CompanyProfileDTO>;
   deleteProfileImage(companyId: string): Promise<boolean>;
   changePassword(
     companyId: string,

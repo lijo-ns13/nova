@@ -64,6 +64,7 @@ export class CompanyJobService implements ICompanyJobService {
       page,
       limit
     );
+    // **mapper
     return {
       jobs: jobs.map(JobMapper.toResponseWithSkillDto),
       total,
@@ -75,6 +76,7 @@ export class CompanyJobService implements ICompanyJobService {
       this.logger.warn(COMMON_MESSAGES.JOB_NOT_FOUND);
       throw new Error(COMMON_MESSAGES.JOB_NOT_FOUND);
     }
+    // ** mapper
     return JobMapper.toResponseWithSkillDto(job);
   }
 
@@ -134,7 +136,7 @@ export class CompanyJobService implements ICompanyJobService {
     const resumeUrl = applicant.resumeMediaId?.s3Key
       ? await this._mediaService.getMediaUrl(applicant.resumeMediaId.s3Key)
       : null;
-
+    // ********mapper
     return ApplicationGetMapper.toDetailDTO(applicant, resumeUrl);
   }
   async getApplications(
@@ -158,7 +160,7 @@ export class CompanyJobService implements ICompanyJobService {
         limit,
         jobId
       );
-
+    // ****
     const mapped = applications.map(ApplicationJobMapper.toApplicantSummaryDTO);
 
     return {

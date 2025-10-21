@@ -21,7 +21,7 @@ export class AdminSkillService implements IAdminSkillService {
 
   constructor(
     @inject(TYPES.SkillRepository)
-    private readonly skillRepository: ISkillRepository
+    private readonly _skillRepo: ISkillRepository
   ) {
     this.logger = logger.child({ context: "AdminSkillService" });
   }
@@ -33,10 +33,10 @@ export class AdminSkillService implements IAdminSkillService {
     this.logger.info("Creating new skill", { title: dto.title, adminId });
 
     const lowerTitle = dto.title.trim().toLowerCase();
-    const exists = await this.skillRepository.getByTitle(lowerTitle);
+    const exists = await this._skillRepo.getByTitle(lowerTitle);
     if (exists) throw new Error(COMMON_MESSAGES.SKILL_ALREADY_EXISTS);
 
-    const created = await this.skillRepository.createSkillAsAdmin(dto, adminId);
+    const created = await this._skillRepo.createSkillAsAdmin(dto, adminId);
     return SkillMapper.toDTO(created);
   }
 
@@ -45,25 +45,15 @@ export class AdminSkillService implements IAdminSkillService {
 
     if (dto.title) {
       const lowerTitle = dto.title.trim().toLowerCase();
-      const existing = await this.skillRepository.getByTitle(lowerTitle);
+      const existing = await this._skillRepo.getByTitle(lowerTitle);
       if (existing && existing.id !== id)
         throw new Error(COMMON_MESSAGES.SKILL_ALREADY_EXISTS);
     }
 
-    const updated = await this.skillRepository.updateSKill(id, dto);
+    const updated = await this._skillRepo.updateSKill(id, dto);
     if (!updated) throw new Error(COMMON_MESSAGES.SKILL_NOT_FOUND);
 
     return SkillMapper.toDTO(updated);
-  }
-
-  async delete(id: string): Promise<void> {
-    this.logger.info("Deleting skill", { id });
-
-    const exists = await this.skillRepository.findById(id);
-    if (!exists) throw new Error(COMMON_MESSAGES.SKILL_NOT_FOUND);
-
-    const deleted = await this.skillRepository.delete(id);
-    if (!deleted) throw new Error(COMMON_MESSAGES.FAILED_TO_DELETE_SKILL);
   }
 
   async getAll(
@@ -73,7 +63,7 @@ export class AdminSkillService implements IAdminSkillService {
   ): Promise<PaginatedSkillResponse> {
     this.logger.info(COMMON_MESSAGES.FETCHING_SKILLS, { page, limit, search });
 
-    const { skills, total } = await this.skillRepository.getAll(
+    const { skills, total } = await this._skillRepo.getAll(
       page,
       limit,
       search
@@ -89,9 +79,18 @@ export class AdminSkillService implements IAdminSkillService {
   async getById(id: string): Promise<SkillResponseDto> {
     this.logger.info(COMMON_MESSAGES.FETCHING_SKILL_BYID, { id });
 
-    const skill = await this.skillRepository.findById(id);
+    const skill = await this._skillRepo.findById(id);
     if (!skill) throw new Error(COMMON_MESSAGES.SKILL_NOT_FOUND);
 
     return SkillMapper.toDTO(skill);
+  }
+  async delete(id: string): Promise<void> {
+    this.logger.info("Deleting skill", { id });
+
+    const exists = await this._skillRepo.findById(id);
+    if (!exists) throw new Error(COMMON_MESSAGES.SKILL_NOT_FOUND);
+
+    const deleted = await this._skillRepo.delete(id);
+    if (!deleted) throw new Error(COMMON_MESSAGES.FAILED_TO_DELETE_SKILL);
   }
 }
