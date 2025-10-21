@@ -156,4 +156,8 @@ export const TYPES = {
   TransactionService: Symbol.for("TransactionServive"),
   TransactionController: Symbol.for("TransactionController"),
   UserController: Symbol.for("UserController"),
+
+  // google
+  UserGoogleService: Symbol.for("IUserGoogleService"),
+  UserGoogleController: Symbol.for("IUserGoogleController"),
 };
